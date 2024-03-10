@@ -7,6 +7,7 @@ import { CSSProperties, FC, useCallback } from "react"
 import { envString } from "../../../common/localize/envString"
 import { Localized } from "../../../components/Localized"
 import { Tooltip } from "../../../components/Tooltip"
+import { getPlatform, isRunningInElectron } from "../../helpers/platform"
 import { useStores } from "../../hooks/useStores"
 import ArrangeIcon from "../../images/icons/arrange.svg"
 import PianoIcon from "../../images/icons/piano.svg"
@@ -39,6 +40,18 @@ const Container = styled.div`
   background: ${({ theme }) => theme.darkBackgroundColor};
   height: 3rem;
   flex-shrink: 0;
+  -webkit-app-region: drag;
+  padding: ${() => {
+    if (isRunningInElectron()) {
+      const platform = getPlatform()
+      switch (platform) {
+        case "Windows":
+          return "0 3rem 0 0"
+        case "macOS":
+          return "0 0 0 72px"
+      }
+    }
+  }};
 `
 
 export const Tab = styled.div`
@@ -50,6 +63,7 @@ export const Tab = styled.div`
   border-top: solid 0.1rem transparent;
   color: ${({ theme }) => theme.secondaryTextColor};
   cursor: pointer;
+  -webkit-app-region: none;
 
   &.active {
     color: ${({ theme }) => theme.textColor};

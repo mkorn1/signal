@@ -11,15 +11,15 @@ const createWindow = (): void => {
   const mainWindow = new BrowserWindow({
     width: 900,
     height: 700,
-    title: `FIND v${app.getVersion()}`,
+    title: `signal v${app.getVersion()}`,
+    titleBarStyle: "hidden",
+    trafficLightPosition: { x: 10, y: 17 },
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
     },
   })
-
-  mainWindow.maximize()
 
   // and load the index.html of the app.
   if (isDev) {

@@ -96,7 +96,7 @@ export const GlobalCSS = () => {
 
         /* firebase */
         .firebase-emulator-warning {
-          width: auto !important;
+          display: none !important;
         }
       `}
     />
