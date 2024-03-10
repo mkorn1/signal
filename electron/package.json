@@ -1,0 +1,38 @@
+{
+  "name": "electron",
+  "private": true,
+  "version": "0.0.1",
+  "productName": "signal",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "npm run build && electron-forge start",
+    "build": "tsc",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
+  },
+  "author": "ryohey",
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "ignore": [
+          "^/src",
+          "^/README.md",
+          "^/tsconfig.json",
+          "node_modules/electron$",
+          "node_modules/@electron-forge$"
+        ],
+        "prune": false
+      }
+    }
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "7.3.0",
+    "electron": "^29.1.1",
+    "typescript": "5.4.2"
+  },
+  "dependencies": {
+    "electron-is-dev": "3.0.1"
+  }
+}
