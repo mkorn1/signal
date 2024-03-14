@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "npm run build && electron .",
-    "build": "tsc",
+    "build": "tsc & tsc -p tsconfig.preload.json",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish"

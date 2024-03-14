@@ -15,6 +15,7 @@ import { UserRepository } from "../../repositories/UserRepository"
 import { setSong } from "../actions"
 import { loadSongFromExternalMidiFile } from "../actions/cloudSong"
 import { pushHistory } from "../actions/history"
+import { isRunningInElectron } from "../helpers/platform"
 import { GroupOutput } from "../services/GroupOutput"
 import { MIDIInput, previewMidiInput } from "../services/MIDIInput"
 import { MIDIRecorder } from "../services/MIDIRecorder"
@@ -35,6 +36,7 @@ import SettingStore from "./SettingStore"
 import { SoundFontStore } from "./SoundFontStore"
 import TempoEditorStore from "./TempoEditorStore"
 import { registerReactions } from "./reactions"
+import { registerElectronReactions } from "./registerElectronReactions"
 
 // we use any for now. related: https://github.com/Microsoft/TypeScript/issues/1897
 type Json = any
@@ -128,6 +130,10 @@ export default class RootStore {
     this.tempoEditorStore.setUpAutorun()
 
     registerReactions(this)
+
+    if (isRunningInElectron()) {
+      registerElectronReactions(this)
+    }
 
     this.init()
   }

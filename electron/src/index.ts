@@ -1,7 +1,9 @@
-import { app, BrowserWindow, Menu } from "electron"
+import { app, BrowserWindow, Menu, shell } from "electron"
 import isDev from "electron-is-dev"
 import path from "path"
 import { fileURLToPath } from "url"
+import { Ipc } from "./ipc.js"
+import { menuTemplate } from "./menu.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -29,7 +31,21 @@ const createWindow = (): void => {
     mainWindow.loadFile(path.join(__dirname, "../build/index.html"))
   }
 
-  Menu.setApplicationMenu(null)
+  const ipc = new Ipc(mainWindow)
+
+  const menu = Menu.buildFromTemplate(
+    menuTemplate({
+      onClickSetting: ipc.openSetting,
+    }),
+  )
+  Menu.setApplicationMenu(menu)
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith("http")) {
+      shell.openExternal(url)
+    }
+    return { action: "deny" }
+  })
 }
 
 // This method will be called when Electron has finished
