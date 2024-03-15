@@ -35,7 +35,7 @@ const createWindow = (): void => {
 
   const menu = Menu.buildFromTemplate(
     menuTemplate({
-      onClickSetting: ipc.openSetting,
+      onClickSetting: () => ipc.openSetting(),
     }),
   )
   Menu.setApplicationMenu(menu)
