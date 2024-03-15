@@ -17,6 +17,7 @@ describe("EventScheduler", () => {
     {
       const result = s.readNextEvents(120, 0)
       expect(result.length).toBe(1)
+      expect(result[0].timestamp).toBe(0)
       expect(result[0].event).toBe(events[0])
     }
 
