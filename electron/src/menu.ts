@@ -1,13 +1,15 @@
-import { MenuItemConstructorOptions, app, shell } from "electron"
+import { MenuItemConstructorOptions, app } from "electron"
 
 const isMac = process.platform === "darwin"
 
 export interface MenuTemplateProps {
   onClickSetting: () => void
+  onClickHelp: () => void
 }
 
 export const menuTemplate = ({
   onClickSetting,
+  onClickHelp,
 }: MenuTemplateProps): MenuItemConstructorOptions[] => [
   // { role: 'appMenu' }
   ...((isMac
@@ -37,6 +39,8 @@ export const menuTemplate = ({
   {
     label: "File",
     submenu: [
+      { role: "open" },
+      { type: "separator" },
       isMac ? { role: "close" } : { role: "quit" },
     ] as MenuItemConstructorOptions[],
   },
@@ -103,10 +107,8 @@ export const menuTemplate = ({
     role: "help",
     submenu: [
       {
-        label: "Learn More",
-        click: async () => {
-          await shell.openExternal("https://electronjs.org")
-        },
+        label: "Help",
+        click: onClickHelp,
       },
     ],
   },

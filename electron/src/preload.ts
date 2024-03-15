@@ -10,6 +10,7 @@ function register<T extends IpcEvent>(
 
 const api = {
   onOpenSetting: (callback: () => void) => register("openSetting", callback),
+  onOpenHelp: (callback: () => void) => register("openHelp", callback),
 }
 
 export type ElectronAPI = typeof api

@@ -1,4 +1,4 @@
-import type { ElectronAPI } from "../../../electron/src/preload.js"
+import type { ElectronAPI } from "../../../electron/src/preload"
 import RootStore from "./RootStore"
 
 declare global {
@@ -10,5 +10,8 @@ declare global {
 export const registerElectronReactions = (rootStore: RootStore) => {
   window.electronAPI.onOpenSetting(() => {
     rootStore.rootViewStore.openSettingDialog = true
+  })
+  window.electronAPI.onOpenHelp(() => {
+    rootStore.rootViewStore.openHelp = true
   })
 }

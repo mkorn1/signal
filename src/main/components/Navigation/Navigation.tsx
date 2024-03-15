@@ -173,33 +173,37 @@ export const Navigation: FC = observer(() => {
 
       <FlexibleSpacer />
 
-      <Tab
-        onClick={useCallback(
-          () => (rootViewStore.openSettingDialog = true),
-          [],
-        )}
-      >
-        <Settings style={IconStyle} />
-        <TabTitle>
-          <Localized default="Settings">settings</Localized>
-        </TabTitle>
-      </Tab>
+      {!isRunningInElectron() && (
+        <>
+          <Tab
+            onClick={useCallback(
+              () => (rootViewStore.openSettingDialog = true),
+              [],
+            )}
+          >
+            <Settings style={IconStyle} />
+            <TabTitle>
+              <Localized default="Settings">settings</Localized>
+            </TabTitle>
+          </Tab>
 
-      <Tab onClick={useCallback(() => (rootViewStore.openHelp = true), [])}>
-        <Help style={IconStyle} />
-        <TabTitle>
-          <Localized default="Help">help</Localized>
-        </TabTitle>
-      </Tab>
+          <Tab onClick={useCallback(() => (rootViewStore.openHelp = true), [])}>
+            <Help style={IconStyle} />
+            <TabTitle>
+              <Localized default="Help">help</Localized>
+            </TabTitle>
+          </Tab>
 
-      <Tab>
-        <Forum style={IconStyle} />
-        <TabTitle>
-          <a href="https://discord.gg/XQxzNdDJse" target="_blank">
-            Discord
-          </a>
-        </TabTitle>
-      </Tab>
+          <Tab>
+            <Forum style={IconStyle} />
+            <TabTitle>
+              <a href="https://discord.gg/XQxzNdDJse" target="_blank">
+                Discord
+              </a>
+            </TabTitle>
+          </Tab>
+        </>
+      )}
 
       <UserButton />
     </Container>

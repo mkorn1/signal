@@ -19,7 +19,7 @@ const createWindow = (): void => {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "..", "dist_preload", "preload.js"),
     },
   })
 
@@ -36,6 +36,7 @@ const createWindow = (): void => {
   const menu = Menu.buildFromTemplate(
     menuTemplate({
       onClickSetting: () => ipc.openSetting(),
+      onClickHelp: () => ipc.openHelp(),
     }),
   )
   Menu.setApplicationMenu(menu)

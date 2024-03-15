@@ -5,7 +5,7 @@
     "allowJs": false,
     "noImplicitAny": true,
     "baseUrl": ".",
-    "outDir": "dist",
+    "outDir": "dist_preload",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "lib": ["esnext"],
