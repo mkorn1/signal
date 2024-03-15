@@ -1,7 +1,8 @@
 import { app, BrowserWindow, Menu, shell } from "electron"
 import path from "path"
-import { Ipc } from "./ipc.js"
-import { menuTemplate } from "./menu.js"
+import { Ipc } from "./ipc"
+import "./ipcMain"
+import { menuTemplate } from "./menu"
 
 const createWindow = (): void => {
   // Create the browser window.
@@ -31,8 +32,11 @@ const createWindow = (): void => {
 
   const menu = Menu.buildFromTemplate(
     menuTemplate({
-      onClickSetting: () => ipc.openSetting(),
-      onClickHelp: () => ipc.openHelp(),
+      onClickOpen: async () => ipc.invoke("openFile"),
+      onClickSave: () => ipc.invoke("saveFile"),
+      onClickSaveAs: () => ipc.invoke("saveFileAs"),
+      onClickSetting: () => ipc.invoke("openSetting"),
+      onClickHelp: () => ipc.invoke("openHelp"),
     }),
   )
   Menu.setApplicationMenu(menu)

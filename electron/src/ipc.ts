@@ -1,25 +1,19 @@
 import { BrowserWindow } from "electron"
 
+interface IpcEventBase<T extends string, P = void> {
+  name: T
+  params?: P
+}
+
 export type IpcEvent =
-  | {
-      name: "openSetting"
-      params: void
-    }
-  | {
-      name: "openHelp"
-      params: void
-    }
+  | IpcEventBase<"openSetting">
+  | IpcEventBase<"openHelp">
+  | IpcEventBase<"openFile">
+  | IpcEventBase<"saveFile">
+  | IpcEventBase<"saveFileAs">
 
 export class Ipc {
   constructor(private readonly mainWindow: BrowserWindow) {}
-
-  openSetting(): void {
-    this.invoke("openSetting")
-  }
-
-  openHelp(): void {
-    this.invoke("openHelp")
-  }
 
   invoke<T extends IpcEvent>(
     name: T["name"],
