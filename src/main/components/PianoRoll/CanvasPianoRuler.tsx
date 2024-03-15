@@ -49,7 +49,7 @@ function drawRuler(
       ctx.textBaseline = "top"
       ctx.font = `12px ${theme.canvasFont}`
       ctx.fillStyle = theme.secondaryTextColor
-      ctx.fillText(`${measure}`, x + textPadding, textPadding)
+      ctx.fillText(`${measure + 1}`, x + textPadding, textPadding)
     }
   })
 
