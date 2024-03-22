@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "target": "ES2015",
+    "module": "CommonJS",
     "allowJs": false,
     "noImplicitAny": true,
     "baseUrl": ".",
@@ -9,7 +9,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "lib": ["esnext"],
+    "lib": ["ES2015"],
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,

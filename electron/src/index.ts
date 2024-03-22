@@ -1,12 +1,7 @@
 import { app, BrowserWindow, Menu, shell } from "electron"
-import isDev from "electron-is-dev"
 import path from "path"
-import { fileURLToPath } from "url"
 import { Ipc } from "./ipc.js"
 import { menuTemplate } from "./menu.js"
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 const createWindow = (): void => {
   // Create the browser window.
@@ -19,12 +14,13 @@ const createWindow = (): void => {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: false,
       preload: path.join(__dirname, "..", "dist_preload", "preload.js"),
     },
   })
 
   // and load the index.html of the app.
-  if (isDev) {
+  if (!app.isPackaged) {
     mainWindow.loadURL("http://localhost:3000/edit")
     mainWindow.webContents.openDevTools()
   } else {
