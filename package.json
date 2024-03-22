@@ -10,7 +10,8 @@
     "format": "prettier --write src",
     "lint": "prettier --check src",
     "firebase": "npm --prefix functions run build && firebase emulators:start",
-    "firebase:deploy": "firebase deploy"
+    "firebase:deploy": "firebase deploy",
+    "dev:electron": "npm start -- --env electron"
   },
   "repository": {
     "type": "git",

@@ -3,7 +3,7 @@ const common = require("./webpack.common.js")
 const CopyPlugin = require("copy-webpack-plugin")
 const { sentryWebpackPlugin } = require("@sentry/webpack-plugin")
 
-module.exports = merge(common, {
+const config = merge(common(env), {
   mode: "production",
   optimization: {
     concatenateModules: false,
@@ -48,4 +48,6 @@ module.exports = merge(common, {
       },
     }),
   ],
-})
+}
+
+module.exports = (env) => merge(common(env), config)
