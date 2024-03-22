@@ -1,7 +1,7 @@
 import { app, BrowserWindow, Menu, shell } from "electron"
 import path from "path"
 import { Ipc } from "./ipc"
-import "./ipcMain"
+import { registerIpcMain } from "./ipcMain"
 import { menuTemplate } from "./menu"
 
 const createWindow = (): void => {
@@ -70,3 +70,5 @@ app.on("activate", () => {
     createWindow()
   }
 })
+
+registerIpcMain()
