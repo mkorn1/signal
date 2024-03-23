@@ -6,6 +6,11 @@ export type IpcEvent =
   | { name: "onSaveFile" }
   | { name: "onSaveFileAs" }
   | { name: "onExportWav" }
+  | { name: "onUndo" }
+  | { name: "onRedo" }
+  | { name: "onCut" }
+  | { name: "onCopy" }
+  | { name: "onPaste" }
   | { name: "onOpenSetting" }
   | { name: "onOpenHelp" }
 

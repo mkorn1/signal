@@ -3,6 +3,12 @@ import { localized } from "../../common/localize/localizedString"
 import { songToMidi } from "../../common/midi/midiConversion"
 import { createSong, setSong } from "../actions"
 import { songFromNativeFile } from "../actions/file"
+import { redo, undo } from "../actions/history"
+import {
+  copySelectionGlobal,
+  cutSelectionGlobal,
+  pasteSelectionGlobal,
+} from "../actions/hotkey"
 import RootStore from "./RootStore"
 
 declare global {
@@ -75,6 +81,21 @@ export const registerElectronReactions = (rootStore: RootStore) => {
   })
   window.electronAPI.onExportWav(() => {
     rootStore.exportStore.openExportDialog = true
+  })
+  window.electronAPI.onUndo(() => {
+    undo(rootStore)()
+  })
+  window.electronAPI.onRedo(() => {
+    redo(rootStore)()
+  })
+  window.electronAPI.onCut(() => {
+    cutSelectionGlobal(rootStore)()
+  })
+  window.electronAPI.onCopy(() => {
+    copySelectionGlobal(rootStore)()
+  })
+  window.electronAPI.onPaste(() => {
+    pasteSelectionGlobal(rootStore)()
   })
   window.electronAPI.onOpenSetting(() => {
     rootStore.rootViewStore.openSettingDialog = true

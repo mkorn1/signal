@@ -8,6 +8,11 @@ export interface MenuTemplateProps {
   onClickSave: () => void
   onClickSaveAs: () => void
   onClickExportWav: () => void
+  onClickUndo: () => void
+  onClickRedo: () => void
+  onClickCut: () => void
+  onClickCopy: () => void
+  onClickPaste: () => void
   onClickSetting: () => void
   onClickHelp: () => void
 }
@@ -18,6 +23,11 @@ export const menuTemplate = ({
   onClickSave,
   onClickSaveAs,
   onClickExportWav,
+  onClickUndo,
+  onClickRedo,
+  onClickCut,
+  onClickCopy,
+  onClickPaste,
   onClickSetting,
   onClickHelp,
 }: MenuTemplateProps): MenuItemConstructorOptions[] => [
@@ -67,28 +77,12 @@ export const menuTemplate = ({
   {
     label: "Edit",
     submenu: [
-      { role: "undo" },
-      { role: "redo" },
+      { label: "Undo", accelerator: "CmdOrCtrl+Z", click: onClickUndo },
+      { label: "Redo", accelerator: "CmdOrCtrl+Y", click: onClickRedo },
       { type: "separator" },
-      { role: "cut" },
-      { role: "copy" },
-      { role: "paste" },
-      ...((isMac
-        ? [
-            { role: "pasteAndMatchStyle" },
-            { role: "delete" },
-            { role: "selectAll" },
-            { type: "separator" },
-            {
-              label: "Speech",
-              submenu: [{ role: "startSpeaking" }, { role: "stopSpeaking" }],
-            },
-          ]
-        : [
-            { role: "delete" },
-            { type: "separator" },
-            { role: "selectAll" },
-          ]) as MenuItemConstructorOptions[]),
+      { label: "Cut", accelerator: "CmdOrCtrl+X", click: onClickCut },
+      { label: "Copy", accelerator: "CmdOrCtrl+C", click: onClickCopy },
+      { label: "Paste", accelerator: "CmdOrCtrl+V", click: onClickPaste },
     ],
   },
   // { role: 'viewMenu' }
