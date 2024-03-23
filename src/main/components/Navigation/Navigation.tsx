@@ -48,7 +48,7 @@ const Container = styled.div`
         case "Windows":
           return "0 3rem 0 0"
         case "macOS":
-          return "0 0 0 72px"
+          return "0 0 0 76px"
       }
     }
   }};
@@ -109,7 +109,7 @@ export const Navigation: FC = observer(() => {
 
   return (
     <Container>
-      <FileMenuButton />
+      {!isRunningInElectron() && <FileMenuButton />}
 
       <Tooltip
         title={
@@ -205,7 +205,7 @@ export const Navigation: FC = observer(() => {
         </>
       )}
 
-      <UserButton />
+      {!isRunningInElectron() && <UserButton />}
     </Container>
   )
 })
