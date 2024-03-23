@@ -7,8 +7,8 @@ import { menuTemplate } from "./menu"
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 700,
+    width: 960,
+    height: 720,
     title: `signal v${app.getVersion()}`,
     titleBarStyle: "hidden",
     trafficLightPosition: { x: 10, y: 17 },

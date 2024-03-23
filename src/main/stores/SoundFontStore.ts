@@ -1,5 +1,6 @@
 import { makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import { isRunningInElectron } from "../helpers/platform"
 import { IndexedDBStorage } from "../services/IndexedDBStorage"
 import { SoundFontSynth } from "../services/SoundFontSynth"
 
@@ -15,22 +16,38 @@ interface RemoteSoundFont {
   url: string
 }
 
+// electron only feature
+interface FileSoundFont {
+  type: "file"
+  path: string
+}
+
 interface Metadata {
   name: string
 }
 
 export type SoundFontFile = Metadata & { id: number }
 
-type SoundFontItem = LocalSoundFont | RemoteSoundFont
+type SoundFontItem = LocalSoundFont | RemoteSoundFont | FileSoundFont
 
-const defaultSoundFonts: (SoundFontItem & Metadata & { id: number })[] = [
-  {
-    id: -999, // Use negative number to avoid conflict with user saved soundfonts
-    type: "remote",
-    name: "A320U.sf2 (Signal Factory Sound)",
-    url: "https://cdn.jsdelivr.net/gh/ryohey/signal@4569a31/public/A320U.sf2",
-  },
-]
+const defaultSoundFonts: (SoundFontItem & Metadata & { id: number })[] =
+  isRunningInElectron()
+    ? [
+        {
+          id: -999, // Use negative number to avoid conflict with user saved soundfonts
+          type: "file",
+          path: "./assets/soundfonts/A320U.sf2",
+          name: "A320U.sf2 (Signal Factory Sound)",
+        },
+      ]
+    : [
+        {
+          id: -999, // Use negative number to avoid conflict with user saved soundfonts
+          type: "remote",
+          name: "A320U.sf2 (Signal Factory Sound)",
+          url: "https://cdn.jsdelivr.net/gh/ryohey/signal@4569a31/public/A320U.sf2",
+        },
+      ]
 
 export class SoundFontStore {
   private readonly storage: IndexedDBStorage<SoundFontItem, Metadata>
@@ -90,6 +107,10 @@ export class SoundFontStore {
         break
       case "remote":
         await this.synth.loadSoundFontFromURL(soundfont.url)
+        break
+      case "file":
+        const data = await window.electronAPI.readFile(soundfont.path)
+        await this.synth.loadSoundFont(data)
         break
     }
 

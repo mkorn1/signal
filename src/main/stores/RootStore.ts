@@ -182,14 +182,24 @@ export default class RootStore {
   }
 
   private async setupMetronomeSynth() {
-    const soundFontURL =
-      "https://cdn.jsdelivr.net/gh/ryohey/signal@6959f35/public/A320U_drums.sf2"
-    await this.metronomeSynth.setup()
-    const data = await (await fetch(soundFontURL)).arrayBuffer()
+    const data = await loadMetronomeSoundFontData()
     await this.metronomeSynth.loadSoundFont(data)
   }
 
   get pushHistory() {
     return pushHistory(this)
   }
+}
+
+async function loadMetronomeSoundFontData() {
+  if (isRunningInElectron()) {
+    return await window.electronAPI.readFile(
+      "./assets/soundfonts/A320U_drums.sf2",
+    )
+  }
+  const soundFontURL =
+    "https://cdn.jsdelivr.net/gh/ryohey/signal@6959f35/public/A320U_drums.sf2"
+  const response = await fetch(soundFontURL)
+  const data = await response.arrayBuffer()
+  return data
 }

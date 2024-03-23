@@ -17,7 +17,7 @@ function invoke<T extends keyof IpcMainAPI>(
   name: T,
   ...params: Tail<Parameters<IpcMainAPI[T]>>
 ) {
-  return ipcRenderer.invoke(name, ...params)
+  return ipcRenderer.invoke(name, ...params) as ReturnType<IpcMainAPI[T]>
 }
 
 const api = {
@@ -37,6 +37,7 @@ const api = {
   showSaveDialog: async () => await invoke("showSaveDialog"),
   saveFile: async (path: string, data: ArrayBuffer) =>
     await invoke("saveFile", path, data),
+  readFile: async (path: string) => await invoke("readFile", path),
 }
 
 export type ElectronAPI = typeof api

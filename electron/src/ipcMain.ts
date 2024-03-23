@@ -17,6 +17,10 @@ const api = {
   saveFile: async (_e: IpcMainInvokeEvent, path: string, data: ArrayBuffer) => {
     await writeFile(path, Buffer.from(data))
   },
+  readFile: async (_e: IpcMainInvokeEvent, path: string) => {
+    const content = await readFile(path)
+    return content.buffer
+  },
   showSaveDialog: async () => {
     const fileObj = await dialog.showSaveDialog({
       filters: [{ name: "MIDI File", extensions: ["mid", "midi"] }],
