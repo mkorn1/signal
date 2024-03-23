@@ -1,19 +1,20 @@
 import { BrowserWindow } from "electron"
 
 export type IpcEvent =
-  | { name: "openSetting" }
-  | { name: "openHelp" }
-  | { name: "openFile" }
-  | { name: "saveFile" }
-  | { name: "saveFileAs" }
+  | { name: "onOpenSetting" }
+  | { name: "onOpenHelp" }
+  | { name: "onOpenFile" }
+  | { name: "onSaveFile" }
+  | { name: "onSaveFileAs" }
+
+type EventParams<T extends IpcEvent> = T extends { params: any }
+  ? T["params"]
+  : undefined
 
 export class Ipc {
   constructor(private readonly mainWindow: BrowserWindow) {}
 
-  invoke<T extends { name: string; params?: any }>(
-    name: T["name"],
-    params: T["params"] = undefined,
-  ): void {
+  send<T extends IpcEvent>(name: T["name"], params?: EventParams<T>): void {
     this.mainWindow.webContents.send(name, params)
   }
 }
