@@ -22,6 +22,7 @@ import { TempoEditor } from "../TempoGraph/TempoEditor"
 import { TransportPanel } from "../TransportPanel/TransportPanel"
 import { ArrangeTransposeDialog } from "../TransposeDialog/ArrangeTransposeDialog"
 import { PianoRollTransposeDialog } from "../TransposeDialog/PianoRollTransposeDialog"
+import { DropZone } from "./DropZone"
 
 const Container = styled.div`
   height: 100%;
@@ -52,14 +53,16 @@ const Routes: FC = observer(() => {
 
 export const RootView: FC = () => (
   <>
-    <Column>
-      <Navigation />
-      <Container>
-        <Routes />
-        <TransportPanel />
-        <BuildInfo />
-      </Container>
-    </Column>
+    <DropZone>
+      <Column>
+        <Navigation />
+        <Container>
+          <Routes />
+          <TransportPanel />
+          <BuildInfo />
+        </Container>
+      </Column>
+    </DropZone>
     <HelpDialog />
     <ExportDialog />
     <ExportProgressDialog />

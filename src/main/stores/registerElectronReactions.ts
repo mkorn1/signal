@@ -2,7 +2,7 @@ import type { ElectronAPI } from "../../../electron/src/preload"
 import { localized } from "../../common/localize/localizedString"
 import { songToMidi } from "../../common/midi/midiConversion"
 import { createSong, setSong } from "../actions"
-import { songFromNativeFile } from "../actions/file"
+import { songFromArrayBuffer } from "../actions/file"
 import { redo, undo } from "../actions/history"
 import {
   copySelectionGlobal,
@@ -56,7 +56,7 @@ export const registerElectronReactions = (rootStore: RootStore) => {
           return // canceled
         }
         const { path, content } = res
-        const song = songFromNativeFile(path, content)
+        const song = songFromArrayBuffer(content, path)
         setSong(rootStore)(song)
       }
     } catch (e) {

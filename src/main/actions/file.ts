@@ -41,25 +41,23 @@ export const openFile = async (rootStore: RootStore) => {
   setSong(rootStore)(song)
 }
 
-export const songFromFile = async (file: File) => {
-  const buf = await file.arrayBuffer()
-  const song = songFromMidi(new Uint8Array(buf))
-  if (song.name.length === 0) {
-    // Use the file name without extension as the song title
-    song.name = file.name.replace(/\.[^/.]+$/, "")
-  }
-  song.filepath = file.name
-  song.isSaved = true
-  return song
-}
+export const songFromFile = async (file: File) =>
+  songFromArrayBuffer(await file.arrayBuffer(), file.name, file.path)
 
-export const songFromNativeFile = (path: string, content: ArrayBuffer) => {
+export const songFromArrayBuffer = (
+  content: ArrayBuffer,
+  name?: string,
+  filePath?: string,
+) => {
   const song = songFromMidi(new Uint8Array(content))
-  if (song.name.length === 0) {
+  const pathOrName = filePath ?? name
+  if (song.name.length === 0 && pathOrName) {
     // Use the file name without extension as the song title
-    song.name = basename(path)?.replace(/\.[^/.]+$/, "") ?? ""
+    song.name = basename(pathOrName)?.replace(/\.[^/.]+$/, "") ?? ""
   }
-  song.filepath = path
+  if (filePath) {
+    song.filepath = filePath
+  }
   song.isSaved = true
   return song
 }
