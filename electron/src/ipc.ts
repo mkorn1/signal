@@ -3,6 +3,7 @@ import { BrowserWindow } from "electron"
 export type IpcEvent =
   | { name: "onOpenSetting" }
   | { name: "onOpenHelp" }
+  | { name: "onNewFile"; params: void }
   | { name: "onOpenFile" }
   | { name: "onSaveFile" }
   | { name: "onSaveFileAs" }

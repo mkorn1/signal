@@ -1,7 +1,7 @@
 import type { ElectronAPI } from "../../../electron/src/preload"
 import { localized } from "../../common/localize/localizedString"
 import { songToMidi } from "../../common/midi/midiConversion"
-import { setSong } from "../actions"
+import { createSong, setSong } from "../actions"
 import { songFromNativeFile } from "../actions/file"
 import RootStore from "./RootStore"
 
@@ -29,6 +29,15 @@ const saveFileAs = async (rootStore: RootStore) => {
 }
 
 export const registerElectronReactions = (rootStore: RootStore) => {
+  window.electronAPI.onNewFile(() => {
+    const { song } = rootStore
+    if (
+      song.isSaved ||
+      confirm(localized("confirm-new", "Are you sure you want to continue?"))
+    ) {
+      createSong(rootStore)()
+    }
+  })
   window.electronAPI.onOpenFile(async () => {
     const { song } = rootStore
     try {

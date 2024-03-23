@@ -21,6 +21,7 @@ function invoke<T extends keyof IpcMainAPI>(
 }
 
 const api = {
+  onNewFile: (callback: () => void) => register("onNewFile", callback),
   onOpenFile: (callback: () => void) => register("onOpenFile", callback),
   onSaveFile: (callback: () => void) => register("onSaveFile", callback),
   onSaveFileAs: (callback: () => void) => register("onSaveFileAs", callback),

@@ -32,6 +32,7 @@ const createWindow = (): void => {
 
   const menu = Menu.buildFromTemplate(
     menuTemplate({
+      onClickNew: () => ipc.send("onNewFile"),
       onClickOpen: async () => ipc.send("onOpenFile"),
       onClickSave: () => ipc.send("onSaveFile"),
       onClickSaveAs: () => ipc.send("onSaveFileAs"),

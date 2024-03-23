@@ -3,6 +3,7 @@ import { MenuItemConstructorOptions, app } from "electron"
 const isMac = process.platform === "darwin"
 
 export interface MenuTemplateProps {
+  onClickNew: () => void
   onClickOpen: () => void
   onClickSave: () => void
   onClickSaveAs: () => void
@@ -11,6 +12,7 @@ export interface MenuTemplateProps {
 }
 
 export const menuTemplate = ({
+  onClickNew,
   onClickOpen,
   onClickSave,
   onClickSaveAs,
@@ -45,9 +47,14 @@ export const menuTemplate = ({
   {
     label: "File",
     submenu: [
-      { label: "Open", click: onClickOpen },
-      { label: "Save", click: onClickSave },
-      { label: "Save As", click: onClickSaveAs },
+      { label: "New", accelerator: "CmdOrCtrl+N", click: onClickNew },
+      { label: "Open", accelerator: "CmdOrCtrl+O", click: onClickOpen },
+      { label: "Save", accelerator: "CmdOrCtrl+S", click: onClickSave },
+      {
+        label: "Save As",
+        accelerator: "CmdOrCtrl+Shift+S",
+        click: onClickSaveAs,
+      },
       { type: "separator" },
       isMac ? { role: "close" } : { role: "quit" },
     ] as MenuItemConstructorOptions[],
