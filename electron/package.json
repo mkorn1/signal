@@ -5,6 +5,7 @@
   "productName": "signal",
   "main": "dist/index.js",
   "scripts": {
+    "dev": "concurrently \"tsc -w\" \"tsc -p tsconfig.preload.json -w\" \"nodemon\"",
     "start": "npm run build && electron .",
     "build": "tsc && tsc -p tsconfig.preload.json",
     "package": "electron-forge package",
@@ -28,7 +29,9 @@
   },
   "devDependencies": {
     "@electron-forge/cli": "7.3.0",
+    "concurrently": "^8.2.2",
     "electron": "^29.1.1",
+    "nodemon": "^3.1.0",
     "typescript": "5.4.2"
   }
 }
