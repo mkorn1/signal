@@ -7,6 +7,7 @@ export interface MenuTemplateProps {
   onClickOpen: () => void
   onClickSave: () => void
   onClickSaveAs: () => void
+  onClickExportWav: () => void
   onClickSetting: () => void
   onClickHelp: () => void
 }
@@ -16,6 +17,7 @@ export const menuTemplate = ({
   onClickOpen,
   onClickSave,
   onClickSaveAs,
+  onClickExportWav,
   onClickSetting,
   onClickHelp,
 }: MenuTemplateProps): MenuItemConstructorOptions[] => [
@@ -55,6 +57,8 @@ export const menuTemplate = ({
         accelerator: "CmdOrCtrl+Shift+S",
         click: onClickSaveAs,
       },
+      { type: "separator" },
+      { label: "Export", submenu: [{ label: "WAV", click: onClickExportWav }] },
       { type: "separator" },
       isMac ? { role: "close" } : { role: "quit" },
     ] as MenuItemConstructorOptions[],

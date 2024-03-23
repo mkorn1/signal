@@ -25,6 +25,7 @@ const api = {
   onOpenFile: (callback: () => void) => register("onOpenFile", callback),
   onSaveFile: (callback: () => void) => register("onSaveFile", callback),
   onSaveFileAs: (callback: () => void) => register("onSaveFileAs", callback),
+  onExportWav: (callback: () => void) => register("onExportWav", callback),
   onOpenSetting: (callback: () => void) => register("onOpenSetting", callback),
   onOpenHelp: (callback: () => void) => register("onOpenHelp", callback),
   showOpenDialog: async () => await invoke("showOpenDialog"),

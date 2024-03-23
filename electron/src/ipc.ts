@@ -1,12 +1,13 @@
 import { BrowserWindow } from "electron"
 
 export type IpcEvent =
-  | { name: "onOpenSetting" }
-  | { name: "onOpenHelp" }
-  | { name: "onNewFile"; params: void }
+  | { name: "onNewFile" }
   | { name: "onOpenFile" }
   | { name: "onSaveFile" }
   | { name: "onSaveFileAs" }
+  | { name: "onExportWav" }
+  | { name: "onOpenSetting" }
+  | { name: "onOpenHelp" }
 
 type EventParams<T extends IpcEvent> = T extends { params: any }
   ? T["params"]

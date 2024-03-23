@@ -36,6 +36,7 @@ const createWindow = (): void => {
       onClickOpen: async () => ipc.send("onOpenFile"),
       onClickSave: () => ipc.send("onSaveFile"),
       onClickSaveAs: () => ipc.send("onSaveFileAs"),
+      onClickExportWav: () => ipc.send("onExportWav"),
       onClickSetting: () => ipc.send("onOpenSetting"),
       onClickHelp: () => ipc.send("onOpenHelp"),
     }),
