@@ -53,7 +53,10 @@ export const SoundFontSettingsView: FC = observer(() => {
     const file = e.currentTarget.files?.item(0)
     if (file) {
       const arrayBuffer = await file.arrayBuffer()
-      soundFontStore.addSoundFont(arrayBuffer, file.name)
+      soundFontStore.addSoundFont(
+        { type: "local", data: arrayBuffer },
+        { name: file.name },
+      )
     }
   }
 

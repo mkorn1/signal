@@ -117,8 +117,8 @@ export class SoundFontStore {
     this.selectedSoundFontId = id
   }
 
-  async addSoundFont(data: ArrayBuffer, name: string) {
-    await this.storage.save({ type: "local", data }, { name })
+  async addSoundFont(item: SoundFontItem, metadata: Metadata) {
+    await this.storage.save(item, metadata)
     await this.updateFileList()
   }
 
