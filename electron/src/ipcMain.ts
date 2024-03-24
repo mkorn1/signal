@@ -1,5 +1,6 @@
 import { IpcMainInvokeEvent, dialog, ipcMain } from "electron"
-import { readFile, writeFile } from "fs/promises"
+import { readFile, readdir, writeFile } from "fs/promises"
+import { join } from "path"
 
 const api = {
   showOpenDialog: async () => {
@@ -14,12 +15,28 @@ const api = {
     const content = await readFile(path)
     return { path, content: content.buffer }
   },
+  showOpenDirectoryDialog: async () => {
+    const fileObj = await dialog.showOpenDialog({
+      properties: ["openDirectory"],
+    })
+    if (fileObj.canceled) {
+      return null
+    }
+    const path = fileObj.filePaths[0]
+    return path
+  },
   saveFile: async (_e: IpcMainInvokeEvent, path: string, data: ArrayBuffer) => {
     await writeFile(path, Buffer.from(data))
   },
   readFile: async (_e: IpcMainInvokeEvent, path: string) => {
     const content = await readFile(path)
     return content.buffer
+  },
+  searchSoundFonts: async (_e: IpcMainInvokeEvent, path: string) => {
+    const files = await readdir(path, { withFileTypes: true })
+    return files
+      .filter((f) => f.isFile() && f.name.endsWith(".sf2"))
+      .map((f) => join(f.path, f.name))
   },
   showSaveDialog: async () => {
     const fileObj = await dialog.showSaveDialog({

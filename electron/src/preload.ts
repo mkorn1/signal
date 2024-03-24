@@ -34,10 +34,13 @@ const api = {
   onOpenSetting: (callback: () => void) => register("onOpenSetting", callback),
   onOpenHelp: (callback: () => void) => register("onOpenHelp", callback),
   showOpenDialog: async () => await invoke("showOpenDialog"),
+  showOpenDirectoryDialog: async () => await invoke("showOpenDirectoryDialog"),
   showSaveDialog: async () => await invoke("showSaveDialog"),
   saveFile: async (path: string, data: ArrayBuffer) =>
     await invoke("saveFile", path, data),
   readFile: async (path: string) => await invoke("readFile", path),
+  searchSoundFonts: async (path: string) =>
+    await invoke("searchSoundFonts", path),
 }
 
 export type ElectronAPI = typeof api
