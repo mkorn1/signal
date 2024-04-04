@@ -2,7 +2,7 @@ import { BrowserWindow } from "electron"
 
 export type IpcEvent =
   | { name: "onNewFile" }
-  | { name: "onOpenFile" }
+  | { name: "onClickOpenFile" }
   | { name: "onSaveFile" }
   | { name: "onSaveFileAs" }
   | { name: "onExportWav" }
@@ -13,10 +13,11 @@ export type IpcEvent =
   | { name: "onPaste" }
   | { name: "onOpenSetting" }
   | { name: "onOpenHelp" }
+  | { name: "onOpenFile"; params: { filePath: string } }
 
-type EventParams<T extends IpcEvent> = T extends { params: any }
+export type EventParams<T extends IpcEvent> = T extends { params: any }
   ? T["params"]
-  : undefined
+  : never
 
 export class Ipc {
   constructor(private readonly mainWindow: BrowserWindow) {}

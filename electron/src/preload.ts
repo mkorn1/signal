@@ -1,14 +1,12 @@
 import { contextBridge, ipcRenderer } from "electron"
-import type { IpcEvent } from "./ipc"
+import type { EventParams, IpcEvent } from "./ipc"
 import type { IpcMainAPI } from "./ipcMain"
 
 type Tail<T extends unknown[]> = T extends [any, ...infer Rest] ? Rest : []
 
 function register<T extends IpcEvent>(
   name: T["name"],
-  callback: (
-    params: T extends { params: unknown } ? T["params"] : void,
-  ) => void,
+  callback: (params: EventParams<T>) => void,
 ) {
   ipcRenderer.on(name, (_event, value) => callback(value))
 }
@@ -22,7 +20,10 @@ function invoke<T extends keyof IpcMainAPI>(
 
 const api = {
   onNewFile: (callback: () => void) => register("onNewFile", callback),
-  onOpenFile: (callback: () => void) => register("onOpenFile", callback),
+  onClickOpenFile: (callback: () => void) =>
+    register("onClickOpenFile", callback),
+  onOpenFile: (callback: (params: { filePath: string }) => void) =>
+    register("onOpenFile", callback),
   onSaveFile: (callback: () => void) => register("onSaveFile", callback),
   onSaveFileAs: (callback: () => void) => register("onSaveFileAs", callback),
   onExportWav: (callback: () => void) => register("onExportWav", callback),

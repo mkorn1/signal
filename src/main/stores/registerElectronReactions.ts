@@ -44,7 +44,7 @@ export const registerElectronReactions = (rootStore: RootStore) => {
       createSong(rootStore)()
     }
   })
-  window.electronAPI.onOpenFile(async () => {
+  window.electronAPI.onClickOpenFile(async () => {
     const { song } = rootStore
     try {
       if (
@@ -62,6 +62,12 @@ export const registerElectronReactions = (rootStore: RootStore) => {
     } catch (e) {
       alert((e as Error).message)
     }
+  })
+  window.electronAPI.onOpenFile(async ({ filePath }) => {
+    window.electronAPI.addRecentDocument(filePath)
+    const data = await window.electronAPI.readFile(filePath)
+    const song = songFromArrayBuffer(data, filePath)
+    setSong(rootStore)(song)
   })
   window.electronAPI.onSaveFile(async () => {
     const { song } = rootStore

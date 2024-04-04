@@ -4,6 +4,7 @@ import { Ipc } from "./ipc"
 import { registerIpcMain } from "./ipcMain"
 import { menuTemplate } from "./menu"
 
+let onOpenFile: (filePath: string) => void = () => {}
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -33,7 +34,7 @@ const createWindow = (): void => {
   const menu = Menu.buildFromTemplate(
     menuTemplate({
       onClickNew: () => ipc.send("onNewFile"),
-      onClickOpen: async () => ipc.send("onOpenFile"),
+      onClickOpen: async () => ipc.send("onClickOpenFile"),
       onClickSave: () => ipc.send("onSaveFile"),
       onClickSaveAs: () => ipc.send("onSaveFileAs"),
       onClickExportWav: () => ipc.send("onExportWav"),
@@ -54,6 +55,10 @@ const createWindow = (): void => {
     }
     return { action: "deny" }
   })
+
+  onOpenFile = (filePath) => {
+    ipc.send("onOpenFile", { filePath })
+  }
 }
 
 // This method will be called when Electron has finished
@@ -76,6 +81,12 @@ app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow()
   }
+})
+
+
+app.on("open-file", (event, filePath) => {
+  event.preventDefault()
+  onOpenFile(filePath)
 })
 
 registerIpcMain()
