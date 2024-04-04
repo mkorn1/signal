@@ -1,6 +1,6 @@
 import { IpcMainInvokeEvent, app, dialog, ipcMain } from "electron"
 import { readFile, readdir, writeFile } from "fs/promises"
-import { join } from "path"
+import { isAbsolute, join } from "path"
 import { getArgument } from "./arguments"
 
 const api = {
@@ -30,7 +30,8 @@ const api = {
     await writeFile(path, Buffer.from(data))
   },
   readFile: async (_e: IpcMainInvokeEvent, path: string) => {
-    const content = await readFile(path)
+    const filePath = isAbsolute(path) ? path : join(app.getAppPath(), path)
+    const content = await readFile(filePath)
     return content.buffer
   },
   searchSoundFonts: async (_e: IpcMainInvokeEvent, path: string) => {
