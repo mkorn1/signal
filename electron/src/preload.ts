@@ -43,6 +43,7 @@ const api = {
   searchSoundFonts: async (path: string) =>
     await invoke("searchSoundFonts", path),
   addRecentDocument: (path: string) => invoke("addRecentDocument", path),
+  getArgument: () => invoke("getArgument"),
 }
 
 export type ElectronAPI = typeof api

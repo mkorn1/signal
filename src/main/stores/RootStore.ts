@@ -14,6 +14,7 @@ import { IUserRepository } from "../../repositories/IUserRepository"
 import { UserRepository } from "../../repositories/UserRepository"
 import { setSong } from "../actions"
 import { loadSongFromExternalMidiFile } from "../actions/cloudSong"
+import { songFromArrayBuffer } from "../actions/file"
 import { pushHistory } from "../actions/history"
 import { isRunningInElectron } from "../helpers/platform"
 import { GroupOutput } from "../services/GroupOutput"
@@ -162,6 +163,7 @@ export default class RootStore {
       await this.soundFontStore.init()
       this.setupMetronomeSynth()
       await this.loadExternalMidiOnLaunchIfNeeded()
+      await this.loadArgumentFileIfNeeded()
       this.initializationPhase = "done"
     } catch (e) {
       this.initializationPhase = "error"
@@ -177,6 +179,18 @@ export default class RootStore {
     if (openParam) {
       this.initializationPhase = "loadExternalMidi"
       const song = await loadSongFromExternalMidiFile(this)(openParam)
+      setSong(this)(song)
+    }
+  }
+
+  private async loadArgumentFileIfNeeded() {
+    if (!isRunningInElectron()) {
+      return
+    }
+    const filePath = await window.electronAPI.getArgument()
+    if (filePath) {
+      const data = await window.electronAPI.readFile(filePath)
+      const song = songFromArrayBuffer(data)
       setSong(this)(song)
     }
   }

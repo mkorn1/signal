@@ -1,10 +1,13 @@
 import { app, BrowserWindow, Menu, shell } from "electron"
 import path from "path"
+import { getArgument } from "./arguments"
 import { Ipc } from "./ipc"
 import { registerIpcMain } from "./ipcMain"
 import { menuTemplate } from "./menu"
 
 let onOpenFile: (filePath: string) => void = () => {}
+let onDropFileOnAppIcon: (filePath: string) => void = () => {}
+
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -56,6 +59,10 @@ const createWindow = (): void => {
     return { action: "deny" }
   })
 
+  onDropFileOnAppIcon = (filePath) => {
+    ipc.send("onOpenFile", { filePath })
+  }
+
   onOpenFile = (filePath) => {
     ipc.send("onOpenFile", { filePath })
   }
@@ -83,6 +90,20 @@ app.on("activate", () => {
   }
 })
 
+const additionalData = { filePath: getArgument() }
+type AdditionalData = typeof additionalData
+const gotTheLock = app.requestSingleInstanceLock(additionalData)
+
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on("second-instance", (event, argv, workingDirectory, additionalData) => {
+    const { filePath } = additionalData as AdditionalData
+    if (filePath !== null) {
+      onDropFileOnAppIcon(filePath)
+    }
+  })
+}
 
 app.on("open-file", (event, filePath) => {
   event.preventDefault()

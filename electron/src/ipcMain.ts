@@ -1,6 +1,7 @@
 import { IpcMainInvokeEvent, app, dialog, ipcMain } from "electron"
 import { readFile, readdir, writeFile } from "fs/promises"
 import { join } from "path"
+import { getArgument } from "./arguments"
 
 const api = {
   showOpenDialog: async () => {
@@ -54,6 +55,7 @@ const api = {
   addRecentDocument: (_e: IpcMainInvokeEvent, path: string) => {
     app.addRecentDocument(path)
   },
+  getArgument: async () => getArgument(),
 }
 
 export type IpcMainAPI = typeof api
