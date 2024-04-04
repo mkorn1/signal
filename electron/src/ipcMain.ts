@@ -1,4 +1,4 @@
-import { IpcMainInvokeEvent, dialog, ipcMain } from "electron"
+import { IpcMainInvokeEvent, app, dialog, ipcMain } from "electron"
 import { readFile, readdir, writeFile } from "fs/promises"
 import { join } from "path"
 
@@ -50,6 +50,9 @@ const api = {
       return null
     }
     return { path }
+  },
+  addRecentDocument: (_e: IpcMainInvokeEvent, path: string) => {
+    app.addRecentDocument(path)
   },
 }
 

@@ -29,6 +29,7 @@ const saveFileAs = async (rootStore: RootStore) => {
     song.filepath = path
     song.isSaved = true
     await window.electronAPI.saveFile(path, data)
+    window.electronAPI.addRecentDocument(path)
   } catch (e) {
     alert((e as Error).message)
   }
@@ -58,16 +59,27 @@ export const registerElectronReactions = (rootStore: RootStore) => {
         const { path, content } = res
         const song = songFromArrayBuffer(content, path)
         setSong(rootStore)(song)
+        window.electronAPI.addRecentDocument(path)
       }
     } catch (e) {
       alert((e as Error).message)
     }
   })
   window.electronAPI.onOpenFile(async ({ filePath }) => {
-    window.electronAPI.addRecentDocument(filePath)
-    const data = await window.electronAPI.readFile(filePath)
-    const song = songFromArrayBuffer(data, filePath)
-    setSong(rootStore)(song)
+    const { song } = rootStore
+    try {
+      if (
+        song.isSaved ||
+        confirm(localized("confirm-open", "Are you sure you want to continue?"))
+      ) {
+        const data = await window.electronAPI.readFile(filePath)
+        const song = songFromArrayBuffer(data, filePath)
+        setSong(rootStore)(song)
+        window.electronAPI.addRecentDocument(filePath)
+      }
+    } catch (e) {
+      alert((e as Error).message)
+    }
   })
   window.electronAPI.onSaveFile(async () => {
     const { song } = rootStore

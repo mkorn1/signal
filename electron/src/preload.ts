@@ -42,6 +42,7 @@ const api = {
   readFile: async (path: string) => await invoke("readFile", path),
   searchSoundFonts: async (path: string) =>
     await invoke("searchSoundFonts", path),
+  addRecentDocument: (path: string) => invoke("addRecentDocument", path),
 }
 
 export type ElectronAPI = typeof api
