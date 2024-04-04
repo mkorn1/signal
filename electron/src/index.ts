@@ -29,7 +29,9 @@ const createWindow = (): void => {
     mainWindow.loadURL("http://localhost:3000/edit")
     mainWindow.webContents.openDevTools()
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../build/index.html"))
+    mainWindow.loadFile(
+      path.join(__dirname, "..", "dist_renderer", "edit.html"),
+    )
   }
 
   const ipc = new Ipc(mainWindow)

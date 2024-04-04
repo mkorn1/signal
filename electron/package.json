@@ -8,7 +8,7 @@
     "dev": "concurrently \"tsc -w\" \"tsc -p tsconfig.preload.json -w\" \"nodemon\"",
     "start": "npm run build && electron .",
     "build": "tsc && tsc -p tsconfig.preload.json",
-    "package": "electron-forge package",
+    "package": "npm run build && rm -rf out && electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish"
   },
