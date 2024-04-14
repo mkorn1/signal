@@ -1,3 +1,4 @@
+import { tickToMillisec } from "../helpers/bpm"
 import { DistributiveOmit } from "../types"
 
 export type SchedulableEvent = {
@@ -64,10 +65,6 @@ export default class EventScheduler<E extends SchedulableEvent> {
     return (((ms / 1000) * bpm) / 60) * this.timebase
   }
 
-  tickToMillisec(tick: number, bpm: number) {
-    return (tick / (this.timebase / 60) / bpm) * 1000
-  }
-
   seek(tick: number) {
     this._currentTick = this._scheduledTick = Math.max(0, tick)
   }
@@ -78,7 +75,7 @@ export default class EventScheduler<E extends SchedulableEvent> {
       (e: E): WithTimestamp<E> => {
         const waitTick = e.tick - currentTick
         const delayedTime =
-          timestamp + Math.max(0, this.tickToMillisec(waitTick, bpm))
+          timestamp + Math.max(0, tickToMillisec(waitTick, bpm, this.timebase))
         return { event: e, timestamp: delayedTime }
       }
 
