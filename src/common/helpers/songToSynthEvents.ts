@@ -1,8 +1,6 @@
 import { SynthEvent } from "@ryohey/wavelet"
 import Song from "../song"
-
-const tickToMillisec = (tick: number, bpm: number, timebase: number) =>
-  (tick / (timebase / 60) / bpm) * 1000
+import { tickToMillisec } from "./bpm"
 
 interface Keyframe {
   tick: number

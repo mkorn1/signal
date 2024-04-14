@@ -2,6 +2,7 @@ import { min } from "lodash"
 import cloneDeep from "lodash/cloneDeep"
 import { intersects } from "../../common/geometry"
 import { isNotNull, isNotUndefined } from "../../common/helpers/array"
+import { tickToMillisec } from "../../common/helpers/bpm"
 import {
   Selection,
   clampSelection,
@@ -548,6 +549,8 @@ const sortedNotes = (notes: NoteEvent[]): NoteEvent[] =>
 const selectNeighborNote = (rootStore: RootStore) => (deltaIndex: number) => {
   const {
     pianoRollStore: { selectedTrack, selectedNoteIds },
+    player,
+    song,
   } = rootStore
 
   if (selectedTrack === undefined || selectedNoteIds.length === 0) {
@@ -563,15 +566,25 @@ const selectNeighborNote = (rootStore: RootStore) => (deltaIndex: number) => {
   if (selectedNotes.length === 0) {
     return
   }
+  const channel = selectedTrack?.channel ?? 0
   const firstNote = sortedNotes(selectedNotes)[0]
   const notes = sortedNotes(allNotes)
   const currentIndex = notes.findIndex((n) => n.id === firstNote.id)
+  const currentNote = notes[currentIndex]
   const nextNote = notes[currentIndex + deltaIndex]
   if (nextNote === undefined) {
     return
   }
 
   selectNote(rootStore)(nextNote.id)
+
+  // Stop playing the current note, then play the new note.
+  player.stopNote({ ...currentNote, channel })
+  player.startNote({ ...nextNote, channel })
+  player.stopNote(
+    { ...nextNote, channel },
+    tickToMillisec(nextNote.duration, 120, song.timebase) / 1000,
+  )
 }
 
 export const selectNextNote = (rootStore: RootStore) => () =>
