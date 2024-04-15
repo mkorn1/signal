@@ -23,6 +23,7 @@ const config = {
     historyApiFallback: {
       rewrites: [
         { from: /^\/edit$/, to: "/edit.html" },
+        { from: /^\/auth$/, to: "/auth.html" },
         { from: /^\/home$/, to: "/community.html" },
         { from: /^\/profile$/, to: "/community.html" },
         { from: /^\/users\/.*$/, to: "/community.html" },
