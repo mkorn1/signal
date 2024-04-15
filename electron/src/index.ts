@@ -1,16 +1,19 @@
 import { app, BrowserWindow, Menu, shell } from "electron"
 import path from "path"
 import { getArgument } from "./arguments"
+import { defaultMenuTemplate } from "./defaultMenu"
 import { Ipc } from "./ipc"
 import { registerIpcMain } from "./ipcMain"
 import { menuTemplate } from "./menu"
 
 let onOpenFile: (filePath: string) => void = () => {}
 let onDropFileOnAppIcon: (filePath: string) => void = () => {}
+let mainWindow: BrowserWindow
+let mainMenu: Electron.Menu
 
 const createWindow = (): void => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 960,
     height: 720,
     title: `signal v${app.getVersion()}`,
@@ -36,7 +39,7 @@ const createWindow = (): void => {
 
   const ipc = new Ipc(mainWindow)
 
-  const menu = Menu.buildFromTemplate(
+  mainMenu = Menu.buildFromTemplate(
     menuTemplate({
       onClickNew: () => ipc.send("onNewFile"),
       onClickOpen: async () => ipc.send("onClickOpenFile"),
@@ -52,7 +55,7 @@ const createWindow = (): void => {
       onClickHelp: () => ipc.send("onOpenHelp"),
     }),
   )
-  Menu.setApplicationMenu(menu)
+  Menu.setApplicationMenu(mainMenu)
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (
@@ -116,6 +119,11 @@ if (!gotTheLock) {
 app.on("open-file", (event, filePath) => {
   event.preventDefault()
   onOpenFile(filePath)
+})
+
+app.on("browser-window-focus", (event, window) => {
+  const defaultMenu = Menu.buildFromTemplate(defaultMenuTemplate)
+  Menu.setApplicationMenu(window === mainWindow ? mainMenu : defaultMenu)
 })
 
 registerIpcMain()
