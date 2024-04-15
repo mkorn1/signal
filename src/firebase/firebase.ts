@@ -10,6 +10,7 @@ import {
   connectFunctionsEmulator,
   getFunctions,
 } from "firebase/functions"
+import { isRunningInElectron } from "../main/helpers/platform"
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
@@ -27,7 +28,7 @@ const modules = (() => {
     const firestore = getFirestore(app)
     const functions = getFunctions(app)
 
-    if (process.env.NODE_ENV !== "production") {
+    if (process.env.NODE_ENV !== "production" && !isRunningInElectron()) {
       const currentHost = window.location.hostname
       connectAuthEmulator(auth, `http://${currentHost}:9099`)
       connectFirestoreEmulator(firestore, currentHost, 8080)
