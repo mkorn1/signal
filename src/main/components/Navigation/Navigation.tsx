@@ -205,7 +205,7 @@ export const Navigation: FC = observer(() => {
         </>
       )}
 
-      {!isRunningInElectron() && <UserButton />}
+      <UserButton />
     </Container>
   )
 })
