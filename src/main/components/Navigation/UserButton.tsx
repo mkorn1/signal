@@ -49,7 +49,11 @@ export const UserButton: FC = observer(() => {
         </Tab>
       }
     >
-      <MenuItem onClick={() => (location.href = `/users/${user.uid}`)}>
+      <MenuItem
+        onClick={() =>
+          window.open(`https://signal.vercel.app/users/${user.uid}`)
+        }
+      >
         <Localized default="Profile">profile</Localized>
       </MenuItem>
       <MenuItem onClick={onClickSignOut}>
