@@ -77,6 +77,8 @@ const createWindow = (): void => {
   onOpenFile = (filePath) => {
     ipc.send("onOpenFile", { filePath })
   }
+
+  registerIpcMain(ipc)
 }
 
 // This method will be called when Electron has finished
@@ -125,5 +127,3 @@ app.on("browser-window-focus", (event, window) => {
   const defaultMenu = Menu.buildFromTemplate(defaultMenuTemplate)
   Menu.setApplicationMenu(window === mainWindow ? mainMenu : defaultMenu)
 })
-
-registerIpcMain()

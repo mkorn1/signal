@@ -1,6 +1,8 @@
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth"
 import type { ElectronAPI } from "../../../electron/src/preload"
 import { localized } from "../../common/localize/localizedString"
 import { songToMidi } from "../../common/midi/midiConversion"
+import { auth } from "../../firebase/firebase"
 import { createSong, setSong } from "../actions"
 import { songFromArrayBuffer } from "../actions/file"
 import { redo, undo } from "../actions/history"
@@ -120,5 +122,9 @@ export const registerElectronReactions = (rootStore: RootStore) => {
   })
   window.electronAPI.onOpenHelp(() => {
     rootStore.rootViewStore.openHelp = true
+  })
+  window.electronAPI.onIdTokenReceived(async ({ idToken }) => {
+    const credential = GoogleAuthProvider.credential(idToken)
+    await signInWithCredential(auth, credential)
   })
 }

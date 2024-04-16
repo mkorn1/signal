@@ -14,15 +14,15 @@ export type IpcEvent =
   | { name: "onOpenSetting" }
   | { name: "onOpenHelp" }
   | { name: "onOpenFile"; params: { filePath: string } }
+  | { name: "onIdTokenReceived"; params: { idToken: string } }
 
-export type EventParams<T extends IpcEvent> = T extends { params: any }
-  ? T["params"]
-  : never
+export type ParamsForEvent<T extends IpcEvent["name"]> =
+  Extract<IpcEvent, { name: T }> extends { params: infer P } ? P : undefined
 
 export class Ipc {
   constructor(private readonly mainWindow: BrowserWindow) {}
 
-  send<T extends IpcEvent>(name: T["name"], params?: EventParams<T>): void {
+  send<T extends IpcEvent["name"]>(name: T, params?: ParamsForEvent<T>): void {
     this.mainWindow.webContents.send(name, params)
   }
 }

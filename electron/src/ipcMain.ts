@@ -8,8 +8,9 @@ import {
 import { readFile, readdir, writeFile } from "fs/promises"
 import { isAbsolute, join } from "path"
 import { getArgument } from "./arguments"
+import { Ipc } from "./ipc"
 
-const api = {
+const api = (ipc: Ipc) => ({
   showOpenDialog: async () => {
     const fileObj = await dialog.showOpenDialog({
       properties: ["openFile"],
@@ -77,7 +78,7 @@ const api = {
       const idToken = new URL(url).searchParams.get("idToken")
       if (idToken) {
         window.close()
-        console.log("idToken", idToken)
+        ipc.send("onIdTokenReceived", { idToken })
       }
     })
     window.loadURL(
@@ -86,12 +87,12 @@ const api = {
         : "http://localhost:3000/auth",
     )
   },
-}
+})
 
-export type IpcMainAPI = typeof api
+export type IpcMainAPI = ReturnType<typeof api>
 
-export const registerIpcMain = () => {
-  Object.entries(api).forEach(([name, func]) => {
+export const registerIpcMain = (ipc: Ipc) => {
+  Object.entries(api(ipc)).forEach(([name, func]) => {
     ipcMain.handle(name, func)
   })
 }
