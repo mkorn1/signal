@@ -12,7 +12,7 @@
     "firebase": "npm --prefix functions run build && firebase emulators:start",
     "firebase:deploy": "firebase deploy",
     "dev:electron": "concurrently \"npm start -- --env electron --no-open\" \"npm run dev --prefix electron\"",
-    "build:electron": "npm run build -- --env electron && cp -r dist electron/dist_renderer",
+    "build:electron": "npm run build -- --env electron && rm -rf electron/dist_renderer && cp -r dist electron/dist_renderer",
     "package:electron": "npm run build:electron && npm run package --prefix electron"
   },
   "repository": {
