@@ -44,6 +44,7 @@ const api = {
     await invoke("searchSoundFonts", path),
   addRecentDocument: (path: string) => invoke("addRecentDocument", path),
   getArgument: () => invoke("getArgument"),
+  openAuthWindow: async () => await invoke("openAuthWindow"),
 }
 
 export type ElectronAPI = typeof api

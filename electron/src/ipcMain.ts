@@ -1,4 +1,10 @@
-import { IpcMainInvokeEvent, app, dialog, ipcMain } from "electron"
+import {
+  BrowserWindow,
+  IpcMainInvokeEvent,
+  app,
+  dialog,
+  ipcMain,
+} from "electron"
 import { readFile, readdir, writeFile } from "fs/promises"
 import { isAbsolute, join } from "path"
 import { getArgument } from "./arguments"
@@ -57,6 +63,29 @@ const api = {
     app.addRecentDocument(path)
   },
   getArgument: async () => getArgument(),
+  openAuthWindow: async () => {
+    const window = new BrowserWindow({
+      width: 500,
+      height: 600,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+      },
+    })
+    window.webContents.on("will-navigate", (e, url) => {
+      // check if url has the parameter idToken
+      const idToken = new URL(url).searchParams.get("idToken")
+      if (idToken) {
+        window.close()
+        console.log("idToken", idToken)
+      }
+    })
+    window.loadURL(
+      app.isPackaged
+        ? "https://signal.vercel.app/auth"
+        : "http://localhost:3000/auth",
+    )
+  },
 }
 
 export type IpcMainAPI = typeof api
