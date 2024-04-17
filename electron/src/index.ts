@@ -58,12 +58,6 @@ const createWindow = (): void => {
   Menu.setApplicationMenu(mainMenu)
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (
-      url.startsWith("http://localhost:9099/emulator/auth/") ||
-      url.startsWith("https://signal-9546d.firebaseapp.com/__/auth/")
-    ) {
-      return { action: "allow" }
-    }
     if (url.startsWith("http")) {
       shell.openExternal(url)
     }
