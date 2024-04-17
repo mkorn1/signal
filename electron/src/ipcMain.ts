@@ -1,13 +1,9 @@
-import {
-  BrowserWindow,
-  IpcMainInvokeEvent,
-  app,
-  dialog,
-  ipcMain,
-} from "electron"
+import { IpcMainInvokeEvent, app, dialog, ipcMain, shell } from "electron"
 import { readFile, readdir, writeFile } from "fs/promises"
+import { getPort } from "get-port-please"
 import { isAbsolute, join } from "path"
 import { getArgument } from "./arguments"
+import { launchAuthCallbackServer } from "./authCallback"
 import { Ipc } from "./ipc"
 
 const api = (ipc: Ipc) => ({
@@ -65,26 +61,34 @@ const api = (ipc: Ipc) => ({
   },
   getArgument: async () => getArgument(),
   openAuthWindow: async () => {
-    const window = new BrowserWindow({
-      width: 500,
-      height: 600,
-      webPreferences: {
-        nodeIntegration: false,
-        contextIsolation: true,
+    const port = await getPort()
+    let closeTimeout: NodeJS.Timeout
+
+    const server = launchAuthCallbackServer({
+      port,
+      onReceiveIdToken: (idToken) => {
+        server.close()
+        clearTimeout(closeTimeout)
+        ipc.send("onIdTokenReceived", { idToken })
       },
     })
-    window.webContents.on("will-navigate", (e, url) => {
-      // check if url has the parameter idToken
-      const idToken = new URL(url).searchParams.get("idToken")
-      if (idToken) {
-        window.close()
-        ipc.send("onIdTokenReceived", { idToken })
-      }
-    })
-    window.loadURL(
+
+    const parameter = `redirect_uri=http://localhost:${port}`
+
+    shell.openExternal(
       app.isPackaged
-        ? "https://signal.vercel.app/auth"
-        : "http://localhost:3000/auth",
+        ? `https://signal.vercel.app/auth?${parameter}`
+        : `http://localhost:3000/auth?${parameter}`,
+    )
+
+    // close server after 5 minutes
+    closeTimeout = setTimeout(
+      () => {
+        if (server.listening) {
+          server.close()
+        }
+      },
+      1000 * 60 * 5,
     )
   },
 })
