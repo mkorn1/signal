@@ -1,0 +1,5 @@
+{
+  "watch": ["dist", "dist_preload"],
+  "exec": "electron .",
+  "ext": "js,json,html,css"
+}

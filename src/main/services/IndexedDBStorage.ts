@@ -65,18 +65,33 @@ export class IndexedDBStorage<Data, Metadata> {
   }
 
   async save(data: Data, metadata: Metadata): Promise<number> {
+    return (await this.saveMany([{ data, metadata }]))[0].id
+  }
+
+  async saveMany(items: { data: Data; metadata: Metadata }[]) {
     if (!this.db) throw new Error("Database not initialized")
     const transaction = this.db.transaction(filesStoreName, "readwrite")
     const store = transaction.objectStore(filesStoreName)
-    const request = store.add(data)
-    const result = await requestToPromise<IDBValidKey>(request)
+
+    const results: { id: number; metadata: Metadata }[] = []
+
+    for await (const item of items) {
+      const request = store.add(item.data)
+      const result = await requestToPromise<IDBValidKey>(request)
+      results.push({
+        id: result as number,
+        metadata: item.metadata,
+      })
+    }
 
     await this.updateCatalog((catalog) => {
-      catalog.files[result as number] = metadata
+      for (const { id, metadata } of results) {
+        catalog.files[id] = metadata
+      }
       return catalog
     })
 
-    return result as number
+    return results
   }
 
   async load(id: number): Promise<Data | null> {
@@ -89,13 +104,21 @@ export class IndexedDBStorage<Data, Metadata> {
   }
 
   async delete(id: number): Promise<void> {
+    await this.deleteMany([id])
+  }
+
+  async deleteMany(ids: number[]): Promise<void> {
     if (!this.db) throw new Error("Database not initialized")
     const transaction = this.db.transaction(filesStoreName, "readwrite")
     const store = transaction.objectStore(filesStoreName)
-    store.delete(id)
+    for (const id of ids) {
+      store.delete(id)
+    }
 
     await this.updateCatalog((catalog) => {
-      delete catalog.files[id]
+      for (const id of ids) {
+        delete catalog.files[id]
+      }
       return catalog
     })
   }

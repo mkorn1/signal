@@ -14,7 +14,9 @@ import { IUserRepository } from "../../repositories/IUserRepository"
 import { UserRepository } from "../../repositories/UserRepository"
 import { setSong } from "../actions"
 import { loadSongFromExternalMidiFile } from "../actions/cloudSong"
+import { songFromArrayBuffer } from "../actions/file"
 import { pushHistory } from "../actions/history"
+import { isRunningInElectron } from "../helpers/platform"
 import { GroupOutput } from "../services/GroupOutput"
 import { MIDIInput, previewMidiInput } from "../services/MIDIInput"
 import { MIDIRecorder } from "../services/MIDIRecorder"
@@ -35,6 +37,7 @@ import SettingStore from "./SettingStore"
 import { SoundFontStore } from "./SoundFontStore"
 import TempoEditorStore from "./TempoEditorStore"
 import { registerReactions } from "./reactions"
+import { registerElectronReactions } from "./registerElectronReactions"
 
 // we use any for now. related: https://github.com/Microsoft/TypeScript/issues/1897
 type Json = any
@@ -129,6 +132,10 @@ export default class RootStore {
 
     registerReactions(this)
 
+    if (isRunningInElectron()) {
+      registerElectronReactions(this)
+    }
+
     this.init()
   }
 
@@ -156,6 +163,7 @@ export default class RootStore {
       await this.soundFontStore.init()
       this.setupMetronomeSynth()
       await this.loadExternalMidiOnLaunchIfNeeded()
+      await this.loadArgumentFileIfNeeded()
       this.initializationPhase = "done"
     } catch (e) {
       this.initializationPhase = "error"
@@ -175,15 +183,37 @@ export default class RootStore {
     }
   }
 
+  private async loadArgumentFileIfNeeded() {
+    if (!isRunningInElectron()) {
+      return
+    }
+    const filePath = await window.electronAPI.getArgument()
+    if (filePath) {
+      const data = await window.electronAPI.readFile(filePath)
+      const song = songFromArrayBuffer(data)
+      setSong(this)(song)
+    }
+  }
+
   private async setupMetronomeSynth() {
-    const soundFontURL =
-      "https://cdn.jsdelivr.net/gh/ryohey/signal@6959f35/public/A320U_drums.sf2"
-    await this.metronomeSynth.setup()
-    const data = await (await fetch(soundFontURL)).arrayBuffer()
+    const data = await loadMetronomeSoundFontData()
     await this.metronomeSynth.loadSoundFont(data)
   }
 
   get pushHistory() {
     return pushHistory(this)
   }
+}
+
+async function loadMetronomeSoundFontData() {
+  if (isRunningInElectron()) {
+    return await window.electronAPI.readFile(
+      "./assets/soundfonts/A320U_drums.sf2",
+    )
+  }
+  const soundFontURL =
+    "https://cdn.jsdelivr.net/gh/ryohey/signal@6959f35/public/A320U_drums.sf2"
+  const response = await fetch(soundFontURL)
+  const data = await response.arrayBuffer()
+  return data
 }

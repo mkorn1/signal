@@ -10,7 +10,10 @@
     "format": "prettier --write src",
     "lint": "prettier --check src",
     "firebase": "npm --prefix functions run build && firebase emulators:start",
-    "firebase:deploy": "firebase deploy"
+    "firebase:deploy": "firebase deploy",
+    "dev:electron": "concurrently \"npm start -- --env electron --no-open\" \"npm run dev --prefix electron\"",
+    "build:electron": "npm run build -- --env electron && rm -rf electron/dist_renderer && cp -r dist electron/dist_renderer",
+    "package:electron": "npm run build:electron && npm run package --prefix electron"
   },
   "repository": {
     "type": "git",
@@ -85,6 +88,7 @@
     "babel-loader": "^9.1.3",
     "babel-plugin-inline-react-svg": "^2.0.2",
     "babel-plugin-lodash": "^3.3.4",
+    "concurrently": "^8.2.2",
     "copy-webpack-plugin": "12.0.2",
     "dotenv-webpack": "^8.0.1",
     "fork-ts-checker-webpack-plugin": "9.0.2",

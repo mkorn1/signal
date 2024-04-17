@@ -4,7 +4,7 @@ const path = require("path")
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin")
 
-module.exports = merge(common, {
+const config = {
   mode: "development",
   devtool: "inline-source-map",
   devServer: {
@@ -23,6 +23,7 @@ module.exports = merge(common, {
     historyApiFallback: {
       rewrites: [
         { from: /^\/edit$/, to: "/edit.html" },
+        { from: /^\/auth$/, to: "/auth.html" },
         { from: /^\/home$/, to: "/community.html" },
         { from: /^\/profile$/, to: "/community.html" },
         { from: /^\/users\/.*$/, to: "/community.html" },
@@ -58,4 +59,6 @@ module.exports = merge(common, {
       react: path.resolve("./node_modules/react"),
     },
   },
-})
+}
+
+module.exports = (env) => merge(common(env), config)

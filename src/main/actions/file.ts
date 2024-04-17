@@ -1,3 +1,4 @@
+import { basename } from "../../common/helpers/path"
 import { songFromMidi, songToMidi } from "../../common/midi/midiConversion"
 import { writeFile } from "../services/fs-helper"
 import RootStore from "../stores/RootStore"
@@ -40,14 +41,23 @@ export const openFile = async (rootStore: RootStore) => {
   setSong(rootStore)(song)
 }
 
-export const songFromFile = async (file: File) => {
-  const buf = await file.arrayBuffer()
-  const song = songFromMidi(new Uint8Array(buf))
-  if (song.name.length === 0) {
+export const songFromFile = async (file: File) =>
+  songFromArrayBuffer(await file.arrayBuffer(), file.name, file.path)
+
+export const songFromArrayBuffer = (
+  content: ArrayBuffer,
+  name?: string,
+  filePath?: string,
+) => {
+  const song = songFromMidi(new Uint8Array(content))
+  const pathOrName = filePath ?? name
+  if (song.name.length === 0 && pathOrName) {
     // Use the file name without extension as the song title
-    song.name = file.name.replace(/\.[^/.]+$/, "")
+    song.name = basename(pathOrName)?.replace(/\.[^/.]+$/, "") ?? ""
   }
-  song.filepath = file.name
+  if (filePath) {
+    song.filepath = filePath
+  }
   song.isSaved = true
   return song
 }

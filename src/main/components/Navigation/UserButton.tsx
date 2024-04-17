@@ -4,6 +4,7 @@ import { FC, useRef } from "react"
 import { Localized } from "../../../components/Localized"
 import { Menu, MenuItem } from "../../../components/Menu"
 import { auth } from "../../../firebase/firebase"
+import { isRunningInElectron } from "../../helpers/platform"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
 import { IconStyle, Tab, TabTitle } from "./Navigation"
@@ -14,7 +15,13 @@ export const UserButton: FC = observer(() => {
     authStore: { authUser: user },
   } = useStores()
 
-  const onClickSignIn = () => (rootViewStore.openSignInDialog = true)
+  const onClickSignIn = () => {
+    if (isRunningInElectron()) {
+      window.electronAPI.openAuthWindow()
+    } else {
+      rootViewStore.openSignInDialog = true
+    }
+  }
   const onClickSignOut = async () => {
     await auth.signOut()
   }
@@ -49,7 +56,11 @@ export const UserButton: FC = observer(() => {
         </Tab>
       }
     >
-      <MenuItem onClick={() => (location.href = `/users/${user.uid}`)}>
+      <MenuItem
+        onClick={() =>
+          window.open(`https://signal.vercel.app/users/${user.uid}`)
+        }
+      >
         <Localized default="Profile">profile</Localized>
       </MenuItem>
       <MenuItem onClick={onClickSignOut}>
