@@ -1,6 +1,6 @@
 import AccountCircle from "mdi-react/AccountCircleIcon"
 import { observer } from "mobx-react-lite"
-import { FC, useRef } from "react"
+import { FC, useRef, useState } from "react"
 import { Localized } from "../../../components/Localized"
 import { Menu, MenuItem } from "../../../components/Menu"
 import { auth } from "../../../firebase/firebase"
@@ -15,15 +15,32 @@ export const UserButton: FC = observer(() => {
     authStore: { authUser: user },
   } = useStores()
 
+  const [open, setOpen] = useState(false)
+
   const onClickSignIn = () => {
     if (isRunningInElectron()) {
       window.electronAPI.openAuthWindow()
     } else {
       rootViewStore.openSignInDialog = true
     }
+    setOpen(false)
   }
+
   const onClickSignOut = async () => {
     await auth.signOut()
+    setOpen(false)
+  }
+
+  const onClickProfile = () => {
+    if (user !== null) {
+      window.open(`https://signal.vercel.app/users/${user.uid}`)
+    }
+    setOpen(false)
+  }
+
+  const onClickFiles = () => {
+    rootViewStore.openCloudFileDialog = true
+    setOpen(false)
   }
 
   const theme = useTheme()
@@ -42,6 +59,8 @@ export const UserButton: FC = observer(() => {
 
   return (
     <Menu
+      open={open}
+      onOpenChange={setOpen}
       trigger={
         <Tab ref={ref}>
           <img
@@ -56,13 +75,10 @@ export const UserButton: FC = observer(() => {
         </Tab>
       }
     >
-      <MenuItem
-        onClick={() =>
-          window.open(`https://signal.vercel.app/users/${user.uid}`)
-        }
-      >
+      <MenuItem onClick={onClickProfile}>
         <Localized default="Profile">profile</Localized>
       </MenuItem>
+
       <MenuItem onClick={onClickSignOut}>
         <Localized default="Sign out">sign-out</Localized>
       </MenuItem>

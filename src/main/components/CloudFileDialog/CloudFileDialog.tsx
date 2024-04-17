@@ -24,7 +24,11 @@ export const CloudFileDialog = observer(() => {
   )
 
   return (
-    <Dialog open={openCloudFileDialog} onOpenChange={onClose}>
+    <Dialog
+      open={openCloudFileDialog}
+      onOpenChange={onClose}
+      style={{ minWidth: "30rem" }}
+    >
       <DialogTitle>
         <Localized default="Files">files</Localized>
       </DialogTitle>
