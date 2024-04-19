@@ -4,7 +4,7 @@ import { ElectronAPI } from "../../../../electron/src/preload"
 import { useLocalization } from "../../../common/localize/useLocalization"
 import { songToMidi } from "../../../common/midi/midiConversion"
 import { auth } from "../../../firebase/firebase"
-import { createSong, setSong } from "../../actions"
+import { setSong } from "../../actions"
 import { songFromArrayBuffer } from "../../actions/file"
 import { redo, undo } from "../../actions/history"
 import {
@@ -12,6 +12,8 @@ import {
   cutSelectionGlobal,
   pasteSelectionGlobal,
 } from "../../actions/hotkey"
+import { useCloudFile } from "../../hooks/useCloudFile"
+import { useSongFile } from "../../hooks/useSongFile"
 import { useStores } from "../../hooks/useStores"
 import RootStore from "../../stores/RootStore"
 
@@ -42,37 +44,45 @@ const saveFileAs = async (rootStore: RootStore) => {
 export const ElectronCallbackHandler: FC = () => {
   const rootStore = useStores()
   const localized = useLocalization()
+  const localSongFile = useSongFile()
+  const cloudSongFile = useCloudFile()
+  const {
+    authStore: { authUser },
+  } = rootStore
+  const isLoggedIn = authUser !== null
 
   useEffect(() => {
-    window.electronAPI.onNewFile(() => {
-      const { song } = rootStore
-      if (
-        song.isSaved ||
-        confirm(localized("confirm-new", "Are you sure you want to continue?"))
-      ) {
-        createSong(rootStore)()
+    window.electronAPI.onNewFile(async () => {
+      if (isLoggedIn) {
+        await cloudSongFile.createNewSong()
+      } else {
+        await localSongFile.createNewSong()
       }
     })
     window.electronAPI.onClickOpenFile(async () => {
-      const { song } = rootStore
-      try {
-        if (
-          song.isSaved ||
-          confirm(
-            localized("confirm-open", "Are you sure you want to continue?"),
-          )
-        ) {
-          const res = await window.electronAPI.showOpenDialog()
-          if (res === null) {
-            return // canceled
+      if (isLoggedIn) {
+        await cloudSongFile.openSong()
+      } else {
+        const { song } = rootStore
+        try {
+          if (
+            song.isSaved ||
+            confirm(
+              localized("confirm-open", "Are you sure you want to continue?"),
+            )
+          ) {
+            const res = await window.electronAPI.showOpenDialog()
+            if (res === null) {
+              return // canceled
+            }
+            const { path, content } = res
+            const song = songFromArrayBuffer(content, path)
+            setSong(rootStore)(song)
+            window.electronAPI.addRecentDocument(path)
           }
-          const { path, content } = res
-          const song = songFromArrayBuffer(content, path)
-          setSong(rootStore)(song)
-          window.electronAPI.addRecentDocument(path)
+        } catch (e) {
+          alert((e as Error).message)
         }
-      } catch (e) {
-        alert((e as Error).message)
       }
     })
     window.electronAPI.onOpenFile(async ({ filePath }) => {
@@ -94,23 +104,35 @@ export const ElectronCallbackHandler: FC = () => {
       }
     })
     window.electronAPI.onSaveFile(async () => {
-      const { song } = rootStore
-      try {
-        if (song.filepath) {
-          const data = songToMidi(rootStore.song).buffer
-          await window.electronAPI.saveFile(song.filepath, data)
-        } else {
-          await saveFileAs(rootStore)
+      if (isLoggedIn) {
+        await cloudSongFile.saveSong()
+      } else {
+        const { song } = rootStore
+        try {
+          if (song.filepath) {
+            const data = songToMidi(rootStore.song).buffer
+            await window.electronAPI.saveFile(song.filepath, data)
+          } else {
+            await saveFileAs(rootStore)
+          }
+        } catch (e) {
+          alert((e as Error).message)
         }
-      } catch (e) {
-        alert((e as Error).message)
       }
     })
     window.electronAPI.onSaveFileAs(async () => {
-      await saveFileAs(rootStore)
+      if (isLoggedIn) {
+        await cloudSongFile.saveAsSong()
+      } else {
+        await localSongFile.saveAsSong()
+      }
     })
-    window.electronAPI.onRename(async () => {})
-    window.electronAPI.onImport(async () => {})
+    window.electronAPI.onRename(async () => {
+      await cloudSongFile.renameSong()
+    })
+    window.electronAPI.onImport(async () => {
+      await cloudSongFile.importSong()
+    })
     window.electronAPI.onExportWav(() => {
       rootStore.exportStore.openExportDialog = true
     })
