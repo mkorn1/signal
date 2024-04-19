@@ -6,6 +6,7 @@ import { defaultTheme } from "../../../common/theme/Theme"
 import { ActionDialog } from "../../../components/ActionDialog"
 import { PromptDialog } from "../../../components/PromptDialog"
 import { Toast } from "../../../components/Toast"
+import { isRunningInElectron } from "../../helpers/platform"
 import { DialogProvider } from "../../hooks/useDialog"
 import { PromptProvider } from "../../hooks/usePrompt"
 import { StoreContext } from "../../hooks/useStores"
@@ -16,6 +17,7 @@ import { GlobalKeyboardShortcut } from "../KeyboardShortcut/GlobalKeyboardShortc
 import { RootView } from "../RootView/RootView"
 import { EmotionThemeProvider } from "../Theme/EmotionThemeProvider"
 import { GlobalCSS } from "../Theme/GlobalCSS"
+import { ElectronCallbackHandler } from "./ElectronCallbackHandler"
 import { LocalizationProvider } from "./LocalizationProvider"
 
 Sentry.init({
@@ -41,6 +43,7 @@ export function App() {
                     <LocalizationProvider>
                       <GlobalKeyboardShortcut />
                       <GlobalCSS />
+                      {isRunningInElectron() && <ElectronCallbackHandler />}
                       <RootView />
                     </LocalizationProvider>
                   </DialogProvider>
