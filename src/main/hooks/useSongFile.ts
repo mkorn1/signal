@@ -1,5 +1,6 @@
+import { ChangeEvent } from "react"
 import { useLocalization } from "../../common/localize/useLocalization"
-import { createSong, saveSong } from "../actions"
+import { createSong, openSong, saveSong } from "../actions"
 import { openFile, saveFile, saveFileAs } from "../actions/file"
 import { useStores } from "./useStores"
 import { useToast } from "./useToast"
@@ -29,6 +30,13 @@ export const useSongFile = () => {
         ) {
           await openFile(rootStore)
         }
+      } catch (e) {
+        toast.error((e as Error).message)
+      }
+    },
+    async openSongLegacy(e: ChangeEvent<HTMLInputElement>) {
+      try {
+        await openSong(rootStore)(e.currentTarget)
       } catch (e) {
         toast.error((e as Error).message)
       }
