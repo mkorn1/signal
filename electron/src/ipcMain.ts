@@ -6,7 +6,11 @@ import { getArgument } from "./arguments"
 import { launchAuthCallbackServer } from "./authCallback"
 import { Ipc } from "./ipc"
 
-const api = (ipc: Ipc) => ({
+interface Callbacks {
+  onAuthStateChanged: (isLoggedIn: boolean) => void
+}
+
+const api = (ipc: Ipc, { onAuthStateChanged }: Callbacks) => ({
   showOpenDialog: async () => {
     const fileObj = await dialog.showOpenDialog({
       properties: ["openFile"],
@@ -91,12 +95,15 @@ const api = (ipc: Ipc) => ({
       1000 * 60 * 5,
     )
   },
+  authStateChanged: (_e: IpcMainInvokeEvent, isLoggedIn: boolean) => {
+    onAuthStateChanged(isLoggedIn)
+  },
 })
 
 export type IpcMainAPI = ReturnType<typeof api>
 
-export const registerIpcMain = (ipc: Ipc) => {
-  Object.entries(api(ipc)).forEach(([name, func]) => {
+export const registerIpcMain = (ipc: Ipc, callbacks: Callbacks) => {
+  Object.entries(api(ipc, callbacks)).forEach(([name, func]) => {
     ipcMain.handle(name, func)
   })
 }

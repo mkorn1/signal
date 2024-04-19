@@ -99,6 +99,8 @@ export const registerElectronReactions = (rootStore: RootStore) => {
   window.electronAPI.onSaveFileAs(async () => {
     await saveFileAs(rootStore)
   })
+  window.electronAPI.onRename(async () => {})
+  window.electronAPI.onImport(async () => {})
   window.electronAPI.onExportWav(() => {
     rootStore.exportStore.openExportDialog = true
   })
