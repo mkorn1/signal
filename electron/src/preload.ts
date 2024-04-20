@@ -8,7 +8,16 @@ function register<T extends IpcEvent["name"]>(
   name: T,
   callback: (params: ParamsForEvent<T>) => void,
 ) {
-  ipcRenderer.on(name, (_event, value) => callback(value))
+  const listener = (
+    _event: Electron.IpcRendererEvent,
+    value: ParamsForEvent<T>,
+  ) => {
+    callback(value)
+  }
+  ipcRenderer.on(name, listener)
+  return () => {
+    ipcRenderer.removeListener(name, listener)
+  }
 }
 
 function invoke<T extends keyof IpcMainAPI>(
