@@ -47,4 +47,8 @@ export class AuthStore {
       await this.userRepository.create(newUserData)
     }
   }
+
+  get isLoggedIn() {
+    return this.authUser !== null
+  }
 }

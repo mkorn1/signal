@@ -47,14 +47,14 @@ export const ElectronCallbackHandler: FC = observer(() => {
   const localized = useLocalization()
   const localSongFile = useSongFile()
   const cloudSongFile = useCloudFile()
-  const {
-    authStore: { authUser },
-  } = rootStore
-  const isLoggedIn = authUser !== null
 
   useEffect(() => {
     const unsubscribes = [
       window.electronAPI.onNewFile(async () => {
+        const {
+          authStore: { isLoggedIn },
+        } = rootStore
+
         if (isLoggedIn) {
           await cloudSongFile.createNewSong()
         } else {
@@ -62,6 +62,10 @@ export const ElectronCallbackHandler: FC = observer(() => {
         }
       }),
       window.electronAPI.onClickOpenFile(async () => {
+        const {
+          authStore: { isLoggedIn },
+        } = rootStore
+
         if (isLoggedIn) {
           await cloudSongFile.openSong()
         } else {
@@ -106,10 +110,14 @@ export const ElectronCallbackHandler: FC = observer(() => {
         }
       }),
       window.electronAPI.onSaveFile(async () => {
+        const {
+          song,
+          authStore: { isLoggedIn },
+        } = rootStore
+
         if (isLoggedIn) {
           await cloudSongFile.saveSong()
         } else {
-          const { song } = rootStore
           try {
             if (song.filepath) {
               const data = songToMidi(rootStore.song).buffer
@@ -123,6 +131,10 @@ export const ElectronCallbackHandler: FC = observer(() => {
         }
       }),
       window.electronAPI.onSaveFileAs(async () => {
+        const {
+          authStore: { isLoggedIn },
+        } = rootStore
+
         if (isLoggedIn) {
           await cloudSongFile.saveAsSong()
         } else {
