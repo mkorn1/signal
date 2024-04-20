@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite"
 import { FC, PropsWithChildren, useCallback } from "react"
 import { localized } from "../../../common/localize/localizedString"
 import { setSong } from "../../actions"
-import { songFromArrayBuffer } from "../../actions/file"
+import { songFromFile } from "../../actions/file"
 import { useStores } from "../../hooks/useStores"
 
 const Container = styled.div`
@@ -23,32 +23,19 @@ export const DropZone: FC<PropsWithChildren<{}>> = observer(({ children }) => {
   }, [])
 
   const onDrop = useCallback(
-    (e: React.DragEvent) => {
+    async (e: React.DragEvent) => {
       e.preventDefault()
       const file = e.dataTransfer.files[0]
       if (file.type !== "audio/midi") {
         return
       }
-      const reader = new FileReader()
-      reader.onload = () => {
-        const data = reader.result
-        if (data) {
-          if (
-            song.isSaved ||
-            confirm(
-              localized("confirm-open", "Are you sure you want to continue?"),
-            )
-          ) {
-            const newSong = songFromArrayBuffer(
-              data as ArrayBuffer,
-              file.name,
-              file.path,
-            )
-            setSong(rootStore)(newSong)
-          }
-        }
+      if (
+        song.isSaved ||
+        confirm(localized("confirm-open", "Are you sure you want to continue?"))
+      ) {
+        const newSong = await songFromFile(file)
+        setSong(rootStore)(newSong)
       }
-      reader.readAsArrayBuffer(file)
     },
     [song, rootStore],
   )

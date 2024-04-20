@@ -185,7 +185,7 @@ export default class RootStore {
     const filePath = await window.electronAPI.getArgument()
     if (filePath) {
       const data = await window.electronAPI.readFile(filePath)
-      const song = songFromArrayBuffer(data)
+      const song = songFromArrayBuffer(data, filePath)
       setSong(this)(song)
     }
   }

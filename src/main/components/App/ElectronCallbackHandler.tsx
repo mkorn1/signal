@@ -48,6 +48,24 @@ export const ElectronCallbackHandler: FC = observer(() => {
   const localSongFile = useSongFile()
   const cloudSongFile = useCloudFile()
 
+  const saveFileAs = async () => {
+    const { song } = rootStore
+    try {
+      const res = await window.electronAPI.showSaveDialog()
+      if (res === null) {
+        return // canceled
+      }
+      const { path } = res
+      const data = songToMidi(song).buffer
+      song.filepath = path
+      song.isSaved = true
+      await window.electronAPI.saveFile(path, data)
+      window.electronAPI.addRecentDocument(path)
+    } catch (e) {
+      alert((e as Error).message)
+    }
+  }
+
   useEffect(() => {
     const unsubscribes = [
       window.electronAPI.onNewFile(async () => {
@@ -122,8 +140,9 @@ export const ElectronCallbackHandler: FC = observer(() => {
             if (song.filepath) {
               const data = songToMidi(rootStore.song).buffer
               await window.electronAPI.saveFile(song.filepath, data)
+              song.isSaved = true
             } else {
-              await saveFileAs(rootStore)
+              await saveFileAs()
             }
           } catch (e) {
             alert((e as Error).message)
@@ -138,7 +157,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
         if (isLoggedIn) {
           await cloudSongFile.saveAsSong()
         } else {
-          await localSongFile.saveAsSong()
+          await saveFileAs()
         }
       }),
       window.electronAPI.onRename(async () => {

@@ -42,12 +42,12 @@ export const openFile = async (rootStore: RootStore) => {
 }
 
 export const songFromFile = async (file: File) =>
-  songFromArrayBuffer(await file.arrayBuffer(), file.name, file.path)
+  songFromArrayBuffer(await file.arrayBuffer(), file.path, file.name)
 
 export const songFromArrayBuffer = (
   content: ArrayBuffer,
+  filePath: string,
   name?: string,
-  filePath?: string,
 ) => {
   const song = songFromMidi(new Uint8Array(content))
   const pathOrName = filePath ?? name
