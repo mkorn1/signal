@@ -36,7 +36,14 @@ export const useSongFile = () => {
     },
     async openSongLegacy(e: ChangeEvent<HTMLInputElement>) {
       try {
-        await openSong(rootStore)(e.currentTarget)
+        if (
+          song.isSaved ||
+          confirm(
+            localized("confirm-new", "Are you sure you want to continue?"),
+          )
+        ) {
+          await openSong(rootStore)(e.currentTarget)
+        }
       } catch (e) {
         toast.error((e as Error).message)
       }
