@@ -63,15 +63,17 @@ export const songFromArrayBuffer = (
 }
 
 export const saveFile = async (rootStore: RootStore) => {
-  const fileHandle = rootStore.song.fileHandle
+  const { song } = rootStore
+  const fileHandle = song.fileHandle
   if (fileHandle === null) {
     await saveFileAs(rootStore)
     return
   }
 
-  const data = songToMidi(rootStore.song).buffer
+  const data = songToMidi(song).buffer
   try {
     await writeFile(fileHandle, data)
+    song.isSaved = true
   } catch (e) {
     console.error(e)
     alert("unable to save file")
@@ -101,6 +103,7 @@ export const saveFileAs = async ({ song }: RootStore) => {
   try {
     const data = songToMidi(song).buffer
     await writeFile(fileHandle, data)
+    song.isSaved = true
     song.fileHandle = fileHandle
   } catch (ex) {
     const msg = "Unable to save file."
