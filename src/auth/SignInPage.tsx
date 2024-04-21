@@ -39,10 +39,18 @@ export const SignInPage: FC = () => {
               GithubAuthProvider.PROVIDER_ID,
             ],
             callbacks: {
-              signInSuccessWithAuthResult: (result) => {
+              signInSuccessWithAuthResult: (_) => {
                 if (auth.currentUser !== null) {
                   getIdToken(auth.currentUser).then((idToken) => {
-                    location.href = "/auth?idToken=" + idToken
+                    const redirectUrl = new URLSearchParams(
+                      location.search,
+                    ).get("redirect_uri")
+                    if (
+                      redirectUrl &&
+                      redirectUrl.startsWith("http://localhost:")
+                    ) {
+                      location.href = redirectUrl + "?idToken=" + idToken
+                    }
                   })
                 }
                 return false

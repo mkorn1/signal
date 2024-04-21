@@ -4,6 +4,7 @@ import {
   IUserRepository,
   User,
 } from "../../repositories/IUserRepository"
+import { isRunningInElectron } from "../helpers/platform"
 
 export class AuthStore {
   authUser: AuthUser | null = null
@@ -19,6 +20,10 @@ export class AuthStore {
 
     userRepository.observeAuthUser(async (user) => {
       this.authUser = user
+
+      if (isRunningInElectron()) {
+        window.electronAPI.authStateChanged(user !== null)
+      }
 
       subscribe?.()
 
@@ -41,5 +46,9 @@ export class AuthStore {
       }
       await this.userRepository.create(newUserData)
     }
+  }
+
+  get isLoggedIn() {
+    return this.authUser !== null
   }
 }

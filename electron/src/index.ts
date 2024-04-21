@@ -39,31 +39,32 @@ const createWindow = (): void => {
 
   const ipc = new Ipc(mainWindow)
 
-  mainMenu = Menu.buildFromTemplate(
-    menuTemplate({
-      onClickNew: () => ipc.send("onNewFile"),
-      onClickOpen: async () => ipc.send("onClickOpenFile"),
-      onClickSave: () => ipc.send("onSaveFile"),
-      onClickSaveAs: () => ipc.send("onSaveFileAs"),
-      onClickExportWav: () => ipc.send("onExportWav"),
-      onClickUndo: () => ipc.send("onUndo"),
-      onClickRedo: () => ipc.send("onRedo"),
-      onClickCut: () => ipc.send("onCut"),
-      onClickCopy: () => ipc.send("onCopy"),
-      onClickPaste: () => ipc.send("onPaste"),
-      onClickSetting: () => ipc.send("onOpenSetting"),
-      onClickHelp: () => ipc.send("onOpenHelp"),
-    }),
-  )
-  Menu.setApplicationMenu(mainMenu)
+  function updateMainMenu(isLoggedIn: boolean) {
+    mainMenu = Menu.buildFromTemplate(
+      menuTemplate({
+        isLoggedIn,
+        onClickNew: () => ipc.send("onNewFile"),
+        onClickOpen: async () => ipc.send("onClickOpenFile"),
+        onClickSave: () => ipc.send("onSaveFile"),
+        onClickSaveAs: () => ipc.send("onSaveFileAs"),
+        onClickRename: () => ipc.send("onRename"),
+        onClickImport: () => ipc.send("onImport"),
+        onClickExportWav: () => ipc.send("onExportWav"),
+        onClickUndo: () => ipc.send("onUndo"),
+        onClickRedo: () => ipc.send("onRedo"),
+        onClickCut: () => ipc.send("onCut"),
+        onClickCopy: () => ipc.send("onCopy"),
+        onClickPaste: () => ipc.send("onPaste"),
+        onClickSetting: () => ipc.send("onOpenSetting"),
+        onClickHelp: () => ipc.send("onOpenHelp"),
+      }),
+    )
+    Menu.setApplicationMenu(mainMenu)
+  }
+
+  updateMainMenu(false)
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (
-      url.startsWith("http://localhost:9099/emulator/auth/") ||
-      url.startsWith("https://signal-9546d.firebaseapp.com/__/auth/")
-    ) {
-      return { action: "allow" }
-    }
     if (url.startsWith("http")) {
       shell.openExternal(url)
     }
@@ -78,7 +79,11 @@ const createWindow = (): void => {
     ipc.send("onOpenFile", { filePath })
   }
 
-  registerIpcMain(ipc)
+  registerIpcMain(ipc, {
+    onAuthStateChanged(isLoggedIn) {
+      updateMainMenu(isLoggedIn)
+    },
+  })
 }
 
 // This method will be called when Electron has finished

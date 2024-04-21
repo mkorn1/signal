@@ -8,7 +8,16 @@ function register<T extends IpcEvent["name"]>(
   name: T,
   callback: (params: ParamsForEvent<T>) => void,
 ) {
-  ipcRenderer.on(name, (_event, value) => callback(value))
+  const listener = (
+    _event: Electron.IpcRendererEvent,
+    value: ParamsForEvent<T>,
+  ) => {
+    callback(value)
+  }
+  ipcRenderer.on(name, listener)
+  return () => {
+    ipcRenderer.removeListener(name, listener)
+  }
 }
 
 function invoke<T extends keyof IpcMainAPI>(
@@ -26,6 +35,8 @@ const api = {
     register("onOpenFile", callback),
   onSaveFile: (callback: () => void) => register("onSaveFile", callback),
   onSaveFileAs: (callback: () => void) => register("onSaveFileAs", callback),
+  onRename: (callback: () => void) => register("onRename", callback),
+  onImport: (callback: () => void) => register("onImport", callback),
   onExportWav: (callback: () => void) => register("onExportWav", callback),
   onUndo: (callback: () => void) => register("onUndo", callback),
   onRedo: (callback: () => void) => register("onRedo", callback),
@@ -47,6 +58,8 @@ const api = {
   addRecentDocument: (path: string) => invoke("addRecentDocument", path),
   getArgument: () => invoke("getArgument"),
   openAuthWindow: async () => await invoke("openAuthWindow"),
+  authStateChanged: (isLoggedIn: boolean) =>
+    invoke("authStateChanged", isLoggedIn),
 }
 
 export type ElectronAPI = typeof api

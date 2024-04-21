@@ -5,6 +5,8 @@ export type IpcEvent =
   | { name: "onClickOpenFile" }
   | { name: "onSaveFile" }
   | { name: "onSaveFileAs" }
+  | { name: "onRename" }
+  | { name: "onImport" }
   | { name: "onExportWav" }
   | { name: "onUndo" }
   | { name: "onRedo" }

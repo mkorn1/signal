@@ -37,7 +37,6 @@ import SettingStore from "./SettingStore"
 import { SoundFontStore } from "./SoundFontStore"
 import TempoEditorStore from "./TempoEditorStore"
 import { registerReactions } from "./reactions"
-import { registerElectronReactions } from "./registerElectronReactions"
 
 // we use any for now. related: https://github.com/Microsoft/TypeScript/issues/1897
 type Json = any
@@ -132,10 +131,6 @@ export default class RootStore {
 
     registerReactions(this)
 
-    if (isRunningInElectron()) {
-      registerElectronReactions(this)
-    }
-
     this.init()
   }
 
@@ -190,7 +185,7 @@ export default class RootStore {
     const filePath = await window.electronAPI.getArgument()
     if (filePath) {
       const data = await window.electronAPI.readFile(filePath)
-      const song = songFromArrayBuffer(data)
+      const song = songFromArrayBuffer(data, filePath)
       setSong(this)(song)
     }
   }

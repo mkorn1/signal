@@ -95,8 +95,13 @@ export const CloudFileList = observer(() => {
       toast.error((e as Error).message)
     }
   }
+
   if (isLoading) {
     return <CircularProgress />
+  }
+
+  if (files.length === 0) {
+    return <Localized default="No files">no-files</Localized>
   }
 
   const sortLabel = (() => {

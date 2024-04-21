@@ -3,10 +3,13 @@ import { MenuItemConstructorOptions, app } from "electron"
 const isMac = process.platform === "darwin"
 
 export interface MenuTemplateProps {
+  isLoggedIn: boolean
   onClickNew: () => void
   onClickOpen: () => void
   onClickSave: () => void
   onClickSaveAs: () => void
+  onClickRename: () => void
+  onClickImport: () => void
   onClickExportWav: () => void
   onClickUndo: () => void
   onClickRedo: () => void
@@ -18,10 +21,13 @@ export interface MenuTemplateProps {
 }
 
 export const menuTemplate = ({
+  isLoggedIn,
   onClickNew,
   onClickOpen,
   onClickSave,
   onClickSaveAs,
+  onClickRename,
+  onClickImport,
   onClickExportWav,
   onClickUndo,
   onClickRedo,
@@ -67,7 +73,9 @@ export const menuTemplate = ({
         accelerator: "CmdOrCtrl+Shift+S",
         click: onClickSaveAs,
       },
+      ...(isLoggedIn ? [{ label: "Rename", click: onClickRename }] : []),
       { type: "separator" },
+      ...(isLoggedIn ? [{ label: "Import", click: onClickImport }] : []),
       { label: "Export", submenu: [{ label: "WAV", click: onClickExportWav }] },
       { type: "separator" },
       isMac ? { role: "close" } : { role: "quit" },
