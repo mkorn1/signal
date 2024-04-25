@@ -27,7 +27,7 @@ const modules = (() => {
     const firestore = getFirestore(app)
     const functions = getFunctions(app)
 
-    if (false) {
+    if (process.env.NODE_ENV !== "production") {
       const currentHost = window.location.hostname
       connectAuthEmulator(auth, `http://${currentHost}:9099`)
       connectFirestoreEmulator(firestore, currentHost, 8080)
