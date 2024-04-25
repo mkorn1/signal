@@ -1,6 +1,11 @@
-import { GoogleAuthProvider, signInWithCredential } from "firebase/auth"
+import {
+  GithubAuthProvider,
+  GoogleAuthProvider,
+  signInWithCredential,
+} from "firebase/auth"
 import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
+import { FirebaseCredential } from "../../../../electron/src/ipc"
 import { ElectronAPI } from "../../../../electron/src/preload"
 import { useLocalization } from "../../../common/localize/useLocalization"
 import { songToMidi } from "../../../common/midi/midiConversion"
@@ -16,6 +21,7 @@ import {
 import { useCloudFile } from "../../hooks/useCloudFile"
 import { useSongFile } from "../../hooks/useSongFile"
 import { useStores } from "../../hooks/useStores"
+import { useToast } from "../../hooks/useToast"
 import RootStore from "../../stores/RootStore"
 
 declare global {
@@ -47,6 +53,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
   const localized = useLocalization()
   const localSongFile = useSongFile()
   const cloudSongFile = useCloudFile()
+  const toast = useToast()
 
   const saveFileAs = async () => {
     const { song } = rootStore
@@ -190,10 +197,16 @@ export const ElectronCallbackHandler: FC = observer(() => {
       window.electronAPI.onOpenHelp(() => {
         rootStore.rootViewStore.openHelp = true
       }),
-      window.electronAPI.onIdTokenReceived(async ({ idToken }) => {
-        const credential = GoogleAuthProvider.credential(idToken)
-        await signInWithCredential(auth, credential)
-      }),
+      window.electronAPI.onIdTokenReceived(
+        async ({ credential: credentialJSON }) => {
+          const credential = createCredential(credentialJSON)
+          try {
+            await signInWithCredential(auth, credential)
+          } catch (e) {
+            toast.error("Failed to sign in with Google")
+          }
+        },
+      ),
     ]
     return () => {
       unsubscribes.forEach((unsubscribe) => unsubscribe())
@@ -202,3 +215,17 @@ export const ElectronCallbackHandler: FC = observer(() => {
 
   return <></>
 })
+
+function createCredential(credential: FirebaseCredential) {
+  switch (credential.providerId) {
+    case "google.com":
+      return GoogleAuthProvider.credential(
+        credential.idToken,
+        credential.accessToken,
+      )
+    case "github.com":
+      return GithubAuthProvider.credential(credential.accessToken)
+    default:
+      throw new Error("Invalid provider")
+  }
+}

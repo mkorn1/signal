@@ -16,7 +16,18 @@ export type IpcEvent =
   | { name: "onOpenSetting" }
   | { name: "onOpenHelp" }
   | { name: "onOpenFile"; params: { filePath: string } }
-  | { name: "onIdTokenReceived"; params: { idToken: string } }
+  | { name: "onIdTokenReceived"; params: { credential: FirebaseCredential } }
+
+export type FirebaseCredential =
+  | {
+      providerId: "google.com"
+      idToken: string
+      accessToken: string
+    }
+  | {
+      providerId: "github.com"
+      accessToken: string
+    }
 
 export type ParamsForEvent<T extends IpcEvent["name"]> =
   Extract<IpcEvent, { name: T }> extends { params: infer P } ? P : undefined

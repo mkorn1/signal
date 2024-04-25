@@ -3,11 +3,7 @@ import { DialogContent, DialogTitle } from "../components/Dialog"
 
 import styled from "@emotion/styled"
 import "firebase/auth"
-import {
-  GithubAuthProvider,
-  GoogleAuthProvider,
-  getIdToken,
-} from "firebase/auth"
+import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth"
 import { Localized } from "../components/Localized"
 import { auth } from "../firebase/firebase"
 import { StyledFirebaseAuth } from "../main/components/FirebaseAuth/StyledFirebaseAuth"
@@ -39,19 +35,16 @@ export const SignInPage: FC = () => {
               GithubAuthProvider.PROVIDER_ID,
             ],
             callbacks: {
-              signInSuccessWithAuthResult: (_) => {
-                if (auth.currentUser !== null) {
-                  getIdToken(auth.currentUser).then((idToken) => {
-                    const redirectUrl = new URLSearchParams(
-                      location.search,
-                    ).get("redirect_uri")
-                    if (
-                      redirectUrl &&
-                      redirectUrl.startsWith("http://localhost:")
-                    ) {
-                      location.href = redirectUrl + "?idToken=" + idToken
-                    }
-                  })
+              signInSuccessWithAuthResult: ({ credential }) => {
+                const redirectUrl = new URLSearchParams(location.search).get(
+                  "redirect_uri",
+                )
+                if (
+                  redirectUrl &&
+                  redirectUrl.startsWith("http://localhost:")
+                ) {
+                  location.href =
+                    redirectUrl + "?credential=" + JSON.stringify(credential)
                 }
                 return false
               },
