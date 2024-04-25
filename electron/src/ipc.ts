@@ -16,7 +16,10 @@ export type IpcEvent =
   | { name: "onOpenSetting" }
   | { name: "onOpenHelp" }
   | { name: "onOpenFile"; params: { filePath: string } }
-  | { name: "onIdTokenReceived"; params: { credential: FirebaseCredential } }
+  | {
+      name: "onBrowserSignInCompleted"
+      params: { credential: FirebaseCredential }
+    }
 
 export type FirebaseCredential =
   | {

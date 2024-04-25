@@ -197,7 +197,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
       window.electronAPI.onOpenHelp(() => {
         rootStore.rootViewStore.openHelp = true
       }),
-      window.electronAPI.onIdTokenReceived(
+      window.electronAPI.onBrowserSignInCompleted(
         async ({ credential: credentialJSON }) => {
           const credential = createCredential(credentialJSON)
           try {

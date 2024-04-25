@@ -45,9 +45,9 @@ const api = {
   onPaste: (callback: () => void) => register("onPaste", callback),
   onOpenSetting: (callback: () => void) => register("onOpenSetting", callback),
   onOpenHelp: (callback: () => void) => register("onOpenHelp", callback),
-  onIdTokenReceived: (
+  onBrowserSignInCompleted: (
     callback: (params: { credential: FirebaseCredential }) => void,
-  ) => register("onIdTokenReceived", callback),
+  ) => register("onBrowserSignInCompleted", callback),
   showOpenDialog: async () => await invoke("showOpenDialog"),
   showOpenDirectoryDialog: async () => await invoke("showOpenDirectoryDialog"),
   showSaveDialog: async () => await invoke("showSaveDialog"),

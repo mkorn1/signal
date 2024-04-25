@@ -73,7 +73,7 @@ const api = (ipc: Ipc, { onAuthStateChanged }: Callbacks) => ({
       onComplete: (credential) => {
         server.close()
         clearTimeout(closeTimeout)
-        ipc.send("onIdTokenReceived", { credential })
+        ipc.send("onBrowserSignInCompleted", { credential })
       },
     })
 
