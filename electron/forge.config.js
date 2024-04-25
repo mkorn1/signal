@@ -1,5 +1,6 @@
 module.exports = {
   packagerConfig: {
+    icon: "./icons/icon",
     ignore: [
       "^/src",
       "^/README.md",

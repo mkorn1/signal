@@ -10,7 +10,8 @@
     "build": "tsc && tsc -p tsconfig.preload.json",
     "package": "npm run build && rm -rf out && electron-forge package",
     "make": "electron-forge make",
-    "publish": "electron-forge publish"
+    "publish": "electron-forge publish",
+    "generate-icon": "./scripts/icons.sh src/icons/Icon-macOS.png ./icons/icon.icns"
   },
   "author": "ryohey",
   "devDependencies": {
