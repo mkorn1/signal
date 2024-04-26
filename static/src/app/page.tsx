@@ -1,4 +1,5 @@
 import { Metadata } from "next"
+import { Localized } from "../l18n/Localized"
 import generalMidiLogo from "./images/general-midi-logo.svg"
 import githubIcon from "./images/github-icon.svg"
 import chartIcon from "./images/iconmonstr-chart-21.svg"
@@ -40,15 +41,23 @@ export default function Home() {
       <section id="hero">
         <div className="content">
           <div className="text">
-            <h1 data-i18n="app-intro">Fully Open-sourced Online MIDI Editor</h1>
-            <p className="description" data-i18n="app-desc">
-              Start making music without installing anything
+            <h1>
+              <Localized localizationKey="app-intro">
+                Fully Open-sourced Online MIDI Editor
+              </Localized>
+            </h1>
+            <p className="description">
+              <Localized localizationKey="app-desc">
+                Start making music without installing anything
+              </Localized>
             </p>
-            <a href="edit" id="launch-button" data-i18n="launch">
-              Launch
+            <a href="edit" id="launch-button">
+              <Localized localizationKey="launch">Launch</Localized>
             </a>
-            <p className="platform" data-i18n="platform">
-              Supported desktop browsers: Google Chrome / Firefox / Safari
+            <p className="platform">
+              <Localized localizationKey="platform">
+                Supported desktop browsers: Google Chrome / Firefox / Safari
+              </Localized>
             </p>
           </div>
           <div className="image">
@@ -60,14 +69,18 @@ export default function Home() {
       <section id="features">
         <div className="content">
           <div className="left">
-            <h3 data-i18n="features">Features</h3>
+            <h3>
+              <Localized localizationKey="features">Features</Localized>
+            </h3>
 
             <div className="feature" style={{ background: "#3c2fd740" }}>
               <div className="icon" style={{ background: "#3c2fd7" }}>
                 <img src={midiLogo.src} style={{ width: "3rem" }} />
               </div>
-              <div className="title" data-i18n="feature-midi-file">
-                Fully equipped MIDI editor
+              <div className="title">
+                <Localized localizationKey="feature-midi-file">
+                  Fully equipped MIDI editor
+                </Localized>
               </div>
               <div
                 className="description"
@@ -83,8 +96,10 @@ export default function Home() {
               <div className="icon" style={{ background: "#e7372c" }}>
                 <img src={generalMidiLogo.src} />
               </div>
-              <div className="title" data-i18n="feature-gm-module">
-                GM compatible sound module
+              <div className="title">
+                <Localized localizationKey="feature-gm-module">
+                  GM compatible sound module
+                </Localized>
               </div>
               <div
                 className="description"
@@ -100,8 +115,10 @@ export default function Home() {
               <div className="icon" style={{ background: "#ff9900" }}>
                 <img src={wavFile.src} />
               </div>
-              <div className="title" data-i18n="feature-export-audio">
-                Ultra-fast audio file export
+              <div className="title">
+                <Localized localizationKey="feature-export-audio">
+                  Ultra-fast audio file export
+                </Localized>
               </div>
               <div
                 className="description"
@@ -117,8 +134,10 @@ export default function Home() {
               <div className="icon" style={{ background: "#249f9f" }}>
                 <img src={synthesizerKeyboard.src} />
               </div>
-              <div className="title" data-i18n="feature-midi-io">
-                MIDI I/O Support
+              <div className="title">
+                <Localized localizationKey="feature-midi-io">
+                  MIDI I/O Support
+                </Localized>
               </div>
               <div
                 className="description"
@@ -134,8 +153,10 @@ export default function Home() {
               <div className="icon" style={{ background: "#3c2fd7" }}>
                 <img src={chartIcon.src} />
               </div>
-              <div className="title" data-i18n="feature-time-signature">
-                Non-4/4 time signature and 300+ bpm
+              <div className="title">
+                <Localized localizationKey="feature-time-signature">
+                  Non-4/4 time signature and 300+ bpm
+                </Localized>
               </div>
               <div
                 className="description"
@@ -150,11 +171,13 @@ export default function Home() {
               <div className="icon" style={{ background: "#ff9900" }}>
                 <img src={pwaLogo.src} />
               </div>
-              <div className="title" data-i18n="feature-pwa">
-                PWA Support
+              <div className="title">
+                <Localized localizationKey="feature-pwa">PWA Support</Localized>
               </div>
-              <div className="description" data-i18n="feature-pwa-description">
-                Want to hide your browser's address bar? You can install it on
+              <div className="description">
+                <Localized localizationKey="feature-pwa-description">
+                  Want to hide your browser's address bar? You can install it on
+                </Localized>
                 your desktop and use it as an application.
               </div>
             </div>
@@ -178,9 +201,16 @@ export default function Home() {
 
       <section id="sponsor">
         <div className="content">
-          <h3 data-i18n="become-sponsor">Become a sponsor!</h3>
-          <p className="sponsor-intro" data-i18n="sponsor-intro">
-            signal is an application that I am personally building on weekends.
+          <h3>
+            <Localized localizationKey="become-sponsor">
+              Become a sponsor!
+            </Localized>
+          </h3>
+          <p className="sponsor-intro">
+            <Localized localizationKey="sponsor-intro">
+              signal is an application that I am personally building on
+              weekends.
+            </Localized>
             If you like the concept of a lightweight composition software that
             runs in your browser, please support me.
           </p>
@@ -190,21 +220,31 @@ export default function Home() {
             href="https://github.com/sponsors/ryohey"
           >
             <img src={favoriteIcon.src} />
-            <span data-i18n="open-github-sponsors">Open Github Sponsors</span>
+            <span>
+              <Localized localizationKey="open-github-sponsors">
+                Open Github Sponsors
+              </Localized>
+            </span>
           </a>
         </div>
       </section>
 
       <section id="support">
         <div className="content">
-          <h3 data-i18n="support">Support</h3>
+          <h3>
+            <Localized localizationKey="support">Support</Localized>
+          </h3>
 
           <div className="support-row">
             <a className="external-link" href="https://twitter.com/signalmidi">
               <img src={twitterIcon.src} />
               @signalmidi
             </a>
-            <span data-i18n="follow-twitter">Check for updates on Twitter</span>
+            <span>
+              <Localized localizationKey="follow-twitter">
+                Check for updates on Twitter
+              </Localized>
+            </span>
           </div>
 
           <div className="support-row">
@@ -215,8 +255,10 @@ export default function Home() {
               <img src={githubIcon.src} />
               ryohey/signal
             </a>
-            <span data-i18n="support-github-desctiption">
-              Report bugs or Request features on GitHub
+            <span>
+              <Localized localizationKey="support-github-desctiption">
+                Report bugs or Request features on GitHub
+              </Localized>
             </span>
           </div>
         </div>
