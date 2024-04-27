@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { Localized } from "../l18n/Localized"
+import { Localized } from "../l18n/useLocalization"
 import generalMidiLogo from "./images/general-midi-logo.svg"
 import githubIcon from "./images/github-icon.svg"
 import chartIcon from "./images/iconmonstr-chart-21.svg"
@@ -42,22 +42,16 @@ export default function Home() {
         <div className="content">
           <div className="text">
             <h1>
-              <Localized localizationKey="app-intro">
-                Fully Open-sourced Online MIDI Editor
-              </Localized>
+              <Localized name="app-intro" />
             </h1>
             <p className="description">
-              <Localized localizationKey="app-desc">
-                Start making music without installing anything
-              </Localized>
+              <Localized name="app-desc" />
             </p>
             <a href="edit" id="launch-button">
-              <Localized localizationKey="launch">Launch</Localized>
+              <Localized name="launch" />
             </a>
             <p className="platform">
-              <Localized localizationKey="platform">
-                Supported desktop browsers: Google Chrome / Firefox / Safari
-              </Localized>
+              <Localized name="platform" />
             </p>
           </div>
           <div className="image">
@@ -70,7 +64,7 @@ export default function Home() {
         <div className="content">
           <div className="left">
             <h3>
-              <Localized localizationKey="features">Features</Localized>
+              <Localized name="features" />
             </h3>
 
             <div className="feature" style={{ background: "#3c2fd740" }}>
@@ -78,17 +72,10 @@ export default function Home() {
                 <img src={midiLogo.src} style={{ width: "3rem" }} />
               </div>
               <div className="title">
-                <Localized localizationKey="feature-midi-file">
-                  Fully equipped MIDI editor
-                </Localized>
+                <Localized name="feature-midi-file" />
               </div>
-              <div
-                className="description"
-                data-i18n="feature-midi-file-description"
-              >
-                Orchestrate freely with the multi-track piano roll editor. Of
-                course, you can use velocity, pitch bend, expression, and
-                modulation to create expressive sound.
+              <div className="description">
+                <Localized name="feature-midi-file-description" />
               </div>
             </div>
 
@@ -97,17 +84,10 @@ export default function Home() {
                 <img src={generalMidiLogo.src} />
               </div>
               <div className="title">
-                <Localized localizationKey="feature-gm-module">
-                  GM compatible sound module
-                </Localized>
+                <Localized name="feature-gm-module" />
               </div>
-              <div
-                className="description"
-                data-i18n="feature-gm-module-description"
-              >
-                128 virtual instruments loaded at very high speed. A dedicated
-                sound module built with the WebAudio API and AudioWorklet allows
-                you to play countless notes in your browser.
+              <div className="description">
+                <Localized name="feature-gm-module-description" />
               </div>
             </div>
 
@@ -116,17 +96,10 @@ export default function Home() {
                 <img src={wavFile.src} />
               </div>
               <div className="title">
-                <Localized localizationKey="feature-export-audio">
-                  Ultra-fast audio file export
-                </Localized>
+                <Localized name="feature-export-audio" />
               </div>
-              <div
-                className="description"
-                data-i18n="feature-export-audio-description"
-              >
-                You can save the music you create as a WAV file and listen to it
-                on your smartphone, use it as background music for your videos,
-                or import it into your DAW.
+              <div className="description">
+                <Localized name="feature-export-audio-description" />
               </div>
             </div>
 
@@ -135,17 +108,10 @@ export default function Home() {
                 <img src={synthesizerKeyboard.src} />
               </div>
               <div className="title">
-                <Localized localizationKey="feature-midi-io">
-                  MIDI I/O Support
-                </Localized>
+                <Localized name="feature-midi-io" />
               </div>
-              <div
-                className="description"
-                data-i18n="feature-midi-io-description"
-              >
-                Using a browser that supports the Web MIDI API, you can record
-                the performance of a MIDI keyboard connected to your computer,
-                or play sounds from a hardware synth.
+              <div className="description">
+                <Localized name="feature-midi-io-description" />
               </div>
             </div>
 
@@ -154,16 +120,10 @@ export default function Home() {
                 <img src={chartIcon.src} />
               </div>
               <div className="title">
-                <Localized localizationKey="feature-time-signature">
-                  Non-4/4 time signature and 300+ bpm
-                </Localized>
+                <Localized name="feature-time-signature" />
               </div>
-              <div
-                className="description"
-                data-i18n="feature-time-signature-description"
-              >
-                The graph editor allows you to freely change the tempo and time
-                signature in the middle of a song.
+              <div className="description">
+                <Localized name="feature-time-signature-description" />
               </div>
             </div>
 
@@ -172,13 +132,10 @@ export default function Home() {
                 <img src={pwaLogo.src} />
               </div>
               <div className="title">
-                <Localized localizationKey="feature-pwa">PWA Support</Localized>
+                <Localized name="feature-pwa" />
               </div>
               <div className="description">
-                <Localized localizationKey="feature-pwa-description">
-                  Want to hide your browser's address bar? You can install it on
-                </Localized>
-                your desktop and use it as an application.
+                <Localized name="feature-pwa-description" />
               </div>
             </div>
           </div>
@@ -202,17 +159,10 @@ export default function Home() {
       <section id="sponsor">
         <div className="content">
           <h3>
-            <Localized localizationKey="become-sponsor">
-              Become a sponsor!
-            </Localized>
+            <Localized name="become-sponsor" />
           </h3>
           <p className="sponsor-intro">
-            <Localized localizationKey="sponsor-intro">
-              signal is an application that I am personally building on
-              weekends.
-            </Localized>
-            If you like the concept of a lightweight composition software that
-            runs in your browser, please support me.
+            <Localized name="sponsor-intro" />
           </p>
 
           <a
@@ -221,9 +171,7 @@ export default function Home() {
           >
             <img src={favoriteIcon.src} />
             <span>
-              <Localized localizationKey="open-github-sponsors">
-                Open Github Sponsors
-              </Localized>
+              <Localized name="open-github-sponsors" />
             </span>
           </a>
         </div>
@@ -232,7 +180,7 @@ export default function Home() {
       <section id="support">
         <div className="content">
           <h3>
-            <Localized localizationKey="support">Support</Localized>
+            <Localized name="support" />
           </h3>
 
           <div className="support-row">
@@ -241,9 +189,7 @@ export default function Home() {
               @signalmidi
             </a>
             <span>
-              <Localized localizationKey="follow-twitter">
-                Check for updates on Twitter
-              </Localized>
+              <Localized name="follow-twitter" />
             </span>
           </div>
 
@@ -256,9 +202,7 @@ export default function Home() {
               ryohey/signal
             </a>
             <span>
-              <Localized localizationKey="support-github-desctiption">
-                Report bugs or Request features on GitHub
-              </Localized>
+              <Localized name="support-github-desctiption" />
             </span>
           </div>
         </div>

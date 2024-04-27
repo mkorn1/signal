@@ -1,4 +1,38 @@
 export default {
+  en: {
+    "landing-title": "signal - Online MIDI Editor",
+    "app-intro": "Fully Open-sourced Online MIDI Editor",
+    "app-desc": "Start creating music without installing anything",
+    launch: "Launch",
+    platform: "Supported desktop browsers: Google Chrome / Firefox / Safari",
+    features: "Features",
+    "feature-midi-file": "Fully equipped MIDI editor",
+    "feature-midi-file-description":
+      "Orchestrate freely with the multi-track piano roll editor. Of course, you can use velocity, pitch bend, expression, and modulation to create expressive sound.",
+    "feature-gm-module": "GM compatible sound module",
+    "feature-gm-module-description":
+      "With a dedicated audio module built with WebAudio API and AudioWorklet, you can play any MIDI notes in the browser.",
+    "feature-time-signature": "Non-4/4 time signature and 300+ bpm",
+    "feature-time-signature-description":
+      "You can freely change the tempo and time signature anywhere in the song using the graph editor.",
+    "feature-pwa": "PWA support",
+    "feature-pwa-description":
+      "Want to hide the browser's address bar? You can install it on your desktop and use it as an app.",
+    "feature-export-audio": "Ultra-fast audio file export",
+    "feature-export-audio-description":
+      "You can save the music you create as a WAV file and listen to it on your smartphone, use it as background music for your videos, or import it into your DAW.",
+    "feature-midi-io": "MIDI I/O Support",
+    "feature-midi-io-description":
+      "Using a browser that supports the Web MIDI API, you can record the performance of a MIDI keyboard connected to your computer, or play sounds from a hardware synth.",
+    support: "Support",
+    "sponsor-intro":
+      "signal is an app I made on weekends for fun. If you like the concept of a lightweight composition software that runs in the browser, please support me.",
+    "support-github-desctiption":
+      "Submit bug reports and feature requests on GitHub",
+    "become-sponsor": "Become a sponsor",
+    "open-github-sponsors": "Open GitHub Sponsors",
+    "follow-twitter": "Follow us on Twitter for updates",
+  },
   ja: {
     "landing-title": "signal - オンラインMIDIシーケンサ",
     "app-intro": "ブラウザで音楽が作れる",
@@ -19,7 +53,6 @@ export default {
     "feature-pwa": "PWA対応",
     "feature-pwa-description":
       "アドレスバーが邪魔ですか？アプリとしてインストールすることができます。",
-    "feature-export-wav": "WAVファイルへの書き出し",
     "feature-midi-io": "MIDIキーボード対応",
     "feature-midi-io-description":
       "Web MIDI APIに対応したブラウザでは、MIDIキーボードを接続して演奏を録音したり、ハードウェアシンセで音を鳴らしたりすることができます。",
@@ -53,7 +86,6 @@ export default {
     "feature-pwa": "支持 PWA",
     "feature-pwa-description":
       "想要隐藏浏览器的地址栏？ 您可以将其安装在桌面上并将其用作应用程序使用。",
-    "feature-export-wav": "导出为 WAV 文件",
     "feature-midi-io": "支持 MIDI 键盘",
     "feature-midi-io-description":
       "支持 Web MIDI API 的浏览器允许您连接 MIDI 键盘来录制您的演奏，并使用硬件合成器播放音频。",
@@ -87,7 +119,6 @@ export default {
     "feature-pwa": "支援 PWA",
     "feature-pwa-description":
       "瀏覽器網址列很煩嗎？您可以安裝在桌面上，直接當作一般的應用程式使用。",
-    "feature-export-wav": "輸出 WAV 檔",
     "feature-midi-io": "支援 MIDI 鍵盤",
     "feature-midi-io-description":
       "您可以使用支援 Web MIDI API 的瀏覽器，連接您的 MIDI 鍵盤來錄製您的演奏，並使用硬體合成器來播放曲子。",
