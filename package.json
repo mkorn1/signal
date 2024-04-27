@@ -4,7 +4,7 @@
   "description": "A friendly music sequencer application for OS X and Windows.",
   "scripts": {
     "start": "webpack serve --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js",
+    "build": "webpack --config webpack.prod.js && npm run build --prefix static && cp -r static/out dist",
     "serve": "npx http-server dist",
     "test": "jest",
     "format": "prettier --write src",

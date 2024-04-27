@@ -1,7 +1,11 @@
 import { Metadata } from "next"
+import dynamic from "next/dynamic"
 import { Navigation } from "../../components/Navigation/Navigation"
-import { Localized } from "../../l18n/useLocalization"
 import styles from "./styles.module.css"
+
+const Localized = dynamic(() => import("../../components/Localized"), {
+  ssr: false,
+})
 
 export const metadata: Metadata = {
   title: "Support | signal",
