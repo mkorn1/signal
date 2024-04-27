@@ -32,6 +32,15 @@ export default {
     "become-sponsor": "Become a sponsor",
     "open-github-sponsors": "Open GitHub Sponsors",
     "follow-twitter": "Follow us on Twitter for updates",
+    "bug-report": "Bug report / Feature request",
+    "bug-report-description":
+      "Bug reports and feature requests are accepted on GitHub Issues.",
+    "open-github-issues": "Open GitHub Issues",
+    community: "Community",
+    "community-description":
+      "Ask questions about how to use it, share your music, and more in the official Discord community.",
+    "join-discord": "Join Discord",
+    twitter: "Twitter",
   },
   ja: {
     "landing-title": "signal - オンラインMIDIシーケンサ",
@@ -66,6 +75,15 @@ export default {
     "become-sponsor": "スポンサーになりませんか？",
     "open-github-sponsors": "GitHub Sponsorsを開く",
     "follow-twitter": "Twitterで更新情報を確認する",
+    "bug-report": "バグ報告 / 機能リクエスト",
+    "bug-report-description":
+      "バグ報告や新機能のリクエストは、GitHubのIssueで受け付けています。",
+    "open-github-issues": "GitHub Issuesを開く",
+    community: "コミュニティ",
+    "community-description":
+      "公式Discordコミュニティで使い方について質問したり、作った曲をシェアしたりしましょう。",
+    "join-discord": "Discordに参加",
+    twitter: "Twitter",
   },
   "zh-Hans": {
     "landing-title": "signal - 在线 MIDI 编辑器",
@@ -99,6 +117,15 @@ export default {
     "become-sponsor": "成为赞助商",
     "open-github-sponsors": "前往 GitHub Sponsors",
     "follow-twitter": "关注 Twitter 以获取更新",
+    "bug-report": "Bug report / Feature request",
+    "bug-report-description":
+      "Bug reports and feature requests are accepted on GitHub Issues.",
+    "open-github-issues": "Open GitHub Issues",
+    community: "Community",
+    "community-description":
+      "Ask questions about how to use it, share your music, and more in the official Discord community.",
+    "join-discord": "Join Discord",
+    twitter: "Twitter",
   },
   "zh-Hant": {
     "landing-title": "signal - 線上 MIDI 編輯器",
@@ -132,5 +159,14 @@ export default {
     "become-sponsor": "想成為贊助者嗎？",
     "open-github-sponsors": "前往 GitHub Sponsors",
     "follow-twitter": "Follow 我們的 Twitter 取得最新消息",
+    "bug-report": "Bug report / Feature request",
+    "bug-report-description":
+      "Bug reports and feature requests are accepted on GitHub Issues.",
+    "open-github-issues": "Open GitHub Issues",
+    community: "Community",
+    "community-description":
+      "Ask questions about how to use it, share your music, and more in the official Discord community.",
+    "join-discord": "Join Discord",
+    twitter: "Twitter",
   },
 } as const

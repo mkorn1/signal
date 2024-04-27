@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { Navigation } from "../../components/Navigation/Navigation"
+import { Localized } from "../../l18n/useLocalization"
 import styles from "./styles.module.css"
 
 export const metadata: Metadata = {
@@ -14,32 +15,52 @@ export default function Page() {
         <h1 className={styles.title}>Support</h1>
 
         <section className={styles.section}>
-          <h2>Bug Report / Feature Request</h2>
+          <h2>
+            <Localized name="bug-report" />
+          </h2>
           <div className={styles.sectionContent}>
             <p>
-              バグ報告や新機能のリクエストは、GitHubのIssueで受け付けています
+              <Localized name="bug-report-description" />
             </p>
             <a
               href="https://github.com/ryohey/signal/issues"
               className={styles.openButton}
             >
-              Open GitHub Issues
+              <Localized name="open-github-issues" />
             </a>
           </div>
         </section>
 
         <section className={styles.section}>
-          <h2>Community</h2>
+          <h2>
+            <Localized name="community" />
+          </h2>
           <div className={styles.sectionContent}>
             <p>
-              Discord
-              コミュニティで使い方について質問したり、作った曲をシェアしたりしてください
+              <Localized name="community-description" />
             </p>
             <a
               href="https://discord.com/invite/XQxzNdDJse"
               className={styles.openButton}
             >
-              Join Discord
+              <Localized name="join-discord" />
+            </a>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2>
+            <Localized name="twitter" />
+          </h2>
+          <div className={styles.sectionContent}>
+            <p>
+              <Localized name="follow-twitter" />
+            </p>
+            <a
+              href="https://twitter.com/signalmidi"
+              className={styles.openButton}
+            >
+              @signalmidi
             </a>
           </div>
         </section>
