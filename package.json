@@ -6,7 +6,7 @@
     "start": "webpack serve --config webpack.dev.js",
     "build": "npm run build:app && npm run build:static",
     "build:app": "webpack --config webpack.prod.js",
-    "build:static": "npm install --prefix static && npm run build --prefix static && cp -r static/out dist",
+    "build:static": "npm install --prefix static && npm run build --prefix static && cp -r static/out/* dist",
     "serve": "npx http-server dist",
     "test": "jest",
     "format": "prettier --write src",
