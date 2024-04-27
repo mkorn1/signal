@@ -1,5 +1,6 @@
 {
   "buildCommand": "npm install --prefix static && npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/", "destination": "/index.html" },
     { "source": "/edit", "destination": "/edit.html" },
