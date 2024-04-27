@@ -18,6 +18,7 @@ export interface MenuTemplateProps {
   onClickPaste: () => void
   onClickSetting: () => void
   onClickHelp: () => void
+  onClickSupport: () => void
 }
 
 export const menuTemplate = ({
@@ -36,6 +37,7 @@ export const menuTemplate = ({
   onClickPaste,
   onClickSetting,
   onClickHelp,
+  onClickSupport,
 }: MenuTemplateProps): MenuItemConstructorOptions[] => [
   // { role: 'appMenu' }
   ...((isMac
@@ -130,6 +132,10 @@ export const menuTemplate = ({
       {
         label: "Help",
         click: onClickHelp,
+      },
+      {
+        label: "Support",
+        click: onClickSupport,
       },
     ],
   },
