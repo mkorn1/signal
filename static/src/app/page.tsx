@@ -19,6 +19,21 @@ const Localized = dynamic(() => import("../components/Localized"), {
 export const metadata: Metadata = {
   title: "signal - Online MIDI Editor",
   description: "Fully Open-sourced Online MIDI Editor",
+  openGraph: {
+    title: "signal",
+    description: "Fully Open-sourced Online MIDI Editor",
+    images: [
+      {
+        url: "https://signal.vercel.app/twitter-card.png",
+        width: 1200,
+        height: 630,
+        alt: "signal",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+  },
 }
 
 export default function Home() {
