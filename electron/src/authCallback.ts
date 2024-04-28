@@ -1,29 +1,24 @@
 import express from "express"
+import { FirebaseCredential } from "./ipc"
 
 interface Options {
   port: number
-  onReceiveIdToken: (idToken: string) => void
+  onComplete: (credential: FirebaseCredential) => void
 }
 
-export const launchAuthCallbackServer = ({
-  port,
-  onReceiveIdToken,
-}: Options) => {
+export const launchAuthCallbackServer = ({ port, onComplete }: Options) => {
   const app = express()
 
   // IDトークンをクエリパラメータから受け取るエンドポイント
   app.get("/", (req, res) => {
-    const idToken = req.query.idToken // クエリパラメータからIDトークンを取得
+    const credential = req.query.credential // クエリパラメータからIDトークンを取得
 
-    if (!idToken) {
+    if (!credential) {
       return res.status(400).send("ID Token is missing")
     }
 
-    // ここでIDトークンの検証を行う
-    // 検証が成功した場合の処理
     res.send(successHTML)
-    // 本来は、ここでJWTの検証などセキュリティ関連の処理を行います。
-    onReceiveIdToken(idToken as string)
+    onComplete(JSON.parse(credential as string))
   })
 
   const server = app.listen(port, () => {

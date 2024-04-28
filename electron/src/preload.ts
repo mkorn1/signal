@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron"
-import type { IpcEvent, ParamsForEvent } from "./ipc"
+import type { FirebaseCredential, IpcEvent, ParamsForEvent } from "./ipc"
 import type { IpcMainAPI } from "./ipcMain"
 
 type Tail<T extends unknown[]> = T extends [any, ...infer Rest] ? Rest : []
@@ -45,8 +45,9 @@ const api = {
   onPaste: (callback: () => void) => register("onPaste", callback),
   onOpenSetting: (callback: () => void) => register("onOpenSetting", callback),
   onOpenHelp: (callback: () => void) => register("onOpenHelp", callback),
-  onIdTokenReceived: (callback: (params: { idToken: string }) => void) =>
-    register("onIdTokenReceived", callback),
+  onBrowserSignInCompleted: (
+    callback: (params: { credential: FirebaseCredential }) => void,
+  ) => register("onBrowserSignInCompleted", callback),
   showOpenDialog: async () => await invoke("showOpenDialog"),
   showOpenDirectoryDialog: async () => await invoke("showOpenDirectoryDialog"),
   showSaveDialog: async () => await invoke("showSaveDialog"),

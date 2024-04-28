@@ -70,10 +70,10 @@ const api = (ipc: Ipc, { onAuthStateChanged }: Callbacks) => ({
 
     const server = launchAuthCallbackServer({
       port,
-      onReceiveIdToken: (idToken) => {
+      onComplete: (credential) => {
         server.close()
         clearTimeout(closeTimeout)
-        ipc.send("onIdTokenReceived", { idToken })
+        ipc.send("onBrowserSignInCompleted", { credential })
       },
     })
 

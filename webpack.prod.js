@@ -25,7 +25,6 @@ const config = {
         { from: "public/*.svg", to: "[name][ext]" },
         { from: "public/*.png", to: "[name][ext]" },
         { from: "public/*.webmanifest", to: "[name][ext]" },
-        { from: "public/*.css", to: "[name][ext]" },
       ],
     }),
     sentryWebpackPlugin({

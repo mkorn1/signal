@@ -9,7 +9,6 @@ module.exports = (env) => ({
   entry: {
     browserMain: "./src/main/index.tsx",
     browserAuth: "./src/auth/index.tsx",
-    browserLanding: "./src/landing/index.ts",
     browserCommunity: "./src/community/index.tsx",
   },
   output: {
@@ -43,12 +42,6 @@ module.exports = (env) => ({
       filename: "auth.html",
       chunks: ["browserAuth"],
       template: path.join(__dirname, "public", "auth.html"),
-    }),
-    new HtmlWebpackPlugin({
-      inject: true,
-      filename: "index.html",
-      chunks: ["browserLanding"],
-      template: path.join(__dirname, "public", "index.html"),
     }),
     new HtmlWebpackPlugin({
       inject: true,

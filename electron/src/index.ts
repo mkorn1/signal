@@ -57,6 +57,7 @@ const createWindow = (): void => {
         onClickPaste: () => ipc.send("onPaste"),
         onClickSetting: () => ipc.send("onOpenSetting"),
         onClickHelp: () => ipc.send("onOpenHelp"),
+        onClickSupport: () => openSupportPage(),
       }),
     )
     Menu.setApplicationMenu(mainMenu)
@@ -132,3 +133,7 @@ app.on("browser-window-focus", (event, window) => {
   const defaultMenu = Menu.buildFromTemplate(defaultMenuTemplate)
   Menu.setApplicationMenu(window === mainWindow ? mainMenu : defaultMenu)
 })
+
+function openSupportPage() {
+  shell.openExternal("https://signal.vercel.app/support")
+}
