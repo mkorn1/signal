@@ -1,6 +1,5 @@
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { Inter } from "next/font/google"
-import Head from "next/head"
 import { Provider } from "./Provider"
 import "./carbon.css"
 import "./globals.css"
@@ -16,7 +15,7 @@ export default function RootLayout({
     <Provider>
       <html lang="en">
         <GoogleAnalytics gaId="G-C4N96XS293" />
-        <Head>
+        <head>
           <link rel="canonical" href="https://signal.vercel.app/" />
           <link
             rel="alternate"
@@ -49,7 +48,7 @@ export default function RootLayout({
             href="https://signal.vercel.app/?lang=zh-Hant"
           />
           <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        </Head>
+        </head>
         <body className={inter.className}>{children}</body>
       </html>
     </Provider>

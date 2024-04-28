@@ -10,6 +10,7 @@ import midiLogo from "./images/midi-logo.svg"
 import pwaLogo from "./images/pwa-logo.svg"
 import screenshot from "./images/screenshot.png"
 import synthesizerKeyboard from "./images/synthesizer-keyboard-svgrepo-com.svg"
+import twitterCard from "./images/twitter-card.png"
 import wavFile from "./images/wav-file.svg"
 
 const Localized = dynamic(() => import("../components/Localized"), {
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
     description: "Fully Open-sourced Online MIDI Editor",
     images: [
       {
-        url: "https://signal.vercel.app/twitter-card.png",
+        url: twitterCard.src,
         width: 1200,
         height: 630,
         alt: "signal",
