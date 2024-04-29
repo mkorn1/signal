@@ -152,21 +152,20 @@ export default {
     "feature-export-audio": "快速匯出功能",
     "feature-export-audio-description":
       "您可以將創作的曲目匯出成 WAV 檔，在手機上播放，或作為影片的背景音樂，或將其匯入 DAW（音樂製作軟體）中。",
-    support: "說明",
+    support: "技術支援",
     "sponsor-intro":
       "signal 是我在週末當作興趣所作的應用程式。如果您也喜歡這種能在瀏覽器上使用的輕量級作曲軟體的這種概念，請多多支持。",
     "support-github-desctiption": "用 GitHub 提出 BUG 和許願新功能",
     "become-sponsor": "想成為贊助者嗎？",
     "open-github-sponsors": "前往 GitHub Sponsors",
     "follow-twitter": "Follow 我們的 Twitter 取得最新消息",
-    "bug-report": "Bug report / Feature request",
-    "bug-report-description":
-      "Bug reports and feature requests are accepted on GitHub Issues.",
-    "open-github-issues": "Open GitHub Issues",
-    community: "Community",
+    "bug-report": "錯誤回報／功能許願",
+    "bug-report-description": "歡迎在 GitHub Issues 上提交 Bug 回報和功能建議。",
+    "open-github-issues": "進入 GitHub Issues",
+    community: "社群",
     "community-description":
-      "Ask questions about how to use it, share your music, and more in the official Discord community.",
-    "join-discord": "Join Discord",
+      "歡迎您加入我們的官方 Discord 社群！在這裡您可以詢問有關使用方法的問題、分享音樂等等。期待您的加入！",
+    "join-discord": "加入 Discord 社群",
     twitter: "Twitter",
   },
 } as const
