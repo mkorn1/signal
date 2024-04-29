@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "concurrently \"tsc -w\" \"tsc -p tsconfig.preload.json -w\" \"nodemon\"",
     "start": "npm run build && electron .",
-    "build": "tsc && tsc -p tsconfig.preload.json",
+    "build": "rollup -c --bundleConfigAsCjs",
     "package": "npm run build && rm -rf out && electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
@@ -17,9 +17,14 @@
   "devDependencies": {
     "@electron-forge/cli": "7.3.0",
     "@electron-forge/maker-pkg": "^7.4.0",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
     "concurrently": "^8.2.2",
     "electron": "^29.3.0",
     "nodemon": "^3.1.0",
+    "rollup": "^4.17.1",
     "typescript": "5.4.2"
   },
   "dependencies": {
