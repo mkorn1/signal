@@ -5,6 +5,7 @@ import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { Link } from "wouter"
 import { Localized } from "../../components/Localized"
+import LogoWhite from "../images/logo-white.svg"
 import { UserButton } from "./UserButton"
 
 const Container = styled.div`
@@ -67,7 +68,7 @@ export const Navigation: FC = observer(() => {
       <Container>
         <LogoWrapper>
           <Link href="/home">
-            <img src="logo-white.svg" style={{ height: "1.7rem" }} />
+            <LogoWhite width={null} height={28} viewBox="16 0 449 120" />
           </Link>
         </LogoWrapper>
         <Right>
