@@ -16,13 +16,14 @@
   "author": "ryohey",
   "devDependencies": {
     "@electron-forge/cli": "7.3.0",
+    "@electron-forge/maker-pkg": "^7.4.0",
     "concurrently": "^8.2.2",
     "electron": "^29.3.0",
     "nodemon": "^3.1.0",
     "typescript": "5.4.2"
   },
   "dependencies": {
-    "get-port-please": "^3.1.2",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "get-port-please": "^3.1.2"
   }
 }

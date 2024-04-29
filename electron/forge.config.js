@@ -1,5 +1,6 @@
 module.exports = {
   packagerConfig: {
+    appBundleId: "jp.codingcafe.signal",
     icon: "./icons/icon",
     ignore: [
       "^/src",
@@ -8,7 +9,9 @@ module.exports = {
       "node_modules/electron$",
       "node_modules/@electron-forge$",
     ],
+    overwrite: true,
     prune: false,
+    appCategoryType: "public.app-category.music",
     extendInfo: {
       CFBundleDocumentTypes: [
         {
@@ -21,6 +24,7 @@ module.exports = {
     },
     osxSign: {
       identity: process.env.APPLE_CERTIFICATE_NAME,
+      identityValidation: false,
       optionsForFile: () => ({
         entitlements: "entitlements.plist",
       }),
@@ -32,4 +36,9 @@ module.exports = {
       teamId: process.env.APPLE_TEAM_ID,
     },
   },
+  makers: [
+    {
+      name: "@electron-forge/maker-pkg",
+    },
+  ],
 }
