@@ -15,7 +15,8 @@
     "firebase:deploy": "firebase deploy",
     "dev:electron": "concurrently \"npm start -- --env electron --no-open\" \"npm run dev --prefix electron\"",
     "build:electron": "npm run build:app -- --env electron && rm -rf electron/dist_renderer && cp -r dist electron/dist_renderer",
-    "package:electron": "npm run build:electron && npm run package --prefix electron"
+    "package:electron": "npm run build:electron && npm run package --prefix electron",
+    "make:electron": "npm run build:electron && dotenv -- npm run make:mas --prefix electron"
   },
   "repository": {
     "type": "git",
@@ -93,6 +94,7 @@
     "babel-plugin-lodash": "^3.3.4",
     "concurrently": "^8.2.2",
     "copy-webpack-plugin": "12.0.2",
+    "dotenv-cli": "^7.4.1",
     "dotenv-webpack": "^8.0.1",
     "fork-ts-checker-webpack-plugin": "9.0.2",
     "html-webpack-plugin": "^5.6.0",

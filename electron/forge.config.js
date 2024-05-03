@@ -33,22 +33,17 @@ module.exports = {
     osxSign: {
       identity: process.env.APPLE_CERTIFICATE_NAME,
       identityValidation: false,
+      provisioningProfile: process.env.APPLE_PROVISIONING_PROFILE,
       optionsForFile: () => ({
         entitlements: "entitlements.plist",
       }),
-    },
-    osxNotarize: {
-      tool: "notarytool",
-      appleId: process.env.APPLE_ID,
-      appleIdPassword: process.env.APPLE_PASSWORD,
-      teamId: process.env.APPLE_TEAM_ID,
     },
   },
   makers: [
     {
       name: "@electron-forge/maker-pkg",
       config: {
-        identity: process.env.APPLE_CERTIFICATE_NAME,
+        identity: process.env.APPLE_INSTALLER_CERTIFICATE_NAME,
       },
     },
   ],
