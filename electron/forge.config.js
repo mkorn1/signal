@@ -1,6 +1,7 @@
 module.exports = {
   packagerConfig: {
     appBundleId: "jp.codingcafe.signal",
+    appCategoryType: "public.app-category.music",
     icon: "./icons/icon",
     ignore: [
       "^/.gitignore",
@@ -19,7 +20,10 @@ module.exports = {
     ],
     overwrite: true,
     prune: false,
-    appCategoryType: "public.app-category.music",
+    platform: "mas",
+    osxUniversal: {
+      x64ArchFiles: "*_mac",
+    },
     extendInfo: {
       CFBundleDocumentTypes: [
         {
@@ -32,11 +36,17 @@ module.exports = {
     },
     osxSign: {
       identity: process.env.APPLE_CERTIFICATE_NAME,
-      identityValidation: false,
+      platform: "mas",
       provisioningProfile: process.env.APPLE_PROVISIONING_PROFILE,
-      optionsForFile: () => ({
-        entitlements: "entitlements.plist",
-      }),
+      optionsForFile: () => {
+        const entitlements = filePath.includes(".app/")
+          ? "entitlements.child.plist"
+          : "entitlements.plist"
+        return {
+          hardenedRuntime: false,
+          entitlements,
+        }
+      },
     },
   },
   makers: [
