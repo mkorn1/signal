@@ -1,3 +1,5 @@
+require("dotenv").config()
+
 module.exports = {
   packagerConfig: {
     appBundleId: "jp.codingcafe.signal",
@@ -15,6 +17,7 @@ module.exports = {
       "^/rollup.config.js",
       "^/forge.config.js",
       "^/entitlements.plist",
+      "^/entitlements.child.plist",
       "^/nodemon.json",
       "^/icons",
     ],
@@ -37,8 +40,9 @@ module.exports = {
     osxSign: {
       identity: process.env.APPLE_CERTIFICATE_NAME,
       platform: "mas",
+      preEmbedProvisioningProfile: true,
       provisioningProfile: process.env.APPLE_PROVISIONING_PROFILE,
-      optionsForFile: () => {
+      optionsForFile: (filePath) => {
         const entitlements = filePath.includes(".app/")
           ? "entitlements.child.plist"
           : "entitlements.plist"
@@ -52,6 +56,7 @@ module.exports = {
   makers: [
     {
       name: "@electron-forge/maker-pkg",
+      platform: ["mas"],
       config: {
         identity: process.env.APPLE_INSTALLER_CERTIFICATE_NAME,
       },

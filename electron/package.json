@@ -10,7 +10,7 @@
     "build": "rollup -c --bundleConfigAsCjs",
     "package": "npm run build && electron-forge package",
     "make": "electron-forge make",
-    "make:mas": "npm run make -- --arch=universal --platform=darwin",
+    "make:mas": "npm run make -- --arch=universal --platform=mas",
     "publish": "electron-forge publish",
     "generate-icon": "./scripts/icons.sh src/icons/Icon-macOS.png ./icons/icon.icns"
   },
@@ -29,6 +29,7 @@
     "typescript": "5.4.2"
   },
   "dependencies": {
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "get-port-please": "^3.1.2"
   }
