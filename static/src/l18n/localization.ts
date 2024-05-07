@@ -46,7 +46,7 @@ export default {
       "We respect your privacy and do not collect data beyond what is outlined below. Our approach is to collect the minimum amount of personal data necessary to deliver our services.",
     "privacy-data-title": "Data Collection Upon Cloud Signup",
     "privacy-data-description":
-      "We only collect your email address when you sign up for our cloud service. MIDI files are transmitted to our servers only when you save compositions to the cloud.",
+      "When you sign up for our cloud service using your Google or GitHub accounts, we collect information such as your username and email address associated with those accounts.",
     "privacy-analytics-title": "Analytics and Crash Reporting",
     "privacy-analytics-description":
       "We use Google Analytics to track usage of our website. We also use Sentry to collect error reports when the app crashes.",

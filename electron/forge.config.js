@@ -5,6 +5,7 @@ const platform = process.argv[process.argv.indexOf("--platform") + 1]
 const packagerConfig = {
   appBundleId: "jp.codingcafe.signal",
   appCategoryType: "public.app-category.music",
+  buildVersion: process.env.BUILD_VERSION,
   icon: "./icons/icon",
   ignore: [
     "^/.gitignore",
