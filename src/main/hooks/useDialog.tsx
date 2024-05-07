@@ -1,11 +1,13 @@
 import { createContext, FC, ReactNode, useContext, useState } from "react"
 
-export interface DialogProviderProps<Keys extends string> {
+type KeyType = string | number | symbol | boolean
+
+export interface DialogProviderProps<Keys extends KeyType> {
   children: ReactNode
   component: FC<DialogProps<Keys>>
 }
 
-export const DialogProvider = <Keys extends string>({
+export const DialogProvider = <Keys extends KeyType>({
   children,
   component: ActionDialog,
 }: DialogProviderProps<Keys>) => {
@@ -19,18 +21,18 @@ export const DialogProvider = <Keys extends string>({
   )
 }
 
-export interface DialogOptions<Keys extends string> {
+export interface DialogOptions<Keys extends KeyType> {
   title: string
   message?: string
   actions: DialogAction<Keys>[]
 }
 
-export interface DialogAction<Key extends string> {
+export interface DialogAction<Key extends KeyType> {
   title: string
   key: Key
 }
 
-export type DialogProps<Keys extends string> = DialogOptions<Keys> & {
+export type DialogProps<Keys extends KeyType> = DialogOptions<Keys> & {
   callback: (key: Keys | null) => void
 }
 
@@ -42,7 +44,7 @@ export const useDialog = () => {
   const { setDialog } = useContext(DialogContext)
 
   return {
-    async show<Keys extends string>(
+    async show<Keys extends KeyType>(
       options: DialogOptions<Keys>,
     ): Promise<Keys> {
       return new Promise((resolve, _reject) => {
