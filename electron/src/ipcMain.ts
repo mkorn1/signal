@@ -4,13 +4,14 @@ import { getPort } from "get-port-please"
 import { isAbsolute, join } from "path"
 import { getArgument } from "./arguments"
 import { launchAuthCallbackServer } from "./authCallback"
-import { Ipc } from "./ipc"
+import { FirebaseCredential } from "./ipc"
 
 interface Callbacks {
   onAuthStateChanged: (isLoggedIn: boolean) => void
+  onBrowserSignInCompleted: (credential: FirebaseCredential) => void
 }
 
-const api = (ipc: Ipc, { onAuthStateChanged }: Callbacks) => ({
+const api = ({ onAuthStateChanged, onBrowserSignInCompleted }: Callbacks) => ({
   showOpenDialog: async () => {
     const fileObj = await dialog.showOpenDialog({
       properties: ["openFile"],
@@ -73,7 +74,7 @@ const api = (ipc: Ipc, { onAuthStateChanged }: Callbacks) => ({
       onComplete: (credential) => {
         server.close()
         clearTimeout(closeTimeout)
-        ipc.send("onBrowserSignInCompleted", { credential })
+        onBrowserSignInCompleted(credential)
       },
     })
 
@@ -102,8 +103,8 @@ const api = (ipc: Ipc, { onAuthStateChanged }: Callbacks) => ({
 
 export type IpcMainAPI = ReturnType<typeof api>
 
-export const registerIpcMain = (ipc: Ipc, callbacks: Callbacks) => {
-  Object.entries(api(ipc, callbacks)).forEach(([name, func]) => {
+export const registerIpcMain = (callbacks: Callbacks) => {
+  Object.entries(api(callbacks)).forEach(([name, func]) => {
     ipcMain.handle(name, func)
   })
 }
