@@ -43,6 +43,9 @@ registerIpcMain({
   onBrowserSignInCompleted(credential) {
     ipc.send("onBrowserSignInCompleted", { credential })
   },
+  onMainWindowClose() {
+    mainWindow.destroy()
+  },
 })
 
 const createWindow = (): void => {

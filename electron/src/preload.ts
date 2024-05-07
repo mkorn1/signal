@@ -61,6 +61,7 @@ const api = {
   openAuthWindow: async () => await invoke("openAuthWindow"),
   authStateChanged: (isLoggedIn: boolean) =>
     invoke("authStateChanged", isLoggedIn),
+  closeMainWindow: () => invoke("closeMainWindow"),
 }
 
 export type ElectronAPI = typeof api

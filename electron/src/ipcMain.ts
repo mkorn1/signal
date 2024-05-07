@@ -9,9 +9,14 @@ import { FirebaseCredential } from "./ipc"
 interface Callbacks {
   onAuthStateChanged: (isLoggedIn: boolean) => void
   onBrowserSignInCompleted: (credential: FirebaseCredential) => void
+  onMainWindowClose: () => void
 }
 
-const api = ({ onAuthStateChanged, onBrowserSignInCompleted }: Callbacks) => ({
+const api = ({
+  onAuthStateChanged,
+  onBrowserSignInCompleted,
+  onMainWindowClose,
+}: Callbacks) => ({
   showOpenDialog: async () => {
     const fileObj = await dialog.showOpenDialog({
       properties: ["openFile"],
@@ -98,6 +103,9 @@ const api = ({ onAuthStateChanged, onBrowserSignInCompleted }: Callbacks) => ({
   },
   authStateChanged: (_e: IpcMainInvokeEvent, isLoggedIn: boolean) => {
     onAuthStateChanged(isLoggedIn)
+  },
+  closeMainWindow: () => {
+    onMainWindowClose()
   },
 })
 
