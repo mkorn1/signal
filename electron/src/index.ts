@@ -10,6 +10,43 @@ let onOpenFile: (filePath: string) => void = () => {}
 let onDropFileOnAppIcon: (filePath: string) => void = () => {}
 let mainWindow: BrowserWindow
 let mainMenu: Electron.Menu
+const ipc = new Ipc()
+
+function updateMainMenu(isLoggedIn: boolean) {
+  mainMenu = Menu.buildFromTemplate(
+    menuTemplate({
+      isLoggedIn,
+      onClickNew: () => ipc.send("onNewFile"),
+      onClickOpen: async () => ipc.send("onClickOpenFile"),
+      onClickSave: () => ipc.send("onSaveFile"),
+      onClickSaveAs: () => ipc.send("onSaveFileAs"),
+      onClickRename: () => ipc.send("onRename"),
+      onClickImport: () => ipc.send("onImport"),
+      onClickExportWav: () => ipc.send("onExportWav"),
+      onClickUndo: () => ipc.send("onUndo"),
+      onClickRedo: () => ipc.send("onRedo"),
+      onClickCut: () => ipc.send("onCut"),
+      onClickCopy: () => ipc.send("onCopy"),
+      onClickPaste: () => ipc.send("onPaste"),
+      onClickSetting: () => ipc.send("onOpenSetting"),
+      onClickHelp: () => ipc.send("onOpenHelp"),
+      onClickSupport: () => openSupportPage(),
+    }),
+  )
+  Menu.setApplicationMenu(mainMenu)
+}
+
+registerIpcMain({
+  onAuthStateChanged(isLoggedIn) {
+    updateMainMenu(isLoggedIn)
+  },
+  onBrowserSignInCompleted(credential) {
+    ipc.send("onBrowserSignInCompleted", { credential })
+  },
+  onMainWindowClose() {
+    mainWindow.destroy()
+  },
+})
 
 const createWindow = (): void => {
   // Create the browser window.
@@ -23,7 +60,7 @@ const createWindow = (): void => {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false,
-      preload: path.join(__dirname, "..", "dist_preload", "preload.js"),
+      preload: path.join(__dirname, "..", "dist", "preload.js"),
     },
   })
 
@@ -37,31 +74,7 @@ const createWindow = (): void => {
     )
   }
 
-  const ipc = new Ipc(mainWindow)
-
-  function updateMainMenu(isLoggedIn: boolean) {
-    mainMenu = Menu.buildFromTemplate(
-      menuTemplate({
-        isLoggedIn,
-        onClickNew: () => ipc.send("onNewFile"),
-        onClickOpen: async () => ipc.send("onClickOpenFile"),
-        onClickSave: () => ipc.send("onSaveFile"),
-        onClickSaveAs: () => ipc.send("onSaveFileAs"),
-        onClickRename: () => ipc.send("onRename"),
-        onClickImport: () => ipc.send("onImport"),
-        onClickExportWav: () => ipc.send("onExportWav"),
-        onClickUndo: () => ipc.send("onUndo"),
-        onClickRedo: () => ipc.send("onRedo"),
-        onClickCut: () => ipc.send("onCut"),
-        onClickCopy: () => ipc.send("onCopy"),
-        onClickPaste: () => ipc.send("onPaste"),
-        onClickSetting: () => ipc.send("onOpenSetting"),
-        onClickHelp: () => ipc.send("onOpenHelp"),
-        onClickSupport: () => openSupportPage(),
-      }),
-    )
-    Menu.setApplicationMenu(mainMenu)
-  }
+  ipc.mainWindow = mainWindow
 
   updateMainMenu(false)
 
@@ -79,12 +92,6 @@ const createWindow = (): void => {
   onOpenFile = (filePath) => {
     ipc.send("onOpenFile", { filePath })
   }
-
-  registerIpcMain(ipc, {
-    onAuthStateChanged(isLoggedIn) {
-      updateMainMenu(isLoggedIn)
-    },
-  })
 }
 
 // This method will be called when Electron has finished

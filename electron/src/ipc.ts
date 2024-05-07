@@ -36,9 +36,12 @@ export type ParamsForEvent<T extends IpcEvent["name"]> =
   Extract<IpcEvent, { name: T }> extends { params: infer P } ? P : undefined
 
 export class Ipc {
-  constructor(private readonly mainWindow: BrowserWindow) {}
+  mainWindow: BrowserWindow | null = null
 
   send<T extends IpcEvent["name"]>(name: T, params?: ParamsForEvent<T>): void {
+    if (this.mainWindow === null) {
+      throw new Error("mainWindow is not set")
+    }
     this.mainWindow.webContents.send(name, params)
   }
 }

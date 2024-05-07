@@ -41,6 +41,16 @@ export default {
       "Ask questions about how to use it, share your music, and more in the official Discord community.",
     "join-discord": "Join Discord",
     twitter: "Twitter",
+    "privacy-policy-title": "Privacy Policy",
+    "privacy-policy-description":
+      "We respect your privacy and do not collect data beyond what is outlined below. Our approach is to collect the minimum amount of personal data necessary to deliver our services.",
+    "privacy-data-title": "Data Collection Upon Cloud Signup",
+    "privacy-data-description":
+      "When you sign up for our cloud service using your Google or GitHub accounts, we collect information such as your username and email address associated with those accounts.",
+    "privacy-analytics-title": "Analytics and Crash Reporting",
+    "privacy-analytics-description":
+      "We use Google Analytics to track usage of our website. We also use Sentry to collect error reports when the app crashes.",
+    "privacy-updated": "Last updated: ",
   },
   ja: {
     "landing-title": "signal - オンラインMIDIシーケンサ",
@@ -84,6 +94,16 @@ export default {
       "公式Discordコミュニティで使い方について質問したり、作った曲をシェアしたりしましょう。",
     "join-discord": "Discordに参加",
     twitter: "Twitter",
+    "privacy-policy-title": "プライバシーポリシー",
+    "privacy-policy-description":
+      "私たちは、以下に記載されている範囲を超えてデータを収集しません。",
+    "privacy-data-title": "クラウドサービスへの登録時のデータ収集",
+    "privacy-data-description":
+      "クラウドサービスに登録する際には、GoogleアカウントまたはGitHubアカウントに関連付けられたユーザー名やメールアドレスなどの情報を収集します。",
+    "privacy-analytics-title": "アナリティクスとクラッシュレポート",
+    "privacy-analytics-description":
+      "Google Analyticsを使用して、ウェブサイトの利用状況を追跡します。Sentryを使用して、アプリがクラッシュしたときにエラーレポートを収集します。",
+    "privacy-updated": "最終更新日: ",
   },
   "zh-Hans": {
     "landing-title": "signal - 在线 MIDI 编辑器",
@@ -126,6 +146,16 @@ export default {
       "Ask questions about how to use it, share your music, and more in the official Discord community.",
     "join-discord": "Join Discord",
     twitter: "Twitter",
+    "privacy-policy-title": "Privacy Policy",
+    "privacy-policy-description":
+      "We respect your privacy and do not collect data beyond what is outlined below. Our approach is to collect the minimum amount of personal data necessary to deliver our services.",
+    "privacy-data-title": "Data Collection Upon Cloud Signup",
+    "privacy-data-description":
+      "When you sign up for our cloud service using your Google or GitHub accounts, we collect information such as your username and email address associated with those accounts.",
+    "privacy-analytics-title": "Analytics and Crash Reporting",
+    "privacy-analytics-description":
+      "We use Google Analytics to track usage of our website. We also use Sentry to collect error reports when the app crashes.",
+    "privacy-updated": "Last updated: ",
   },
   "zh-Hant": {
     "landing-title": "signal - 線上 MIDI 編輯器",
@@ -167,5 +197,15 @@ export default {
       "歡迎您加入我們的官方 Discord 社群！在這裡您可以詢問有關使用方法的問題、分享音樂等等。期待您的加入！",
     "join-discord": "加入 Discord 社群",
     twitter: "Twitter",
+    "privacy-policy-title": "Privacy Policy",
+    "privacy-policy-description":
+      "We respect your privacy and do not collect data beyond what is outlined below. Our approach is to collect the minimum amount of personal data necessary to deliver our services.",
+    "privacy-data-title": "Data Collection Upon Cloud Signup",
+    "privacy-data-description":
+      "We only collect your email address when you sign up for our cloud service. MIDI files are transmitted to our servers only when you save compositions to the cloud.",
+    "privacy-analytics-title": "Analytics and Crash Reporting",
+    "privacy-analytics-description":
+      "We use Google Analytics to track usage of our website. We also use Sentry to collect error reports when the app crashes.",
+    "privacy-updated": "Last updated: ",
   },
 } as const
