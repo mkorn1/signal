@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import dynamic from "next/dynamic"
+import { Footer } from "../../components/Footer/Footer"
 import { Navigation } from "../../components/Navigation/Navigation"
 import styles from "./styles.module.css"
 
@@ -69,6 +70,8 @@ export default function Page() {
           </div>
         </section>
       </div>
+
+      <Footer />
     </>
   )
 }

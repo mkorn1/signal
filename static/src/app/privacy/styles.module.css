@@ -1,0 +1,17 @@
+.content {
+  max-width: 60rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.title {
+  margin-top: 4rem;
+}
+
+.section {
+  margin: 3rem 0;
+}
+
+.sectionContent {
+  margin-top: 1rem;
+}
