@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import dynamic from "next/dynamic"
 import { Navigation } from "../../components/Navigation/Navigation"
+import { LocaleDate } from "./LocaleDate"
 import styles from "./styles.module.css"
 
 const Localized = dynamic(() => import("../../components/Localized"), {
@@ -47,7 +48,7 @@ export default function Page() {
 
         <p>
           <Localized name="privacy-updated" />
-          {new Date("2024/05/03").toLocaleDateString()}
+          <LocaleDate date={new Date("2024/05/03")} />
         </p>
       </div>
     </>
