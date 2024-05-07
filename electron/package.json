@@ -5,7 +5,7 @@
   "productName": "signal",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "concurrently \"tsc -w\" \"tsc -p tsconfig.preload.json -w\" \"nodemon\"",
+    "dev": "concurrently \"npm run build -- --watch\" \"nodemon\"",
     "start": "npm run build && electron .",
     "build": "rollup -c --bundleConfigAsCjs",
     "package": "npm run build && electron-forge package",
