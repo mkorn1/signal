@@ -1,10 +1,17 @@
 import { app, BrowserWindow, Menu, shell } from "electron"
+import log from "electron-log"
 import path from "path"
 import { getArgument } from "./arguments"
 import { defaultMenuTemplate } from "./defaultMenu"
 import { Ipc } from "./ipc"
 import { registerIpcMain } from "./ipcMain"
 import { menuTemplate } from "./menu"
+
+process.on("uncaughtException", function (err) {
+  log.error("electron:event:uncaughtException")
+  log.error(err)
+  log.error(err.stack)
+})
 
 let onOpenFile: (filePath: string) => void = () => {}
 let onDropFileOnAppIcon: (filePath: string) => void = () => {}
