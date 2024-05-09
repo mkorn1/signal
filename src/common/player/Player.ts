@@ -3,7 +3,6 @@ import throttle from "lodash/throttle"
 import { AnyEvent, MIDIControlEvents } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
 import { SendableEvent, SynthOutput } from "../../main/services/SynthOutput"
-import { SongStore } from "../../main/stores/SongStore"
 import { filterEventsWithRange } from "../helpers/filterEvents"
 import { Beat, createBeatsInRange } from "../helpers/mapBeats"
 import {
@@ -11,6 +10,7 @@ import {
   noteOffMidiEvent,
   noteOnMidiEvent,
 } from "../midi/MidiEvent"
+import { SongProvider } from "../song/SongProvider"
 import { getStatusEvents } from "../track/selector"
 import { ITrackMute } from "../trackMute/ITrackMute"
 import { DistributiveOmit } from "../types"
@@ -31,7 +31,7 @@ export const DEFAULT_TEMPO = 120
 export default class Player {
   private _currentTempo = DEFAULT_TEMPO
   private _scheduler: EventScheduler<PlayerEvent> | null = null
-  private _songStore: SongStore
+  private _songStore: SongProvider
   private _output: SynthOutput
   private _metronomeOutput: SynthOutput
   private _trackMute: ITrackMute
@@ -48,7 +48,7 @@ export default class Player {
     output: SynthOutput,
     metronomeOutput: SynthOutput,
     trackMute: ITrackMute,
-    songStore: SongStore,
+    songStore: SongProvider,
   ) {
     makeObservable<Player, "_currentTick" | "_isPlaying">(this, {
       _currentTick: observable,

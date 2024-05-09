@@ -1,12 +1,16 @@
-import { SongStore } from "../../main/stores/SongStore"
+import { SongProvider } from "../song/SongProvider"
 import { getMeasureStart } from "../song/selector"
 
 export default class Quantizer {
   private denominator: number
-  private songStore: SongStore
+  private songStore: SongProvider
   private isEnabled: boolean = true
 
-  constructor(songStore: SongStore, denominator: number, isEnabled: boolean) {
+  constructor(
+    songStore: SongProvider,
+    denominator: number,
+    isEnabled: boolean,
+  ) {
     this.songStore = songStore
 
     // N 分音符の N
