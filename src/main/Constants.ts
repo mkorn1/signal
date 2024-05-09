@@ -1,5 +1,3 @@
-export const TIME_BASE = 480
-
 export const Layout = {
   pixelsPerTick: 0.1,
   keyHeight: 12,

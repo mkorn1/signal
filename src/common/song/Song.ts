@@ -8,7 +8,6 @@ import {
   transaction,
 } from "mobx"
 import { createModelSchema, list, object, primitive } from "serializr"
-import { TIME_BASE } from "../../main/Constants"
 import { isNotUndefined } from "../helpers/array"
 import { Measure } from "../measure/Measure"
 import { getMeasuresFromConductorTrack } from "../measure/MeasureList"
@@ -16,11 +15,12 @@ import { PlayerEvent, collectAllEvents } from "../player/PlayerEvent"
 import Track from "../track"
 
 const END_MARGIN = 480 * 30
+const DEFAULT_TIME_BASE = 480
 
 export default class Song {
   tracks: Track[] = []
   filepath: string = ""
-  timebase: number = TIME_BASE
+  timebase: number = DEFAULT_TIME_BASE
   name: string = ""
   fileHandle: FileSystemFileHandle | null = null
   cloudSongId: string | null = null
