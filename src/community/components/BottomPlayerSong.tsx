@@ -1,8 +1,8 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
+import { CloudSong } from "signal-api"
 import { Link } from "wouter"
 import { Localized } from "../../components/Localized"
-import { CloudSong } from "../../repositories/ICloudSongRepository"
 
 const Avatar = styled.img`
   border: 1px ${({ theme }) => theme.dividerColor} solid;

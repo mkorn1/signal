@@ -1,10 +1,10 @@
 import { orderBy } from "lodash"
 import { computed, makeObservable, observable } from "mobx"
-import { ICloudSongDataRepository } from "../../repositories/ICloudSongDataRepository"
 import {
   CloudSong,
+  ICloudSongDataRepository,
   ICloudSongRepository,
-} from "../../repositories/ICloudSongRepository"
+} from "signal-api"
 import RootStore from "./RootStore"
 
 export class CloudFileStore {

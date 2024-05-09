@@ -1,8 +1,7 @@
 import { computed, makeObservable, observable } from "mobx"
+import { CloudSong, ICloudSongDataRepository } from "signal-api"
 import { songFromMidi } from "../../common/midi/midiConversion"
 import Song, { emptySong } from "../../common/song"
-import { ICloudSongDataRepository } from "../../repositories/ICloudSongDataRepository"
-import { CloudSong } from "../../repositories/ICloudSongRepository"
 
 export interface SongItem {
   song: Song

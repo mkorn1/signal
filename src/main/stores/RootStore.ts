@@ -1,17 +1,15 @@
 import { makeObservable, observable } from "mobx"
 import { deserialize, serialize } from "serializr"
+import {
+  createCloudMidiRepository,
+  createCloudSongDataRepository,
+  createCloudSongRepository,
+  createUserRepository,
+} from "signal-api"
 import Player from "../../common/player"
 import Song, { emptySong } from "../../common/song"
 import TrackMute from "../../common/trackMute"
 import { auth, firestore, functions } from "../../firebase/firebase"
-import { CloudMidiRepository } from "../../repositories/CloudMidiRepository"
-import { CloudSongDataRepository } from "../../repositories/CloudSongDataRepository"
-import { CloudSongRepository } from "../../repositories/CloudSongRepository"
-import { ICloudMidiRepository } from "../../repositories/ICloudMidiRepository"
-import { ICloudSongDataRepository } from "../../repositories/ICloudSongDataRepository"
-import { ICloudSongRepository } from "../../repositories/ICloudSongRepository"
-import { IUserRepository } from "../../repositories/IUserRepository"
-import { UserRepository } from "../../repositories/UserRepository"
 import { pushHistory } from "../actions/history"
 import { isRunningInElectron } from "../helpers/platform"
 import { GroupOutput } from "../services/GroupOutput"
@@ -48,17 +46,13 @@ export interface SerializedRootStore {
 export default class RootStore {
   song: Song = emptySong()
 
-  readonly cloudSongRepository: ICloudSongRepository = new CloudSongRepository(
+  readonly cloudSongRepository = createCloudSongRepository(firestore, auth)
+  readonly cloudSongDataRepository = createCloudSongDataRepository(
     firestore,
     auth,
   )
-  readonly cloudSongDataRepository: ICloudSongDataRepository =
-    new CloudSongDataRepository(firestore)
-  readonly cloudMidiRepository: ICloudMidiRepository = new CloudMidiRepository(
-    firestore,
-    functions,
-  )
-  readonly userRepository: IUserRepository = new UserRepository(firestore, auth)
+  readonly cloudMidiRepository = createCloudMidiRepository(firestore, functions)
+  readonly userRepository = createUserRepository(firestore, auth)
 
   readonly router = new Router()
   readonly trackMute = new TrackMute()

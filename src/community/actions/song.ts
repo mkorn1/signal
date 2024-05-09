@@ -1,8 +1,5 @@
 import { debounce } from "lodash"
-import {
-  CloudSong,
-  ICloudSongRepository,
-} from "../../repositories/ICloudSongRepository"
+import { CloudSong, ICloudSongRepository } from "signal-api"
 import RootStore from "../stores/RootStore"
 
 const debouncedIncrementPlayCount = debounce(

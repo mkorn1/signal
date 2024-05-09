@@ -1,9 +1,5 @@
 import { makeObservable, observable } from "mobx"
-import {
-  AuthUser,
-  IUserRepository,
-  User,
-} from "../../repositories/IUserRepository"
+import { AuthUser, IUserRepository, User } from "signal-api"
 import { isRunningInElectron } from "../helpers/platform"
 
 export class AuthStore {

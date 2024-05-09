@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
+import { CloudSong } from "signal-api"
 import { useLocalization } from "../../common/localize/useLocalization"
 import { Button } from "../../components/Button"
 import {
@@ -10,7 +11,6 @@ import {
 } from "../../components/Dialog"
 import { LinkShare } from "../../components/LinkShare"
 import { Localized } from "../../components/Localized"
-import { CloudSong } from "../../repositories/ICloudSongRepository"
 
 export interface ShareDialogProps {
   song: CloudSong

@@ -1,5 +1,5 @@
 import { makeObservable, observable } from "mobx"
-import { CloudSong } from "../../repositories/ICloudSongRepository"
+import { CloudSong } from "signal-api"
 
 export class CommunitySongStore {
   songs: CloudSong[] = []
