@@ -1,3 +1,4 @@
+import { useToast } from "dialog-hooks"
 import {
   GithubAuthProvider,
   GoogleAuthProvider,
@@ -22,7 +23,6 @@ import {
 import { useCloudFile } from "../../hooks/useCloudFile"
 import { useSongFile } from "../../hooks/useSongFile"
 import { useStores } from "../../hooks/useStores"
-import { useToast } from "../../hooks/useToast"
 
 declare global {
   interface Window {

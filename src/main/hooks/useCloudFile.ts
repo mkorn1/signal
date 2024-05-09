@@ -1,14 +1,12 @@
+import { useDialog, usePrompt, useToast } from "dialog-hooks"
 import { ChangeEvent } from "react"
 import { useLocalization } from "../../common/localize/useLocalization"
 import { emptySong } from "../../common/song"
 import { openSong, saveSong, setSong } from "../actions"
 import { createSong, updateSong } from "../actions/cloudSong"
 import { hasFSAccess, openFile, saveFileAs } from "../actions/file"
-import { useDialog } from "./useDialog"
 import { useProgress } from "./useProgress"
-import { usePrompt } from "./usePrompt"
 import { useStores } from "./useStores"
-import { useToast } from "./useToast"
 
 export const useCloudFile = () => {
   const rootStore = useStores()

@@ -1,7 +1,7 @@
+import { useToast } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
 import { useLocalization } from "../../../common/localize/useLocalization"
-import { useToast } from "../../../main/hooks/useToast"
 import { useStores } from "../../hooks/useStores"
 import { SignInDialogContent } from "./SignInDialogContent"
 

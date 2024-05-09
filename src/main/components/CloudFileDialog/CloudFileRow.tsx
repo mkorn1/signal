@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import { useToast } from "dialog-hooks"
 import DotsHorizontalIcon from "mdi-react/DotsHorizontalIcon"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
@@ -9,7 +10,6 @@ import { Menu, MenuItem } from "../../../components/Menu"
 import { CloudSong } from "../../../repositories/ICloudSongRepository"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
-import { useToast } from "../../hooks/useToast"
 
 const Container = styled.div`
   display: flex;

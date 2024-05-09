@@ -1,5 +1,6 @@
 import styled from "@emotion/styled"
 import Color from "color"
+import { useToast } from "dialog-hooks"
 import RemoveIcon from "mdi-react/RemoveIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
@@ -7,7 +8,6 @@ import { Button } from "../../../components/Button"
 import { CircularProgress } from "../../../components/CircularProgress"
 import { RadioButton } from "../../../components/RadioButton"
 import { useStores } from "../../hooks/useStores"
-import { useToast } from "../../hooks/useToast"
 import { SoundFontFile } from "../../stores/SoundFontStore"
 
 const List = styled.div`

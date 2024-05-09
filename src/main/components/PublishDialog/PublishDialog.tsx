@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import { useToast } from "dialog-hooks"
 import OpenInNewIcon from "mdi-react/OpenInNewIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
@@ -17,7 +18,6 @@ import { Localized } from "../../../components/Localized"
 import { publishSong, unpublishSong } from "../../actions/cloudSong"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
-import { useToast } from "../../hooks/useToast"
 
 type PublishState = "publishable" | "published" | "notPublishable"
 

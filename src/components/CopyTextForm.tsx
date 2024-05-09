@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
+import { useToast } from "dialog-hooks"
 import { FC, useCallback } from "react"
 import { localized } from "../common/localize/localizedString"
-import { useToast } from "../main/hooks/useToast"
 import { PrimaryButton } from "./Button"
 import { Localized } from "./Localized"
 
