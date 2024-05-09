@@ -1,11 +1,11 @@
-import { makeObservable, observable } from "mobx"
-import { deserialize, serialize } from "serializr"
 import {
   createCloudMidiRepository,
   createCloudSongDataRepository,
   createCloudSongRepository,
   createUserRepository,
-} from "signal-api"
+} from "@signal-app/api"
+import { makeObservable, observable } from "mobx"
+import { deserialize, serialize } from "serializr"
 import Player from "../../common/player"
 import Song, { emptySong } from "../../common/song"
 import TrackMute from "../../common/trackMute"

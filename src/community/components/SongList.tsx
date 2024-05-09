@@ -1,6 +1,6 @@
+import { CloudSong } from "@signal-app/api"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { CloudSong } from "signal-api"
 import { SongListItem } from "./SongListItem"
 
 export interface SongListProps {

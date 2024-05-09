@@ -68,7 +68,7 @@
     "react-share": "^5.1.0",
     "react-window": "^1.8.10",
     "serializr": "^3.0.2",
-    "signal-api": "file:packages/signal-api",
+    "@signal-app/api": "file:packages/api",
     "wav-encoder": "^1.3.0",
     "wouter": "^3.0.2"
   },

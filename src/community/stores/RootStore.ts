@@ -2,7 +2,7 @@ import {
   createCloudSongDataRepository,
   createCloudSongRepository,
   createUserRepository,
-} from "signal-api"
+} from "@signal-app/api"
 import Player from "../../common/player"
 import { auth, firestore } from "../../firebase/firebase"
 import { SoundFontSynth } from "../../main/services/SoundFontSynth"

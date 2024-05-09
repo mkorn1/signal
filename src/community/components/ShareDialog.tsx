@@ -1,6 +1,6 @@
+import { CloudSong } from "@signal-app/api"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { CloudSong } from "signal-api"
 import { useLocalization } from "../../common/localize/useLocalization"
 import { Button } from "../../components/Button"
 import {
