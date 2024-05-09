@@ -17,7 +17,8 @@
     "build:electron": "npm run build:app -- --env electron && rm -rf electron/dist_renderer && cp -r dist electron/dist_renderer",
     "package:electron": "npm run build:electron && npm run package:darwin --prefix electron",
     "make:electron": "npm run build:electron && npm run make:mas --prefix electron",
-    "make:darwin": "npm run build:electron && npm run make:darwin --prefix electron"
+    "make:darwin": "npm run build:electron && npm run make:darwin --prefix electron",
+    "preinstall": "npm run build -w packages/api && npm run build -w packages/dialog-hooks"
   },
   "repository": {
     "type": "git",
@@ -49,9 +50,10 @@
     "@ryohey/webgl-react": "^0.4.2",
     "@sentry/react": "^7.106.0",
     "@sentry/tracing": "^7.106.0",
+    "@signal-app/api": "^0.0.1",
     "@types/react": "^18.2.64",
     "color": "^4.2.3",
-    "dialog-hooks": "file:packages/dialog-hooks",
+    "dialog-hooks": "^0.0.1",
     "firebase": "^10.8.1",
     "firebaseui": "^6.1.0",
     "get-port-please": "^3.1.2",
@@ -68,7 +70,6 @@
     "react-share": "^5.1.0",
     "react-window": "^1.8.10",
     "serializr": "^3.0.2",
-    "@signal-app/api": "file:packages/api",
     "wav-encoder": "^1.3.0",
     "wouter": "^3.0.2"
   },
@@ -117,5 +118,8 @@
     "@pmmmwh/react-refresh-webpack-plugin": {
       "webpack-dev-server": "^5.0.2"
     }
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }

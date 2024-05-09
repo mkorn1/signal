@@ -1,5 +1,5 @@
 {
-  "name": "signal-api",
+  "name": "@signal-app/api",
   "private": true,
   "version": "0.0.1",
   "description": "signal api",
