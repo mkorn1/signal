@@ -21,7 +21,12 @@ import { CloudSong, ICloudSongRepository } from "./ICloudSongRepository"
 import { User } from "./IUserRepository"
 import { FirestoreUser, convertUser } from "./UserRepository"
 
-export class CloudSongRepository implements ICloudSongRepository {
+export const createCloudSongRepository = (
+  firestore: Firestore,
+  auth: Auth,
+): ICloudSongRepository => new CloudSongRepository(firestore, auth)
+
+class CloudSongRepository implements ICloudSongRepository {
   constructor(
     private readonly firestore: Firestore,
     private readonly auth: Auth,

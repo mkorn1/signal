@@ -1,3 +1,4 @@
+import { Auth } from "firebase/auth"
 import {
   Bytes,
   Firestore,
@@ -9,14 +10,21 @@ import {
   runTransaction,
   serverTimestamp,
 } from "firebase/firestore"
-import { auth } from "../firebase/firebase"
 import {
   CloudSongData,
   ICloudSongDataRepository,
 } from "./ICloudSongDataRepository"
 
+export const createCloudSongDataRepository = (
+  firestore: Firestore,
+  auth: Auth,
+): ICloudSongDataRepository => new CloudSongDataRepository(firestore, auth)
+
 export class CloudSongDataRepository implements ICloudSongDataRepository {
-  constructor(private readonly firestore: Firestore) {}
+  constructor(
+    private readonly firestore: Firestore,
+    private readonly auth: Auth,
+  ) {}
 
   private get songDataCollection() {
     return songDataCollection(this.firestore)
@@ -27,11 +35,10 @@ export class CloudSongDataRepository implements ICloudSongDataRepository {
   }
 
   async create(data: Pick<CloudSongData, "data">): Promise<string> {
-    if (auth.currentUser === null) {
+    if (this.auth.currentUser === null) {
       throw new Error("You must be logged in to save songs to the cloud")
     }
-
-    const userId = auth.currentUser.uid
+    const userId = this.auth.currentUser.uid
     const dataDoc = doc(this.songDataCollection)
 
     await runTransaction(this.firestore, async (transaction) => {

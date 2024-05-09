@@ -10,7 +10,12 @@ import {
 import { Functions, httpsCallable } from "firebase/functions"
 import { ICloudMidiRepository } from "./ICloudMidiRepository"
 
-export class CloudMidiRepository implements ICloudMidiRepository {
+export const createCloudMidiRepository = (
+  firestore: Firestore,
+  functions: Functions,
+): ICloudMidiRepository => new CloudMidiRepository(firestore, functions)
+
+class CloudMidiRepository implements ICloudMidiRepository {
   constructor(
     private readonly firestore: Firestore,
     private readonly functions: Functions,

@@ -15,6 +15,11 @@ import {
 } from "firebase/firestore"
 import { AuthUser, IUserRepository, User } from "./IUserRepository"
 
+export const createUserRepository = (
+  firestore: Firestore,
+  auth: Auth,
+): IUserRepository => new UserRepository(firestore, auth)
+
 export interface FirestoreUser {
   name: string
   bio: string
@@ -22,7 +27,7 @@ export interface FirestoreUser {
   updatedAt: Timestamp
 }
 
-export class UserRepository implements IUserRepository {
+class UserRepository implements IUserRepository {
   constructor(
     private readonly firestore: Firestore,
     private readonly auth: Auth,

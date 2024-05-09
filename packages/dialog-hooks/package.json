@@ -1,5 +1,6 @@
 {
   "name": "dialog-hooks",
+  "private": true,
   "version": "0.0.1",
   "description": "dialog-hooks provides an elegant solution for managing React dialogs, prompts, and toasts through async/await instead of state. This library simplifies user interactions by allowing developers to handle dialog visibility and user input procedurally, making code cleaner and more intuitive.",
   "main": "dist/index.js",
