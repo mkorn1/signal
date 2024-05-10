@@ -7,10 +7,20 @@ import { Ipc } from "./ipc"
 import { registerIpcMain } from "./ipcMain"
 import { menuTemplate } from "./menu"
 
-process.on("uncaughtException", function (err) {
+log.info(
+  "electron:launch",
+  `v${app.getVersion()}, platform: ${process.platform}, arch: ${process.arch}, env: ${process.env.NODE_ENV}, isPacked: ${app.isPackaged}, userData: ${app.getPath("userData")}`,
+)
+
+process.on("uncaughtException", (err) => {
   log.error("electron:event:uncaughtException")
   log.error(err)
   log.error(err.stack)
+})
+
+process.on("unhandledRejection", (err) => {
+  log.error("electron:event:unhandledRejection")
+  log.error(err)
 })
 
 let onOpenFile: (filePath: string) => void = () => {}
@@ -99,23 +109,30 @@ const createWindow = (): void => {
   onOpenFile = (filePath) => {
     ipc.send("onOpenFile", { filePath })
   }
+
+  log.info("electron:event:createWindow", "Window created")
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow)
+app.on("ready", () => {
+  log.info("electron:event:ready")
+  createWindow()
+})
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
+  log.info("electron:event:window-all-closed")
   if (process.platform !== "darwin") {
     app.quit()
   }
 })
 
 app.on("activate", () => {
+  log.info("electron:event:activate")
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
@@ -128,8 +145,10 @@ type AdditionalData = typeof additionalData
 const gotTheLock = app.requestSingleInstanceLock(additionalData)
 
 if (!gotTheLock) {
+  log.info("electron:event:quit", "Another instance is running")
   app.quit()
 } else {
+  log.info("electron:event:ready", "Registering second-instance event")
   app.on("second-instance", (event, argv, workingDirectory, additionalData) => {
     const { filePath } = additionalData as AdditionalData
     if (filePath !== null) {
@@ -139,11 +158,13 @@ if (!gotTheLock) {
 }
 
 app.on("open-file", (event, filePath) => {
+  log.info("electron:event:open-file", filePath)
   event.preventDefault()
   onOpenFile(filePath)
 })
 
 app.on("browser-window-focus", (event, window) => {
+  log.info("electron:event:browser-window-focus")
   const defaultMenu = Menu.buildFromTemplate(defaultMenuTemplate)
   Menu.setApplicationMenu(window === mainWindow ? mainMenu : defaultMenu)
 })
@@ -151,3 +172,5 @@ app.on("browser-window-focus", (event, window) => {
 function openSupportPage() {
   shell.openExternal("https://signal.vercel.app/support")
 }
+
+log.info("electron:event:app-ready")
