@@ -9,7 +9,7 @@
     "start": "npm run build && electron .",
     "build": "rollup -c --bundleConfigAsCjs",
     "package": "npm run build && electron-forge package",
-    "make": "electron-forge make",
+    "make": "npm run build && electron-forge make",
     "make:mas": "npm run make -- --arch=universal --platform=mas",
     "make:darwin": "npm run make -- --platform=darwin",
     "publish": "electron-forge publish",
