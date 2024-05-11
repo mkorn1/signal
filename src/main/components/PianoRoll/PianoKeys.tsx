@@ -212,15 +212,15 @@ const PianoKeys: FC<PianoKeysProps> = ({ numberOfKeys, keyHeight }) => {
         const noteNumberFloat = numberOfKeys - y / keyHeight
         const noteNumber = Math.floor(noteNumberFloat)
         const isBlack = Colors[noteNumber % Colors.length] !== 0
-        if (x < blackKeyWidth || !isBlack) {
-          return noteNumber
-        }
 
-        // We are on the white tab below a black key. Round to the nearest
+        // If you are on the white tab below a black key, round to the nearest
         // white note.
-        const touchingNextWhite =
-          Math.round(noteNumberFloat) - Math.floor(noteNumberFloat)
-        return touchingNextWhite ? noteNumber + 1 : noteNumber - 1
+        if (x > blackKeyWidth && isBlack) {
+          const touchingNextWhite =
+            Math.round(noteNumberFloat) - Math.floor(noteNumberFloat)
+          return touchingNextWhite ? noteNumber + 1 : noteNumber - 1
+        }
+        return noteNumber
       }
 
       const startPosition = {
