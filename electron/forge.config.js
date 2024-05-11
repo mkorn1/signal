@@ -37,11 +37,13 @@ const packagerConfig = {
         LSHandlerRank: "Owner",
       },
     ],
+    LSMultipleInstancesProhibited: true,
   },
 }
 
 switch (platform) {
   case "darwin":
+    packagerConfig.platform = "darwin"
     packagerConfig.appBundleId = "jp.codingcafe.signal.dev"
     packagerConfig.osxSign = {
       platform: "darwin",
@@ -60,6 +62,7 @@ switch (platform) {
     }
     break
   case "mas":
+    packagerConfig.platform = "mas"
     packagerConfig.appBundleId = "jp.codingcafe.signal"
     packagerConfig.osxSign = {
       platform: "mas",

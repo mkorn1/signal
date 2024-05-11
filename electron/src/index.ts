@@ -7,9 +7,11 @@ import { Ipc } from "./ipc"
 import { registerIpcMain } from "./ipcMain"
 import { menuTemplate } from "./menu"
 
+const isMas = process.mas === true
+
 log.info(
   "electron:launch",
-  `v${app.getVersion()}, platform: ${process.platform}, arch: ${process.arch}, env: ${process.env.NODE_ENV}, isPacked: ${app.isPackaged}, userData: ${app.getPath("userData")}`,
+  `v${app.getVersion()}, platform: ${process.platform}, arch: ${process.arch}, env: ${process.env.NODE_ENV}, isPacked: ${app.isPackaged}, isMas: ${isMas}, userData: ${app.getPath("userData")}`,
 )
 
 process.on("uncaughtException", (err) => {
@@ -140,21 +142,26 @@ app.on("activate", () => {
   }
 })
 
-const additionalData = { filePath: getArgument() }
-type AdditionalData = typeof additionalData
-const gotTheLock = app.requestSingleInstanceLock(additionalData)
+if (!isMas) {
+  const additionalData = { filePath: getArgument() }
+  type AdditionalData = typeof additionalData
+  const gotTheLock = app.requestSingleInstanceLock(additionalData)
 
-if (!gotTheLock) {
-  log.info("electron:event:quit", "Another instance is running")
-  app.quit()
-} else {
-  log.info("electron:event:ready", "Registering second-instance event")
-  app.on("second-instance", (event, argv, workingDirectory, additionalData) => {
-    const { filePath } = additionalData as AdditionalData
-    if (filePath !== null) {
-      onDropFileOnAppIcon(filePath)
-    }
-  })
+  if (!gotTheLock) {
+    log.info("electron:event:quit", "Another instance is running")
+    app.quit()
+  } else {
+    log.info("electron:event:ready", "Registering second-instance event")
+    app.on(
+      "second-instance",
+      (event, argv, workingDirectory, additionalData) => {
+        const { filePath } = additionalData as AdditionalData
+        if (filePath !== null) {
+          onDropFileOnAppIcon(filePath)
+        }
+      },
+    )
+  }
 }
 
 app.on("open-file", (event, filePath) => {
