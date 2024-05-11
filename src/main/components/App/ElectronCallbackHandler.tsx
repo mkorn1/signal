@@ -22,29 +22,10 @@ import { useCloudFile } from "../../hooks/useCloudFile"
 import { useSongFile } from "../../hooks/useSongFile"
 import { useStores } from "../../hooks/useStores"
 import { useToast } from "../../hooks/useToast"
-import RootStore from "../../stores/RootStore"
 
 declare global {
   interface Window {
     electronAPI: ElectronAPI
-  }
-}
-
-const saveFileAs = async (rootStore: RootStore) => {
-  const { song } = rootStore
-  try {
-    const res = await window.electronAPI.showSaveDialog()
-    if (res === null) {
-      return // canceled
-    }
-    const { path } = res
-    const data = songToMidi(song).buffer
-    song.filepath = path
-    song.isSaved = true
-    await window.electronAPI.saveFile(path, data)
-    window.electronAPI.addRecentDocument(path)
-  } catch (e) {
-    alert((e as Error).message)
   }
 }
 
@@ -208,6 +189,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
         },
       ),
     ]
+    window.electronAPI.ready()
     return () => {
       unsubscribes.forEach((unsubscribe) => unsubscribe())
     }

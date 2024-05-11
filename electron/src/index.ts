@@ -9,6 +9,8 @@ import { menuTemplate } from "./menu"
 
 const isMas = process.mas === true
 
+log.initialize()
+
 log.info(
   "electron:launch",
   `v${app.getVersion()}, platform: ${process.platform}, arch: ${process.arch}, env: ${process.env.NODE_ENV}, isPacked: ${app.isPackaged}, isMas: ${isMas}, userData: ${app.getPath("userData")}`,
@@ -29,6 +31,10 @@ let onOpenFile: (filePath: string) => void = () => {}
 let onDropFileOnAppIcon: (filePath: string) => void = () => {}
 let mainWindow: BrowserWindow
 let mainMenu: Electron.Menu
+
+// Path of the file to open specified at startup
+let openFilePath: string | null = null
+
 const ipc = new Ipc()
 
 function updateMainMenu(isLoggedIn: boolean) {
@@ -56,6 +62,12 @@ function updateMainMenu(isLoggedIn: boolean) {
 }
 
 registerIpcMain({
+  onReady() {
+    if (openFilePath !== null) {
+      onOpenFile(openFilePath)
+      openFilePath = null
+    }
+  },
   onAuthStateChanged(isLoggedIn) {
     updateMainMenu(isLoggedIn)
   },
@@ -167,7 +179,11 @@ if (!isMas) {
 app.on("open-file", (event, filePath) => {
   log.info("electron:event:open-file", filePath)
   event.preventDefault()
-  onOpenFile(filePath)
+  if (mainWindow) {
+    onOpenFile(filePath)
+  } else {
+    openFilePath = filePath
+  }
 })
 
 app.on("browser-window-focus", (event, window) => {
