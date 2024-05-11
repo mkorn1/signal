@@ -12,6 +12,18 @@ import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
 import DrawCanvas from "../DrawCanvas"
 
+function makeBlackKeyFillStyle(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+): CanvasFillStrokeStyles["fillStyle"] {
+  const grd = ctx.createLinearGradient(0, 0, width, 0)
+  grd.addColorStop(0.0, "rgba(33, 33, 33, 1.000)")
+  grd.addColorStop(0.895, "rgba(96, 93, 93, 1.000)")
+  grd.addColorStop(0.924, "rgba(48, 48, 48, 1.000)")
+  grd.addColorStop(1.0, "rgba(0, 0, 0, 1.000)")
+  return grd
+}
+
 function drawBorder(
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -26,16 +38,34 @@ function drawBorder(
   ctx.stroke()
 }
 
-function makeBlackKeyFillStyle(
+function drawWhiteKey(
   ctx: CanvasRenderingContext2D,
+  blackKeyWidth: number,
   width: number,
-): CanvasFillStrokeStyles["fillStyle"] {
-  const grd = ctx.createLinearGradient(0, 0, width, 0)
-  grd.addColorStop(0.0, "rgba(33, 33, 33, 1.000)")
-  grd.addColorStop(0.895, "rgba(96, 93, 93, 1.000)")
-  grd.addColorStop(0.924, "rgba(48, 48, 48, 1.000)")
-  grd.addColorStop(1.0, "rgba(0, 0, 0, 1.000)")
-  return grd
+  height: number,
+  theme: Theme,
+  isSelected: boolean,
+  bordered: boolean,
+  prevKeyBlack: boolean,
+  nextKeyBlack: boolean,
+): void {
+  const fillSytle = theme.themeColor
+  if (isSelected) {
+    ctx.fillStyle = fillSytle
+    ctx.fillRect(0, 0.5, width, height)
+
+    if (prevKeyBlack) {
+      ctx.fillStyle = fillSytle
+      ctx.fillRect(blackKeyWidth, height / 2, width - blackKeyWidth, height)
+    }
+    if (nextKeyBlack) {
+      ctx.fillStyle = fillSytle
+      ctx.fillRect(blackKeyWidth, -height / 2, width - blackKeyWidth, height)
+    }
+  }
+  if (bordered) {
+    drawBorder(ctx, width, theme.dividerColor)
+  }
 }
 
 function drawBlackKey(
@@ -117,14 +147,19 @@ function drawKeys(
         grayDividerColor,
       )
     } else {
-      if (isSelected) {
-        ctx.fillStyle = theme.themeColor
-        ctx.fillRect(0, 0.5, width, keyHeight)
-      }
-
-      if (bordered) {
-        drawBorder(ctx, width, theme.dividerColor)
-      }
+      const prevKeyBlack = colors[(i - 1) % colors.length] !== 0
+      const nextKeyBlack = colors[(i + 1) % colors.length] !== 0
+      drawWhiteKey(
+        ctx,
+        blackKeyWidth,
+        width,
+        keyHeight,
+        theme,
+        isSelected,
+        bordered,
+        prevKeyBlack,
+        nextKeyBlack,
+      )
     }
     const isKeyC = i % 12 === 0
     if (isKeyC) {
