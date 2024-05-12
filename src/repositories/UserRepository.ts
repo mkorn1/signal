@@ -10,8 +10,7 @@ import {
   getDocs,
   onSnapshot,
   query,
-  setDoc,
-  updateDoc,
+  runTransaction,
   where,
 } from "firebase/firestore"
 import { AuthUser, IUserRepository, User } from "./IUserRepository"
@@ -40,19 +39,23 @@ export class UserRepository implements IUserRepository {
   }
 
   async create(data: Pick<User, "name" | "bio">): Promise<void> {
-    await setDoc(this.userRef, {
-      name: data.name,
-      bio: data.bio,
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.set(this.userRef, {
+        name: data.name,
+        bio: data.bio,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      })
     })
   }
 
   async update(data: Pick<User, "name" | "bio">): Promise<void> {
-    await updateDoc(this.userRef, {
-      name: data.name,
-      bio: data.bio,
-      updatedAt: Timestamp.now(),
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.update(this.userRef, {
+        name: data.name,
+        bio: data.bio,
+        updatedAt: Timestamp.now(),
+      })
     })
   }
 

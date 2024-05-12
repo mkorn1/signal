@@ -5,17 +5,15 @@ import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
   Timestamp,
-  addDoc,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
   increment,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
-  updateDoc,
   where,
 } from "firebase/firestore"
 import { songDataCollection } from "./CloudSongDataRepository"
@@ -52,48 +50,60 @@ export class CloudSongRepository implements ICloudSongRepository {
       throw new Error("You must be logged in to save songs to the cloud")
     }
 
+    const userId = this.auth.currentUser.uid
     const dataRef = doc(songDataCollection(this.firestore), data.songDataId)
+    const ref = doc(this.songCollection)
 
-    const document = await addDoc(this.songCollection, {
-      name: data.name,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      dataRef,
-      userId: this.auth.currentUser.uid,
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.set(ref, {
+        name: data.name,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        dataRef,
+        userId,
+      })
     })
 
-    return document.id
+    return ref.id
   }
 
   async update(songId: string, data: Pick<CloudSong, "name">): Promise<void> {
     const ref = this.songRef(songId)
 
-    await updateDoc(ref, {
-      updatedAt: serverTimestamp(),
-      name: data.name,
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.update(ref, {
+        updatedAt: serverTimestamp(),
+        name: data.name,
+      })
     })
   }
 
   async delete(songId: string): Promise<void> {
-    await deleteDoc(this.songRef(songId))
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.delete(this.songRef(songId))
+    })
   }
 
   async publish(songId: string, user: User): Promise<void> {
     const ref = this.songRef(songId)
 
-    await updateDoc(ref, {
-      isPublic: true,
-      publishedAt: serverTimestamp(),
-      user,
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.update(ref, {
+        isPublic: true,
+        publishedAt: serverTimestamp(),
+        user,
+      })
     })
   }
 
   async unpublish(songId: string): Promise<void> {
     const ref = this.songRef(songId)
 
-    await updateDoc(ref, {
-      isPublic: false,
-      publishedAt: null,
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.update(ref, {
+        isPublic: false,
+        publishedAt: null,
+      })
     })
   }
 
@@ -140,8 +150,10 @@ export class CloudSongRepository implements ICloudSongRepository {
   async incrementPlayCount(songId: string): Promise<void> {
     const ref = this.songRef(songId)
 
-    await updateDoc(ref, {
-      playCount: increment(1),
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.update(ref, {
+        playCount: increment(1),
+      })
     })
   }
 }
