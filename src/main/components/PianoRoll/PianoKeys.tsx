@@ -43,28 +43,15 @@ function drawBorder(
 
 function drawWhiteKey(
   ctx: CanvasRenderingContext2D,
-  blackKeyWidth: number,
   width: number,
   height: number,
   theme: Theme,
   isSelected: boolean,
   bordered: boolean,
-  prevKeyBlack: boolean,
-  nextKeyBlack: boolean,
 ): void {
-  const fillSytle = theme.themeColor
   if (isSelected) {
-    ctx.fillStyle = fillSytle
+    ctx.fillStyle = theme.themeColor
     ctx.fillRect(0, 0.5, width, height)
-
-    if (prevKeyBlack) {
-      ctx.fillStyle = fillSytle
-      ctx.fillRect(blackKeyWidth, height / 2, width - blackKeyWidth, height)
-    }
-    if (nextKeyBlack) {
-      ctx.fillStyle = fillSytle
-      ctx.fillRect(blackKeyWidth, -height / 2, width - blackKeyWidth, height)
-    }
   }
   if (bordered) {
     drawBorder(ctx, width, theme.dividerColor)
@@ -124,55 +111,74 @@ function drawKeys(
   ctx.fillStyle = theme.pianoKeyWhite
   ctx.fillRect(0, 0, width, keyHeight * numberOfKeys)
 
-  const blackKeyFillStyle = makeBlackKeyFillStyle(ctx, blackKeyWidth)
-  const grayDividerColor = Color(theme.dividerColor).alpha(0.3).string()
+  const allKeys = [...Array(numberOfKeys).keys()]
+  const whiteKeys = allKeys.filter((i) => Colors[i % Colors.length] === 0)
+  const blackKeys = allKeys.filter((i) => Colors[i % Colors.length] === 1)
+  const labelKeys = allKeys.filter((i) => i % 12 === 0)
 
   drawBorder(ctx, width, theme.dividerColor)
 
-  for (let i = 0; i < numberOfKeys; i++) {
-    const isBlack = Colors[i % Colors.length] !== 0
-    const bordered = i % 12 === 4 || i % 12 === 11
-    const y = (numberOfKeys - i - 1) * keyHeight
+  // Draw white keys
+  for (const keyNum of whiteKeys) {
+    let y = (numberOfKeys - keyNum - 1) * keyHeight
+    const isSelected = touchingKeys.includes(keyNum)
+
+    const bordered = keyNum % 12 === 4 || keyNum % 12 === 11
+    const prevKeyBlack = Colors[(keyNum - 1) % Colors.length] === 1
+    const nextKeyBlack = Colors[(keyNum + 1) % Colors.length] === 1
+
+    let height = keyHeight
+    if (prevKeyBlack) {
+      height += 0.5 * keyHeight
+    }
+    if (nextKeyBlack) {
+      y -= 0.5 * keyHeight
+      height += 0.5 * keyHeight
+    }
+
     ctx.save()
     ctx.translate(0, y)
 
-    const isSelected = touchingKeys.includes(i)
+    drawWhiteKey(ctx, width, height, theme, isSelected, bordered)
+    ctx.restore()
+  }
 
-    if (isBlack) {
-      drawBlackKey(
-        ctx,
-        blackKeyWidth,
-        width,
-        keyHeight,
-        isSelected ? theme.themeColor : blackKeyFillStyle,
-        grayDividerColor,
-      )
-    } else {
-      const prevKeyBlack = Colors[(i - 1) % Colors.length] !== 0
-      const nextKeyBlack = Colors[(i + 1) % Colors.length] !== 0
-      drawWhiteKey(
-        ctx,
-        blackKeyWidth,
-        width,
-        keyHeight,
-        theme,
-        isSelected,
-        bordered,
-        prevKeyBlack,
-        nextKeyBlack,
-      )
-    }
-    const isKeyC = i % 12 === 0
-    if (isKeyC) {
-      drawLabel(
-        ctx,
-        width,
-        keyHeight,
-        i,
-        theme.canvasFont,
-        theme.secondaryTextColor,
-      )
-    }
+  // Draw black keys
+  for (const keyNum of blackKeys) {
+    const y = (numberOfKeys - keyNum - 1) * keyHeight
+    const isSelected = touchingKeys.includes(keyNum)
+
+    const blackKeyFillStyle = makeBlackKeyFillStyle(ctx, blackKeyWidth)
+    const grayDividerColor = Color(theme.dividerColor).alpha(0.3).string()
+
+    ctx.save()
+    ctx.translate(0, y)
+
+    drawBlackKey(
+      ctx,
+      blackKeyWidth,
+      width,
+      keyHeight,
+      isSelected ? theme.themeColor : blackKeyFillStyle,
+      grayDividerColor,
+    )
+    ctx.restore()
+  }
+
+  // Draw labels
+  for (const keyNum of labelKeys) {
+    const y = (numberOfKeys - keyNum - 1) * keyHeight
+    ctx.save()
+    ctx.translate(0, y)
+
+    drawLabel(
+      ctx,
+      width,
+      keyHeight,
+      keyNum,
+      theme.canvasFont,
+      theme.secondaryTextColor,
+    )
     ctx.restore()
   }
 
