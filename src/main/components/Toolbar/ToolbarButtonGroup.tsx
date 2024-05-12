@@ -8,6 +8,7 @@ export const ToolbarButtonGroup = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+  flex-shrink: 0;
 `
 
 const _ToolbarButtonGroupItem = styled.button<{ selected?: boolean }>`

@@ -48,6 +48,8 @@ const api = {
   onBrowserSignInCompleted: (
     callback: (params: { credential: FirebaseCredential }) => void,
   ) => register("onBrowserSignInCompleted", callback),
+  // tell to main process that the renderer process is ready
+  ready: () => invoke("ready"),
   showOpenDialog: async () => await invoke("showOpenDialog"),
   showOpenDirectoryDialog: async () => await invoke("showOpenDirectoryDialog"),
   showSaveDialog: async () => await invoke("showSaveDialog"),

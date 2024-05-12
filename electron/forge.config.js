@@ -3,7 +3,6 @@ require("dotenv").config()
 const platform = process.argv[process.argv.indexOf("--platform") + 1]
 
 const packagerConfig = {
-  appBundleId: "jp.codingcafe.signal",
   appCategoryType: "public.app-category.music",
   buildVersion: process.env.BUILD_VERSION,
   icon: "./icons/icon",
@@ -22,6 +21,7 @@ const packagerConfig = {
     "^/entitlements.child.plist",
     "^/nodemon.json",
     "^/icons",
+    "^/.env",
   ],
   overwrite: true,
   prune: false,
@@ -37,11 +37,14 @@ const packagerConfig = {
         LSHandlerRank: "Owner",
       },
     ],
+    LSMultipleInstancesProhibited: true,
   },
 }
 
 switch (platform) {
   case "darwin":
+    packagerConfig.platform = "darwin"
+    packagerConfig.appBundleId = "jp.codingcafe.signal.dev"
     packagerConfig.osxSign = {
       platform: "darwin",
       identity: process.env.APPLE_DEVELOPER_CERTIFICATE_NAME,
@@ -59,6 +62,8 @@ switch (platform) {
     }
     break
   case "mas":
+    packagerConfig.platform = "mas"
+    packagerConfig.appBundleId = "jp.codingcafe.signal"
     packagerConfig.osxSign = {
       platform: "mas",
       identity: process.env.APPLE_DISTRIBUTION_CERTIFICATE_NAME,

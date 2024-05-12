@@ -7,16 +7,21 @@ import { launchAuthCallbackServer } from "./authCallback"
 import { FirebaseCredential } from "./ipc"
 
 interface Callbacks {
+  onReady: () => void
   onAuthStateChanged: (isLoggedIn: boolean) => void
   onBrowserSignInCompleted: (credential: FirebaseCredential) => void
   onMainWindowClose: () => void
 }
 
 const api = ({
+  onReady,
   onAuthStateChanged,
   onBrowserSignInCompleted,
   onMainWindowClose,
 }: Callbacks) => ({
+  ready: () => {
+    onReady()
+  },
   showOpenDialog: async () => {
     const fileObj = await dialog.showOpenDialog({
       properties: ["openFile"],

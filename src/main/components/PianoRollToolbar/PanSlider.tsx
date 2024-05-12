@@ -8,14 +8,15 @@ import { useStores } from "../../hooks/useStores"
 
 const Container = styled.div`
   display: flex;
-  width: 8rem;
+  flex-grow: 1;
+  max-width: 8rem;
+  min-width: 5rem;
   margin-left: 1rem;
   margin-right: 2rem;
 `
 
 const Label = styled.div`
   display: flex;
-  width: 3rem;
   align-items: center;
   margin-right: 0.5rem;
   color: ${({ theme }) => theme.secondaryTextColor};

@@ -3,13 +3,11 @@ import {
   Firestore,
   FirestoreDataConverter,
   Timestamp,
-  addDoc,
   collection,
-  deleteDoc,
   doc,
   getDoc,
+  runTransaction,
   serverTimestamp,
-  updateDoc,
 } from "firebase/firestore"
 import { auth } from "../firebase/firebase"
 import {
@@ -33,11 +31,16 @@ export class CloudSongDataRepository implements ICloudSongDataRepository {
       throw new Error("You must be logged in to save songs to the cloud")
     }
 
-    const dataDoc = await addDoc(this.songDataCollection, {
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      data: Bytes.fromUint8Array(data.data),
-      userId: auth.currentUser.uid,
+    const userId = auth.currentUser.uid
+    const dataDoc = doc(this.songDataCollection)
+
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.set(dataDoc, {
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        data: Bytes.fromUint8Array(data.data),
+        userId,
+      })
     })
 
     return dataDoc.id
@@ -57,30 +60,38 @@ export class CloudSongDataRepository implements ICloudSongDataRepository {
   async update(id: string, data: Pick<CloudSongData, "data">): Promise<void> {
     const ref = this.songDataRef(id)
 
-    await updateDoc(ref, {
-      updatedAt: serverTimestamp(),
-      data: Bytes.fromUint8Array(data.data),
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.update(ref, {
+        updatedAt: serverTimestamp(),
+        data: Bytes.fromUint8Array(data.data),
+      })
     })
   }
 
   async publish(id: string): Promise<void> {
     const ref = this.songDataRef(id)
 
-    await updateDoc(ref, {
-      isPublic: true,
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.update(ref, {
+        isPublic: true,
+      })
     })
   }
 
   async unpublish(id: string): Promise<void> {
     const ref = this.songDataRef(id)
 
-    await updateDoc(ref, {
-      isPublic: false,
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.update(ref, {
+        isPublic: false,
+      })
     })
   }
 
   async delete(id: string): Promise<void> {
-    await deleteDoc(this.songDataRef(id))
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.delete(this.songDataRef(id))
+    })
   }
 }
 

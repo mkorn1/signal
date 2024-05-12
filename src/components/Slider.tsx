@@ -1,8 +1,8 @@
 import styled from "@emotion/styled"
 import {
+  SliderProps as Props,
   Range,
   Root,
-  SliderProps as Props,
   Thumb,
   Track,
 } from "@radix-ui/react-slider"
@@ -21,10 +21,10 @@ export type SliderProps = Omit<
 const StyledRoot = styled(Root)`
   position: relative;
   display: flex;
+  flex-grow: 1;
   align-items: center;
   user-select: none;
   touch-action: none;
-  width: 10rem;
   height: 2rem;
 `
 
