@@ -18,22 +18,26 @@ export class AuthStore {
 
     let subscribe: (() => void) | null = null
 
-    userRepository.observeAuthUser(async (user) => {
-      this.authUser = user
+    try {
+      userRepository.observeAuthUser(async (user) => {
+        this.authUser = user
 
-      if (isRunningInElectron()) {
-        window.electronAPI.authStateChanged(user !== null)
-      }
+        if (isRunningInElectron()) {
+          window.electronAPI.authStateChanged(user !== null)
+        }
 
-      subscribe?.()
+        subscribe?.()
 
-      if (user !== null) {
-        subscribe = userRepository.observeCurrentUser((user) => {
-          this.user = user
-        })
-        await this.createProfileIfNeeded(user)
-      }
-    })
+        if (user !== null) {
+          subscribe = userRepository.observeCurrentUser((user) => {
+            this.user = user
+          })
+          await this.createProfileIfNeeded(user)
+        }
+      })
+    } catch (e) {
+      console.warn(e)
+    }
   }
 
   private async createProfileIfNeeded(authUser: AuthUser) {
