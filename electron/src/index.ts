@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu, shell } from "electron"
 import log from "electron-log"
+import windowStateKeeper from "electron-window-state"
 import path from "path"
 import { getArgument } from "./arguments"
 import { defaultMenuTemplate } from "./defaultMenu"
@@ -80,10 +81,17 @@ registerIpcMain({
 })
 
 const createWindow = (): void => {
+  const mainWindowState = windowStateKeeper({
+    defaultWidth: 960,
+    defaultHeight: 720,
+  })
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 960,
-    height: 720,
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
     title: `signal v${app.getVersion()}`,
     titleBarStyle: "hidden",
     trafficLightPosition: { x: 10, y: 17 },
@@ -94,6 +102,8 @@ const createWindow = (): void => {
       preload: path.join(__dirname, "..", "dist", "preload.js"),
     },
   })
+
+  mainWindowState.manage(mainWindow)
 
   // and load the index.html of the app.
   if (!app.isPackaged) {

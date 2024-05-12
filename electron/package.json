@@ -32,6 +32,7 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "electron-log": "^5.1.2",
+    "electron-window-state": "^5.0.3",
     "express": "^4.19.2",
     "get-port-please": "^3.1.2"
   }
