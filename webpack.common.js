@@ -49,32 +49,5 @@ module.exports = (env) => ({
       chunks: ["browserCommunity"],
       template: path.join(__dirname, "public", "community.html"),
     }),
-    ...(env.electron
-      ? []
-      : [
-          new WorkboxPlugin.GenerateSW({
-            maximumFileSizeToCacheInBytes: 50000000,
-            clientsClaim: true,
-            skipWaiting: true,
-            runtimeCaching: [
-              {
-                urlPattern: /^\/.*$/,
-                handler: "StaleWhileRevalidate",
-              },
-              {
-                urlPattern: /^.+\.sf2$/,
-                handler: "StaleWhileRevalidate",
-              },
-              {
-                urlPattern: /^https:\/\/fonts\.googleapis\.com/,
-                handler: "StaleWhileRevalidate",
-              },
-              {
-                urlPattern: /^https:\/\/fonts\.gstatic\.com/,
-                handler: "StaleWhileRevalidate",
-              },
-            ],
-          }),
-        ]),
   ],
 })
