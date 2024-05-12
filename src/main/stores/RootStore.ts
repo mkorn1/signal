@@ -12,9 +12,6 @@ import { ICloudSongDataRepository } from "../../repositories/ICloudSongDataRepos
 import { ICloudSongRepository } from "../../repositories/ICloudSongRepository"
 import { IUserRepository } from "../../repositories/IUserRepository"
 import { UserRepository } from "../../repositories/UserRepository"
-import { setSong } from "../actions"
-import { loadSongFromExternalMidiFile } from "../actions/cloudSong"
-import { songFromArrayBuffer } from "../actions/file"
 import { pushHistory } from "../actions/history"
 import { isRunningInElectron } from "../helpers/platform"
 import { GroupOutput } from "../services/GroupOutput"
@@ -48,15 +45,8 @@ export interface SerializedRootStore {
   arrangeViewStore: SerializedArrangeViewStore
 }
 
-export type InitializationPhase =
-  | "initializing"
-  | "loadExternalMidi"
-  | "error"
-  | "done"
-
 export default class RootStore {
   song: Song = emptySong()
-  initializationPhase: InitializationPhase = "initializing"
 
   readonly cloudSongRepository: ICloudSongRepository = new CloudSongRepository(
     firestore,
@@ -98,7 +88,6 @@ export default class RootStore {
   constructor() {
     makeObservable(this, {
       song: observable.ref,
-      initializationPhase: observable,
     })
 
     const context = new (window.AudioContext || window.webkitAudioContext)()
@@ -130,8 +119,6 @@ export default class RootStore {
     this.tempoEditorStore.setUpAutorun()
 
     registerReactions(this)
-
-    this.init()
   }
 
   serialize(): SerializedRootStore {
@@ -151,43 +138,10 @@ export default class RootStore {
     this.arrangeViewStore.restore(serializedState.arrangeViewStore)
   }
 
-  private async init() {
-    try {
-      this.initializationPhase = "initializing"
-      await this.synth.setup()
-      await this.soundFontStore.init()
-      this.setupMetronomeSynth()
-      await this.loadExternalMidiOnLaunchIfNeeded()
-      await this.loadArgumentFileIfNeeded()
-      this.initializationPhase = "done"
-    } catch (e) {
-      this.initializationPhase = "error"
-      this.rootViewStore.initializeError = e as Error
-      this.rootViewStore.openInitializeErrorDialog = true
-    }
-  }
-
-  private async loadExternalMidiOnLaunchIfNeeded() {
-    const params = new URLSearchParams(window.location.search)
-    const openParam = params.get("open")
-
-    if (openParam) {
-      this.initializationPhase = "loadExternalMidi"
-      const song = await loadSongFromExternalMidiFile(this)(openParam)
-      setSong(this)(song)
-    }
-  }
-
-  private async loadArgumentFileIfNeeded() {
-    if (!isRunningInElectron()) {
-      return
-    }
-    const filePath = await window.electronAPI.getArgument()
-    if (filePath) {
-      const data = await window.electronAPI.readFile(filePath)
-      const song = songFromArrayBuffer(data, filePath)
-      setSong(this)(song)
-    }
+  async init() {
+    await this.synth.setup()
+    await this.soundFontStore.init()
+    this.setupMetronomeSynth()
   }
 
   private async setupMetronomeSynth() {
