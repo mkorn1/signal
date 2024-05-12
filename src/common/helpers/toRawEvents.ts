@@ -14,7 +14,7 @@ export function addDeltaTime<T extends TickProvider>(
     .map((e) => {
       const newEvent = {
         ...e,
-        deltaTime: e.tick - prevTick,
+        deltaTime: Math.round(e.tick) - Math.round(prevTick),
       }
       delete (newEvent as any).tick
       prevTick = e.tick
