@@ -5,6 +5,7 @@ import { openSong, saveSong, setSong } from "../actions"
 import { createSong, updateSong } from "../actions/cloudSong"
 import { hasFSAccess, openFile, saveFileAs } from "../actions/file"
 import { useDialog } from "./useDialog"
+import { useProgress } from "./useProgress"
 import { usePrompt } from "./usePrompt"
 import { useStores } from "./useStores"
 import { useToast } from "./useToast"
@@ -15,6 +16,7 @@ export const useCloudFile = () => {
   const toast = useToast()
   const prompt = usePrompt()
   const dialog = useDialog()
+  const { show: showProgress } = useProgress()
   const localized = useLocalization()
 
   const saveOrCreateSong = async () => {
@@ -28,8 +30,17 @@ export const useCloudFile = () => {
           song.name = text
         }
       }
-      await updateSong(rootStore)(song)
-      toast.success(localized("song-saved", "Song saved"))
+      const closeProgress = showProgress(
+        localized("song-saving", "Saving song..."),
+      )
+      try {
+        await updateSong(rootStore)(song)
+        toast.success(localized("song-saved", "Song saved"))
+      } catch (e) {
+        alert((e as Error).message)
+      } finally {
+        closeProgress()
+      }
     } else {
       if (song.name.length === 0) {
         const text = await prompt.show({
@@ -39,8 +50,17 @@ export const useCloudFile = () => {
           song.name = text
         }
       }
-      await createSong(rootStore)(song)
-      toast.success(localized("song-created", "Song created"))
+      const closeProgress = showProgress(
+        localized("song-saving", "Saving song..."),
+      )
+      try {
+        await createSong(rootStore)(song)
+        toast.success(localized("song-created", "Song created"))
+      } catch (e) {
+        alert((e as Error).message)
+      } finally {
+        closeProgress()
+      }
     }
   }
 
@@ -99,11 +119,7 @@ export const useCloudFile = () => {
       }
     },
     async saveSong() {
-      try {
-        await saveOrCreateSong()
-      } catch (e) {
-        toast.error((e as Error).message)
-      }
+      await saveOrCreateSong()
     },
     async saveAsSong() {
       try {
