@@ -4,10 +4,12 @@ import React from "react"
 import { HelmetProvider } from "react-helmet-async"
 import { defaultTheme } from "../../../common/theme/Theme"
 import { ActionDialog } from "../../../components/ActionDialog"
+import { ProgressDialog } from "../../../components/ProgressDialog"
 import { PromptDialog } from "../../../components/PromptDialog"
 import { Toast } from "../../../components/Toast"
 import { isRunningInElectron } from "../../helpers/platform"
 import { DialogProvider } from "../../hooks/useDialog"
+import { ProgressProvider } from "../../hooks/useProgress"
 import { PromptProvider } from "../../hooks/usePrompt"
 import { StoreContext } from "../../hooks/useStores"
 import { ThemeContext } from "../../hooks/useTheme"
@@ -40,12 +42,14 @@ export function App() {
               <ToastProvider component={Toast}>
                 <PromptProvider component={PromptDialog}>
                   <DialogProvider component={ActionDialog}>
-                    <LocalizationProvider>
-                      <GlobalKeyboardShortcut />
-                      <GlobalCSS />
-                      {isRunningInElectron() && <ElectronCallbackHandler />}
-                      <RootView />
-                    </LocalizationProvider>
+                    <ProgressProvider component={ProgressDialog}>
+                      <LocalizationProvider>
+                        <GlobalKeyboardShortcut />
+                        <GlobalCSS />
+                        {isRunningInElectron() && <ElectronCallbackHandler />}
+                        <RootView />
+                      </LocalizationProvider>
+                    </ProgressProvider>
                   </DialogProvider>
                 </PromptProvider>
               </ToastProvider>
