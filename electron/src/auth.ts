@@ -1,4 +1,6 @@
+import { app, shell } from "electron"
 import express from "express"
+import { getPort } from "get-port-please"
 import { FirebaseCredential } from "./ipc"
 
 interface Options {
@@ -6,7 +8,41 @@ interface Options {
   onComplete: (credential: FirebaseCredential) => void
 }
 
-export const launchAuthCallbackServer = ({ port, onComplete }: Options) => {
+export const signInWithBrowser = async (
+  onComplete: (credential: FirebaseCredential) => void,
+) => {
+  const port = await getPort()
+  let closeTimeout: NodeJS.Timeout
+
+  const server = launchAuthCallbackServer({
+    port,
+    onComplete: (credential) => {
+      server.close()
+      clearTimeout(closeTimeout)
+      onComplete(credential)
+    },
+  })
+
+  const parameter = `redirect_uri=http://localhost:${port}`
+
+  shell.openExternal(
+    app.isPackaged
+      ? `https://signal.vercel.app/auth?${parameter}`
+      : `http://localhost:3000/auth?${parameter}`,
+  )
+
+  // close server after 5 minutes
+  closeTimeout = setTimeout(
+    () => {
+      if (server.listening) {
+        server.close()
+      }
+    },
+    1000 * 60 * 5,
+  )
+}
+
+const launchAuthCallbackServer = ({ port, onComplete }: Options) => {
   const app = express()
 
   // IDトークンをクエリパラメータから受け取るエンドポイント
