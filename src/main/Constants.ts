@@ -4,6 +4,7 @@ export const Layout = {
   pixelsPerTick: 0.1,
   keyHeight: 12,
   keyWidth: 64,
+  blackKeyWidthRatio: 0.64,
   rulerHeight: 32,
 }
 
