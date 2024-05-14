@@ -2,7 +2,6 @@ const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const webpack = require("webpack")
 const Dotenv = require("dotenv-webpack")
-const WorkboxPlugin = require("workbox-webpack-plugin")
 
 module.exports = (env) => ({
   context: __dirname,
@@ -49,32 +48,5 @@ module.exports = (env) => ({
       chunks: ["browserCommunity"],
       template: path.join(__dirname, "public", "community.html"),
     }),
-    ...(env.electron
-      ? []
-      : [
-          new WorkboxPlugin.GenerateSW({
-            maximumFileSizeToCacheInBytes: 50000000,
-            clientsClaim: true,
-            skipWaiting: true,
-            runtimeCaching: [
-              {
-                urlPattern: /^\/.*$/,
-                handler: "StaleWhileRevalidate",
-              },
-              {
-                urlPattern: /^.+\.sf2$/,
-                handler: "StaleWhileRevalidate",
-              },
-              {
-                urlPattern: /^https:\/\/fonts\.googleapis\.com/,
-                handler: "StaleWhileRevalidate",
-              },
-              {
-                urlPattern: /^https:\/\/fonts\.gstatic\.com/,
-                handler: "StaleWhileRevalidate",
-              },
-            ],
-          }),
-        ]),
   ],
 })

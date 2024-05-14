@@ -1,22 +1,18 @@
-import { IpcMainInvokeEvent, app, dialog, ipcMain, shell } from "electron"
+import { IpcMainInvokeEvent, app, dialog, ipcMain } from "electron"
 import { readFile, readdir, writeFile } from "fs/promises"
-import { getPort } from "get-port-please"
 import { isAbsolute, join } from "path"
 import { getArgument } from "./arguments"
-import { launchAuthCallbackServer } from "./authCallback"
-import { FirebaseCredential } from "./ipc"
+import { signInWithBrowser } from "./auth"
 
 interface Callbacks {
   onReady: () => void
   onAuthStateChanged: (isLoggedIn: boolean) => void
-  onBrowserSignInCompleted: (credential: FirebaseCredential) => void
   onMainWindowClose: () => void
 }
 
 const api = ({
   onReady,
   onAuthStateChanged,
-  onBrowserSignInCompleted,
   onMainWindowClose,
 }: Callbacks) => ({
   ready: () => {
@@ -76,35 +72,7 @@ const api = ({
   },
   getArgument: async () => getArgument(),
   openAuthWindow: async () => {
-    const port = await getPort()
-    let closeTimeout: NodeJS.Timeout
-
-    const server = launchAuthCallbackServer({
-      port,
-      onComplete: (credential) => {
-        server.close()
-        clearTimeout(closeTimeout)
-        onBrowserSignInCompleted(credential)
-      },
-    })
-
-    const parameter = `redirect_uri=http://localhost:${port}`
-
-    shell.openExternal(
-      app.isPackaged
-        ? `https://signal.vercel.app/auth?${parameter}`
-        : `http://localhost:3000/auth?${parameter}`,
-    )
-
-    // close server after 5 minutes
-    closeTimeout = setTimeout(
-      () => {
-        if (server.listening) {
-          server.close()
-        }
-      },
-      1000 * 60 * 5,
-    )
+    signInWithBrowser()
   },
   authStateChanged: (_e: IpcMainInvokeEvent, isLoggedIn: boolean) => {
     onAuthStateChanged(isLoggedIn)

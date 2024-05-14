@@ -8,7 +8,7 @@
     "dev": "concurrently \"npm run build -- --watch\" \"nodemon\"",
     "start": "npm run build && electron .",
     "build": "rollup -c --bundleConfigAsCjs",
-    "package": "npm run build && electron-forge package",
+    "package:darwin": "npm run build && electron-forge package --platform=darwin",
     "make": "npm run build && electron-forge make",
     "make:mas": "npm run make -- --arch=universal --platform=mas",
     "make:darwin": "npm run make -- --platform=darwin",
@@ -32,8 +32,6 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "electron-log": "^5.1.2",
-    "electron-window-state": "^5.0.3",
-    "express": "^4.19.2",
-    "get-port-please": "^3.1.2"
+    "electron-window-state": "^5.0.3"
   }
 }

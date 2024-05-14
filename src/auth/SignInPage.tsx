@@ -8,14 +8,6 @@ import { Localized } from "../components/Localized"
 import { auth } from "../firebase/firebase"
 import { StyledFirebaseAuth } from "../main/components/FirebaseAuth/StyledFirebaseAuth"
 
-const BetaLabel = styled.span`
-  border: 1px solid currentColor;
-  font-size: 0.8rem;
-  padding: 0.1rem 0.4rem;
-  margin-left: 1em;
-  color: ${({ theme }) => theme.secondaryTextColor};
-`
-
 const Container = styled.div`
   padding: 2rem 3rem;
 `
@@ -25,7 +17,6 @@ export const SignInPage: FC = () => {
     <Container>
       <DialogTitle>
         <Localized default="Sign in">sign-in</Localized>
-        <BetaLabel>Beta</BetaLabel>
       </DialogTitle>
       <DialogContent>
         <StyledFirebaseAuth
@@ -33,6 +24,7 @@ export const SignInPage: FC = () => {
             signInOptions: [
               GoogleAuthProvider.PROVIDER_ID,
               GithubAuthProvider.PROVIDER_ID,
+              "apple.com",
             ],
             callbacks: {
               signInSuccessWithAuthResult: ({ credential }) => {
@@ -41,7 +33,8 @@ export const SignInPage: FC = () => {
                 )
                 if (
                   redirectUrl &&
-                  redirectUrl.startsWith("http://localhost:")
+                  (redirectUrl.startsWith("jp.codingcafe.signal://") ||
+                    redirectUrl.startsWith("jp.codingcafe.signal.dev://"))
                 ) {
                   location.href =
                     redirectUrl + "?credential=" + JSON.stringify(credential)
