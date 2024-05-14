@@ -41,7 +41,8 @@ export const SignInPage: FC = () => {
                 )
                 if (
                   redirectUrl &&
-                  redirectUrl.startsWith("http://localhost:")
+                  (redirectUrl.startsWith("jp.codingcafe.signal://") ||
+                    redirectUrl.startsWith("jp.codingcafe.signal.dev://"))
                 ) {
                   location.href =
                     redirectUrl + "?credential=" + JSON.stringify(credential)

@@ -83,7 +83,15 @@ switch (platform) {
 }
 
 module.exports = {
-  packagerConfig,
+  packagerConfig: {
+    ...packagerConfig,
+    protocols: [
+      {
+        name: "signal",
+        schemes: [packagerConfig.appBundleId],
+      },
+    ],
+  },
   makers: [
     {
       name: "@electron-forge/maker-pkg",

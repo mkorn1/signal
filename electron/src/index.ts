@@ -7,6 +7,7 @@ import { defaultMenuTemplate } from "./defaultMenu"
 import { Ipc } from "./ipc"
 import { registerIpcMain } from "./ipcMain"
 import { menuTemplate } from "./menu"
+import { authCallbackUrl } from "./scheme"
 
 const isMas = process.mas === true
 
@@ -71,9 +72,6 @@ registerIpcMain({
   },
   onAuthStateChanged(isLoggedIn) {
     updateMainMenu(isLoggedIn)
-  },
-  onBrowserSignInCompleted(credential) {
-    ipc.send("onBrowserSignInCompleted", { credential })
   },
   onMainWindowClose() {
     mainWindow.destroy()
@@ -176,7 +174,7 @@ if (!isMas) {
     log.info("electron:event:ready", "Registering second-instance event")
     app.on(
       "second-instance",
-      (event, argv, workingDirectory, additionalData) => {
+      (_event, _argv, _workingDirectory, additionalData) => {
         const { filePath } = additionalData as AdditionalData
         if (filePath !== null) {
           onDropFileOnAppIcon(filePath)
@@ -196,10 +194,27 @@ app.on("open-file", (event, filePath) => {
   }
 })
 
-app.on("browser-window-focus", (event, window) => {
+app.on("browser-window-focus", (_event, window) => {
   log.info("electron:event:browser-window-focus")
   const defaultMenu = Menu.buildFromTemplate(defaultMenuTemplate)
   Menu.setApplicationMenu(window === mainWindow ? mainMenu : defaultMenu)
+})
+
+app.on("open-url", (_event, url) => {
+  log.info("electron:event:open-url", url)
+  if (url.startsWith(authCallbackUrl)) {
+    // get ID token from the URL
+    const urlObj = new URL(url)
+    const credential = urlObj.searchParams.get("credential")
+    if (credential === null) {
+      log.error("electron:event:open-url", "ID Token is missing")
+    } else {
+      mainWindow.focus()
+      ipc.send("onBrowserSignInCompleted", {
+        credential: JSON.parse(credential),
+      })
+    }
+  }
 })
 
 function openSupportPage() {

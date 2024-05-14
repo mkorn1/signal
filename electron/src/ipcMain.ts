@@ -2,20 +2,17 @@ import { IpcMainInvokeEvent, app, dialog, ipcMain } from "electron"
 import { readFile, readdir, writeFile } from "fs/promises"
 import { isAbsolute, join } from "path"
 import { getArgument } from "./arguments"
-import { FirebaseCredential } from "./ipc"
-import { signInWithBrowser } from "./signInWithBrowser"
+import { signInWithBrowser } from "./auth"
 
 interface Callbacks {
   onReady: () => void
   onAuthStateChanged: (isLoggedIn: boolean) => void
-  onBrowserSignInCompleted: (credential: FirebaseCredential) => void
   onMainWindowClose: () => void
 }
 
 const api = ({
   onReady,
   onAuthStateChanged,
-  onBrowserSignInCompleted,
   onMainWindowClose,
 }: Callbacks) => ({
   ready: () => {
@@ -75,7 +72,7 @@ const api = ({
   },
   getArgument: async () => getArgument(),
   openAuthWindow: async () => {
-    signInWithBrowser(onBrowserSignInCompleted)
+    signInWithBrowser()
   },
   authStateChanged: (_e: IpcMainInvokeEvent, isLoggedIn: boolean) => {
     onAuthStateChanged(isLoggedIn)
