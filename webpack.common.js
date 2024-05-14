@@ -2,7 +2,6 @@ const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const webpack = require("webpack")
 const Dotenv = require("dotenv-webpack")
-const WorkboxPlugin = require("workbox-webpack-plugin")
 
 module.exports = (env) => ({
   context: __dirname,

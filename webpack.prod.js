@@ -2,8 +2,9 @@ const { merge } = require("webpack-merge")
 const common = require("./webpack.common.js")
 const CopyPlugin = require("copy-webpack-plugin")
 const { sentryWebpackPlugin } = require("@sentry/webpack-plugin")
+const WorkboxPlugin = require("workbox-webpack-plugin")
 
-const config = {
+const config = (env) => ({
   mode: "production",
   optimization: {
     concatenateModules: false,
@@ -73,6 +74,6 @@ const config = {
       },
     }),
   ],
-}
+})
 
-module.exports = (env) => merge(common(env), config)
+module.exports = (env) => merge(common(env), config(env))
