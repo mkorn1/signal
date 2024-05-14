@@ -31,6 +31,11 @@ export type FirebaseCredential =
       providerId: "github.com"
       accessToken: string
     }
+  | {
+      providerId: "apple.com"
+      idToken: string
+      accessToken: string
+    }
 
 export type ParamsForEvent<T extends IpcEvent["name"]> =
   Extract<IpcEvent, { name: T }> extends { params: infer P } ? P : undefined

@@ -76,6 +76,9 @@ registerIpcMain({
   onMainWindowClose() {
     mainWindow.destroy()
   },
+  onAuthCallback(url) {
+    handleAuthCallback(url)
+  },
 })
 
 const createWindow = (): void => {
@@ -97,7 +100,7 @@ const createWindow = (): void => {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false,
-      preload: path.join(__dirname, "..", "dist", "preload.js"),
+      preload: path.join(__dirname, "preload.js"),
     },
   })
 
@@ -203,19 +206,24 @@ app.on("browser-window-focus", (_event, window) => {
 app.on("open-url", (_event, url) => {
   log.info("electron:event:open-url", url)
   if (url.startsWith(authCallbackUrl)) {
-    // get ID token from the URL
-    const urlObj = new URL(url)
-    const credential = urlObj.searchParams.get("credential")
-    if (credential === null) {
-      log.error("electron:event:open-url", "ID Token is missing")
-    } else {
-      mainWindow.focus()
-      ipc.send("onBrowserSignInCompleted", {
-        credential: JSON.parse(credential),
-      })
-    }
+    handleAuthCallback(url)
   }
 })
+
+function handleAuthCallback(url: string) {
+  // get ID token from the URL
+  const urlObj = new URL(url)
+  const credential = urlObj.searchParams.get("credential")
+  if (credential === null) {
+    log.error("electron:event:open-url", "ID Token is missing")
+  } else {
+    log.info("electron:event:open-url", "ID Token is received")
+    mainWindow.focus()
+    ipc.send("onBrowserSignInCompleted", {
+      credential: JSON.parse(credential),
+    })
+  }
+}
 
 function openSupportPage() {
   shell.openExternal("https://signal.vercel.app/support")

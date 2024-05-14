@@ -1,6 +1,7 @@
 import {
   GithubAuthProvider,
   GoogleAuthProvider,
+  OAuthProvider,
   signInWithCredential,
 } from "firebase/auth"
 import { observer } from "mobx-react-lite"
@@ -207,6 +208,12 @@ function createCredential(credential: FirebaseCredential) {
       )
     case "github.com":
       return GithubAuthProvider.credential(credential.accessToken)
+    case "apple.com":
+      let provider = new OAuthProvider("apple.com")
+      return provider.credential({
+        idToken: credential.idToken,
+        accessToken: credential.accessToken,
+      })
     default:
       throw new Error("Invalid provider")
   }

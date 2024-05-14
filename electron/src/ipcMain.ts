@@ -8,12 +8,14 @@ interface Callbacks {
   onReady: () => void
   onAuthStateChanged: (isLoggedIn: boolean) => void
   onMainWindowClose: () => void
+  onAuthCallback: (url: string) => void
 }
 
 const api = ({
   onReady,
   onAuthStateChanged,
   onMainWindowClose,
+  onAuthCallback,
 }: Callbacks) => ({
   ready: () => {
     onReady()
@@ -72,7 +74,10 @@ const api = ({
   },
   getArgument: async () => getArgument(),
   openAuthWindow: async () => {
-    signInWithBrowser()
+    const callbackURL = await signInWithBrowser()
+    if (callbackURL) {
+      onAuthCallback(callbackURL)
+    }
   },
   authStateChanged: (_e: IpcMainInvokeEvent, isLoggedIn: boolean) => {
     onAuthStateChanged(isLoggedIn)
