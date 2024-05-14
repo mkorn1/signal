@@ -33,6 +33,7 @@ export const SignInPage: FC = () => {
             signInOptions: [
               GoogleAuthProvider.PROVIDER_ID,
               GithubAuthProvider.PROVIDER_ID,
+              "apple.com",
             ],
             callbacks: {
               signInSuccessWithAuthResult: ({ credential }) => {
