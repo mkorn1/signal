@@ -1,23 +1,17 @@
-import { createContext, useContext } from "react"
-import { Language, localized } from "./localizedString"
+import { createLocalization } from "use-l10n"
+import localization from "./localization"
 
-type LocalizedContextType = {
-  language: Language | null
-}
+export const { LocalizationContext, useLocalization, Localized } =
+  createLocalization(localization, "en", [
+    [/^zh-Hans/, "zh-Hans"],
+    [/^zh-Hant/, "zh-Hant"],
+    [/^zh$/, "zh-Hans"],
+    [/^zh-TW$/, "zh-Hant"],
+    [/^zh-HK$/, "zh-Hant"],
+    [/^zh-MO$/, "zh-Hant"],
+    [/^zh-CN$/, "zh-Hans"],
+    [/^zh-SG$/, "zh-Hans"],
+  ])
 
-export const LocalizedContext = createContext<LocalizedContextType>({
-  language: null,
-})
-
-export const useLocalization = () => {
-  const context = useContext(LocalizedContext)
-
-  if (!context) {
-    throw new Error(
-      "useLocalized must be used within a LocalizedContextProvider",
-    )
-  }
-
-  return (key: string, defaultValue: string) =>
-    localized(key, defaultValue, context.language ?? undefined)
-}
+export type Language = keyof typeof localization
+export type LocalizationKey = keyof (typeof localization)[Language]
