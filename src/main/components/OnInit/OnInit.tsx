@@ -1,3 +1,4 @@
+import { useProgress } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { FC, useEffect, useState } from "react"
 import { useLocalization } from "../../../common/localize/useLocalization"
@@ -5,7 +6,6 @@ import { setSong } from "../../actions"
 import { loadSongFromExternalMidiFile } from "../../actions/cloudSong"
 import { songFromArrayBuffer } from "../../actions/file"
 import { isRunningInElectron } from "../../helpers/platform"
-import { useProgress } from "../../hooks/useProgress"
 import { useStores } from "../../hooks/useStores"
 import { InitializeErrorDialog } from "./InitializeErrorDialog"
 
