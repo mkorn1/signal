@@ -23,7 +23,7 @@ const getMBT = (
 }
 
 const pad = (v: number, digit: number) => {
-  const str = v.toString(10)
+  const str = v.toFixed(0)
   return ("0".repeat(digit) + str).slice(-Math.max(digit, str.length))
 }
 

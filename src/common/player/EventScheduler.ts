@@ -90,13 +90,11 @@ export default class EventScheduler<E extends SchedulableEvent> {
     }
     const delta = timestamp - this._prevTime
     const deltaTick = Math.max(0, this.millisecToTick(delta, bpm))
-    const nowTick = Math.floor(this._currentTick + deltaTick)
+    const nowTick = this._currentTick + deltaTick
 
     // 先読み時間
     // Leading time
-    const lookAheadTick = Math.floor(
-      this.millisecToTick(this.lookAheadTime, bpm),
-    )
+    const lookAheadTick = this.millisecToTick(this.lookAheadTime, bpm)
 
     // 前回スケジュール済みの時点から、
     // From the previous scheduled point,
