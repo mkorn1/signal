@@ -13,21 +13,13 @@ export const useSongFile = () => {
 
   return {
     async createNewSong() {
-      if (
-        song.isSaved ||
-        confirm(localized("confirm-new", "Are you sure you want to continue?"))
-      ) {
+      if (song.isSaved || confirm(localized["confirm-new"])) {
         createSong(rootStore)()
       }
     },
     async openSong() {
       try {
-        if (
-          song.isSaved ||
-          confirm(
-            localized("confirm-open", "Are you sure you want to continue?"),
-          )
-        ) {
+        if (song.isSaved || confirm(localized["confirm-open"])) {
           await openFile(rootStore)
         }
       } catch (e) {
@@ -36,12 +28,7 @@ export const useSongFile = () => {
     },
     async openSongLegacy(e: ChangeEvent<HTMLInputElement>) {
       try {
-        if (
-          song.isSaved ||
-          confirm(
-            localized("confirm-new", "Are you sure you want to continue?"),
-          )
-        ) {
+        if (song.isSaved || confirm(localized["confirm-new"])) {
           await openSong(rootStore)(e.currentTarget)
         }
       } catch (e) {

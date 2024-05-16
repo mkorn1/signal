@@ -13,10 +13,7 @@ export const OnBeforeUnload = observer(() => {
   useEffect(() => {
     const listener = (e: BeforeUnloadEvent) => {
       if (!rootStore.song.isSaved) {
-        const message = localized(
-          "confirm-close",
-          "Your edits have not been saved. Be sure to download it before exiting. Do you really want to close it?",
-        )
+        const message = localized["confirm-close"]
         if (isRunningInElectron()) {
           // do not close the window immediately
           e.returnValue = false
@@ -25,11 +22,11 @@ export const OnBeforeUnload = observer(() => {
               title: message,
               actions: [
                 {
-                  title: localized("close", "Close"),
+                  title: localized["close"],
                   key: true,
                 },
                 {
-                  title: localized("cancel", "Cancel"),
+                  title: localized["cancel"],
                   key: false,
                 },
               ],

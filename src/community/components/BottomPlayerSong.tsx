@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import { CloudSong } from "@signal-app/api"
 import { FC } from "react"
 import { Link } from "wouter"
-import { Localized } from "../../components/Localized"
+import { Localized } from "../../common/localize/useLocalization"
 
 const Avatar = styled.img`
   border: 1px ${({ theme }) => theme.dividerColor} solid;
@@ -60,7 +60,7 @@ export const BottomPlayerSong: FC<SongListItemProps> = ({ song }) => {
             {song.name.length > 0 ? (
               song.name
             ) : (
-              <Localized default="Untitled song">untitled-song</Localized>
+              <Localized name="untitled-song" />
             )}
           </Title>
         </Link>

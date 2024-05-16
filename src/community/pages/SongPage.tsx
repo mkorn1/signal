@@ -9,10 +9,10 @@ import { FC, useState } from "react"
 import { Helmet } from "react-helmet-async"
 import { Link } from "wouter"
 import { downloadBlob } from "../../common/helpers/Downloader"
+import { Localized } from "../../common/localize/useLocalization"
 import { Alert } from "../../components/Alert"
 import { Button } from "../../components/Button"
 import { CircularProgress } from "../../components/CircularProgress"
-import { Localized } from "../../components/Localized"
 import { playSong } from "../actions/song"
 import { BigPlayButton } from "../components/BigPlayButton"
 import { ShareDialog } from "../components/ShareDialog"
@@ -158,7 +158,7 @@ export const SongPage: FC<SongPageProps> = observer(({ songId }) => {
       <PageLayout>
         <PageTitle>Song</PageTitle>
         <Alert severity="warning">
-          <Localized default="Song not found">song-not-found</Localized>
+          <Localized name="song-not-found" />
         </Alert>
       </PageLayout>
     )
@@ -192,35 +192,33 @@ export const SongPage: FC<SongPageProps> = observer(({ songId }) => {
             <PlayArrow size={14} style={{ marginRight: "0.25rem" }} />
             {song.playCount ?? 0}{" "}
             {song.playCount === 1 ? (
-              <Localized default="play">play-count-1</Localized>
+              <Localized name="play-count-1" />
             ) : (
-              <Localized default="plays">play-count</Localized>
+              <Localized name="play-count" />
             )}
           </PlayCount>
         </Stats>
         <Actions>
           <ActionButton onClick={onClickDownload}>
             <DownloadIcon size="1rem" style={{ marginRight: "0.5rem" }} />
-            <Localized default="Download">download</Localized>
+            <Localized name="download" />
           </ActionButton>
           <ActionButton onClick={() => setIsShareDialogOpen(true)}>
             <ShareIcon size="1rem" style={{ marginRight: "0.5rem" }} />
-            <Localized default="Share">share</Localized>
+            <Localized name="share" />
           </ActionButton>
         </Actions>
         <Metadata>
-          <Localized default="Created at">created-at</Localized>{" "}
-          {song.createdAt.toLocaleString()}
+          <Localized name="created-at" /> {song.createdAt.toLocaleString()}
         </Metadata>
         {song.publishedAt && (
           <Metadata>
-            <Localized default="Published at">published-at</Localized>{" "}
+            <Localized name="published-at" />{" "}
             {song.publishedAt.toLocaleString()}
           </Metadata>
         )}
         <Metadata>
-          <Localized default="Updated at">updated-at</Localized>{" "}
-          {song.updatedAt.toLocaleString()}
+          <Localized name="updated-at" /> {song.updatedAt.toLocaleString()}
         </Metadata>
       </Content>
       <ShareDialog

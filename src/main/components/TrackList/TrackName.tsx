@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import Track from "../../../common/track/Track"
-import { Localized } from "../../../components/Localized"
 
 // Display the track number if there is no name track name for display
 export const TrackName: FC<{ track: Track }> = observer(({ track }) => {
@@ -11,13 +11,13 @@ export const TrackName: FC<{ track: Track }> = observer(({ track }) => {
   if (track.channel === undefined) {
     return (
       <>
-        <Localized default="Conductor Track">conductor-track</Localized>
+        <Localized name="conductor-track" />
       </>
     )
   }
   return (
     <>
-      <Localized default="Track">track</Localized> {track.channel + 1}
+      <Localized name="track" /> {track.channel + 1}
     </>
   )
 })

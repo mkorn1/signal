@@ -21,7 +21,7 @@ export const SignInDialog: FC = observer(() => {
 
   const signInSuccessWithAuthResult = async () => {
     rootViewStore.openSignInDialog = false
-    toast.success(localized("success-sign-in", "Successfully signed in"))
+    toast.success(localized["success-sign-in"])
   }
 
   const signInFailure = (error: firebaseui.auth.AuthUIError) => {

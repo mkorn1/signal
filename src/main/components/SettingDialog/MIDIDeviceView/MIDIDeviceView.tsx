@@ -1,12 +1,12 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
+import { Localized } from "../../../../common/localize/useLocalization"
 import { Alert } from "../../../../components/Alert"
 import { Checkbox } from "../../../../components/Checkbox"
 import { CircularProgress } from "../../../../components/CircularProgress"
 import { DialogContent, DialogTitle } from "../../../../components/Dialog"
 import { Label } from "../../../../components/Label"
-import { Localized } from "../../../../components/Localized"
 import { useStores } from "../../../hooks/useStores"
 
 interface Device {
@@ -102,7 +102,7 @@ export const MIDIDeviceView: FC = observer(() => {
   return (
     <>
       <DialogTitle>
-        <Localized default="MIDI Settings">midi-settings</Localized>
+        <Localized name="midi-settings" />
       </DialogTitle>
       <DialogContent>
         {isLoading && <CircularProgress />}
@@ -115,14 +115,12 @@ export const MIDIDeviceView: FC = observer(() => {
         {!isLoading && (
           <>
             <SectionTitle>
-              <Localized default="Inputs">inputs</Localized>
+              <Localized name="inputs" />
             </SectionTitle>
             <DeviceList>
               {inputDevices.length === 0 && (
                 <Notice>
-                  <Localized default="No input device found">
-                    no-inputs
-                  </Localized>
+                  <Localized name="no-inputs" />
                 </Notice>
               )}
               {inputDevices.map(({ device, isSelected }) => (
@@ -140,7 +138,7 @@ export const MIDIDeviceView: FC = observer(() => {
               <>
                 <Spacer />
                 <SectionTitle>
-                  <Localized default="Outputs">outputs</Localized>
+                  <Localized name="outputs" />
                 </SectionTitle>
                 <DeviceList>
                   <DeviceRow

@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { Localized } from "../../../components/Localized"
+import { Localized } from "../../../common/localize/useLocalization"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import { useSongFile } from "../../hooks/useSongFile"
 import { useStores } from "../../hooks/useStores"
@@ -38,28 +38,28 @@ export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
   return (
     <>
       <MenuItem onClick={onClickNew}>
-        <Localized default="New">new-song</Localized>
+        <Localized name="new-song" />
       </MenuItem>
 
       <MenuDivider />
 
       <MenuItem onClick={onClickOpen}>
-        <Localized default="Open">open-song</Localized>
+        <Localized name="open-song" />
       </MenuItem>
 
       <MenuItem
         onClick={onClickSave}
         disabled={rootStore.song.fileHandle === null}
       >
-        <Localized default="Save">save-song</Localized>
+        <Localized name="save-song" />
       </MenuItem>
 
       <MenuItem onClick={onClickSaveAs}>
-        <Localized default="Save As">save-as</Localized>
+        <Localized name="save-as" />
       </MenuItem>
 
       <MenuItem onClick={onClickDownload}>
-        <Localized default="Download MIDI File">download-midi</Localized>
+        <Localized name="download-midi" />
       </MenuItem>
     </>
   )

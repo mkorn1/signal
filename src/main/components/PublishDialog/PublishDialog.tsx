@@ -3,7 +3,10 @@ import { useToast } from "dialog-hooks"
 import OpenInNewIcon from "mdi-react/OpenInNewIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
-import { useLocalization } from "../../../common/localize/useLocalization"
+import {
+  Localized,
+  useLocalization,
+} from "../../../common/localize/useLocalization"
 import { useAsyncEffect } from "../../../community/hooks/useAsyncEffect"
 import { Alert } from "../../../components/Alert"
 import { Button, PrimaryButton } from "../../../components/Button"
@@ -14,7 +17,6 @@ import {
   DialogTitle,
 } from "../../../components/Dialog"
 import { LinkShare } from "../../../components/LinkShare"
-import { Localized } from "../../../components/Localized"
 import { publishSong, unpublishSong } from "../../actions/cloudSong"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
@@ -64,7 +66,7 @@ export const PublishDialog: FC = observer(() => {
       }
       await publishSong(rootStore)(song, user)
       setPublishState("published")
-      toast.success(localized("song-published", "Song published"))
+      toast.success(localized["song-published"])
     } catch (e) {
       toast.error((e as Error).message)
     } finally {
@@ -78,7 +80,7 @@ export const PublishDialog: FC = observer(() => {
       setIsLoading(true)
       await unpublishSong(rootStore)(song)
       setPublishState("publishable")
-      toast.success(localized("song-unpublished", "Song unpublished"))
+      toast.success(localized["song-unpublished"])
     } catch (e) {
       toast.error((e as Error).message)
     } finally {
@@ -89,20 +91,16 @@ export const PublishDialog: FC = observer(() => {
   return (
     <Dialog open={open} onOpenChange={onClose} style={{ minWidth: "20rem" }}>
       <DialogTitle>
-        <Localized default="Publish Song">publish-song</Localized>
+        <Localized name="publish-song" />
       </DialogTitle>
       <DialogContent>
         {publishState === "publishable" && (
           <>
             <div style={{ marginBottom: "1rem" }}>
-              <Localized default="Publishing your song makes it available for other users to listen to.">
-                publish-notice
-              </Localized>
+              <Localized name="publish-notice" />
             </div>
             <Alert severity="warning">
-              <Localized default="Important Notice: On this site, we only permit the posting of music that you have created yourself. In compliance with copyright laws, please ensure that you are the copyright holder or have explicit permission for any music you post. Unauthorized publication of others' music or copyright-protected works is legally prohibited. If such violations are detected, your post may be removed, and restrictions may be placed on your account. We encourage you to share creative and original works and contribute to the healthy growth of our community.">
-                publish-rules
-              </Localized>
+              <Localized name="publish-rules" />
             </Alert>
           </>
         )}
@@ -113,17 +111,12 @@ export const PublishDialog: FC = observer(() => {
                 href={getCloudSongUrl(rootStore.song.cloudSongId)}
                 target="_blank"
               >
-                <Localized default="Your song is published and available for other users to listen to.">
-                  published-notice
-                </Localized>
+                <Localized name="published-notice" />
                 <OpenInNewIcon color={theme.secondaryTextColor} size="1rem" />
               </SongLink>
               <LinkShare
                 url={getCloudSongUrl(rootStore.song.cloudSongId)}
-                text={localized(
-                  "share-my-song-text",
-                  "🎶 Just created a new track on signal! 🎹✨\nListen to my latest MIDI composition! 🎧👇\n#midi #signalmidi @signalmidi",
-                )}
+                text={localized["share-my-song-text"]}
               />
               <Divider />
             </>
@@ -131,16 +124,16 @@ export const PublishDialog: FC = observer(() => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>
-          <Localized default="Close">close</Localized>
+          <Localized name="close" />
         </Button>
         {publishState === "publishable" && (
           <PrimaryButton onClick={onClickPublish} disabled={isLoading}>
-            <Localized default="Publish">publish</Localized>
+            <Localized name="publish" />
           </PrimaryButton>
         )}
         {publishState === "published" && (
           <PrimaryButton onClick={onClickUnpublish} disabled={isLoading}>
-            <Localized default="Unpublish">unpublish</Localized>
+            <Localized name="unpublish" />
           </PrimaryButton>
         )}
       </DialogActions>

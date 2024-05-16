@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import { range } from "lodash"
 import { FC, useEffect, useState } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Button, PrimaryButton } from "../../../components/Button"
 import {
   Dialog,
@@ -8,7 +9,6 @@ import {
   DialogContent,
   DialogTitle,
 } from "../../../components/Dialog"
-import { Localized } from "../../../components/Localized"
 import { Select } from "../../../components/Select"
 import { TextField } from "../../../components/TextField"
 
@@ -53,7 +53,7 @@ export const TimeSignatureDialog: FC<TimeSignatureDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogTitle>
-        <Localized default="Time Signature">time-signature</Localized>
+        <Localized name="time-signature" />
       </DialogTitle>
       <DialogContent>
         <div
@@ -106,7 +106,7 @@ export const TimeSignatureDialog: FC<TimeSignatureDialogProps> = ({
       </DialogContent>
       <DialogActions>
         <Button autoFocus onClick={onClose}>
-          <Localized default="Cancel">cancel</Localized>
+          <Localized name="cancel" />
         </Button>
         <PrimaryButton
           onClick={() => {
@@ -115,7 +115,7 @@ export const TimeSignatureDialog: FC<TimeSignatureDialogProps> = ({
           }}
           disabled={isNaN(numerator) && numerator <= 32 && numerator > 0}
         >
-          <Localized default="OK">ok</Localized>
+          <Localized name="ok" />
         </PrimaryButton>
       </DialogActions>
     </Dialog>

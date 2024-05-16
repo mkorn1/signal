@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 import { FC, useCallback } from "react"
-import { Localized } from "../../../components/Localized"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Tooltip } from "../../../components/Tooltip"
 import PencilIcon from "../../images/icons/pencil.svg"
 import SelectionIcon from "../../images/icons/selection.svg"
@@ -37,7 +37,7 @@ export const ToolSelector: FC<ToolSelectorProps> = ({
         <Tooltip
           title={
             <>
-              <Localized default="Pencil Tool">pencil-tool</Localized> [1]
+              <Localized name="pencil-tool" /> [1]
             </>
           }
         >
@@ -60,7 +60,7 @@ export const ToolSelector: FC<ToolSelectorProps> = ({
         <Tooltip
           title={
             <>
-              <Localized default="Selection Tool">selection-tool</Localized> [2]
+              <Localized name="selection-tool" /> [2]
             </>
           }
         >

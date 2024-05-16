@@ -1,12 +1,12 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
-import { Localized } from "../../../components/Localized"
+import { Localized } from "../../../common/localize/useLocalization"
 import { useStores } from "../../hooks/useStores"
 import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
 import QuantizeSelector from "../Toolbar/QuantizeSelector/QuantizeSelector"
-import { Toolbar } from "../Toolbar/Toolbar"
 import { ToolSelector } from "../Toolbar/ToolSelector"
+import { Toolbar } from "../Toolbar/Toolbar"
 
 const Title = styled.span`
   font-weight: bold;
@@ -35,7 +35,7 @@ export const TempoGraphToolbar: FC = observer(() => {
   return (
     <Toolbar>
       <Title>
-        <Localized default="Tempo">tempo</Localized>
+        <Localized name="tempo" />
       </Title>
 
       <FlexibleSpacer />

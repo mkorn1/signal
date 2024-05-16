@@ -4,7 +4,7 @@ import { DialogContent, DialogTitle } from "../components/Dialog"
 import styled from "@emotion/styled"
 import "firebase/auth"
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth"
-import { Localized } from "../components/Localized"
+import { Localized } from "../common/localize/useLocalization"
 import { auth } from "../firebase/firebase"
 import { StyledFirebaseAuth } from "../main/components/FirebaseAuth/StyledFirebaseAuth"
 
@@ -16,7 +16,7 @@ export const SignInPage: FC = () => {
   return (
     <Container>
       <DialogTitle>
-        <Localized default="Sign in">sign-in</Localized>
+        <Localized name="sign-in" />
       </DialogTitle>
       <DialogContent>
         <StyledFirebaseAuth

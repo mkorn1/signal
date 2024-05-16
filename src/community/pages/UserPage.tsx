@@ -3,9 +3,9 @@ import { User } from "@signal-app/api"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
 import { Helmet } from "react-helmet-async"
+import { Localized } from "../../common/localize/useLocalization"
 import { Alert } from "../../components/Alert"
 import { CircularProgress } from "../../components/CircularProgress"
-import { Localized } from "../../components/Localized"
 import { UserSongList } from "../components/UserSongList"
 import { useAsyncEffect } from "../hooks/useAsyncEffect"
 import { useStores } from "../hooks/useStores"
@@ -67,7 +67,7 @@ export const UserPage: FC<UserPageProps> = observer(({ userId }) => {
       <PageLayout>
         <PageTitle>User</PageTitle>
         <Alert severity="warning">
-          <Localized default="User not found">user-not-found</Localized>
+          <Localized name="user-not-found" />
         </Alert>
       </PageLayout>
     )
@@ -81,7 +81,7 @@ export const UserPage: FC<UserPageProps> = observer(({ userId }) => {
       <PageTitle>{user.name}</PageTitle>
       <Bio>{user.bio}</Bio>
       <SectionTitle>
-        <Localized default="Tracks">tracks</Localized>
+        <Localized name="tracks" />
       </SectionTitle>
       <UserSongList userId={userId} />
     </PageLayout>

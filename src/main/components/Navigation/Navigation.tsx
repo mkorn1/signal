@@ -5,7 +5,7 @@ import Settings from "mdi-react/SettingsIcon"
 import { observer } from "mobx-react-lite"
 import { CSSProperties, FC, useCallback } from "react"
 import { envString } from "../../../common/localize/envString"
-import { Localized } from "../../../components/Localized"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Tooltip } from "../../../components/Tooltip"
 import { getPlatform, isRunningInElectron } from "../../helpers/platform"
 import { useStores } from "../../hooks/useStores"
@@ -114,8 +114,7 @@ export const Navigation: FC = observer(() => {
       <Tooltip
         title={
           <>
-            <Localized default="Switch Tab">switch-tab</Localized> [
-            {envString.cmdOrCtrl}+1]
+            <Localized name="switch-tab" /> [{envString.cmdOrCtrl}+1]
           </>
         }
         delayDuration={500}
@@ -126,7 +125,7 @@ export const Navigation: FC = observer(() => {
         >
           <PianoIcon style={IconStyle} viewBox="0 0 128 128" />
           <TabTitle>
-            <Localized default="Piano Roll">piano-roll</Localized>
+            <Localized name="piano-roll" />
           </TabTitle>
         </Tab>
       </Tooltip>
@@ -134,8 +133,7 @@ export const Navigation: FC = observer(() => {
       <Tooltip
         title={
           <>
-            <Localized default="Switch Tab">switch-tab</Localized> [
-            {envString.cmdOrCtrl}+2]
+            <Localized name="switch-tab" /> [{envString.cmdOrCtrl}+2]
           </>
         }
         delayDuration={500}
@@ -146,7 +144,7 @@ export const Navigation: FC = observer(() => {
         >
           <ArrangeIcon style={IconStyle} viewBox="0 0 128 128" />
           <TabTitle>
-            <Localized default="Arrange">arrange</Localized>
+            <Localized name="arrange" />
           </TabTitle>
         </Tab>
       </Tooltip>
@@ -154,8 +152,7 @@ export const Navigation: FC = observer(() => {
       <Tooltip
         title={
           <>
-            <Localized default="Switch Tab">switch-tab</Localized> [
-            {envString.cmdOrCtrl}+3]
+            <Localized name="switch-tab" /> [{envString.cmdOrCtrl}+3]
           </>
         }
         delayDuration={500}
@@ -166,7 +163,7 @@ export const Navigation: FC = observer(() => {
         >
           <TempoIcon style={IconStyle} viewBox="0 0 128 128" />
           <TabTitle>
-            <Localized default="Tempo">tempo</Localized>
+            <Localized name="tempo" />
           </TabTitle>
         </Tab>
       </Tooltip>
@@ -183,14 +180,14 @@ export const Navigation: FC = observer(() => {
           >
             <Settings style={IconStyle} />
             <TabTitle>
-              <Localized default="Settings">settings</Localized>
+              <Localized name="settings" />
             </TabTitle>
           </Tab>
 
           <Tab onClick={useCallback(() => (rootViewStore.openHelp = true), [])}>
             <Help style={IconStyle} />
             <TabTitle>
-              <Localized default="Help">help</Localized>
+              <Localized name="help" />
             </TabTitle>
           </Tab>
 

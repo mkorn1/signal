@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { ChangeEvent, FC } from "react"
-import { Localized } from "../../../components/Localized"
+import { Localized } from "../../../common/localize/useLocalization"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import { useSongFile } from "../../hooks/useSongFile"
 
@@ -46,19 +46,19 @@ export const LegacyFileMenu: FC<{ close: () => void }> = observer(
     return (
       <>
         <MenuItem onClick={onClickNew}>
-          <Localized default="New">new-song</Localized>
+          <Localized name="new-song" />
         </MenuItem>
 
         <MenuDivider />
 
         <FileInput onChange={onClickOpen} accept="audio/midi">
           <MenuItem>
-            <Localized default="Open">open-song</Localized>
+            <Localized name="open-song" />
           </MenuItem>
         </FileInput>
 
         <MenuItem onClick={onClickSave}>
-          <Localized default="Save">save-song</Localized>
+          <Localized name="save-song" />
         </MenuItem>
       </>
     )

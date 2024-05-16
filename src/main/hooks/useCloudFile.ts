@@ -21,18 +21,16 @@ export const useCloudFile = () => {
     if (song.cloudSongId !== null) {
       if (song.name.length === 0) {
         const text = await prompt.show({
-          title: localized("save-as", "Save as"),
+          title: localized["save-as"],
         })
         if (text !== null && text.length > 0) {
           song.name = text
         }
       }
-      const closeProgress = showProgress(
-        localized("song-saving", "Saving song..."),
-      )
+      const closeProgress = showProgress(localized["song-saving"])
       try {
         await updateSong(rootStore)(song)
-        toast.success(localized("song-saved", "Song saved"))
+        toast.success(localized["song-saved"])
       } catch (e) {
         alert((e as Error).message)
       } finally {
@@ -41,18 +39,16 @@ export const useCloudFile = () => {
     } else {
       if (song.name.length === 0) {
         const text = await prompt.show({
-          title: localized("save-as", "Save as"),
+          title: localized["save-as"],
         })
         if (text !== null && text.length > 0) {
           song.name = text
         }
       }
-      const closeProgress = showProgress(
-        localized("song-saving", "Saving song..."),
-      )
+      const closeProgress = showProgress(localized["song-saving"])
       try {
         await createSong(rootStore)(song)
-        toast.success(localized("song-created", "Song created"))
+        toast.success(localized["song-created"])
       } catch (e) {
         alert((e as Error).message)
       } finally {
@@ -70,14 +66,11 @@ export const useCloudFile = () => {
     }
 
     const res = await dialog.show({
-      title: localized(
-        "save-changes",
-        "Do you want to save your changes to the song?",
-      ),
+      title: localized["save-changes"],
       actions: [
-        { title: localized("yes", "Yes"), key: "yes" },
-        { title: localized("no", "No"), key: "no" },
-        { title: localized("cancel", "Cancel"), key: "cancel" },
+        { title: localized["yes"], key: "yes" },
+        { title: localized["no"], key: "no" },
+        { title: localized["cancel"], key: "cancel" },
       ],
     })
     switch (res) {
@@ -100,7 +93,7 @@ export const useCloudFile = () => {
         const newSong = emptySong()
         setSong(rootStore)(newSong)
         await createSong(rootStore)(newSong)
-        toast.success(localized("song-created", "Song created"))
+        toast.success(localized["song-created"])
       } catch (e) {
         toast.error((e as Error).message)
       }
@@ -121,7 +114,7 @@ export const useCloudFile = () => {
     async saveAsSong() {
       try {
         const text = await prompt.show({
-          title: localized("save-as", "Save as"),
+          title: localized["save-as"],
           initialText: song.name,
         })
         if (text !== null && text.length > 0) {
@@ -130,7 +123,7 @@ export const useCloudFile = () => {
           return
         }
         await createSong(rootStore)(song)
-        toast.success(localized("song-saved", "Song saved"))
+        toast.success(localized["song-saved"])
       } catch (e) {
         toast.error((e as Error).message)
       }
@@ -138,7 +131,7 @@ export const useCloudFile = () => {
     async renameSong() {
       try {
         const text = await prompt.show({
-          title: localized("rename", "Rename"),
+          title: localized["rename"],
         })
         if (text !== null && text.length > 0) {
           song.name = text
@@ -150,7 +143,7 @@ export const useCloudFile = () => {
         } else {
           await createSong(rootStore)(song)
         }
-        toast.success(localized("song-saved", "Song saved"))
+        toast.success(localized["song-saved"])
       } catch (e) {
         toast.error((e as Error).message)
       }

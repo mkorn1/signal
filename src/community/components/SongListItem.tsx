@@ -6,7 +6,7 @@ import Pause from "mdi-react/PauseIcon"
 import PlayArrow from "mdi-react/PlayArrowIcon"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { Localized } from "../../components/Localized"
+import { Localized } from "../../common/localize/useLocalization"
 import { playSong } from "../actions/song"
 import { formatTimeAgo } from "../helpers/formatTimeAgo"
 import { useStores } from "../hooks/useStores"
@@ -149,7 +149,7 @@ export const SongListItem: FC<SongListItemProps> = observer(({ song }) => {
             {song.name.length > 0 ? (
               song.name
             ) : (
-              <Localized default="Untitled song">untitled-song</Localized>
+              <Localized name="untitled-song" />
             )}
           </Title>
           <Username>{song.user?.name}</Username>

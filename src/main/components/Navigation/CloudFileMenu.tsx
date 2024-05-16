@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { ChangeEvent, FC } from "react"
-import { Localized } from "../../../components/Localized"
+import { Localized } from "../../../common/localize/useLocalization"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import { hasFSAccess } from "../../actions/file"
 import { useCloudFile } from "../../hooks/useCloudFile"
@@ -72,25 +72,25 @@ export const CloudFileMenu: FC<{ close: () => void }> = observer(
     return (
       <>
         <MenuItem onClick={onClickNew}>
-          <Localized default="New">new-song</Localized>
+          <Localized name="new-song" />
         </MenuItem>
 
         <MenuDivider />
 
         <MenuItem onClick={onClickOpen}>
-          <Localized default="Open">open-song</Localized>
+          <Localized name="open-song" />
         </MenuItem>
 
         <MenuItem onClick={onClickSave} disabled={rootStore.song.isSaved}>
-          <Localized default="Save">save-song</Localized>
+          <Localized name="save-song" />
         </MenuItem>
 
         <MenuItem onClick={onClickSaveAs} disabled={!isCloudSaved}>
-          <Localized default="Save As">save-as</Localized>
+          <Localized name="save-as" />
         </MenuItem>
 
         <MenuItem onClick={onClickRename} disabled={!isCloudSaved}>
-          <Localized default="Rename">rename</Localized>
+          <Localized name="rename" />
         </MenuItem>
 
         <MenuDivider />
@@ -98,25 +98,25 @@ export const CloudFileMenu: FC<{ close: () => void }> = observer(
         {!hasFSAccess && (
           <FileInput onChange={onClickImportLegacy}>
             <MenuItem>
-              <Localized default="Import MIDI file">import-midi</Localized>
+              <Localized name="import-midi" />
             </MenuItem>
           </FileInput>
         )}
 
         {hasFSAccess && (
           <MenuItem onClick={onClickImport}>
-            <Localized default="Import MIDI file">import-midi</Localized>
+            <Localized name="import-midi" />
           </MenuItem>
         )}
 
         <MenuItem onClick={onClickExport}>
-          <Localized default="Export MIDI file">export-midi</Localized>
+          <Localized name="export-midi" />
         </MenuItem>
 
         <MenuDivider />
 
         <MenuItem onClick={onClickPublish} disabled={!isCloudSaved}>
-          <Localized default="Publish">publish</Localized>
+          <Localized name="publish" />
         </MenuItem>
       </>
     )

@@ -1,5 +1,6 @@
 import { range } from "lodash"
 import { FC, useEffect, useState } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Button, PrimaryButton } from "../../../components/Button"
 import {
   Dialog,
@@ -8,7 +9,6 @@ import {
   DialogTitle,
 } from "../../../components/Dialog"
 import { Label } from "../../../components/Label"
-import { Localized } from "../../../components/Localized"
 import { Select } from "../../../components/Select"
 import { TextField } from "../../../components/TextField"
 import { useStores } from "../../hooks/useStores"
@@ -39,12 +39,11 @@ export const TrackDialog: FC<TrackDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onClose} style={{ minWidth: "20rem" }}>
       <DialogTitle>
-        <Localized default="Track">track</Localized>:{" "}
-        <TrackName track={track} />
+        <Localized name="track" />: <TrackName track={track} />
       </DialogTitle>
       <DialogContent>
         <Label>
-          <Localized default="Track Name">track-name</Localized>
+          <Localized name="track-name" />
         </Label>
         <TextField
           type="text"
@@ -53,7 +52,7 @@ export const TrackDialog: FC<TrackDialogProps> = ({
           style={{ width: "100%", marginBottom: "1rem" }}
         />
         <Label>
-          <Localized default="Channel">channel</Localized>
+          <Localized name="channel" />
         </Label>
         <Select
           value={channel}
@@ -65,7 +64,7 @@ export const TrackDialog: FC<TrackDialogProps> = ({
               {v === 9 ? (
                 <>
                   {" "}
-                  (<Localized default="Rhythm Track">rhythm-track</Localized>)
+                  (<Localized name="rhythm-track" />)
                 </>
               ) : (
                 ""
@@ -76,7 +75,7 @@ export const TrackDialog: FC<TrackDialogProps> = ({
       </DialogContent>
       <DialogActions>
         <Button autoFocus onClick={onClose}>
-          <Localized default="Cancel">cancel</Localized>
+          <Localized name="cancel" />
         </Button>
         <PrimaryButton
           onClick={() => {
@@ -85,7 +84,7 @@ export const TrackDialog: FC<TrackDialogProps> = ({
             onClose()
           }}
         >
-          <Localized default="OK">ok</Localized>
+          <Localized name="ok" />
         </PrimaryButton>
       </DialogActions>
     </Dialog>

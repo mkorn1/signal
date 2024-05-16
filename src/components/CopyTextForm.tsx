@@ -1,9 +1,8 @@
 import styled from "@emotion/styled"
 import { useToast } from "dialog-hooks"
 import { FC, useCallback } from "react"
-import { localized } from "../common/localize/localizedString"
+import { Localized, useLocalization } from "../common/localize/useLocalization"
 import { PrimaryButton } from "./Button"
-import { Localized } from "./Localized"
 
 const Form = styled.div`
   display: flex;
@@ -24,9 +23,11 @@ const Action = styled.div``
 
 export const CopyTextForm: FC<{ text: string }> = ({ text }) => {
   const toast = useToast()
+  const localized = useLocalization()
+
   const onClick = useCallback(() => {
     navigator.clipboard.writeText(text)
-    toast.success(localized("copied", "Copied!"))
+    toast.success(localized["copied"])
   }, [text])
 
   return (
@@ -41,7 +42,7 @@ export const CopyTextForm: FC<{ text: string }> = ({ text }) => {
       />
       <Action>
         <PrimaryButton onClick={onClick}>
-          <Localized default="Copy">copy</Localized>
+          <Localized name="copy" />
         </PrimaryButton>
       </Action>
     </Form>

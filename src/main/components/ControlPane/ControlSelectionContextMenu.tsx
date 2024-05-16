@@ -1,11 +1,11 @@
 import React, { FC, useCallback } from "react"
 import { envString } from "../../../common/localize/envString"
+import { Localized } from "../../../common/localize/useLocalization"
 import {
   ContextMenu,
   ContextMenuProps,
   ContextMenuHotKey as HotKey,
 } from "../../../components/ContextMenu"
-import { Localized } from "../../../components/Localized"
 import { MenuItem } from "../../../components/Menu"
 import {
   copyControlSelection,
@@ -51,23 +51,23 @@ export const ControlSelectionContextMenu: FC<ContextMenuProps> = React.memo(
     return (
       <ContextMenu {...props}>
         <MenuItem onClick={onClickCut} disabled={!isEventSelected}>
-          <Localized default="Cut">cut</Localized>
+          <Localized name="cut" />
           <HotKey>{envString.cmdOrCtrl}+X</HotKey>
         </MenuItem>
         <MenuItem onClick={onClickCopy} disabled={!isEventSelected}>
-          <Localized default="Copy">copy</Localized>
+          <Localized name="copy" />
           <HotKey>{envString.cmdOrCtrl}+C</HotKey>
         </MenuItem>
         <MenuItem onClick={onClickPaste}>
-          <Localized default="Paste">paste</Localized>
+          <Localized name="paste" />
           <HotKey>{envString.cmdOrCtrl}+V</HotKey>
         </MenuItem>
         <MenuItem onClick={onClickDuplicate} disabled={!isEventSelected}>
-          <Localized default="Duplicate">duplicate</Localized>
+          <Localized name="duplicate" />
           <HotKey>{envString.cmdOrCtrl}+D</HotKey>
         </MenuItem>
         <MenuItem onClick={onClickDelete} disabled={!isEventSelected}>
-          <Localized default="Delete">delete</Localized>
+          <Localized name="delete" />
           <HotKey>Del</HotKey>
         </MenuItem>
       </ContextMenu>

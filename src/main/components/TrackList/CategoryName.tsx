@@ -1,47 +1,43 @@
 import { FC } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { categoryEmojis, getCategoryIndex } from "../../../common/midi/GM"
-import { Localized } from "../../../components/Localized"
 
 export const CategoryName: FC<{ programNumber: number }> = ({
   programNumber,
 }) => {
   switch (getCategoryIndex(programNumber)) {
     case 0:
-      return <Localized default="Piano">Piano</Localized>
+      return <Localized name="Piano" />
     case 1:
-      return (
-        <Localized default="Chromatic Percussion">
-          Chromatic Percussion
-        </Localized>
-      )
+      return <Localized name="Chromatic Percussion" />
     case 2:
-      return <Localized default="Organ">Organ</Localized>
+      return <Localized name="Organ" />
     case 3:
-      return <Localized default="Guitar">Guitar</Localized>
+      return <Localized name="Guitar" />
     case 4:
-      return <Localized default="Bass">Bass</Localized>
+      return <Localized name="Bass" />
     case 5:
-      return <Localized default="Strings">Strings</Localized>
+      return <Localized name="Strings" />
     case 6:
-      return <Localized default="Ensemble">Ensemble</Localized>
+      return <Localized name="Ensemble" />
     case 7:
-      return <Localized default="Brass">Brass</Localized>
+      return <Localized name="Brass" />
     case 8:
-      return <Localized default="Reed">Reed</Localized>
+      return <Localized name="Reed" />
     case 9:
-      return <Localized default="Pipe">Pipe</Localized>
+      return <Localized name="Pipe" />
     case 10:
-      return <Localized default="Synth Lead">Synth Lead</Localized>
+      return <Localized name="Synth Lead" />
     case 11:
-      return <Localized default="Synth Pad">Synth Pad</Localized>
+      return <Localized name="Synth Pad" />
     case 12:
-      return <Localized default="Synth Effects">Synth Effects</Localized>
+      return <Localized name="Synth Effects" />
     case 13:
-      return <Localized default="Ethnic">Ethnic</Localized>
+      return <Localized name="Ethnic" />
     case 14:
-      return <Localized default="Percussive">Percussive</Localized>
+      return <Localized name="Percussive" />
     case 15:
-      return <Localized default="Sound effects">Sound effects</Localized>
+      return <Localized name="Sound effects" />
   }
   return <></>
 }

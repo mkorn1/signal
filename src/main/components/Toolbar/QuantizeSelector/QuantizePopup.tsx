@@ -1,8 +1,8 @@
 import styled from "@emotion/styled"
 import * as Popover from "@radix-ui/react-popover"
 import { ReactNode } from "react"
+import { Localized } from "../../../../common/localize/useLocalization"
 import { Checkbox } from "../../../../components/Checkbox"
-import { Localized } from "../../../../components/Localized"
 import { NumberPicker } from "./NumberPicker"
 
 export interface QuantizePopupProps {
@@ -89,13 +89,13 @@ export function QuantizePopup({
               <Checkbox
                 onCheckedChange={(state) => onChangeTriplet(state === true)}
                 checked={triplet}
-                label={<Localized default="Triplet">triplet</Localized>}
+                label={<Localized name="triplet" />}
                 style={{ marginBottom: "0.5rem" }}
               />
               <Checkbox
                 onCheckedChange={(state) => onChangeDotted(state === true)}
                 checked={dotted}
-                label={<Localized default="Dotted">dotted</Localized>}
+                label={<Localized name="dotted" />}
               />
             </Right>
           </Container>

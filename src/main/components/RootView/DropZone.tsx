@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC, PropsWithChildren, useCallback } from "react"
-import { localized } from "../../../common/localize/localizedString"
+import { useLocalization } from "../../../common/localize/useLocalization"
 import { setSong } from "../../actions"
 import { songFromFile } from "../../actions/file"
 import { useStores } from "../../hooks/useStores"
@@ -17,6 +17,7 @@ const Container = styled.div`
 export const DropZone: FC<PropsWithChildren<{}>> = observer(({ children }) => {
   const rootStore = useStores()
   const { song } = rootStore
+  const localized = useLocalization()
 
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -29,10 +30,7 @@ export const DropZone: FC<PropsWithChildren<{}>> = observer(({ children }) => {
       if (file.type !== "audio/midi") {
         return
       }
-      if (
-        song.isSaved ||
-        confirm(localized("confirm-open", "Are you sure you want to continue?"))
-      ) {
+      if (song.isSaved || confirm(localized["confirm-open"])) {
         const newSong = await songFromFile(file)
         setSong(rootStore)(newSong)
       }

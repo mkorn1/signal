@@ -1,11 +1,11 @@
 import { FC } from "react"
 import { envString } from "../../../common/localize/envString"
+import { Localized } from "../../../common/localize/useLocalization"
 import {
   ContextMenu,
-  ContextMenuHotKey as HotKey,
   ContextMenuProps,
+  ContextMenuHotKey as HotKey,
 } from "../../../components/ContextMenu"
-import { Localized } from "../../../components/Localized"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import {
   arrangeCopySelection,
@@ -34,7 +34,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
         }}
         disabled={!isNoteSelected}
       >
-        <Localized default="Cut">cut</Localized>
+        <Localized name="cut" />
         <HotKey>{envString.cmdOrCtrl}+X</HotKey>
       </MenuItem>
       <MenuItem
@@ -45,7 +45,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
         }}
         disabled={!isNoteSelected}
       >
-        <Localized default="Copy">copy</Localized>
+        <Localized name="copy" />
         <HotKey>{envString.cmdOrCtrl}+C</HotKey>
       </MenuItem>
       <MenuItem
@@ -55,7 +55,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
           arrangePasteSelection(rootStore)()
         }}
       >
-        <Localized default="Paste">paste</Localized>
+        <Localized name="paste" />
         <HotKey>{envString.cmdOrCtrl}+V</HotKey>
       </MenuItem>
       <MenuItem
@@ -66,7 +66,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
         }}
         disabled={!isNoteSelected}
       >
-        <Localized default="Delete">delete</Localized>
+        <Localized name="delete" />
         <HotKey>Del</HotKey>
       </MenuItem>
       <MenuDivider />
@@ -78,7 +78,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
         }}
         disabled={!isNoteSelected}
       >
-        <Localized default="+1 Oct">one-octave-up</Localized>
+        <Localized name="one-octave-up" />
       </MenuItem>
       <MenuItem
         onClick={(e) => {
@@ -88,7 +88,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
         }}
         disabled={!isNoteSelected}
       >
-        <Localized default="-1 Oct">one-octave-down</Localized>
+        <Localized name="one-octave-down" />
       </MenuItem>
       <MenuItem
         onClick={(e) => {
@@ -98,7 +98,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
         }}
         disabled={!isNoteSelected}
       >
-        <Localized default="Transpose">transpose</Localized>
+        <Localized name="transpose" />
         <HotKey>T</HotKey>
       </MenuItem>
     </ContextMenu>

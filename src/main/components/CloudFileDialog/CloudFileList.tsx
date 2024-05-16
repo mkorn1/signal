@@ -6,10 +6,12 @@ import ArrowDropDown from "mdi-react/ArrowDropDownIcon"
 import ArrowUpward from "mdi-react/ArrowUpwardIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
-import { useLocalization } from "../../../common/localize/useLocalization"
+import {
+  Localized,
+  useLocalization,
+} from "../../../common/localize/useLocalization"
 import { CircularProgress } from "../../../components/CircularProgress"
 import { IconButton } from "../../../components/IconButton"
-import { Localized } from "../../../components/Localized"
 import { Menu, MenuItem } from "../../../components/Menu"
 import { setSong } from "../../actions"
 import { loadSong } from "../../actions/cloudSong"
@@ -101,15 +103,15 @@ export const CloudFileList = observer(() => {
   }
 
   if (files.length === 0) {
-    return <Localized default="No files">no-files</Localized>
+    return <Localized name="no-files" />
   }
 
   const sortLabel = (() => {
     switch (dateType) {
       case "created":
-        return localized("created-date", "Created")
+        return localized["created-date"]
       case "updated":
-        return localized("modified-date", "Modified")
+        return localized["modified-date"]
     }
   })()
 
@@ -126,7 +128,7 @@ export const CloudFileList = observer(() => {
           }}
           isSelected={selectedColumn === "name"}
         >
-          <Localized default="Name">name</Localized>
+          <Localized name="name" />
           <div style={{ width: "0.5rem" }}></div>
           {selectedColumn === "name" && (
             <SortButton sortAscending={sortAscending} />
@@ -155,10 +157,10 @@ export const CloudFileList = observer(() => {
             }
           >
             <MenuItem onClick={() => (cloudFileStore.dateType = "created")}>
-              <Localized default="Created">created-date</Localized>
+              <Localized name="created-date" />
             </MenuItem>
             <MenuItem onClick={() => (cloudFileStore.dateType = "updated")}>
-              <Localized default="Modified">modified-date</Localized>
+              <Localized name="modified-date" />
             </MenuItem>
           </Menu>
           {selectedColumn === "date" && (

@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
-import { Localized } from "../../../components/Localized"
+import { Localized } from "../../../common/localize/useLocalization"
 import { useStores } from "../../hooks/useStores"
 import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
 import QuantizeSelector from "../Toolbar/QuantizeSelector/QuantizeSelector"
@@ -38,7 +38,7 @@ export const ArrangeToolbar: FC = observer(() => {
   return (
     <Toolbar>
       <Title>
-        <Localized default="Arrangement View">arrangement-view</Localized>
+        <Localized name="arrangement-view" />
       </Title>
 
       <FlexibleSpacer />

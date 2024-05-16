@@ -4,8 +4,8 @@ import { clamp, isEqual } from "lodash"
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useMemo, useRef, useState } from "react"
 import { FixedSizeList, ListChildComponentProps } from "react-window"
+import { Localized } from "../../../common/localize/useLocalization"
 import { TrackEvent } from "../../../common/track"
-import { Localized } from "../../../components/Localized"
 import { Layout } from "../../Constants"
 import { useStores } from "../../hooks/useStores"
 import { EventInputProp, getEventController } from "./EventController"
@@ -37,16 +37,16 @@ const EventList: FC = observer(() => {
       <Header>
         <Row>
           <Cell style={{ width: widthForCell(0) }}>
-            <Localized default="Tick">tick</Localized>
+            <Localized name="tick" />
           </Cell>
           <Cell style={{ width: widthForCell(1), flexGrow: 1 }}>
-            <Localized default="Event">event</Localized>
+            <Localized name="event" />
           </Cell>
           <Cell style={{ width: widthForCell(2) }}>
-            <Localized default="Duration">duration</Localized>
+            <Localized name="duration" />
           </Cell>
           <Cell style={{ width: widthForCell(3) }}>
-            <Localized default="Value">value</Localized>
+            <Localized name="value" />
           </Cell>
         </Row>
       </Header>

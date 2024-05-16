@@ -1,4 +1,5 @@
 import { FC } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import {
   Dialog,
@@ -6,7 +7,6 @@ import {
   DialogContent,
   DialogTitle,
 } from "../../../components/Dialog"
-import { Localized } from "../../../components/Localized"
 
 export interface InitializeErrorDialogProps {
   open: boolean
@@ -22,14 +22,12 @@ export const InitializeErrorDialog: FC<InitializeErrorDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogTitle>
-        <Localized default="Error occured in launch process">
-          initialize-error
-        </Localized>
+        <Localized name="initialize-error" />
       </DialogTitle>
       <DialogContent>{message}</DialogContent>
       <DialogActions>
         <Button onClick={onClose}>
-          <Localized default="Close">close</Localized>
+          <Localized name="close" />
         </Button>
       </DialogActions>
     </Dialog>

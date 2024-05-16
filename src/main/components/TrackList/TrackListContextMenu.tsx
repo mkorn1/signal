@@ -1,6 +1,6 @@
 import { FC } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { ContextMenu, ContextMenuProps } from "../../../components/ContextMenu"
-import { Localized } from "../../../components/Localized"
 import { MenuItem } from "../../../components/Menu"
 
 export type TrackListContextMenuProps = ContextMenuProps & {
@@ -27,7 +27,7 @@ export const TrackListContextMenu: FC<TrackListContextMenuProps> = ({
           handleClose()
         }}
       >
-        <Localized default="Add track">add-track</Localized>
+        <Localized name="add-track" />
       </MenuItem>
       <MenuItem
         onClick={(e) => {
@@ -36,7 +36,7 @@ export const TrackListContextMenu: FC<TrackListContextMenuProps> = ({
           handleClose()
         }}
       >
-        <Localized default="Delete track">delete-track</Localized>
+        <Localized name="delete-track" />
       </MenuItem>
       <MenuItem
         onClick={(e) => {
@@ -45,7 +45,7 @@ export const TrackListContextMenu: FC<TrackListContextMenuProps> = ({
           handleClose()
         }}
       >
-        <Localized default="Property">property</Localized>
+        <Localized name="property" />
       </MenuItem>
       <MenuItem
         onClick={(e) => {
@@ -54,7 +54,7 @@ export const TrackListContextMenu: FC<TrackListContextMenuProps> = ({
           handleClose()
         }}
       >
-        <Localized default="Change track color">change-track-color</Localized>
+        <Localized name="change-track-color" />
       </MenuItem>
     </ContextMenu>
   )

@@ -17,9 +17,7 @@ export const OnInit: FC = observer(() => {
   const localized = useLocalization()
 
   const init = async () => {
-    const closeProgress = showProgress(
-      localized("initializing", "Initializing..."),
-    )
+    const closeProgress = showProgress(localized["initializing"])
     try {
       await rootStore.init()
     } catch (e) {
@@ -35,9 +33,7 @@ export const OnInit: FC = observer(() => {
     const openParam = params.get("open")
 
     if (openParam) {
-      const closeProgress = showProgress(
-        localized("loading-external-midi", "Loading external midi file..."),
-      )
+      const closeProgress = showProgress(localized["loading-external-midi"])
       try {
         const song = await loadSongFromExternalMidiFile(rootStore)(openParam)
         setSong(rootStore)(song)
@@ -54,9 +50,7 @@ export const OnInit: FC = observer(() => {
     if (!isRunningInElectron()) {
       return
     }
-    const closeProgress = showProgress(
-      localized("loading-file", "Loading file..."),
-    )
+    const closeProgress = showProgress(localized["loading-file"])
     try {
       const filePath = await window.electronAPI.getArgument()
       if (filePath) {

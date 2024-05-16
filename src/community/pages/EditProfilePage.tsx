@@ -2,10 +2,10 @@ import styled from "@emotion/styled"
 import { useToast } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
+import { Localized } from "../../common/localize/useLocalization"
 import { Alert } from "../../components/Alert"
 import { PrimaryButton } from "../../components/Button"
 import { CircularProgress } from "../../components/CircularProgress"
-import { Localized } from "../../components/Localized"
 import { TextArea } from "../../components/TextArea"
 import { TextField } from "../../components/TextField"
 import { useAsyncEffect } from "../hooks/useAsyncEffect"
@@ -77,12 +77,10 @@ export const EditProfilePage: FC = observer(() => {
     return (
       <PageLayout>
         <PageTitle>
-          <Localized default="Edit Profile">edit-profile</Localized>
+          <Localized name="edit-profile" />
         </PageTitle>
         <Alert severity="warning">
-          <Localized default="Please sign in to edit your profile">
-            signin-to-edit-profile
-          </Localized>
+          <Localized name="signin-to-edit-profile" />
         </Alert>
       </PageLayout>
     )
@@ -92,7 +90,7 @@ export const EditProfilePage: FC = observer(() => {
     return (
       <PageLayout>
         <PageTitle>
-          <Localized default="Edit Profile">edit-profile</Localized>
+          <Localized name="edit-profile" />
         </PageTitle>
         <CircularProgress />
       </PageLayout>
@@ -102,11 +100,11 @@ export const EditProfilePage: FC = observer(() => {
   return (
     <PageLayout>
       <PageTitle>
-        <Localized default="Edit Profile">edit-profile</Localized>
+        <Localized name="edit-profile" />
       </PageTitle>
       <Form>
         <Label>
-          <Localized default="Display name">display-name</Localized>
+          <Localized name="display-name" />
         </Label>
         <TextField
           type="text"
@@ -117,7 +115,7 @@ export const EditProfilePage: FC = observer(() => {
         />
 
         <Label>
-          <Localized default="Bio">bio</Localized>
+          <Localized name="bio" />
         </Label>
         <TextArea
           value={bio}
@@ -127,7 +125,7 @@ export const EditProfilePage: FC = observer(() => {
         />
         <Action>
           <PrimaryButton onClick={onClickSave}>
-            <Localized default="Save">save</Localized>
+            <Localized name="save" />
           </PrimaryButton>
         </Action>
       </Form>

@@ -1,7 +1,7 @@
 import AccountCircle from "mdi-react/AccountCircleIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useRef, useState } from "react"
-import { Localized } from "../../../components/Localized"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Menu, MenuItem } from "../../../components/Menu"
 import { auth } from "../../../firebase/firebase"
 import { isRunningInElectron } from "../../helpers/platform"
@@ -51,7 +51,7 @@ export const UserButton: FC = observer(() => {
       <Tab onClick={onClickSignIn}>
         <AccountCircle style={IconStyle} />
         <TabTitle>
-          <Localized default="Sign in">sign-in</Localized>
+          <Localized name="sign-in" />
         </TabTitle>
       </Tab>
     )
@@ -76,11 +76,11 @@ export const UserButton: FC = observer(() => {
       }
     >
       <MenuItem onClick={onClickProfile}>
-        <Localized default="Profile">profile</Localized>
+        <Localized name="profile" />
       </MenuItem>
 
       <MenuItem onClick={onClickSignOut}>
-        <Localized default="Sign out">sign-out</Localized>
+        <Localized name="sign-out" />
       </MenuItem>
     </Menu>
   )

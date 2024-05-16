@@ -4,7 +4,7 @@ import PlusIcon from "mdi-react/PlusIcon"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { Link } from "wouter"
-import { Localized } from "../../components/Localized"
+import { Localized } from "../../common/localize/useLocalization"
 import LogoWhite from "../images/logo-white.svg"
 import { UserButton } from "./UserButton"
 
@@ -74,7 +74,7 @@ export const Navigation: FC = observer(() => {
         <Right>
           <CreateButton href="/edit" target="_blank">
             <PlusIcon size="1rem" style={{ marginRight: "0.5rem" }} />
-            <Localized default="Create New">create-new</Localized>
+            <Localized name="create-new" />
           </CreateButton>
           <UserButton />
         </Right>

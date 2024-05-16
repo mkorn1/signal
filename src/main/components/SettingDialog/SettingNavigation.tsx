@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
-import { Localized } from "../../../components/Localized"
 
 export type SettingRoute = "general" | "midi" | "soundfont"
 const routes: SettingRoute[] = ["general", "midi", "soundfont"]
@@ -25,11 +25,11 @@ const Container = styled.div`
 const RouteName: FC<{ route: SettingRoute }> = ({ route }) => {
   switch (route) {
     case "general":
-      return <Localized default="General">general</Localized>
+      return <Localized name="general" />
     case "midi":
-      return <Localized default="MIDI">midi</Localized>
+      return <Localized name="midi" />
     case "soundfont":
-      return <Localized default="SoundFont">soundfont</Localized>
+      return <Localized name="soundfont" />
   }
 }
 

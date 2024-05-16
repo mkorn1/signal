@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { useCallback } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import {
   Dialog,
@@ -7,7 +8,6 @@ import {
   DialogContent,
   DialogTitle,
 } from "../../../components/Dialog"
-import { Localized } from "../../../components/Localized"
 import { useStores } from "../../hooks/useStores"
 import { CloudFileList } from "./CloudFileList"
 
@@ -30,14 +30,14 @@ export const CloudFileDialog = observer(() => {
       style={{ minWidth: "30rem" }}
     >
       <DialogTitle>
-        <Localized default="Files">files</Localized>
+        <Localized name="files" />
       </DialogTitle>
       <DialogContent>
         <CloudFileList />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>
-          <Localized default="Close">close</Localized>
+          <Localized name="close" />
         </Button>
       </DialogActions>
     </Dialog>

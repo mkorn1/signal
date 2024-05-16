@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import {
   Dialog,
@@ -8,7 +9,6 @@ import {
   DialogTitle,
 } from "../../../components/Dialog"
 import { LinearProgress } from "../../../components/LinearProgress"
-import { Localized } from "../../../components/Localized"
 import { cancelExport } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 
@@ -25,14 +25,14 @@ export const ExportProgressDialog: FC = observer(() => {
   return (
     <Dialog open={open} style={{ minWidth: "20rem" }}>
       <DialogTitle>
-        <Localized default="Exporting Audio...">exporting-audio</Localized>
+        <Localized name="exporting-audio" />
       </DialogTitle>
       <DialogContent>
         <LinearProgress value={progress} max={1} />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClickCancel}>
-          <Localized default="Cancel">cancel</Localized>
+          <Localized name="cancel" />
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,8 +1,11 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { Language, getLanguage } from "../../../common/localize/localizedString"
+import {
+  Language,
+  Localized,
+  useCurrentLanguage,
+} from "../../../common/localize/useLocalization"
 import { DialogContent, DialogTitle } from "../../../components/Dialog"
-import { Localized } from "../../../components/Localized"
 import { Select } from "../../../components/Select"
 import { useStores } from "../../hooks/useStores"
 
@@ -13,6 +16,7 @@ interface LanguageItem {
 
 const LanguageSelect: FC = observer(() => {
   const { settingStore } = useStores()
+  const language = useCurrentLanguage()
   const items: LanguageItem[] = [
     { label: "English", language: "en" },
     { label: "Japanese", language: "ja" },
@@ -21,7 +25,7 @@ const LanguageSelect: FC = observer(() => {
   ]
   return (
     <Select
-      value={settingStore.language ?? getLanguage() ?? "en"}
+      value={settingStore.language ?? language}
       onChange={(e) => (settingStore.language = e.target.value as Language)}
     >
       {items.map((item) => (
@@ -37,7 +41,7 @@ export const GeneralSettingsView: FC = observer(() => {
   return (
     <>
       <DialogTitle>
-        <Localized default="General">general</Localized>
+        <Localized name="general" />
       </DialogTitle>
       <DialogContent>
         <LanguageSelect />

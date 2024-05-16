@@ -78,12 +78,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
         } else {
           const { song } = rootStore
           try {
-            if (
-              song.isSaved ||
-              confirm(
-                localized("confirm-open", "Are you sure you want to continue?"),
-              )
-            ) {
+            if (song.isSaved || confirm(localized["confirm-open"])) {
               const res = await window.electronAPI.showOpenDialog()
               if (res === null) {
                 return // canceled
@@ -101,12 +96,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
       window.electronAPI.onOpenFile(async ({ filePath }) => {
         const { song } = rootStore
         try {
-          if (
-            song.isSaved ||
-            confirm(
-              localized("confirm-open", "Are you sure you want to continue?"),
-            )
-          ) {
+          if (song.isSaved || confirm(localized["confirm-open"])) {
             const data = await window.electronAPI.readFile(filePath)
             const song = songFromArrayBuffer(data, filePath)
             setSong(rootStore)(song)

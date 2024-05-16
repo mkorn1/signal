@@ -1,11 +1,11 @@
 import React, { FC, useCallback } from "react"
 import { envString } from "../../../common/localize/envString"
+import { Localized } from "../../../common/localize/useLocalization"
 import {
   ContextMenu,
-  ContextMenuHotKey as HotKey,
   ContextMenuProps,
+  ContextMenuHotKey as HotKey,
 } from "../../../components/ContextMenu"
-import { Localized } from "../../../components/Localized"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import {
   copySelection,
@@ -73,41 +73,41 @@ export const PianoSelectionContextMenu: FC<ContextMenuProps> = React.memo(
     return (
       <ContextMenu {...props}>
         <MenuItem onClick={onClickCut} disabled={!isNoteSelected}>
-          <Localized default="Cut">cut</Localized>
+          <Localized name="cut" />
           <HotKey>{envString.cmdOrCtrl}+X</HotKey>
         </MenuItem>
         <MenuItem onClick={onClickCopy} disabled={!isNoteSelected}>
-          <Localized default="Copy">copy</Localized>
+          <Localized name="copy" />
           <HotKey>{envString.cmdOrCtrl}+C</HotKey>
         </MenuItem>
         <MenuItem onClick={onClickPaste}>
-          <Localized default="Paste">paste</Localized>
+          <Localized name="paste" />
           <HotKey>{envString.cmdOrCtrl}+V</HotKey>
         </MenuItem>
         <MenuItem onClick={onClickDuplicate} disabled={!isNoteSelected}>
-          <Localized default="Duplicate">duplicate</Localized>
+          <Localized name="duplicate" />
           <HotKey>{envString.cmdOrCtrl}+D</HotKey>
         </MenuItem>
         <MenuItem onClick={onClickDelete} disabled={!isNoteSelected}>
-          <Localized default="Delete">delete</Localized>
+          <Localized name="delete" />
           <HotKey>Del</HotKey>
         </MenuItem>
         <MenuDivider />
         <MenuItem onClick={onClickOctaveUp} disabled={!isNoteSelected}>
-          <Localized default="+1 Oct">one-octave-up</Localized>
+          <Localized name="one-octave-up" />
           <HotKey>Shift+↑</HotKey>
         </MenuItem>
         <MenuItem onClick={onClickOctaveDown} disabled={!isNoteSelected}>
-          <Localized default="-1 Oct">one-octave-down</Localized>
+          <Localized name="one-octave-down" />
           <HotKey>Shift+↓</HotKey>
         </MenuItem>
         <MenuItem onClick={onClickTranspose} disabled={!isNoteSelected}>
-          <Localized default="Transpose">transpose</Localized>
+          <Localized name="transpose" />
           <HotKey>T</HotKey>
         </MenuItem>
         <MenuDivider />
         <MenuItem onClick={onClickQuantize} disabled={!isNoteSelected}>
-          <Localized default="Quantize">quantize</Localized>
+          <Localized name="quantize" />
           <HotKey>Q</HotKey>
         </MenuItem>
       </ContextMenu>

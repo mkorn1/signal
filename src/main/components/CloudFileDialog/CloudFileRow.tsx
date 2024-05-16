@@ -4,9 +4,11 @@ import { useToast } from "dialog-hooks"
 import DotsHorizontalIcon from "mdi-react/DotsHorizontalIcon"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { useLocalization } from "../../../common/localize/useLocalization"
+import {
+  Localized,
+  useLocalization,
+} from "../../../common/localize/useLocalization"
 import { IconButton } from "../../../components/IconButton"
-import { Localized } from "../../../components/Localized"
 import { Menu, MenuItem } from "../../../components/Menu"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
@@ -71,9 +73,7 @@ export const CloudFileRow: FC<CloudFileRowProps> = observer(
       }
     })()
     const songName =
-      song.name.length > 0
-        ? song.name
-        : localized("untitled-song", "Untitled song")
+      song.name.length > 0 ? song.name : localized["untitled-song"]
     const dateStr = date.toLocaleDateString() + " " + date.toLocaleTimeString()
     return (
       <Container onClick={onClick}>
@@ -100,16 +100,14 @@ export const CloudFileRow: FC<CloudFileRowProps> = observer(
                 e.stopPropagation()
                 try {
                   await cloudFileStore.deleteSong(song)
-                  toast.info(localized("song-deleted", "Song deleted"))
+                  toast.info(localized["song-deleted"])
                 } catch (e) {
                   console.error(e)
-                  toast.error(
-                    localized("song-delete-failed", "Song delete failed"),
-                  )
+                  toast.error(localized["song-delete-failed"])
                 }
               }}
             >
-              <Localized default="Delete">delete</Localized>
+              <Localized name="delete" />
             </MenuItem>
           </Menu>
         </MenuCell>

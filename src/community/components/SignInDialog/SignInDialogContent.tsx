@@ -9,8 +9,8 @@ import {
 import styled from "@emotion/styled"
 import "firebase/auth"
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
-import { Localized } from "../../../components/Localized"
 import { auth } from "../../../firebase/firebase"
 import { StyledFirebaseAuth } from "../../../main/components/FirebaseAuth/StyledFirebaseAuth"
 
@@ -43,7 +43,7 @@ export const SignInDialogContent: FC<SignInDialogContentProps> = ({
   return (
     <Dialog open={open} onOpenChange={onClose} style={{ minWidth: "20rem" }}>
       <DialogTitle>
-        <Localized default="Sign in">sign-in</Localized>
+        <Localized name="sign-in" />
         <BetaLabel>Beta</BetaLabel>
       </DialogTitle>
       <DialogContent>
@@ -67,7 +67,7 @@ export const SignInDialogContent: FC<SignInDialogContentProps> = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>
-          <Localized default="Close">close</Localized>
+          <Localized name="close" />
         </Button>
       </DialogActions>
     </Dialog>

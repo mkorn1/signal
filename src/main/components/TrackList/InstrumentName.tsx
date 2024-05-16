@@ -1,336 +1,268 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import Track from "../../../common/track/Track"
-import { Localized } from "../../../components/Localized"
 
 export const InstrumentName: FC<{ programNumber: number | undefined }> = ({
   programNumber,
 }) => {
   switch (programNumber) {
     case 0:
-      return (
-        <Localized default="Acoustic Grand Piano">
-          Acoustic Grand Piano
-        </Localized>
-      )
+      return <Localized name="Acoustic Grand Piano" />
     case 1:
-      return (
-        <Localized default="Bright Acoustic Piano">
-          Bright Acoustic Piano
-        </Localized>
-      )
+      return <Localized name="Bright Acoustic Piano" />
     case 2:
-      return (
-        <Localized default="Electric Grand Piano">
-          Electric Grand Piano
-        </Localized>
-      )
+      return <Localized name="Electric Grand Piano" />
     case 3:
-      return <Localized default="Honky-tonk Piano">Honky-tonk Piano</Localized>
+      return <Localized name="Honky-tonk Piano" />
     case 4:
-      return <Localized default="Electric Piano 1">Electric Piano 1</Localized>
+      return <Localized name="Electric Piano 1" />
     case 5:
-      return <Localized default="Electric Piano 2">Electric Piano 2</Localized>
+      return <Localized name="Electric Piano 2" />
     case 6:
-      return <Localized default="Harpsichord">Harpsichord</Localized>
+      return <Localized name="Harpsichord" />
     case 7:
-      return <Localized default="Clavinet">Clavinet</Localized>
+      return <Localized name="Clavinet" />
     case 8:
-      return <Localized default="Celesta">Celesta</Localized>
+      return <Localized name="Celesta" />
     case 9:
-      return <Localized default="Glockenspiel">Glockenspiel</Localized>
+      return <Localized name="Glockenspiel" />
     case 10:
-      return <Localized default="Music Box">Music Box</Localized>
+      return <Localized name="Music Box" />
     case 11:
-      return <Localized default="Vibraphone">Vibraphone</Localized>
+      return <Localized name="Vibraphone" />
     case 12:
-      return <Localized default="Marimba">Marimba</Localized>
+      return <Localized name="Marimba" />
     case 13:
-      return <Localized default="Xylophone">Xylophone</Localized>
+      return <Localized name="Xylophone" />
     case 14:
-      return <Localized default="Tubular Bells">Tubular Bells</Localized>
+      return <Localized name="Tubular Bells" />
     case 15:
-      return <Localized default="Dulcimer">Dulcimer</Localized>
+      return <Localized name="Dulcimer" />
     case 16:
-      return <Localized default="Drawbar Organ">Drawbar Organ</Localized>
+      return <Localized name="Drawbar Organ" />
     case 17:
-      return <Localized default="Percussive Organ">Percussive Organ</Localized>
+      return <Localized name="Percussive Organ" />
     case 18:
-      return <Localized default="Rock Organ">Rock Organ</Localized>
+      return <Localized name="Rock Organ" />
     case 19:
-      return <Localized default="Church Organ">Church Organ</Localized>
+      return <Localized name="Church Organ" />
     case 20:
-      return <Localized default="Reed Organ">Reed Organ</Localized>
+      return <Localized name="Reed Organ" />
     case 21:
-      return <Localized default="Accordion">Accordion</Localized>
+      return <Localized name="Accordion" />
     case 22:
-      return <Localized default="Harmonica">Harmonica</Localized>
+      return <Localized name="Harmonica" />
     case 23:
-      return <Localized default="Tango Accordion">Tango Accordion</Localized>
+      return <Localized name="Tango Accordion" />
     case 24:
-      return (
-        <Localized default="Acoustic Guitar (nylon)">
-          Acoustic Guitar (nylon)
-        </Localized>
-      )
+      return <Localized name="Acoustic Guitar (nylon)" />
     case 25:
-      return (
-        <Localized default="Acoustic Guitar (steel)">
-          Acoustic Guitar (steel)
-        </Localized>
-      )
+      return <Localized name="Acoustic Guitar (steel)" />
     case 26:
-      return (
-        <Localized default="Electric Guitar (jazz)">
-          Electric Guitar (jazz)
-        </Localized>
-      )
+      return <Localized name="Electric Guitar (jazz)" />
     case 27:
-      return (
-        <Localized default="Electric Guitar (clean)">
-          Electric Guitar (clean)
-        </Localized>
-      )
+      return <Localized name="Electric Guitar (clean)" />
     case 28:
-      return (
-        <Localized default="Electric Guitar (muted)">
-          Electric Guitar (muted)
-        </Localized>
-      )
+      return <Localized name="Electric Guitar (muted)" />
     case 29:
-      return (
-        <Localized default="Overdriven Guitar">Overdriven Guitar</Localized>
-      )
+      return <Localized name="Overdriven Guitar" />
     case 30:
-      return (
-        <Localized default="Distortion Guitar">Distortion Guitar</Localized>
-      )
+      return <Localized name="Distortion Guitar" />
     case 31:
-      return <Localized default="Guitar Harmonics">Guitar Harmonics</Localized>
+      return <Localized name="Guitar Harmonics" />
     case 32:
-      return <Localized default="Acoustic Bass">Acoustic Bass</Localized>
+      return <Localized name="Acoustic Bass" />
     case 33:
-      return (
-        <Localized default="Electric Bass (finger)">
-          Electric Bass (finger)
-        </Localized>
-      )
+      return <Localized name="Electric Bass (finger)" />
     case 34:
-      return (
-        <Localized default="Electric Bass (pick)">
-          Electric Bass (pick)
-        </Localized>
-      )
+      return <Localized name="Electric Bass (pick)" />
     case 35:
-      return <Localized default="Fretless Bass">Fretless Bass</Localized>
+      return <Localized name="Fretless Bass" />
     case 36:
-      return <Localized default="Slap Bass 1">Slap Bass 1</Localized>
+      return <Localized name="Slap Bass 1" />
     case 37:
-      return <Localized default="Slap Bass 2">Slap Bass 2</Localized>
+      return <Localized name="Slap Bass 2" />
     case 38:
-      return <Localized default="Synth Bass 1">Synth Bass 1</Localized>
+      return <Localized name="Synth Bass 1" />
     case 39:
-      return <Localized default="Synth Bass 2">Synth Bass 2</Localized>
+      return <Localized name="Synth Bass 2" />
     case 40:
-      return <Localized default="Violin">Violin</Localized>
+      return <Localized name="Violin" />
     case 41:
-      return <Localized default="Viola">Viola</Localized>
+      return <Localized name="Viola" />
     case 42:
-      return <Localized default="Cello">Cello</Localized>
+      return <Localized name="Cello" />
     case 43:
-      return <Localized default="Contrabass">Contrabass</Localized>
+      return <Localized name="Contrabass" />
     case 44:
-      return <Localized default="Tremolo Strings">Tremolo Strings</Localized>
+      return <Localized name="Tremolo Strings" />
     case 45:
-      return (
-        <Localized default="Pizzicato Strings">Pizzicato Strings</Localized>
-      )
+      return <Localized name="Pizzicato Strings" />
     case 46:
-      return <Localized default="Orchestral Harp">Orchestral Harp</Localized>
+      return <Localized name="Orchestral Harp" />
     case 47:
-      return <Localized default="Timpani">Timpani</Localized>
+      return <Localized name="Timpani" />
     case 48:
-      return (
-        <Localized default="String Ensemble 1">String Ensemble 1</Localized>
-      )
+      return <Localized name="String Ensemble 1" />
     case 49:
-      return (
-        <Localized default="String Ensemble 2">String Ensemble 2</Localized>
-      )
+      return <Localized name="String Ensemble 2" />
     case 50:
-      return <Localized default="Synth Strings 1">Synth Strings 1</Localized>
+      return <Localized name="Synth Strings 1" />
     case 51:
-      return <Localized default="Synth Strings 2">Synth Strings 2</Localized>
+      return <Localized name="Synth Strings 2" />
     case 52:
-      return <Localized default="Choir Aahs">Choir Aahs</Localized>
+      return <Localized name="Choir Aahs" />
     case 53:
-      return <Localized default="Voice Oohs">Voice Oohs</Localized>
+      return <Localized name="Voice Oohs" />
     case 54:
-      return <Localized default="Synth Choir">Synth Choir</Localized>
+      return <Localized name="Synth Choir" />
     case 55:
-      return <Localized default="Orchestra Hit">Orchestra Hit</Localized>
+      return <Localized name="Orchestra Hit" />
     case 56:
-      return <Localized default="Trumpet">Trumpet</Localized>
+      return <Localized name="Trumpet" />
     case 57:
-      return <Localized default="Trombone">Trombone</Localized>
+      return <Localized name="Trombone" />
     case 58:
-      return <Localized default="Tuba">Tuba</Localized>
+      return <Localized name="Tuba" />
     case 59:
-      return <Localized default="Muted Trumpet">Muted Trumpet</Localized>
+      return <Localized name="Muted Trumpet" />
     case 60:
-      return <Localized default="French Horn">French Horn</Localized>
+      return <Localized name="French Horn" />
     case 61:
-      return <Localized default="Brass Section">Brass Section</Localized>
+      return <Localized name="Brass Section" />
     case 62:
-      return <Localized default="Synth Brass 1">Synth Brass 1</Localized>
+      return <Localized name="Synth Brass 1" />
     case 63:
-      return <Localized default="Synth Brass 2">Synth Brass 2</Localized>
+      return <Localized name="Synth Brass 2" />
     case 64:
-      return <Localized default="Soprano Sax">Soprano Sax</Localized>
+      return <Localized name="Soprano Sax" />
     case 65:
-      return <Localized default="Alto Sax">Alto Sax</Localized>
+      return <Localized name="Alto Sax" />
     case 66:
-      return <Localized default="Tenor Sax">Tenor Sax</Localized>
+      return <Localized name="Tenor Sax" />
     case 67:
-      return <Localized default="Baritone Sax">Baritone Sax</Localized>
+      return <Localized name="Baritone Sax" />
     case 68:
-      return <Localized default="Oboe">Oboe</Localized>
+      return <Localized name="Oboe" />
     case 69:
-      return <Localized default="English Horn">English Horn</Localized>
+      return <Localized name="English Horn" />
     case 70:
-      return <Localized default="Bassoon">Bassoon</Localized>
+      return <Localized name="Bassoon" />
     case 71:
-      return <Localized default="Clarinet">Clarinet</Localized>
+      return <Localized name="Clarinet" />
     case 72:
-      return <Localized default="Piccolo">Piccolo</Localized>
+      return <Localized name="Piccolo" />
     case 73:
-      return <Localized default="Flute">Flute</Localized>
+      return <Localized name="Flute" />
     case 74:
-      return <Localized default="Recorder">Recorder</Localized>
+      return <Localized name="Recorder" />
     case 75:
-      return <Localized default="Pan Flute">Pan Flute</Localized>
+      return <Localized name="Pan Flute" />
     case 76:
-      return <Localized default="Blown Bottle">Blown Bottle</Localized>
+      return <Localized name="Blown Bottle" />
     case 77:
-      return <Localized default="Shakuhachi">Shakuhachi</Localized>
+      return <Localized name="Shakuhachi" />
     case 78:
-      return <Localized default="Whistle">Whistle</Localized>
+      return <Localized name="Whistle" />
     case 79:
-      return <Localized default="Ocarina">Ocarina</Localized>
+      return <Localized name="Ocarina" />
     case 80:
-      return <Localized default="Lead 1 (square)">Lead 1 (square)</Localized>
+      return <Localized name="Lead 1 (square)" />
     case 81:
-      return (
-        <Localized default="Lead 2 (sawtooth)">Lead 2 (sawtooth)</Localized>
-      )
+      return <Localized name="Lead 2 (sawtooth)" />
     case 82:
-      return (
-        <Localized default="Lead 3 (calliope)">Lead 3 (calliope)</Localized>
-      )
+      return <Localized name="Lead 3 (calliope)" />
     case 83:
-      return <Localized default="Lead 4 (chiff)">Lead 4 (chiff)</Localized>
+      return <Localized name="Lead 4 (chiff)" />
     case 84:
-      return <Localized default="Lead 5 (charang)">Lead 5 (charang)</Localized>
+      return <Localized name="Lead 5 (charang)" />
     case 85:
-      return <Localized default="Lead 6 (voice)">Lead 6 (voice)</Localized>
+      return <Localized name="Lead 6 (voice)" />
     case 86:
-      return <Localized default="Lead 7 (fifths)">Lead 7 (fifths)</Localized>
+      return <Localized name="Lead 7 (fifths)" />
     case 87:
-      return (
-        <Localized default="Lead 8 (bass + lead)">
-          Lead 8 (bass + lead)
-        </Localized>
-      )
+      return <Localized name="Lead 8 (bass + lead)" />
     case 88:
-      return <Localized default="Pad 1 (new age)">Pad 1 (new age)</Localized>
+      return <Localized name="Pad 1 (new age)" />
     case 89:
-      return <Localized default="Pad 2 (warm)">Pad 2 (warm)</Localized>
+      return <Localized name="Pad 2 (warm)" />
     case 90:
-      return (
-        <Localized default="Pad 3 (polysynth)">Pad 3 (polysynth)</Localized>
-      )
+      return <Localized name="Pad 3 (polysynth)" />
     case 91:
-      return <Localized default="Pad 4 (choir)">Pad 4 (choir)</Localized>
+      return <Localized name="Pad 4 (choir)" />
     case 92:
-      return <Localized default="Pad 5 (bowed)">Pad 5 (bowed)</Localized>
+      return <Localized name="Pad 5 (bowed)" />
     case 93:
-      return <Localized default="Pad 6 (metallic)">Pad 6 (metallic)</Localized>
+      return <Localized name="Pad 6 (metallic)" />
     case 94:
-      return <Localized default="Pad 7 (halo)">Pad 7 (halo)</Localized>
+      return <Localized name="Pad 7 (halo)" />
     case 95:
-      return <Localized default="Pad 8 (sweep)">Pad 8 (sweep)</Localized>
+      return <Localized name="Pad 8 (sweep)" />
     case 96:
-      return <Localized default="FX 1 (rain)">FX 1 (rain)</Localized>
+      return <Localized name="FX 1 (rain)" />
     case 97:
-      return (
-        <Localized default="FX 2 (soundtrack)">FX 2 (soundtrack)</Localized>
-      )
+      return <Localized name="FX 2 (soundtrack)" />
     case 98:
-      return <Localized default="FX 3 (crystal)">FX 3 (crystal)</Localized>
+      return <Localized name="FX 3 (crystal)" />
     case 99:
-      return (
-        <Localized default="FX 4 (atmosphere)">FX 4 (atmosphere)</Localized>
-      )
+      return <Localized name="FX 4 (atmosphere)" />
     case 100:
-      return (
-        <Localized default="FX 5 (brightness)">FX 5 (brightness)</Localized>
-      )
+      return <Localized name="FX 5 (brightness)" />
     case 101:
-      return <Localized default="FX 6 (goblins)">FX 6 (goblins)</Localized>
+      return <Localized name="FX 6 (goblins)" />
     case 102:
-      return <Localized default="FX 7 (echoes)">FX 7 (echoes)</Localized>
+      return <Localized name="FX 7 (echoes)" />
     case 103:
-      return <Localized default="FX 8 (sci-fi)">FX 8 (sci-fi)</Localized>
+      return <Localized name="FX 8 (sci-fi)" />
     case 104:
-      return <Localized default="Sitar">Sitar</Localized>
+      return <Localized name="Sitar" />
     case 105:
-      return <Localized default="Banjo">Banjo</Localized>
+      return <Localized name="Banjo" />
     case 106:
-      return <Localized default="Shamisen">Shamisen</Localized>
+      return <Localized name="Shamisen" />
     case 107:
-      return <Localized default="Koto">Koto</Localized>
+      return <Localized name="Koto" />
     case 108:
-      return <Localized default="Kalimba">Kalimba</Localized>
+      return <Localized name="Kalimba" />
     case 109:
-      return <Localized default="Bagpipe">Bagpipe</Localized>
+      return <Localized name="Bagpipe" />
     case 110:
-      return <Localized default="Fiddle">Fiddle</Localized>
+      return <Localized name="Fiddle" />
     case 111:
-      return <Localized default="Shanai">Shanai</Localized>
+      return <Localized name="Shanai" />
     case 112:
-      return <Localized default="Tinkle Bell">Tinkle Bell</Localized>
+      return <Localized name="Tinkle Bell" />
     case 113:
-      return <Localized default="Agogo">Agogo</Localized>
+      return <Localized name="Agogo" />
     case 114:
-      return <Localized default="Steel Drums">Steel Drums</Localized>
+      return <Localized name="Steel Drums" />
     case 115:
-      return <Localized default="Woodblock">Woodblock</Localized>
+      return <Localized name="Woodblock" />
     case 116:
-      return <Localized default="Taiko Drum">Taiko Drum</Localized>
+      return <Localized name="Taiko Drum" />
     case 117:
-      return <Localized default="Melodic Tom">Melodic Tom</Localized>
+      return <Localized name="Melodic Tom" />
     case 118:
-      return <Localized default="Synth Drum">Synth Drum</Localized>
+      return <Localized name="Synth Drum" />
     case 119:
-      return <Localized default="Reverse Cymbal">Reverse Cymbal</Localized>
+      return <Localized name="Reverse Cymbal" />
     case 120:
-      return (
-        <Localized default="Guitar Fret Noise">Guitar Fret Noise</Localized>
-      )
+      return <Localized name="Guitar Fret Noise" />
     case 121:
-      return <Localized default="Breath Noise">Breath Noise</Localized>
+      return <Localized name="Breath Noise" />
     case 122:
-      return <Localized default="Seashore">Seashore</Localized>
+      return <Localized name="Seashore" />
     case 123:
-      return <Localized default="Bird Tweet">Bird Tweet</Localized>
+      return <Localized name="Bird Tweet" />
     case 124:
-      return <Localized default="Telephone Ring">Telephone Ring</Localized>
+      return <Localized name="Telephone Ring" />
     case 125:
-      return <Localized default="Helicopter">Helicopter</Localized>
+      return <Localized name="Helicopter" />
     case 126:
-      return <Localized default="Applause">Applause</Localized>
+      return <Localized name="Applause" />
     case 127:
-      return <Localized default="Gunshot">Gunshot</Localized>
+      return <Localized name="Gunshot" />
   }
   return <></>
 }

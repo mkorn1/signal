@@ -2,8 +2,8 @@ import styled from "@emotion/styled"
 import RemoveIcon from "mdi-react/RemoveIcon"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
-import { Localized } from "../../../components/Localized"
 import { useStores } from "../../hooks/useStores"
 
 const Actions = styled.div`
@@ -47,10 +47,10 @@ export const SoundFontScanPathList: FC = observer(() => {
       ))}
       <Actions>
         <Button onClick={onClickAddButton}>
-          <Localized default="Add">add</Localized>
+          <Localized name="add" />
         </Button>
         <Button onClick={onClickScanButton}>
-          <Localized default="Scan">scan</Localized>
+          <Localized name="scan" />
         </Button>
       </Actions>
     </>

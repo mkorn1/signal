@@ -1,10 +1,10 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { ChangeEvent, FC } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Alert } from "../../../components/Alert"
 import { Button } from "../../../components/Button"
 import { DialogContent, DialogTitle } from "../../../components/Dialog"
-import { Localized } from "../../../components/Localized"
 import { isRunningInElectron } from "../../helpers/platform"
 import { useStores } from "../../hooks/useStores"
 import { FileInput } from "../Navigation/LegacyFileMenu"
@@ -40,7 +40,7 @@ export const SoundFontSettingsView: FC = observer(() => {
   return (
     <>
       <DialogTitle>
-        <Localized default="SoundFont">soundfont</Localized>
+        <Localized name="soundfont" />
       </DialogTitle>
       <DialogContent>
         <SoundFontList />
@@ -48,20 +48,18 @@ export const SoundFontSettingsView: FC = observer(() => {
           <>
             <FileInput onChange={onOpenSoundFont} accept=".sf2">
               <OpenFileButton as="div">
-                <Localized default="Add">add</Localized>
+                <Localized name="add" />
               </OpenFileButton>
             </FileInput>
             <Alert severity="info" style={{ marginTop: "1rem" }}>
-              <Localized default="SoundFont will be saved in the browser.">
-                soundfont-save-notice
-              </Localized>
+              <Localized name="soundfont-save-notice" />
             </Alert>
           </>
         )}
         {isRunningInElectron() && (
           <>
             <SectionTitle>
-              <Localized default="Location">soundfont-location</Localized>
+              <Localized name="soundfont-location" />
             </SectionTitle>
             <SoundFontScanPathList />
           </>

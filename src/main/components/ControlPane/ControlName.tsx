@@ -1,24 +1,24 @@
 import { MIDIControlEventNames, MIDIControlEvents } from "midifile-ts"
 import { FC } from "react"
-import { Localized } from "../../../components/Localized"
+import { Localized } from "../../../common/localize/useLocalization"
 import { ControlMode } from "../../stores/ControlStore"
 
 export const ControlName: FC<{ mode: ControlMode }> = ({ mode }) => {
   switch (mode.type) {
     case "velocity":
-      return <Localized default="Velocity">velocity</Localized>
+      return <Localized name="velocity" />
     case "pitchBend":
-      return <Localized default="Pitch Bend">pitch-bend</Localized>
+      return <Localized name="pitch-bend" />
     case "controller":
       switch (mode.controllerType) {
         case MIDIControlEvents.MSB_MAIN_VOLUME:
-          return <Localized default="Volume">volume</Localized>
+          return <Localized name="volume" />
         case MIDIControlEvents.MSB_PAN:
-          return <Localized default="Panpot">panpot</Localized>
+          return <Localized name="panpot" />
         case MIDIControlEvents.MSB_EXPRESSION:
-          return <Localized default="Expression">expression</Localized>
+          return <Localized name="expression" />
         case MIDIControlEvents.SUSTAIN:
-          return <Localized default="Hold Pedal">hold-pedal</Localized>
+          return <Localized name="hold-pedal" />
         default:
           return (
             <>

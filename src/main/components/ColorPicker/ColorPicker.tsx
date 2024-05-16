@@ -1,13 +1,13 @@
 import styled from "@emotion/styled"
 import range from "lodash/range"
 import { FC } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import {
   Dialog,
   DialogActions,
   DialogContent,
 } from "../../../components/Dialog"
-import { Localized } from "../../../components/Localized"
 
 const numColumn = 8
 
@@ -73,10 +73,10 @@ export const ColorPicker: FC<ColorPickerProps> = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={() => _onSelect(null)}>
-          <Localized default="Reset">reset</Localized>
+          <Localized name="reset" />
         </Button>
         <Button onClick={onClose}>
-          <Localized default="Close">close</Localized>
+          <Localized name="close" />
         </Button>
       </DialogActions>
     </Dialog>

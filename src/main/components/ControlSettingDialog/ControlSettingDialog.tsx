@@ -5,6 +5,7 @@ import ChevronDoubleLeftIcon from "mdi-react/ChevronDoubleLeftIcon"
 import ChevronDoubleRightIcon from "mdi-react/ChevronDoubleRightIcon"
 import { observer } from "mobx-react-lite"
 import { useCallback, useState } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import {
   Dialog,
@@ -12,7 +13,6 @@ import {
   DialogContent,
   DialogTitle,
 } from "../../../components/Dialog"
-import { Localized } from "../../../components/Localized"
 import { useStores } from "../../hooks/useStores"
 import {
   ControlMode,
@@ -142,7 +142,7 @@ export const ControlSettingDialog = observer(() => {
   return (
     <Dialog open={open} onOpenChange={onClose} style={{ maxWidth: "40rem" }}>
       <DialogTitle>
-        <Localized default="Control Settings">control-settings</Localized>
+        <Localized name="control-settings" />
       </DialogTitle>
       <DialogContent>
         <Content>
@@ -191,7 +191,7 @@ export const ControlSettingDialog = observer(() => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>
-          <Localized default="Close">close</Localized>
+          <Localized name="close" />
         </Button>
       </DialogActions>
     </Dialog>

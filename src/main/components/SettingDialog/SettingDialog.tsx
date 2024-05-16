@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
+import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import {
   Dialog,
@@ -8,7 +9,6 @@ import {
   DialogContent,
   DialogTitle,
 } from "../../../components/Dialog"
-import { Localized } from "../../../components/Localized"
 import { useStores } from "../../hooks/useStores"
 import { GeneralSettingsView } from "./GeneralSettingsView"
 import { MIDIDeviceView } from "./MIDIDeviceView/MIDIDeviceView"
@@ -44,7 +44,7 @@ export const SettingDialog: FC = observer(() => {
   return (
     <Dialog open={open} onOpenChange={onClose} style={{ minWidth: "20rem" }}>
       <DialogTitle>
-        <Localized default="Settings">settings</Localized>
+        <Localized name="settings" />
       </DialogTitle>
       <DialogContent style={{ display: "flex", flexDirection: "row" }}>
         <SettingNavigation route={route} onChange={setRoute} />
@@ -54,7 +54,7 @@ export const SettingDialog: FC = observer(() => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>
-          <Localized default="Close">close</Localized>
+          <Localized name="close" />
         </Button>
       </DialogActions>
     </Dialog>
