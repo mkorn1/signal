@@ -8,12 +8,10 @@ import {
   noteOffMidiEvent,
   noteOnMidiEvent,
 } from "../midi/MidiEvent"
-import Track from "../track/Track"
-import { getStatusEvents } from "../track/selector"
 import { ITrackMute } from "../trackMute/ITrackMute"
 import { DistributiveOmit } from "../types"
 import EventScheduler from "./EventScheduler"
-import { PlayerEvent, convertTrackEvents } from "./PlayerEvent"
+import { PlayerEvent } from "./PlayerEvent"
 
 export interface LoopSetting {
   begin: number
@@ -29,8 +27,8 @@ export const DEFAULT_TEMPO = 120
 export interface IEventSource {
   timebase: number
   endOfSong: number
-  tracks: Track[]
   getEvents(startTick: number, endTick: number): PlayerEvent[]
+  getCurrentStateEvents(tick: number): SendableEvent[]
 }
 
 export default class Player {
@@ -176,13 +174,10 @@ export default class Player {
    and send them to the synthesizer
   */
   sendCurrentStateEvents() {
-    this.eventSource.tracks
-      .flatMap((t, i) => {
-        const statusEvents = getStatusEvents(t.events, this._currentTick)
-        statusEvents.forEach((e) => this.applyPlayerEvent(e))
-        return convertTrackEvents(statusEvents, t.channel, i)
-      })
-      .forEach((e) => this.sendEvent(e))
+    this.eventSource.getCurrentStateEvents(this._currentTick).forEach((e) => {
+      this.applyPlayerEvent(e)
+      this.sendEvent(e)
+    })
   }
 
   get currentTempo() {

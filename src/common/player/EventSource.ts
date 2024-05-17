@@ -1,9 +1,11 @@
+import { SendableEvent } from "../../main/services/SynthOutput"
 import { filterEventsWithRange } from "../helpers/filterEvents"
 import { Beat, createBeatsInRange } from "../helpers/mapBeats"
 import { noteOnMidiEvent } from "../midi/MidiEvent"
 import { SongProvider } from "../song/SongProvider"
+import { getStatusEvents } from "../track/selector"
 import { IEventSource, METRONOME_TRACK_ID } from "./Player"
-import { PlayerEvent } from "./PlayerEvent"
+import { PlayerEvent, convertTrackEvents } from "./PlayerEvent"
 
 export class EventSource implements IEventSource {
   constructor(private readonly songStore: SongProvider) {}
@@ -14,10 +16,6 @@ export class EventSource implements IEventSource {
 
   get endOfSong(): number {
     return this.songStore.song.endOfSong
-  }
-
-  get tracks() {
-    return this.songStore.song.tracks
   }
 
   getEvents(startTick: number, endTick: number): PlayerEvent[] {
@@ -34,6 +32,13 @@ export class EventSource implements IEventSource {
         endTick,
       ),
     )
+  }
+
+  getCurrentStateEvents(tick: number): SendableEvent[] {
+    return this.songStore.song.tracks.flatMap((t, i) => {
+      const statusEvents = getStatusEvents(t.events, tick)
+      return convertTrackEvents(statusEvents, t.channel, i)
+    })
   }
 }
 
