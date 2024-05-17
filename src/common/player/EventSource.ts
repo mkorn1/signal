@@ -1,5 +1,8 @@
+import { filterEventsWithRange } from "../helpers/filterEvents"
+import { Beat, createBeatsInRange } from "../helpers/mapBeats"
+import { noteOnMidiEvent } from "../midi/MidiEvent"
 import { SongProvider } from "../song/SongProvider"
-import { IEventSource } from "./Player"
+import { IEventSource, METRONOME_TRACK_ID } from "./Player"
 import { PlayerEvent } from "./PlayerEvent"
 
 export class EventSource implements IEventSource {
@@ -13,15 +16,35 @@ export class EventSource implements IEventSource {
     return this.songStore.song.endOfSong
   }
 
-  get allEvents(): PlayerEvent[] {
-    return this.songStore.song.allEvents
-  }
-
-  get measures() {
-    return this.songStore.song.measures
-  }
-
   get tracks() {
     return this.songStore.song.tracks
   }
+
+  getEvents(startTick: number, endTick: number): PlayerEvent[] {
+    const { song } = this.songStore
+    return filterEventsWithRange(song.allEvents, startTick, endTick).concat(
+      filterEventsWithRange(
+        createBeatsInRange(
+          song.measures,
+          song.timebase,
+          startTick,
+          endTick,
+        ).flatMap((b) => beatToEvents(b)),
+        startTick,
+        endTick,
+      ),
+    )
+  }
+}
+
+function beatToEvents(beat: Beat): PlayerEvent[] {
+  const velocity = beat.beat === 0 ? 100 : 70
+  const noteNumber = beat.beat === 0 ? 76 : 77
+  return [
+    {
+      ...noteOnMidiEvent(0, 9, noteNumber, velocity),
+      tick: beat.tick,
+      trackId: METRONOME_TRACK_ID,
+    },
+  ]
 }

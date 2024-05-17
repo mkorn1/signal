@@ -3,9 +3,6 @@ import throttle from "lodash/throttle"
 import { AnyEvent, MIDIControlEvents } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
 import { SendableEvent, SynthOutput } from "../../main/services/SynthOutput"
-import { filterEventsWithRange } from "../helpers/filterEvents"
-import { Beat, createBeatsInRange } from "../helpers/mapBeats"
-import { Measure } from "../measure/Measure"
 import {
   controllerMidiEvent,
   noteOffMidiEvent,
@@ -26,15 +23,14 @@ export interface LoopSetting {
 
 const TIMER_INTERVAL = 50
 const LOOK_AHEAD_TIME = 50
-const METRONOME_TRACK_ID = 99999
+export const METRONOME_TRACK_ID = 99999
 export const DEFAULT_TEMPO = 120
 
 export interface IEventSource {
   timebase: number
   endOfSong: number
-  allEvents: PlayerEvent[]
-  measures: Measure[]
   tracks: Track[]
+  getEvents(startTick: number, endTick: number): PlayerEvent[]
 }
 
 export default class Player {
@@ -78,23 +74,7 @@ export default class Player {
       return
     }
     this._scheduler = new EventScheduler<PlayerEvent>(
-      (startTick, endTick) =>
-        filterEventsWithRange(
-          this.eventSource.allEvents,
-          startTick,
-          endTick,
-        ).concat(
-          filterEventsWithRange(
-            createBeatsInRange(
-              this.eventSource.measures,
-              this.eventSource.timebase,
-              startTick,
-              endTick,
-            ).flatMap((b) => this.beatToEvents(b)),
-            startTick,
-            endTick,
-          ),
-        ),
+      (startTick, endTick) => this.eventSource.getEvents(startTick, endTick),
       () => this.allNotesOffEvents(),
       this._currentTick,
       this.eventSource.timebase,
@@ -171,18 +151,6 @@ export default class Player {
         controllerMidiEvent(0, ch, MIDIControlEvents.RESET_CONTROLLERS, 0x7f),
       )
     }
-  }
-
-  private beatToEvents(beat: Beat): PlayerEvent[] {
-    const velocity = beat.beat === 0 ? 100 : 70
-    const noteNumber = beat.beat === 0 ? 76 : 77
-    return [
-      {
-        ...noteOnMidiEvent(0, 9, noteNumber, velocity),
-        tick: beat.tick,
-        trackId: METRONOME_TRACK_ID,
-      },
-    ]
   }
 
   stop() {
