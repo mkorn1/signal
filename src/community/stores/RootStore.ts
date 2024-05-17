@@ -4,6 +4,7 @@ import {
   createUserRepository,
 } from "@signal-app/api"
 import Player from "../../common/player"
+import { EventSource } from "../../common/player/EventSource"
 import { auth, firestore } from "../../firebase/firebase"
 import { SoundFontSynth } from "../../main/services/SoundFontSynth"
 import { AuthStore } from "../../main/stores/AuthStore"
@@ -40,11 +41,13 @@ export default class RootStore {
       shouldPlayTrack: () => true,
     }
 
+    const eventSource = new EventSource(this.songStore)
+
     this.player = new Player(
       this.synth,
       dummySynth,
       dummyTrackMute,
-      this.songStore,
+      eventSource,
     )
   }
 }

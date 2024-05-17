@@ -5,12 +5,13 @@ import { computed, makeObservable, observable } from "mobx"
 import { SendableEvent, SynthOutput } from "../../main/services/SynthOutput"
 import { filterEventsWithRange } from "../helpers/filterEvents"
 import { Beat, createBeatsInRange } from "../helpers/mapBeats"
+import { Measure } from "../measure/Measure"
 import {
   controllerMidiEvent,
   noteOffMidiEvent,
   noteOnMidiEvent,
 } from "../midi/MidiEvent"
-import { SongProvider } from "../song/SongProvider"
+import Track from "../track/Track"
 import { getStatusEvents } from "../track/selector"
 import { ITrackMute } from "../trackMute/ITrackMute"
 import { DistributiveOmit } from "../types"
@@ -28,10 +29,17 @@ const LOOK_AHEAD_TIME = 50
 const METRONOME_TRACK_ID = 99999
 export const DEFAULT_TEMPO = 120
 
+export interface IEventSource {
+  timebase: number
+  endOfSong: number
+  allEvents: PlayerEvent[]
+  measures: Measure[]
+  tracks: Track[]
+}
+
 export default class Player {
   private _currentTempo = DEFAULT_TEMPO
   private _scheduler: EventScheduler<PlayerEvent> | null = null
-  private _songStore: SongProvider
   private _output: SynthOutput
   private _metronomeOutput: SynthOutput
   private _trackMute: ITrackMute
@@ -48,7 +56,7 @@ export default class Player {
     output: SynthOutput,
     metronomeOutput: SynthOutput,
     trackMute: ITrackMute,
-    songStore: SongProvider,
+    private readonly eventSource: IEventSource,
   ) {
     makeObservable<Player, "_currentTick" | "_isPlaying">(this, {
       _currentTick: observable,
@@ -62,15 +70,6 @@ export default class Player {
     this._output = output
     this._metronomeOutput = metronomeOutput
     this._trackMute = trackMute
-    this._songStore = songStore
-  }
-
-  private get song() {
-    return this._songStore.song
-  }
-
-  private get timebase() {
-    return this.song.timebase
   }
 
   play() {
@@ -80,11 +79,15 @@ export default class Player {
     }
     this._scheduler = new EventScheduler<PlayerEvent>(
       (startTick, endTick) =>
-        filterEventsWithRange(this.song.allEvents, startTick, endTick).concat(
+        filterEventsWithRange(
+          this.eventSource.allEvents,
+          startTick,
+          endTick,
+        ).concat(
           filterEventsWithRange(
             createBeatsInRange(
-              this.song.measures,
-              this.song.timebase,
+              this.eventSource.measures,
+              this.eventSource.timebase,
               startTick,
               endTick,
             ).flatMap((b) => this.beatToEvents(b)),
@@ -94,7 +97,7 @@ export default class Player {
         ),
       () => this.allNotesOffEvents(),
       this._currentTick,
-      this.timebase,
+      this.eventSource.timebase,
       TIMER_INTERVAL + LOOK_AHEAD_TIME,
     )
     this._isPlaying = true
@@ -110,7 +113,7 @@ export default class Player {
     if (this.disableSeek) {
       return
     }
-    tick = Math.min(Math.max(Math.floor(tick), 0), this.song.endOfSong)
+    tick = Math.min(Math.max(Math.floor(tick), 0), this.eventSource.endOfSong)
     if (this._scheduler) {
       this._scheduler.seek(tick)
     }
@@ -205,7 +208,7 @@ export default class Player {
    and send them to the synthesizer
   */
   sendCurrentStateEvents() {
-    this.song.tracks
+    this.eventSource.tracks
       .flatMap((t, i) => {
         const statusEvents = getStatusEvents(t.events, this._currentTick)
         statusEvents.forEach((e) => this.applyPlayerEvent(e))
@@ -310,7 +313,7 @@ export default class Player {
       }
     })
 
-    if (this._scheduler.scheduledTick >= this.song.endOfSong) {
+    if (this._scheduler.scheduledTick >= this.eventSource.endOfSong) {
       this.stop()
     }
 

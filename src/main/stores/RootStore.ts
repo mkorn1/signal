@@ -7,6 +7,7 @@ import {
 import { makeObservable, observable } from "mobx"
 import { deserialize, serialize } from "serializr"
 import Player from "../../common/player"
+import { EventSource } from "../../common/player/EventSource"
 import Song, { emptySong } from "../../common/song"
 import TrackMute from "../../common/trackMute"
 import { auth, firestore, functions } from "../../firebase/firebase"
@@ -89,11 +90,12 @@ export default class RootStore {
     this.metronomeSynth = new SoundFontSynth(context)
     this.synthGroup.outputs.push({ synth: this.synth, isEnabled: true })
 
+    const eventSource = new EventSource(this)
     this.player = new Player(
       this.synthGroup,
       this.metronomeSynth,
       this.trackMute,
-      this,
+      eventSource,
     )
     this.midiRecorder = new MIDIRecorder(this.player, this)
 
