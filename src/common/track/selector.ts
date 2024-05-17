@@ -1,4 +1,4 @@
-import last from "lodash/last"
+import { maxBy } from "lodash"
 import uniq from "lodash/uniq"
 import { isNotUndefined } from "../helpers/array"
 import { TrackEvent } from "./TrackEvent"
@@ -15,12 +15,13 @@ import {
   isVolumeEvent,
 } from "./identify"
 
-export const getLast = <T extends TrackEvent>(events: T[]): T | undefined =>
-  last(events.slice().sort((a, b) => a.tick - b.tick))
+export const getLast = <T extends { tick: number }>(
+  events: T[],
+): T | undefined => maxBy(events, (e) => e.tick)
 
 export const isTickBefore =
   (tick: number) =>
-  <T extends TrackEvent>(e: T) =>
+  <T extends { tick: number }>(e: T) =>
     e.tick <= tick
 
 export const getVolume = (events: TrackEvent[], tick: number) =>

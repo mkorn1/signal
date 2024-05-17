@@ -1,7 +1,7 @@
 import { CloudSong, ICloudSongDataRepository } from "@signal-app/api"
+import { read } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
-import { songFromMidi } from "../../common/midi/midiConversion"
-import Song, { emptySong } from "../../common/song"
+import { Song, emptySong } from "../song/Song"
 
 export interface SongItem {
   song: Song
@@ -27,7 +27,7 @@ export class SongStore {
   async loadSong(cloudSong: CloudSong) {
     this.isLoading = true
     const songData = await this.songDataRepository.get(cloudSong.songDataId)
-    const song = songFromMidi(songData)
+    const song = new Song(read(songData))
     this.currentSong = {
       song,
       metadata: cloudSong,
