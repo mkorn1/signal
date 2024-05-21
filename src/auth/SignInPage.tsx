@@ -45,17 +45,22 @@ export const SignInPage: FC = () => {
                 ) {
                   const url =
                     redirectUrl + "?credential=" + JSON.stringify(credential)
-                  const handle = window.open(url)
-                  if (handle) {
+
+                  try {
+                    location.assign(url)
                     setIsSucceeded(true)
-                  } else {
+                  } catch {
                     alert("Failed to open the app. Please try again.")
                   }
                 }
                 return false
               },
+              signInFailure(error) {
+                console.error(error)
+                alert("Failed to sign in. Please try again.")
+              },
             },
-            signInFlow: "redirect",
+            signInFlow: "popup",
           }}
           firebaseAuth={auth}
         />
