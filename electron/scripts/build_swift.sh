@@ -5,9 +5,9 @@ swiftc -target x86_64-apple-macos10.15 -o AuthSession-x86_64 ./src/AuthSession.s
 swiftc -target arm64-apple-macos11 -o AuthSession-arm64 ./src/AuthSession.swift
 
 # Use the lipo command to create a universal binary
-lipo -create -output ./resources/AuthSession AuthSession-x86_64 AuthSession-arm64
+lipo -create -output ./resources/AuthSession_mac AuthSession-x86_64 AuthSession-arm64
 
 # Verify the universal binary
-file ./resources/AuthSession
+file ./resources/AuthSession_mac
 
 rm AuthSession-x86_64 AuthSession-arm64
