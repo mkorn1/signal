@@ -1,8 +1,10 @@
 import { existsSync } from "fs"
 import fs from "fs/promises"
+import { setTimeout } from "node:timers/promises"
 import path, { dirname } from "path"
 import puppeteer from "puppeteer"
 import { fileURLToPath } from "url"
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -35,7 +37,7 @@ await fileChooser?.accept([midiFilePath])
 
 await page.click("#button-play")
 
-await page.waitForTimeout(10000)
+await setTimeout(10000)
 
 const metrics = await page.metrics()
 const result = JSON.stringify(metrics, null, 2)
