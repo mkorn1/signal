@@ -53,11 +53,11 @@ export const resizeSelection =
     selection.from.noteNumber = Math.ceil(selection.from.noteNumber)
     selection.to.noteNumber = Math.floor(selection.to.noteNumber)
 
-    ++selection.to.noteNumber;
-    selection = clampSelection(selection);
-    --selection.to.noteNumber;
+    ++selection.to.noteNumber
+    selection = clampSelection(selection)
+    --selection.to.noteNumber
 
-    pianoRollStore.selection = selection;
+    pianoRollStore.selection = selection
   }
 
 export const fixSelection =

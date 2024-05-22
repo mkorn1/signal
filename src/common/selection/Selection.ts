@@ -51,17 +51,11 @@ export const regularizedSelection = (
 ): Selection => ({
   from: {
     tick: Math.max(0, Math.min(fromTick, toTick)),
-    noteNumber: Math.min(
-      MaxNoteNumber,
-      Math.max(fromNoteNumber, toNoteNumber),
-    ),
+    noteNumber: Math.min(MaxNoteNumber, Math.max(fromNoteNumber, toNoteNumber)),
   },
   to: {
     tick: Math.max(fromTick, toTick),
-    noteNumber: Math.min(
-      MaxNoteNumber,
-      Math.min(fromNoteNumber, toNoteNumber),
-    ),
+    noteNumber: Math.min(MaxNoteNumber, Math.min(fromNoteNumber, toNoteNumber)),
   },
 })
 
