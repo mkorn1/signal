@@ -1,5 +1,4 @@
-import * as Sentry from "@sentry/react"
-import { Integrations } from "@sentry/tracing"
+import * as Sentry from "@sentry/browser"
 import { configure } from "mobx"
 import { createRoot } from "react-dom/client"
 import { App } from "./components/App/App"
@@ -7,7 +6,7 @@ import { App } from "./components/App/App"
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   environment: process.env.VERCEL_ENV,
-  integrations: [new Integrations.BrowserTracing()],
+  integrations: [Sentry.browserTracingIntegration()],
   tracesSampleRate: 1.0,
 })
 
@@ -21,7 +20,7 @@ root.render(<App />)
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("/service-worker.js")
+      .register("/service-worker.js", { scope: "/edit" })
       .then((registration) => {
         console.log("SW registered: ", registration)
       })

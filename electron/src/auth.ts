@@ -33,7 +33,7 @@ const startAuthSession = async (
   return new Promise((resolve, reject) => {
     log.info("electron:auth:startAuthSession", url, callbackURLScheme)
     execFile(
-      path.join(__dirname, "..", "resources", "AuthSession"),
+      path.join(__dirname, "..", "resources", "AuthSession_mac"),
       [url, callbackURLScheme],
       (error, stdout, stderr) => {
         if (error) {

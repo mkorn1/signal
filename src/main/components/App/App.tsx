@@ -1,5 +1,3 @@
-import * as Sentry from "@sentry/react"
-import { Integrations } from "@sentry/tracing"
 import {
   DialogProvider,
   ProgressProvider,
@@ -23,14 +21,6 @@ import { EmotionThemeProvider } from "../Theme/EmotionThemeProvider"
 import { GlobalCSS } from "../Theme/GlobalCSS"
 import { ElectronCallbackHandler } from "./ElectronCallbackHandler"
 import { LocalizationProvider } from "./LocalizationProvider"
-
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  release: process.env.VERCEL_GIT_COMMIT_SHA,
-  environment: process.env.VERCEL_ENV,
-  integrations: [new Integrations.BrowserTracing()],
-  tracesSampleRate: 1.0,
-})
 
 const rootStore = new RootStore()
 

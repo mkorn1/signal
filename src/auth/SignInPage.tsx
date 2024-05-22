@@ -1,4 +1,4 @@
-import { FC } from "react"
+import { FC, useState } from "react"
 import { DialogContent, DialogTitle } from "../components/Dialog"
 
 import styled from "@emotion/styled"
@@ -7,12 +7,19 @@ import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth"
 import { Localized } from "../common/localize/useLocalization"
 import { auth } from "../firebase/firebase"
 import { StyledFirebaseAuth } from "../main/components/FirebaseAuth/StyledFirebaseAuth"
+import { SignInSuccessPage } from "./SignInSuccessPage"
 
 const Container = styled.div`
   padding: 2rem 3rem;
 `
 
 export const SignInPage: FC = () => {
+  const [isSucceeded, setIsSucceeded] = useState(false)
+
+  if (isSucceeded) {
+    return <SignInSuccessPage />
+  }
+
   return (
     <Container>
       <DialogTitle>
@@ -36,13 +43,24 @@ export const SignInPage: FC = () => {
                   (redirectUrl.startsWith("jp.codingcafe.signal://") ||
                     redirectUrl.startsWith("jp.codingcafe.signal.dev://"))
                 ) {
-                  location.href =
+                  const url =
                     redirectUrl + "?credential=" + JSON.stringify(credential)
+
+                  try {
+                    location.assign(url)
+                    setIsSucceeded(true)
+                  } catch {
+                    alert("Failed to open the app. Please try again.")
+                  }
                 }
                 return false
               },
+              signInFailure(error) {
+                console.error(error)
+                alert("Failed to sign in. Please try again.")
+              },
             },
-            signInFlow: "redirect",
+            signInFlow: "popup",
           }}
           firebaseAuth={auth}
         />
