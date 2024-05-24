@@ -8,7 +8,6 @@ import { auth, firestore } from "../../firebase/firebase"
 import { SoundFontSynth } from "../../main/services/SoundFontSynth"
 import { AuthStore } from "../../main/stores/AuthStore"
 import { EventSource } from "../services/EventSource"
-import { LazySoundFontSynth } from "../services/LazySoundFontSynth"
 import { CommunitySongStore } from "./CommunitySongStore"
 import RootViewStore from "./RootViewStore"
 import { SongStore } from "./SongStore"
@@ -25,12 +24,12 @@ export default class RootStore {
   readonly communitySongStore = new CommunitySongStore()
   readonly rootViewStore = new RootViewStore()
   readonly player: Player
-  readonly synth: LazySoundFontSynth
+  readonly synth: SoundFontSynth
 
   constructor() {
     const context = new (window.AudioContext || window.webkitAudioContext)()
 
-    this.synth = new LazySoundFontSynth(new SoundFontSynth(context))
+    this.synth = new SoundFontSynth(context)
 
     const dummySynth = {
       activate() {},
