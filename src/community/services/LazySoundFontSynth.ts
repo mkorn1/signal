@@ -14,6 +14,9 @@ export class LazySoundFontSynth implements SynthOutput {
   }
 
   private async setupSynth() {
+    if (this.synth.isLoaded) {
+      return
+    }
     const soundFontURL =
       "https://cdn.jsdelivr.net/gh/ryohey/signal@4569a31/public/A320U.sf2"
     await this.synth.setup()

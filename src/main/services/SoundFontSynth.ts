@@ -11,6 +11,10 @@ export class SoundFontSynth implements SynthOutput {
     return this._loadedSoundFontData
   }
 
+  get isLoaded(): boolean {
+    return this._loadedSoundFontData !== null
+  }
+
   isLoading: boolean = true
   private sequenceNumber = 0
 
