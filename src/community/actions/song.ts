@@ -9,8 +9,9 @@ const debouncedIncrementPlayCount = debounce(
 )
 
 export const playSong =
-  ({ songStore, player, cloudSongRepository }: RootStore) =>
+  ({ songStore, player, cloudSongRepository, synth }: RootStore) =>
   async (song: CloudSong) => {
+    await synth.setupSynthIfNeeded()
     await songStore.loadSong(song)
     player.reset()
     player.play()

@@ -6,14 +6,13 @@ export class LazySoundFontSynth implements SynthOutput {
 
   activate(): void {
     this.synth.activate()
-    this.setupSynth()
   }
 
   sendEvent(event: SendableEvent, delayTime: number): void {
     this.synth.sendEvent(event, delayTime)
   }
 
-  private async setupSynth() {
+  async setupSynthIfNeeded() {
     if (this.synth.isLoaded) {
       return
     }
