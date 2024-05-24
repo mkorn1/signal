@@ -1,16 +1,17 @@
-import { EventScheduler, SendableEvent, SynthOutput } from "@signal-app/player"
 import range from "lodash/range"
 import throttle from "lodash/throttle"
 import { AnyEvent, MIDIControlEvents } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
+import { EventScheduler } from "./EventScheduler"
+import { ITrackMute } from "./ITrackMute"
 import {
   controllerMidiEvent,
   noteOffMidiEvent,
   noteOnMidiEvent,
-} from "../midi/MidiEvent"
-import { ITrackMute } from "../trackMute/ITrackMute"
-import { DistributiveOmit } from "../types"
+} from "./MidiEventFactory"
 import { PlayerEvent } from "./PlayerEvent"
+import { SendableEvent, SynthOutput } from "./SynthOutput"
+import { DistributiveOmit } from "./types"
 
 export interface LoopSetting {
   begin: number
@@ -30,7 +31,7 @@ export interface IEventSource {
   getCurrentStateEvents(tick: number): SendableEvent[]
 }
 
-export default class Player {
+export class Player {
   private _currentTempo = DEFAULT_TEMPO
   private _scheduler: EventScheduler<PlayerEvent> | null = null
   private _output: SynthOutput

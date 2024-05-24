@@ -4,9 +4,9 @@ import {
   createCloudSongRepository,
   createUserRepository,
 } from "@signal-app/api"
+import { Player } from "@signal-app/player"
 import { makeObservable, observable } from "mobx"
 import { deserialize, serialize } from "serializr"
-import Player from "../../common/player"
 import { EventSource } from "../../common/player/EventSource"
 import Song, { emptySong } from "../../common/song"
 import TrackMute from "../../common/trackMute"

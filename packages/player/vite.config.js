@@ -6,12 +6,12 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
-      name: "player",
+      name: "signal-player",
       fileName: "index",
       formats: ["es"],
     },
     rollupOptions: {
-      external: [],
+      external: ["midifile-ts", "lodash", "mobx"],
     },
   },
   plugins: [dts({ rollupTypes: true })],

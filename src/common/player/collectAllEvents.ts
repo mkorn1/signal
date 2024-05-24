@@ -1,14 +1,7 @@
-import { AnyChannelEvent, AnyEvent } from "midifile-ts"
+import { PlayerEvent, PlayerEventOf } from "@signal-app/player"
+import { AnyChannelEvent } from "midifile-ts"
 import { deassemble as deassembleNote } from "../helpers/noteAssembler"
 import Track, { TrackEvent } from "../track"
-import { DistributiveOmit } from "../types"
-
-export type PlayerEventOf<T> = DistributiveOmit<T, "deltaTime"> & {
-  tick: number
-  trackId: number
-}
-
-export type PlayerEvent = PlayerEventOf<AnyEvent>
 
 export const convertTrackEvents = (
   events: TrackEvent[],

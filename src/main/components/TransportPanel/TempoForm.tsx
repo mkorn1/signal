@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
+import { DEFAULT_TEMPO } from "@signal-app/player"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { DEFAULT_TEMPO } from "../../../common/player"
 import { useStores } from "../../hooks/useStores"
 
 const TempoInput = styled.input`

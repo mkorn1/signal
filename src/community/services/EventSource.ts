@@ -1,11 +1,14 @@
-import { SendableEvent } from "@signal-app/player"
+import {
+  IEventSource,
+  PlayerEvent,
+  PlayerEventOf,
+  SendableEvent,
+} from "@signal-app/player"
 import { maxBy } from "lodash"
 import uniq from "lodash/uniq"
 import { AnyChannelEvent } from "midifile-ts"
 import { isNotUndefined } from "../../common/helpers/array"
 import { filterEventsWithRange } from "../../common/helpers/filterEvents"
-import { IEventSource } from "../../common/player"
-import { PlayerEvent, PlayerEventOf } from "../../common/player/PlayerEvent"
 import { Song, TrackEvent } from "../song/Song"
 import {
   isControllerEvent,

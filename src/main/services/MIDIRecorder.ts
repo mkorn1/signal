@@ -1,6 +1,6 @@
+import { Player } from "@signal-app/player"
 import { deserializeSingleEvent, Stream } from "midifile-ts"
 import { makeObservable, observable, observe } from "mobx"
-import Player from "../../common/player"
 import { NoteEvent, TrackEvent } from "../../common/track"
 import RootStore from "../stores/RootStore"
 

@@ -1,3 +1,4 @@
+import { PlayerEvent } from "@signal-app/player"
 import pullAt from "lodash/pullAt"
 import {
   action,
@@ -11,7 +12,7 @@ import { createModelSchema, list, object, primitive } from "serializr"
 import { isNotUndefined } from "../helpers/array"
 import { Measure } from "../measure/Measure"
 import { getMeasuresFromConductorTrack } from "../measure/MeasureList"
-import { PlayerEvent, collectAllEvents } from "../player/PlayerEvent"
+import { collectAllEvents } from "../player/collectAllEvents"
 import Track from "../track"
 
 const END_MARGIN = 480 * 30
