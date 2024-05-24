@@ -1,5 +1,4 @@
-import { filterEventsWithRange } from "../helpers/filterEvents"
-import EventScheduler from "./EventScheduler"
+import { EventScheduler } from "./EventScheduler"
 
 describe("EventScheduler", () => {
   it("readNextEvents", () => {
@@ -40,3 +39,9 @@ describe("EventScheduler", () => {
     }
   })
 })
+
+const filterEventsWithRange = <T extends { tick: number }>(
+  events: T[],
+  start: number,
+  end: number,
+): T[] => events.filter((e) => e.tick >= start && e.tick < end)

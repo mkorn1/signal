@@ -1,6 +1,3 @@
-import { tickToMillisec } from "../helpers/bpm"
-import { DistributiveOmit } from "../types"
-
 export type SchedulableEvent = {
   tick: number
 }
@@ -25,7 +22,7 @@ type WithTimestamp<E> = {
  * Perform prefetching for accurate scheduling
  * https://www.html5rocks.com/ja/tutorials/audio/scheduling/
  */
-export default class EventScheduler<E extends SchedulableEvent> {
+export class EventScheduler<E extends SchedulableEvent> {
   // 先読み時間 (ms)
   // Leading time (MS)
   lookAheadTime = 100
@@ -44,7 +41,7 @@ export default class EventScheduler<E extends SchedulableEvent> {
 
   constructor(
     getEvents: (startTick: number, endTick: number) => E[],
-    createLoopEndEvents: () => DistributiveOmit<E, "tick">[],
+    createLoopEndEvents: () => Omit<E, "tick">[],
     tick = 0,
     timebase = 480,
     lookAheadTime = 100,
@@ -131,4 +128,8 @@ export default class EventScheduler<E extends SchedulableEvent> {
       return getEventsInRange(startTick, endTick, nowTick)
     }
   }
+}
+
+function tickToMillisec(tick: number, bpm: number, timebase: number) {
+  return (tick / (timebase / 60) / bpm) * 1000
 }

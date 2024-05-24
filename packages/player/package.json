@@ -1,0 +1,21 @@
+{
+  "name": "@signal-app/player",
+  "private": true,
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "vite build"
+  },
+  "author": "ryohey",
+  "license": "MIT",
+  "peerDependencies": {
+    "@ryohey/wavelet": "^0.7.1",
+    "midifile-ts": "1.5.1"
+  },
+  "devDependencies": {
+    "vite": "^5.2.11",
+    "vite-plugin-dts": "^3.9.1"
+  }
+}

@@ -18,7 +18,7 @@
     "package:electron": "npm run build:electron && npm run package:darwin --prefix electron",
     "make:electron": "npm run build:electron && npm run make:mas --prefix electron",
     "make:darwin": "npm run build:electron && npm run make:darwin --prefix electron",
-    "preinstall": "npm run build -w packages/api && npm run build -w packages/dialog-hooks"
+    "preinstall": "npm run build -w packages/api && npm run build -w packages/dialog-hooks && npm run build -w packages/player"
   },
   "repository": {
     "type": "git",
@@ -48,11 +48,12 @@
     "@ryohey/react-svg-spinners": "^0.3.2",
     "@ryohey/wavelet": "^0.7.1",
     "@ryohey/webgl-react": "^0.4.2",
-    "dialog-hooks": "^0.0.1",
     "@sentry/browser": "^8.2.1",
     "@sentry/react": "^8.2.1",
+    "@signal-app/player": "^0.0.1",
     "@types/react": "^18.3.2",
     "color": "^4.2.3",
+    "dialog-hooks": "^0.0.1",
     "firebase": "^10.12.1",
     "firebaseui": "^6.1.0",
     "gl-matrix": "^3.4.3",

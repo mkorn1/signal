@@ -1,3 +1,4 @@
+import { EventScheduler } from "@signal-app/player"
 import range from "lodash/range"
 import throttle from "lodash/throttle"
 import { AnyEvent, MIDIControlEvents } from "midifile-ts"
@@ -10,7 +11,6 @@ import {
 } from "../midi/MidiEvent"
 import { ITrackMute } from "../trackMute/ITrackMute"
 import { DistributiveOmit } from "../types"
-import EventScheduler from "./EventScheduler"
 import { PlayerEvent } from "./PlayerEvent"
 
 export interface LoopSetting {
