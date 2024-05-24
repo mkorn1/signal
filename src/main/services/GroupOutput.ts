@@ -1,4 +1,4 @@
-import { SendableEvent, SynthOutput } from "./SynthOutput"
+import { SendableEvent, SynthOutput } from "@signal-app/player"
 
 export interface SynthEntry {
   synth: SynthOutput

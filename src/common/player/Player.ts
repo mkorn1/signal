@@ -1,9 +1,8 @@
-import { EventScheduler } from "@signal-app/player"
+import { EventScheduler, SendableEvent, SynthOutput } from "@signal-app/player"
 import range from "lodash/range"
 import throttle from "lodash/throttle"
 import { AnyEvent, MIDIControlEvents } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
-import { SendableEvent, SynthOutput } from "../../main/services/SynthOutput"
 import {
   controllerMidiEvent,
   noteOffMidiEvent,

@@ -1,4 +1,4 @@
-import { SendableEvent } from "../../main/services/SynthOutput"
+import { SendableEvent } from "@signal-app/player"
 import { filterEventsWithRange } from "../helpers/filterEvents"
 import { Beat, createBeatsInRange } from "../helpers/mapBeats"
 import { noteOnMidiEvent } from "../midi/MidiEvent"

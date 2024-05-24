@@ -1,5 +1,5 @@
+import { SendableEvent, SynthOutput } from "@signal-app/player"
 import { serialize } from "midifile-ts"
-import { SendableEvent, SynthOutput } from "./SynthOutput"
 
 export default class MIDIOutput implements SynthOutput {
   readonly midiOutput: WebMidi.MIDIOutput
