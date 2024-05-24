@@ -1,5 +1,9 @@
-import { PlayerEvent, SendableEvent } from "@signal-app/player"
-import { IEventSource, METRONOME_TRACK_ID } from "@signal-app/player/src/Player"
+import {
+  IEventSource,
+  METRONOME_TRACK_ID,
+  PlayerEvent,
+  SendableEvent,
+} from "@signal-app/player"
 import { filterEventsWithRange } from "../helpers/filterEvents"
 import { Beat, createBeatsInRange } from "../helpers/mapBeats"
 import { noteOnMidiEvent } from "../midi/MidiEvent"
