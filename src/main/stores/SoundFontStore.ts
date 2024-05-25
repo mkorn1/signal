@@ -54,12 +54,14 @@ export class SoundFontStore {
   files: SoundFontFile[] = []
   selectedSoundFontId: number | null = null
   scanPaths: string[] = []
+  isLoading = false
 
   constructor(private readonly synth: SoundFontSynth) {
     makeObservable(this, {
       files: observable,
       selectedSoundFontId: observable,
       scanPaths: observable,
+      isLoading: observable,
     })
 
     this.storage = new IndexedDBStorage("soundfonts", 1)
@@ -103,6 +105,8 @@ export class SoundFontStore {
       throw new Error("SoundFont not found")
     }
 
+    this.isLoading = true
+
     switch (soundfont.type) {
       case "local":
         await this.synth.loadSoundFont(soundfont.data)
@@ -117,6 +121,7 @@ export class SoundFontStore {
     }
 
     this.selectedSoundFontId = id
+    this.isLoading = false
   }
 
   async addSoundFont(item: SoundFontItem, metadata: Metadata) {

@@ -1,10 +1,8 @@
 import { SynthEvent, getSampleEventsFromSoundFont } from "@ryohey/wavelet"
 import { SendableEvent, SynthOutput } from "@signal-app/player"
-import { makeObservable, observable } from "mobx"
 
 export class SoundFontSynth implements SynthOutput {
   private synth: AudioWorkletNode | null = null
-  private context = new (window.AudioContext || window.webkitAudioContext)()
 
   private _loadedSoundFontData: ArrayBuffer | null = null
   get loadedSoundFontData(): ArrayBuffer | null {
@@ -15,16 +13,9 @@ export class SoundFontSynth implements SynthOutput {
     return this._loadedSoundFontData !== null
   }
 
-  isLoading: boolean = true
   private sequenceNumber = 0
 
-  constructor(context: AudioContext) {
-    this.context = context
-
-    makeObservable(this, {
-      isLoading: observable,
-    })
-  }
+  constructor(private readonly context: AudioContext) {}
 
   async setup() {
     const url = new URL("@ryohey/wavelet/dist/processor.js", import.meta.url)
@@ -38,8 +29,6 @@ export class SoundFontSynth implements SynthOutput {
   }
 
   async loadSoundFont(data: ArrayBuffer) {
-    this.isLoading = true
-
     if (this.synth !== null) {
       this.synth.disconnect()
     }
@@ -61,8 +50,6 @@ export class SoundFontSynth implements SynthOutput {
         e.transfer, // transfer instead of copy
       )
     }
-
-    this.isLoading = false
   }
 
   private postSynthMessage(e: SynthEvent, transfer?: Transferable[]) {

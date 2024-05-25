@@ -73,13 +73,13 @@ export const Right = styled.div`
 
 export const TransportPanel: FC = observer(() => {
   const rootStore = useStores()
-  const { player, midiDeviceStore, midiRecorder, synth } = rootStore
+  const { player, midiDeviceStore, midiRecorder, soundFontStore } = rootStore
 
   const { isPlaying, isMetronomeEnabled, loop } = player
   const isRecording = midiRecorder.isRecording
   const canRecording =
     Object.values(midiDeviceStore.enabledInputs).filter((e) => e).length > 0
-  const isSynthLoading = synth.isLoading
+  const isSynthLoading = soundFontStore.isLoading
 
   const onClickPlay = playOrPause(rootStore)
   const onClickStop = stop(rootStore)
