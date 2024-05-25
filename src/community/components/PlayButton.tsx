@@ -15,24 +15,20 @@ export const StyledButton = styled(CircleButton)`
   &.active {
     background: ${({ theme }) => theme.themeColor};
   }
-
-  svg {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
 `
 
-export interface BigPlayButtonProps {
+export interface PlayButtonProps {
   onMouseDown?: () => void
   isPlaying: boolean
 }
 
-export const BigPlayButton: FC<BigPlayButtonProps> = ({
-  onMouseDown,
-  isPlaying,
-}) => {
+export const PlayButton: FC<PlayButtonProps> = (
+  { onMouseDown, isPlaying },
+  ref,
+) => {
   return (
     <StyledButton
+      id="button-play"
       onMouseDown={onMouseDown}
       className={isPlaying ? "active" : undefined}
     >

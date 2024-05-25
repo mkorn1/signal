@@ -4,11 +4,11 @@ import SkipNext from "mdi-react/SkipNextIcon"
 import SkipPrevious from "mdi-react/SkipPreviousIcon"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { CircleButton } from "../../main/components/TransportPanel/CircleButton"
-import { PlayButton } from "../../main/components/TransportPanel/PlayButton"
 import { playNextSong, playPreviousSong } from "../actions/song"
 import { useStores } from "../hooks/useStores"
 import { BottomPlayerSong } from "./BottomPlayerSong"
+import { CircleButton } from "./CircleButton"
+import { PlayButton } from "./PlayButton"
 
 const Wrapper = styled.div`
   border-top: 1px solid ${({ theme }) => theme.dividerColor};
