@@ -73,9 +73,16 @@ export const Right = styled.div`
 
 export const TransportPanel: FC = observer(() => {
   const rootStore = useStores()
-  const { player, midiDeviceStore, midiRecorder, soundFontStore } = rootStore
+  const {
+    player,
+    midiDeviceStore,
+    midiRecorder,
+    soundFontStore,
+    synthGroup,
+    synthGroup: { isMetronomeEnabled },
+  } = rootStore
 
-  const { isPlaying, isMetronomeEnabled, loop } = player
+  const { isPlaying, loop } = player
   const isRecording = midiRecorder.isRecording
   const canRecording =
     Object.values(midiDeviceStore.enabledInputs).filter((e) => e).length > 0
@@ -88,7 +95,7 @@ export const TransportPanel: FC = observer(() => {
   const onClickRecord = toggleRecording(rootStore)
   const onClickEnableLoop = toggleEnableLoop(rootStore)
   const onClickMetronone = useCallback(() => {
-    player.isMetronomeEnabled = !player.isMetronomeEnabled
+    synthGroup.isMetronomeEnabled = !synthGroup.isMetronomeEnabled
   }, [player])
 
   return (

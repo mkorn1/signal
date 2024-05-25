@@ -1,15 +1,12 @@
-import {
-  IEventSource,
-  METRONOME_TRACK_ID,
-  PlayerEvent,
-  SendableEvent,
-} from "@signal-app/player"
+import { IEventSource, PlayerEvent, SendableEvent } from "@signal-app/player"
 import { filterEventsWithRange } from "../helpers/filterEvents"
 import { Beat, createBeatsInRange } from "../helpers/mapBeats"
 import { noteOnMidiEvent } from "../midi/MidiEvent"
 import { SongProvider } from "../song/SongProvider"
 import { getStatusEvents } from "../track/selector"
 import { convertTrackEvents } from "./collectAllEvents"
+
+export const METRONOME_TRACK_ID = 99999
 
 export class EventSource implements IEventSource {
   constructor(private readonly songStore: SongProvider) {}

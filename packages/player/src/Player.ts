@@ -20,7 +20,6 @@ export interface LoopSetting {
 
 const TIMER_INTERVAL = 50
 const LOOK_AHEAD_TIME = 50
-export const METRONOME_TRACK_ID = 99999
 export const DEFAULT_TEMPO = 120
 
 export interface IEventSource {
@@ -34,32 +33,27 @@ export class Player {
   private _currentTempo = DEFAULT_TEMPO
   private _scheduler: EventScheduler<PlayerEvent> | null = null
   private _output: SynthOutput
-  private _metronomeOutput: SynthOutput
   private _interval: number | null = null
   private _currentTick = 0
   private _isPlaying = false
 
   disableSeek: boolean = false
-  isMetronomeEnabled: boolean = false
 
   loop: LoopSetting | null = null
 
   constructor(
     output: SynthOutput,
-    metronomeOutput: SynthOutput,
     private readonly eventSource: IEventSource,
   ) {
     makeObservable<Player, "_currentTick" | "_isPlaying">(this, {
       _currentTick: observable,
       _isPlaying: observable,
       loop: observable,
-      isMetronomeEnabled: observable,
       position: computed,
       isPlaying: computed,
     })
 
     this._output = output
-    this._metronomeOutput = metronomeOutput
   }
 
   play() {
@@ -257,13 +251,7 @@ export class Player {
     events.forEach(({ event: e, timestamp: time }) => {
       if (e.type === "channel") {
         const delayTime = (time - timestamp) / 1000
-        if (e.trackId === METRONOME_TRACK_ID) {
-          if (this.isMetronomeEnabled) {
-            this._metronomeOutput.sendEvent(e, delayTime, timestamp)
-          }
-        } else {
-          this.sendEvent(e, delayTime, timestamp, e.trackId)
-        }
+        this.sendEvent(e, delayTime, timestamp, e.trackId)
       } else {
         this.applyPlayerEvent(e)
       }
