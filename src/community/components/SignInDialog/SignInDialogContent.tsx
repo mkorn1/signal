@@ -9,10 +9,10 @@ import {
 import styled from "@emotion/styled"
 import "firebase/auth"
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth"
-import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import { auth } from "../../../firebase/firebase"
 import { StyledFirebaseAuth } from "../../../main/components/FirebaseAuth/StyledFirebaseAuth"
+import { Localized } from "../../localize/useLocalization"
 
 const BetaLabel = styled.span`
   border: 1px solid currentColor;

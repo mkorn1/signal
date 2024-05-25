@@ -1,8 +1,8 @@
 import styled from "@emotion/styled"
 import * as Popover from "@radix-ui/react-popover"
 import { ReactNode } from "react"
-import { Localized } from "../../../../common/localize/useLocalization"
 import { Checkbox } from "../../../../components/Checkbox"
+import { Localized } from "../../../localize/useLocalization"
 import { NumberPicker } from "./NumberPicker"
 
 export interface QuantizePopupProps {

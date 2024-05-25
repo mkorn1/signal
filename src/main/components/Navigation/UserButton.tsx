@@ -1,12 +1,12 @@
 import AccountCircle from "mdi-react/AccountCircleIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useRef, useState } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { Menu, MenuItem } from "../../../components/Menu"
 import { auth } from "../../../firebase/firebase"
 import { isRunningInElectron } from "../../helpers/platform"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
+import { Localized } from "../../localize/useLocalization"
 import { IconStyle, Tab, TabTitle } from "./Navigation"
 
 export const UserButton: FC = observer(() => {

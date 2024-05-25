@@ -1,6 +1,6 @@
 import { makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import { Language } from "../../common/localize/useLocalization"
+import { Language } from "../localize/useLocalization"
 
 export default class SettingStore {
   language: Language | null = null

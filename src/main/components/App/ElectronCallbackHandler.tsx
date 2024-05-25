@@ -9,7 +9,6 @@ import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
 import { FirebaseCredential } from "../../../../electron/src/ipc"
 import { ElectronAPI } from "../../../../electron/src/preload"
-import { useLocalization } from "../../../common/localize/useLocalization"
 import { songToMidi } from "../../../common/midi/midiConversion"
 import { auth } from "../../../firebase/firebase"
 import { setSong } from "../../actions"
@@ -23,6 +22,7 @@ import {
 import { useCloudFile } from "../../hooks/useCloudFile"
 import { useSongFile } from "../../hooks/useSongFile"
 import { useStores } from "../../hooks/useStores"
+import { useLocalization } from "../../localize/useLocalization"
 
 declare global {
   interface Window {

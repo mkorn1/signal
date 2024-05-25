@@ -1,10 +1,10 @@
 import { observer } from "mobx-react-lite"
 import { ChangeEvent, FC } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import { hasFSAccess } from "../../actions/file"
 import { useCloudFile } from "../../hooks/useCloudFile"
 import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
 import { FileInput } from "./LegacyFileMenu"
 
 export const CloudFileMenu: FC<{ close: () => void }> = observer(

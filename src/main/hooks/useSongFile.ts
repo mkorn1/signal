@@ -1,8 +1,8 @@
 import { useToast } from "dialog-hooks"
 import { ChangeEvent } from "react"
-import { useLocalization } from "../../common/localize/useLocalization"
 import { createSong, openSong, saveSong } from "../actions"
 import { openFile, saveFile, saveFileAs } from "../actions/file"
+import { useLocalization } from "../localize/useLocalization"
 import { useStores } from "./useStores"
 
 export const useSongFile = () => {

@@ -9,7 +9,6 @@ import { FC, useState } from "react"
 import { Helmet } from "react-helmet-async"
 import { Link } from "wouter"
 import { downloadBlob } from "../../common/helpers/Downloader"
-import { Localized } from "../../common/localize/useLocalization"
 import { Alert } from "../../components/Alert"
 import { Button } from "../../components/Button"
 import { CircularProgress } from "../../components/CircularProgress"
@@ -19,6 +18,7 @@ import { ShareDialog } from "../components/ShareDialog"
 import { useAsyncEffect } from "../hooks/useAsyncEffect"
 import { useStores } from "../hooks/useStores"
 import { PageLayout, PageTitle } from "../layouts/PageLayout"
+import { Localized } from "../localize/useLocalization"
 
 export interface SongPageProps {
   songId: string

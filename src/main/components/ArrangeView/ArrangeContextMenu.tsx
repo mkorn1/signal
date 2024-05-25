@@ -1,6 +1,4 @@
 import { FC } from "react"
-import { envString } from "../../../common/localize/envString"
-import { Localized } from "../../../common/localize/useLocalization"
 import {
   ContextMenu,
   ContextMenuProps,
@@ -14,6 +12,8 @@ import {
   arrangeTransposeSelection,
 } from "../../actions/arrangeView"
 import { useStores } from "../../hooks/useStores"
+import { envString } from "../../localize/envString"
+import { Localized } from "../../localize/useLocalization"
 
 export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
   const { handleClose } = props

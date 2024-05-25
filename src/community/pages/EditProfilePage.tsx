@@ -2,7 +2,6 @@ import styled from "@emotion/styled"
 import { useToast } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
-import { Localized } from "../../common/localize/useLocalization"
 import { Alert } from "../../components/Alert"
 import { PrimaryButton } from "../../components/Button"
 import { CircularProgress } from "../../components/CircularProgress"
@@ -11,6 +10,7 @@ import { TextField } from "../../components/TextField"
 import { useAsyncEffect } from "../hooks/useAsyncEffect"
 import { useStores } from "../hooks/useStores"
 import { PageLayout, PageTitle } from "../layouts/PageLayout"
+import { Localized } from "../localize/useLocalization"
 
 const Form = styled.div`
   display: flex;

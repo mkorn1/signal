@@ -3,13 +3,13 @@ import { User } from "@signal-app/api"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
 import { Helmet } from "react-helmet-async"
-import { Localized } from "../../common/localize/useLocalization"
 import { Alert } from "../../components/Alert"
 import { CircularProgress } from "../../components/CircularProgress"
 import { UserSongList } from "../components/UserSongList"
 import { useAsyncEffect } from "../hooks/useAsyncEffect"
 import { useStores } from "../hooks/useStores"
 import { PageLayout, PageTitle } from "../layouts/PageLayout"
+import { Localized } from "../localize/useLocalization"
 
 const Bio = styled.p`
   margin-top: 1rem;

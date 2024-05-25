@@ -1,10 +1,10 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC, PropsWithChildren, useCallback } from "react"
-import { useLocalization } from "../../../common/localize/useLocalization"
 import { setSong } from "../../actions"
 import { songFromFile } from "../../actions/file"
 import { useStores } from "../../hooks/useStores"
+import { useLocalization } from "../../localize/useLocalization"
 
 const Container = styled.div`
   height: 100%;

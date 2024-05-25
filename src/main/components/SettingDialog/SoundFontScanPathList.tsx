@@ -2,9 +2,9 @@ import styled from "@emotion/styled"
 import RemoveIcon from "mdi-react/RemoveIcon"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
 
 const Actions = styled.div`
   display: flex;

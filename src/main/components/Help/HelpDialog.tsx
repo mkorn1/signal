@@ -1,8 +1,6 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC, ReactNode } from "react"
-import { envString } from "../../../common/localize/envString"
-import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import {
   Dialog,
@@ -11,6 +9,8 @@ import {
   DialogTitle,
 } from "../../../components/Dialog"
 import { useStores } from "../../hooks/useStores"
+import { envString } from "../../localize/envString"
+import { Localized } from "../../localize/useLocalization"
 
 interface HotKeyProps {
   hotKeys: string[][]

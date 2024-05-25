@@ -1,6 +1,5 @@
 import { range } from "lodash"
 import { FC, useEffect, useState } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { Button, PrimaryButton } from "../../../components/Button"
 import {
   Dialog,
@@ -12,6 +11,7 @@ import { Label } from "../../../components/Label"
 import { Select } from "../../../components/Select"
 import { TextField } from "../../../components/TextField"
 import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
 import { TrackName } from "./TrackName"
 
 export interface TrackDialogProps {

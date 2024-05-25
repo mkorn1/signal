@@ -1,5 +1,4 @@
 import { FC, useEffect, useState } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { Button, PrimaryButton } from "../../../components/Button"
 import {
   Dialog,
@@ -8,6 +7,7 @@ import {
   DialogTitle,
 } from "../../../components/Dialog"
 import { TextField } from "../../../components/TextField"
+import { Localized } from "../../localize/useLocalization"
 
 export interface TransposeDialogProps {
   open: boolean

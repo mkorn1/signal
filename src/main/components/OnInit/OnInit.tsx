@@ -1,12 +1,12 @@
 import { useProgress } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { FC, useEffect, useState } from "react"
-import { useLocalization } from "../../../common/localize/useLocalization"
 import { setSong } from "../../actions"
 import { loadSongFromExternalMidiFile } from "../../actions/cloudSong"
 import { songFromArrayBuffer } from "../../actions/file"
 import { isRunningInElectron } from "../../helpers/platform"
 import { useStores } from "../../hooks/useStores"
+import { useLocalization } from "../../localize/useLocalization"
 import { InitializeErrorDialog } from "./InitializeErrorDialog"
 
 export const OnInit: FC = observer(() => {

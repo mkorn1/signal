@@ -1,5 +1,4 @@
 import { FC } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import {
   Dialog,
@@ -7,6 +6,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "../../../components/Dialog"
+import { Localized } from "../../localize/useLocalization"
 
 export interface InitializeErrorDialogProps {
   open: boolean

@@ -1,13 +1,13 @@
 import styled from "@emotion/styled"
 import range from "lodash/range"
 import { FC } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import {
   Dialog,
   DialogActions,
   DialogContent,
 } from "../../../components/Dialog"
+import { Localized } from "../../localize/useLocalization"
 
 const numColumn = 8
 

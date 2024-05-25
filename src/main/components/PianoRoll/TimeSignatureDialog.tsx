@@ -1,7 +1,6 @@
 import styled from "@emotion/styled"
 import { range } from "lodash"
 import { FC, useEffect, useState } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { Button, PrimaryButton } from "../../../components/Button"
 import {
   Dialog,
@@ -11,6 +10,7 @@ import {
 } from "../../../components/Dialog"
 import { Select } from "../../../components/Select"
 import { TextField } from "../../../components/TextField"
+import { Localized } from "../../localize/useLocalization"
 
 export interface TimeSignatureDialogProps {
   initialNumerator?: number

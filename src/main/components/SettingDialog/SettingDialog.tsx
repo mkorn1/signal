@@ -1,7 +1,6 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { Button } from "../../../components/Button"
 import {
   Dialog,
@@ -10,6 +9,7 @@ import {
   DialogTitle,
 } from "../../../components/Dialog"
 import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
 import { GeneralSettingsView } from "./GeneralSettingsView"
 import { MIDIDeviceView } from "./MIDIDeviceView/MIDIDeviceView"
 import { SettingNavigation, SettingRoute } from "./SettingNavigation"

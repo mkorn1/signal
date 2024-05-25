@@ -3,10 +3,6 @@ import { useToast } from "dialog-hooks"
 import OpenInNewIcon from "mdi-react/OpenInNewIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
-import {
-  Localized,
-  useLocalization,
-} from "../../../common/localize/useLocalization"
 import { useAsyncEffect } from "../../../community/hooks/useAsyncEffect"
 import { Alert } from "../../../components/Alert"
 import { Button, PrimaryButton } from "../../../components/Button"
@@ -20,6 +16,7 @@ import { LinkShare } from "../../../components/LinkShare"
 import { publishSong, unpublishSong } from "../../actions/cloudSong"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
+import { Localized, useLocalization } from "../../localize/useLocalization"
 
 type PublishState = "publishable" | "published" | "notPublishable"
 

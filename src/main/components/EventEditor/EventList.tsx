@@ -4,10 +4,10 @@ import { clamp, isEqual } from "lodash"
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useMemo, useRef, useState } from "react"
 import { FixedSizeList, ListChildComponentProps } from "react-window"
-import { Localized } from "../../../common/localize/useLocalization"
 import { TrackEvent } from "../../../common/track"
 import { Layout } from "../../Constants"
 import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
 import { EventInputProp, getEventController } from "./EventController"
 
 const Container = styled.div`

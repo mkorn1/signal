@@ -1,8 +1,8 @@
 import { observer } from "mobx-react-lite"
 import { ChangeEvent, FC } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import { useSongFile } from "../../hooks/useSongFile"
+import { Localized } from "../../localize/useLocalization"
 
 const fileInputID = "OpenButtonInputFile"
 

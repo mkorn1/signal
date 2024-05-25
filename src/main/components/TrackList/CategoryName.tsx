@@ -1,6 +1,6 @@
 import { FC } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { categoryEmojis, getCategoryIndex } from "../../../common/midi/GM"
+import { Localized } from "../../localize/useLocalization"
 
 export const CategoryName: FC<{ programNumber: number }> = ({
   programNumber,

@@ -1,13 +1,13 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
+import { DialogContent, DialogTitle } from "../../../components/Dialog"
+import { Select } from "../../../components/Select"
+import { useStores } from "../../hooks/useStores"
 import {
   Language,
   Localized,
   useCurrentLanguage,
-} from "../../../common/localize/useLocalization"
-import { DialogContent, DialogTitle } from "../../../components/Dialog"
-import { Select } from "../../../components/Select"
-import { useStores } from "../../hooks/useStores"
+} from "../../localize/useLocalization"
 
 interface LanguageItem {
   label: string

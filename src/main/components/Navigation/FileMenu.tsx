@@ -1,9 +1,9 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import { useSongFile } from "../../hooks/useSongFile"
 import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
 
 export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
   const rootStore = useStores()

@@ -4,11 +4,11 @@ import AccountCircle from "mdi-react/AccountCircleIcon"
 import { observer } from "mobx-react-lite"
 import { useRef } from "react"
 import { useLocation } from "wouter"
-import { Localized } from "../../common/localize/useLocalization"
 import { Menu, MenuItem } from "../../components/Menu"
 import { auth } from "../../firebase/firebase"
 import { IconStyle } from "../../main/components/Navigation/Navigation"
 import { useStores } from "../hooks/useStores"
+import { Localized } from "../localize/useLocalization"
 
 export const Tab = styled.div`
   display: flex;

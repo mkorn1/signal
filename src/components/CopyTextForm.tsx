@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import { useToast } from "dialog-hooks"
 import { FC, useCallback } from "react"
-import { Localized, useLocalization } from "../common/localize/useLocalization"
+import { Localized, useLocalization } from "../main/localize/useLocalization"
 import { PrimaryButton } from "./Button"
 
 const Form = styled.div`

@@ -1,6 +1,4 @@
 import React, { FC, useCallback } from "react"
-import { envString } from "../../../common/localize/envString"
-import { Localized } from "../../../common/localize/useLocalization"
 import {
   ContextMenu,
   ContextMenuProps,
@@ -16,6 +14,8 @@ import {
   transposeSelection,
 } from "../../actions"
 import { useStores } from "../../hooks/useStores"
+import { envString } from "../../localize/envString"
+import { Localized } from "../../localize/useLocalization"
 
 export const PianoSelectionContextMenu: FC<ContextMenuProps> = React.memo(
   (props) => {

@@ -6,10 +6,6 @@ import ArrowDropDown from "mdi-react/ArrowDropDownIcon"
 import ArrowUpward from "mdi-react/ArrowUpwardIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
-import {
-  Localized,
-  useLocalization,
-} from "../../../common/localize/useLocalization"
 import { CircularProgress } from "../../../components/CircularProgress"
 import { IconButton } from "../../../components/IconButton"
 import { Menu, MenuItem } from "../../../components/Menu"
@@ -17,6 +13,7 @@ import { setSong } from "../../actions"
 import { loadSong } from "../../actions/cloudSong"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
+import { Localized, useLocalization } from "../../localize/useLocalization"
 import { CloudFileRow } from "./CloudFileRow"
 
 const ArrowUp = styled(ArrowUpward)`

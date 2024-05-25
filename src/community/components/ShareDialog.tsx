@@ -1,10 +1,6 @@
 import { CloudSong } from "@signal-app/api"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import {
-  Localized,
-  useLocalization,
-} from "../../common/localize/useLocalization"
 import { Button } from "../../components/Button"
 import {
   Dialog,
@@ -13,6 +9,7 @@ import {
   DialogTitle,
 } from "../../components/Dialog"
 import { LinkShare } from "../../components/LinkShare"
+import { Localized, useLocalization } from "../localize/useLocalization"
 
 export interface ShareDialogProps {
   song: CloudSong

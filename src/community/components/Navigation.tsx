@@ -4,8 +4,8 @@ import PlusIcon from "mdi-react/PlusIcon"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { Link } from "wouter"
-import { Localized } from "../../common/localize/useLocalization"
 import LogoWhite from "../images/logo-white.svg"
+import { Localized } from "../localize/useLocalization"
 import { UserButton } from "./UserButton"
 
 const Container = styled.div`

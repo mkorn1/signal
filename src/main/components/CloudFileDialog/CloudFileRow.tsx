@@ -4,14 +4,11 @@ import { useToast } from "dialog-hooks"
 import DotsHorizontalIcon from "mdi-react/DotsHorizontalIcon"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import {
-  Localized,
-  useLocalization,
-} from "../../../common/localize/useLocalization"
 import { IconButton } from "../../../components/IconButton"
 import { Menu, MenuItem } from "../../../components/Menu"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
+import { Localized, useLocalization } from "../../localize/useLocalization"
 
 const Container = styled.div`
   display: flex;

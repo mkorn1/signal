@@ -1,7 +1,5 @@
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useState } from "react"
-import { envString } from "../../../common/localize/envString"
-import { Localized } from "../../../common/localize/useLocalization"
 import {
   ContextMenu,
   ContextMenuProps,
@@ -10,6 +8,8 @@ import {
 import { MenuItem } from "../../../components/Menu"
 import { addTimeSignature, setLoopBegin, setLoopEnd } from "../../actions"
 import { useStores } from "../../hooks/useStores"
+import { envString } from "../../localize/envString"
+import { Localized } from "../../localize/useLocalization"
 import { RulerStore } from "../../stores/RulerStore"
 import { TimeSignatureDialog } from "./TimeSignatureDialog"
 

@@ -1,9 +1,9 @@
 import { useDialog } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { useEffect } from "react"
-import { useLocalization } from "../../../common/localize/useLocalization"
 import { isRunningInElectron } from "../../helpers/platform"
 import { useStores } from "../../hooks/useStores"
+import { useLocalization } from "../../localize/useLocalization"
 
 export const OnBeforeUnload = observer(() => {
   const rootStore = useStores()

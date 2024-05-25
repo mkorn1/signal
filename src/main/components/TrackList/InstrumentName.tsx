@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { Localized } from "../../../common/localize/useLocalization"
 import Track from "../../../common/track/Track"
+import { Localized } from "../../localize/useLocalization"
 
 export const InstrumentName: FC<{ programNumber: number | undefined }> = ({
   programNumber,
