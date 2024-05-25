@@ -17,7 +17,11 @@ import {
   DialogContent,
 } from "../../../components/Dialog"
 import { Label } from "../../../components/Label"
-import { setTrackInstrument as setTrackInstrumentAction } from "../../actions"
+import {
+  setTrackInstrument as setTrackInstrumentAction,
+  startNote,
+  stopNote,
+} from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { FancyCategoryName } from "../TrackList/CategoryName"
 import { InstrumentName } from "../TrackList/InstrumentName"
@@ -203,19 +207,19 @@ const InstrumentBrowserWrapper: FC = observer(() => {
       // if note is already playing, stop it immediately and cancel the timeout
       if (stopNoteTimeout !== null) {
         clearTimeout(stopNoteTimeout)
-        player.stopNote({
+        stopNote(rootStore)({
           noteNumber,
           channel,
         })
       }
 
-      player.startNote({
+      startNote(rootStore)({
         noteNumber,
         velocity: 100,
         channel,
       })
       const timeout = setTimeout(() => {
-        player.stopNote({
+        stopNote(rootStore)({
           noteNumber,
           channel,
         })

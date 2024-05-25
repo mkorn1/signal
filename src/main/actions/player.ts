@@ -1,3 +1,4 @@
+import { noteOffMidiEvent, noteOnMidiEvent } from "../../common/midi/MidiEvent"
 import RootStore from "../stores/RootStore"
 
 export const playOrPause =
@@ -155,4 +156,40 @@ export const toggleEnableLoop =
       return
     }
     player.loop = { ...player.loop, enabled: !player.loop.enabled }
+  }
+
+export const startNote =
+  ({ player, synthGroup }: Pick<RootStore, "player" | "synthGroup">) =>
+  (
+    {
+      channel,
+      noteNumber,
+      velocity,
+    }: {
+      noteNumber: number
+      velocity: number
+      channel: number
+    },
+    delayTime = 0,
+  ) => {
+    synthGroup.activate()
+    player.sendEvent(
+      noteOnMidiEvent(0, channel, noteNumber, velocity),
+      delayTime,
+    )
+  }
+
+export const stopNote =
+  ({ player }: Pick<RootStore, "player">) =>
+  (
+    {
+      channel,
+      noteNumber,
+    }: {
+      noteNumber: number
+      channel: number
+    },
+    delayTime = 0,
+  ) => {
+    player.sendEvent(noteOffMidiEvent(0, channel, noteNumber, 0), delayTime)
   }

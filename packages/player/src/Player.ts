@@ -3,11 +3,7 @@ import throttle from "lodash/throttle"
 import { AnyEvent, MIDIControlEvents } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
 import { EventScheduler } from "./EventScheduler"
-import {
-  controllerMidiEvent,
-  noteOffMidiEvent,
-  noteOnMidiEvent,
-} from "./MidiEventFactory"
+import { controllerMidiEvent } from "./MidiEventFactory"
 import { PlayerEvent } from "./PlayerEvent"
 import { SendableEvent, SynthOutput } from "./SynthOutput"
 import { DistributiveOmit } from "./types"
@@ -173,35 +169,6 @@ export class Player {
 
   set currentTempo(value: number) {
     this._currentTempo = value
-  }
-
-  startNote(
-    {
-      channel,
-      noteNumber,
-      velocity,
-    }: {
-      noteNumber: number
-      velocity: number
-      channel: number
-    },
-    delayTime = 0,
-  ) {
-    this.output.activate()
-    this.sendEvent(noteOnMidiEvent(0, channel, noteNumber, velocity), delayTime)
-  }
-
-  stopNote(
-    {
-      channel,
-      noteNumber,
-    }: {
-      noteNumber: number
-      channel: number
-    },
-    delayTime = 0,
-  ) {
-    this.sendEvent(noteOffMidiEvent(0, channel, noteNumber, 0), delayTime)
   }
 
   // delayTime: seconds, timestampNow: milliseconds

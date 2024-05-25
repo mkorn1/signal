@@ -17,6 +17,7 @@ import {
 } from "../clipboard/clipboardTypes"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
+import { startNote, stopNote } from "./player"
 import { transposeNotes } from "./song"
 
 function eventsInSelection(events: TrackEvent[], selection: Selection) {
@@ -579,9 +580,9 @@ const selectNeighborNote = (rootStore: RootStore) => (deltaIndex: number) => {
   selectNote(rootStore)(nextNote.id)
 
   // Stop playing the current note, then play the new note.
-  player.stopNote({ ...currentNote, channel })
-  player.startNote({ ...nextNote, channel })
-  player.stopNote(
+  stopNote(rootStore)({ ...currentNote, channel })
+  startNote(rootStore)({ ...nextNote, channel })
+  stopNote(rootStore)(
     { ...nextNote, channel },
     tickToMillisec(nextNote.duration, 120, song.timebase) / 1000,
   )

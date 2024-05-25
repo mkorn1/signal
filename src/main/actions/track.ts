@@ -20,6 +20,7 @@ import Track, {
   isNoteEvent,
 } from "../../common/track"
 import RootStore from "../stores/RootStore"
+import { stopNote } from "./player"
 import {
   resizeNotesInSelectionLeftBy,
   resizeNotesInSelectionRightBy,
@@ -207,7 +208,7 @@ export const muteNote =
     if (selectedTrack === undefined || selectedTrack.channel == undefined) {
       return
     }
-    player.stopNote({ channel: selectedTrack.channel, noteNumber })
+    stopNote({ player })({ channel: selectedTrack.channel, noteNumber })
   }
 
 const MIN_DURATION = 10

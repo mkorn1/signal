@@ -11,7 +11,9 @@ import {
   resizeNoteRight,
   resizeSelection,
   selectNote,
+  startNote,
   startSelection,
+  stopNote,
 } from "../../../actions"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
@@ -161,7 +163,7 @@ const dragNoteEdgeAction =
     }
 
     const { channel } = selectedTrack
-    player.startNote({ ...note, channel })
+    startNote(rootStore)({ ...note, channel })
 
     const local = rootStore.pianoRollStore.getLocal(e)
     const startTick = transform.getTicks(local.x)
@@ -182,7 +184,7 @@ const dragNoteEdgeAction =
         e.stopPropagation()
       },
       onMouseUp: () => {
-        player.stopNote({ ...note, channel })
+        stopNote(rootStore)({ ...note, channel })
       },
       onClick: (e) => {
         if (!e.shiftKey) {
@@ -205,7 +207,7 @@ const startDragNote =
     const { transform, quantizer } = rootStore.pianoRollStore
     const channel = selectedTrack?.channel ?? 0
 
-    player.startNote({ ...note, channel })
+    startNote(rootStore)({ ...note, channel })
 
     let prevNoteNumber = note.noteNumber
     let prevTick = note.tick
@@ -228,15 +230,15 @@ const startDragNote =
         }
 
         if (pitchChanged) {
-          player.stopNote({ noteNumber: prevNoteNumber, channel })
-          player.startNote({ noteNumber, channel, velocity: note.velocity })
+          stopNote(rootStore)({ noteNumber: prevNoteNumber, channel })
+          startNote(rootStore)({ noteNumber, channel, velocity: note.velocity })
         }
 
         prevTick = tick
         prevNoteNumber = noteNumber
       },
       onMouseUp: (_e) => {
-        player.stopNote({ noteNumber: prevNoteNumber, channel })
+        stopNote(rootStore)({ noteNumber: prevNoteNumber, channel })
       },
       onClick: () => {
         if (!e.shiftKey) {

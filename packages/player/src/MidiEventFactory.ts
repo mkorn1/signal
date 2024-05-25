@@ -1,4 +1,4 @@
-import { ControllerEvent, NoteOffEvent, NoteOnEvent } from "midifile-ts"
+import { ControllerEvent } from "midifile-ts"
 
 export function controllerMidiEvent(
   deltaTime: number,
@@ -13,37 +13,5 @@ export function controllerMidiEvent(
     channel,
     controllerType,
     value,
-  }
-}
-
-export function noteOffMidiEvent(
-  deltaTime: number,
-  channel: number,
-  noteNumber: number,
-  velocity: number = 0,
-): NoteOffEvent {
-  return {
-    deltaTime,
-    type: "channel",
-    subtype: "noteOff",
-    channel,
-    noteNumber,
-    velocity,
-  }
-}
-
-export function noteOnMidiEvent(
-  deltaTime: number,
-  channel: number,
-  noteNumber: number,
-  velocity: number,
-): NoteOnEvent {
-  return {
-    deltaTime,
-    type: "channel",
-    subtype: "noteOn",
-    channel,
-    noteNumber,
-    velocity,
   }
 }
