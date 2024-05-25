@@ -4,7 +4,7 @@ import {
   createCloudSongRepository,
   createUserRepository,
 } from "@signal-app/api"
-import { Player } from "@signal-app/player"
+import { Player, SoundFontSynth } from "@signal-app/player"
 import { makeObservable, observable } from "mobx"
 import { deserialize, serialize } from "serializr"
 import { EventSource } from "../../common/player/EventSource"
@@ -16,7 +16,6 @@ import { isRunningInElectron } from "../helpers/platform"
 import { GroupOutput } from "../services/GroupOutput"
 import { MIDIInput, previewMidiInput } from "../services/MIDIInput"
 import { MIDIRecorder } from "../services/MIDIRecorder"
-import { SoundFontSynth } from "../services/SoundFontSynth"
 import ArrangeViewStore, {
   SerializedArrangeViewStore,
 } from "./ArrangeViewStore"

@@ -3,9 +3,8 @@ import {
   createCloudSongRepository,
   createUserRepository,
 } from "@signal-app/api"
-import { Player } from "@signal-app/player"
+import { Player, SoundFontSynth } from "@signal-app/player"
 import { auth, firestore } from "../../firebase/firebase"
-import { SoundFontSynth } from "../../main/services/SoundFontSynth"
 import { AuthStore } from "../../main/stores/AuthStore"
 import { EventSource } from "../services/EventSource"
 import { CommunitySongStore } from "./CommunitySongStore"

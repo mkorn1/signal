@@ -50,7 +50,7 @@ const config = {
   plugins: [
     new ForkTsCheckerWebpackPlugin(),
     new ReactRefreshWebpackPlugin({
-      exclude: [/node_modules/, /processor.js/],
+      exclude: [/node_modules/],
     }),
   ],
   resolve: {
