@@ -35,17 +35,8 @@ export default class RootStore {
       sendEvent() {},
     }
 
-    const dummyTrackMute = {
-      shouldPlayTrack: () => true,
-    }
-
     const eventSource = new EventSource(this.songStore)
 
-    this.player = new Player(
-      this.synth,
-      dummySynth,
-      dummyTrackMute,
-      eventSource,
-    )
+    this.player = new Player(this.synth, dummySynth, eventSource)
   }
 }

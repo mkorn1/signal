@@ -74,7 +74,7 @@ export default class RootStore {
   readonly player: Player
   readonly synth: SoundFontSynth
   readonly metronomeSynth: SoundFontSynth
-  readonly synthGroup = new GroupOutput()
+  readonly synthGroup = new GroupOutput(this.trackMute)
   readonly midiInput = new MIDIInput()
   readonly midiRecorder: MIDIRecorder
   readonly soundFontStore: SoundFontStore
@@ -90,12 +90,7 @@ export default class RootStore {
     this.synthGroup.outputs.push({ synth: this.synth, isEnabled: true })
 
     const eventSource = new EventSource(this)
-    this.player = new Player(
-      this.synthGroup,
-      this.metronomeSynth,
-      this.trackMute,
-      eventSource,
-    )
+    this.player = new Player(this.synthGroup, this.metronomeSynth, eventSource)
     this.midiRecorder = new MIDIRecorder(this.player, this)
 
     this.pianoRollStore = new PianoRollStore(this)

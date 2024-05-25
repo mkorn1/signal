@@ -3,7 +3,6 @@ import throttle from "lodash/throttle"
 import { AnyEvent, MIDIControlEvents } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
 import { EventScheduler } from "./EventScheduler"
-import { ITrackMute } from "./ITrackMute"
 import {
   controllerMidiEvent,
   noteOffMidiEvent,
@@ -36,7 +35,6 @@ export class Player {
   private _scheduler: EventScheduler<PlayerEvent> | null = null
   private _output: SynthOutput
   private _metronomeOutput: SynthOutput
-  private _trackMute: ITrackMute
   private _interval: number | null = null
   private _currentTick = 0
   private _isPlaying = false
@@ -49,7 +47,6 @@ export class Player {
   constructor(
     output: SynthOutput,
     metronomeOutput: SynthOutput,
-    trackMute: ITrackMute,
     private readonly eventSource: IEventSource,
   ) {
     makeObservable<Player, "_currentTick" | "_isPlaying">(this, {
@@ -63,7 +60,6 @@ export class Player {
 
     this._output = output
     this._metronomeOutput = metronomeOutput
-    this._trackMute = trackMute
   }
 
   play() {
@@ -222,8 +218,9 @@ export class Player {
     event: SendableEvent,
     delayTime: number = 0,
     timestampNow: number = performance.now(),
+    trackId?: number,
   ) {
-    this._output.sendEvent(event, delayTime, timestampNow)
+    this._output.sendEvent(event, delayTime, timestampNow, trackId)
   }
 
   private syncPosition = throttle(() => {
@@ -264,8 +261,8 @@ export class Player {
           if (this.isMetronomeEnabled) {
             this._metronomeOutput.sendEvent(e, delayTime, timestamp)
           }
-        } else if (this._trackMute.shouldPlayTrack(e.trackId)) {
-          this.sendEvent(e, delayTime, timestamp)
+        } else {
+          this.sendEvent(e, delayTime, timestamp, e.trackId)
         }
       } else {
         this.applyPlayerEvent(e)
