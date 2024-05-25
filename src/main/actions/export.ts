@@ -1,11 +1,6 @@
-import {
-  audioDataToAudioBuffer,
-  getSampleEventsFromSoundFont,
-  renderAudio,
-} from "@ryohey/wavelet"
+import { renderAudio } from "@signal-app/player"
 import { encode } from "wav-encoder"
 import { downloadBlob } from "../../common/helpers/Downloader"
-import { songToSynthEvents } from "../../common/helpers/songToSynthEvents"
 import Song from "../../common/song"
 import RootStore from "../stores/RootStore"
 
@@ -20,30 +15,28 @@ export const exportSongAsWav =
       return
     }
 
-    const sampleEvents = getSampleEventsFromSoundFont(
-      new Uint8Array(soundFontData),
-    )
     const sampleRate = 44100
-    const events = songToSynthEvents(song, sampleRate)
 
     exportStore.isCanceled = false
     exportStore.openExportProgressDialog = true
     exportStore.progress = 0
 
     try {
-      const samples = sampleEvents.map((e) => e.event)
-      const audioData = await renderAudio(samples, events, {
+      const audioBuffer = await renderAudio(
+        soundFontData,
+        song.allEvents,
+        song.timebase,
         sampleRate,
-        bufferSize: 128,
-        cancel: () => exportStore.isCanceled,
-        waitForEventLoop: waitForAnimationFrame,
-        onProgress: (numFrames, totalFrames) =>
-          (exportStore.progress = numFrames / totalFrames),
-      })
+        {
+          bufferSize: 128,
+          cancel: () => exportStore.isCanceled,
+          waitForEventLoop: waitForAnimationFrame,
+          onProgress: (numFrames, totalFrames) =>
+            (exportStore.progress = numFrames / totalFrames),
+        },
+      )
 
       exportStore.progress = 1
-
-      const audioBuffer = audioDataToAudioBuffer(audioData)
 
       const wavData = await encode({
         sampleRate: audioBuffer.sampleRate,

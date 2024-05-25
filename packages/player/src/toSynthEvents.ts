@@ -1,6 +1,6 @@
 import { SynthEvent } from "@ryohey/wavelet"
-import Song from "../song"
-import { tickToMillisec } from "./bpm"
+import { PlayerEvent } from "./PlayerEvent"
+import { tickToMillisec } from "./tick"
 
 interface Keyframe {
   tick: number
@@ -8,11 +8,12 @@ interface Keyframe {
   timestamp: number
 }
 
-export const songToSynthEvents = (
-  song: Song,
+export const toSynthEvents = (
+  events: PlayerEvent[],
+  timebase: number,
   sampleRate: number,
 ): SynthEvent[] => {
-  const events = [...song.allEvents].sort((a, b) => a.tick - b.tick)
+  events = events.sort((a, b) => a.tick - b.tick)
 
   let keyframe: Keyframe = {
     tick: 0,
@@ -26,7 +27,7 @@ export const songToSynthEvents = (
   // Send Channel Event to MIDI OUTPUT
   for (const e of events) {
     const timestamp =
-      tickToMillisec(e.tick - keyframe.tick, keyframe.bpm, song.timebase) +
+      tickToMillisec(e.tick - keyframe.tick, keyframe.bpm, timebase) +
       keyframe.timestamp
     const delayTime = (timestamp / 1000) * sampleRate
 
