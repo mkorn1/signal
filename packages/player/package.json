@@ -11,7 +11,6 @@
   "author": "ryohey",
   "license": "MIT",
   "peerDependencies": {
-    "@ryohey/wavelet": "^0.7.1",
     "midifile-ts": "1.5.1",
     "mobx": "^6.12.3",
     "lodash": "^4.17.21"
@@ -19,5 +18,8 @@
   "devDependencies": {
     "vite": "^5.2.11",
     "vite-plugin-dts": "^3.9.1"
+  },
+  "dependencies": {
+    "@ryohey/wavelet": "^0.7.1"
   }
 }

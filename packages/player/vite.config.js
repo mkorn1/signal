@@ -11,7 +11,7 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
-      external: ["midifile-ts", "mobx", "@ryohey/wavelet"],
+      external: ["midifile-ts", "mobx"],
     },
   },
   plugins: [dts({ rollupTypes: true })],
