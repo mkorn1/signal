@@ -30,19 +30,18 @@ export interface IEventSource {
 }
 
 export class Player {
+  private scheduler: EventScheduler<PlayerEvent> | null = null
+  private interval: number | null = null
+
   private _currentTempo = DEFAULT_TEMPO
-  private _scheduler: EventScheduler<PlayerEvent> | null = null
-  private _output: SynthOutput
-  private _interval: number | null = null
   private _currentTick = 0
   private _isPlaying = false
 
   disableSeek: boolean = false
-
   loop: LoopSetting | null = null
 
   constructor(
-    output: SynthOutput,
+    private readonly output: SynthOutput,
     private readonly eventSource: IEventSource,
   ) {
     makeObservable<Player, "_currentTick" | "_isPlaying">(this, {
@@ -52,8 +51,6 @@ export class Player {
       position: computed,
       isPlaying: computed,
     })
-
-    this._output = output
   }
 
   play() {
@@ -61,7 +58,7 @@ export class Player {
       console.warn("called play() while playing. aborted.")
       return
     }
-    this._scheduler = new EventScheduler<PlayerEvent>(
+    this.scheduler = new EventScheduler<PlayerEvent>(
       (startTick, endTick) => this.eventSource.getEvents(startTick, endTick),
       () => this.allNotesOffEvents(),
       this._currentTick,
@@ -69,9 +66,9 @@ export class Player {
       TIMER_INTERVAL + LOOK_AHEAD_TIME,
     )
     this._isPlaying = true
-    this._output.activate()
-    this._interval = window.setInterval(() => this._onTimer(), TIMER_INTERVAL)
-    this._output.activate()
+    this.output.activate()
+    this.interval = window.setInterval(() => this._onTimer(), TIMER_INTERVAL)
+    this.output.activate()
   }
 
   set position(tick: number) {
@@ -82,8 +79,8 @@ export class Player {
       return
     }
     tick = Math.min(Math.max(Math.floor(tick), 0), this.eventSource.endOfSong)
-    if (this._scheduler) {
-      this._scheduler.seek(tick)
+    if (this.scheduler) {
+      this.scheduler.seek(tick)
     }
     this._currentTick = tick
 
@@ -142,13 +139,13 @@ export class Player {
   }
 
   stop() {
-    this._scheduler = null
+    this.scheduler = null
     this.allSoundsOff()
     this._isPlaying = false
 
-    if (this._interval !== null) {
-      clearInterval(this._interval)
-      this._interval = null
+    if (this.interval !== null) {
+      clearInterval(this.interval)
+      this.interval = null
     }
   }
 
@@ -190,7 +187,7 @@ export class Player {
     },
     delayTime = 0,
   ) {
-    this._output.activate()
+    this.output.activate()
     this.sendEvent(noteOnMidiEvent(0, channel, noteNumber, velocity), delayTime)
   }
 
@@ -214,12 +211,12 @@ export class Player {
     timestampNow: number = performance.now(),
     trackId?: number,
   ) {
-    this._output.sendEvent(event, delayTime, timestampNow, trackId)
+    this.output.sendEvent(event, delayTime, timestampNow, trackId)
   }
 
   private syncPosition = throttle(() => {
-    if (this._scheduler !== null) {
-      this._currentTick = this._scheduler.scheduledTick
+    if (this.scheduler !== null) {
+      this._currentTick = this.scheduler.scheduledTick
     }
   }, 50)
 
@@ -238,15 +235,15 @@ export class Player {
   }
 
   private _onTimer() {
-    if (this._scheduler === null) {
+    if (this.scheduler === null) {
       return
     }
 
     const timestamp = performance.now()
 
-    this._scheduler.loop =
+    this.scheduler.loop =
       this.loop !== null && this.loop.enabled ? this.loop : null
-    const events = this._scheduler.readNextEvents(this._currentTempo, timestamp)
+    const events = this.scheduler.readNextEvents(this._currentTempo, timestamp)
 
     events.forEach(({ event: e, timestamp: time }) => {
       if (e.type === "channel") {
@@ -257,7 +254,7 @@ export class Player {
       }
     })
 
-    if (this._scheduler.scheduledTick >= this.eventSource.endOfSong) {
+    if (this.scheduler.scheduledTick >= this.eventSource.endOfSong) {
       this.stop()
     }
 
