@@ -15,22 +15,14 @@ type WithTimestamp<E> = {
 }
 
 /**
- * Player でイベントを随時読み取るためのクラス
- * 精確にスケジューリングするために先読みを行う
- * https://www.html5rocks.com/ja/tutorials/audio/scheduling/
- */
-/**
- * Player Classes for reading events at any time
- * Perform prefetching for accurate scheduling
+ * Class for reading chronological events.
+ * Perform lookahead to schedule accurately.
  * https://www.html5rocks.com/ja/tutorials/audio/scheduling/
  */
 export class EventScheduler<E extends SchedulableEvent> {
-  // 先読み時間 (ms)
-  // Leading time (MS)
   lookAheadTime = 100
 
-  // 1/4 拍子ごとの tick 数
-  // 1/4 TICK number for each beat
+  // Number of ticks per 1/4 beat
   timebase = 480
 
   loop: EventSchedulerLoop | null = null
@@ -90,15 +82,9 @@ export class EventScheduler<E extends SchedulableEvent> {
     const delta = timestamp - this._prevTime
     const deltaTick = Math.max(0, this.millisecToTick(delta, bpm))
     const nowTick = this._currentTick + deltaTick
-
-    // 先読み時間
-    // Leading time
     const lookAheadTick = this.millisecToTick(this.lookAheadTime, bpm)
 
-    // 前回スケジュール済みの時点から、
-    // From the previous scheduled point,
-    // 先読み時間までを処理の対象とする
-    // Target of processing up to read time
+    // Process from the last scheduled point to the lookahead time
     const startTick = this._scheduledTick
     const endTick = nowTick + lookAheadTick
 

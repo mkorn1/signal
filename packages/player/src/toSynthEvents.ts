@@ -23,8 +23,6 @@ export const toSynthEvents = (
 
   const synthEvents: SynthEvent[] = []
 
-  // channel イベントを MIDI Output に送信
-  // Send Channel Event to MIDI OUTPUT
   for (const e of events) {
     const timestamp =
       tickToMillisec(e.tick - keyframe.tick, keyframe.bpm, timebase) +

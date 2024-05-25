@@ -11,8 +11,7 @@ describe("EventScheduler", () => {
       100,
     )
 
-    // 先読み時間分のイベントが入っている
-    // There are events for read ahead time
+    // The first event is read within the look ahead time
     {
       const result = s.readNextEvents(120, 0)
       expect(result.length).toBe(1)
@@ -20,15 +19,13 @@ describe("EventScheduler", () => {
       expect(result[0].event).toBe(events[0])
     }
 
-    // 前回から時間が経過してなければイベントはない
-    // There is no event if time has passed since last time
+    // No events are returned if no time has passed since the last read
     {
       const result = s.readNextEvents(120, 0)
       expect(result.length).toBe(0)
     }
 
-    // 時間が経過すると2個目以降のイベントが返ってくる
-    // If time has passed, the second or later events will come back
+    // Subsequent events are returned after time has passed
     {
       const result = s.readNextEvents(120, 120)
       expect(result.length).toBe(2)

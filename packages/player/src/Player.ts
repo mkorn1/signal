@@ -265,13 +265,9 @@ export class Player {
             this._metronomeOutput.sendEvent(e, delayTime, timestamp)
           }
         } else if (this._trackMute.shouldPlayTrack(e.trackId)) {
-          // channel イベントを MIDI Output に送信
-          // Send Channel Event to MIDI OUTPUT
           this.sendEvent(e, delayTime, timestamp)
         }
       } else {
-        // channel イベント以外を実行
-        // Run other than Channel Event
         this.applyPlayerEvent(e)
       }
     })
