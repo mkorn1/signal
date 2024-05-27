@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 import { FC, PropsWithChildren } from "react"
-import { CircularProgress } from "./CircularProgress"
+import { CircularProgress } from "../ui/CircularProgress"
 import { Dialog, DialogContent } from "./Dialog"
 
 const Message = styled.div`

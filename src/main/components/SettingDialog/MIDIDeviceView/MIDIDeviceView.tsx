@@ -1,13 +1,13 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { Alert } from "../../../../components/Alert"
-import { Checkbox } from "../../../../components/Checkbox"
-import { CircularProgress } from "../../../../components/CircularProgress"
-import { DialogContent, DialogTitle } from "../../../../components/Dialog"
-import { Label } from "../../../../components/Label"
 import { useStores } from "../../../hooks/useStores"
 import { Localized } from "../../../localize/useLocalization"
+import { DialogContent, DialogTitle } from "../../Dialog/Dialog"
+import { Alert } from "../../ui/Alert"
+import { Checkbox } from "../../ui/Checkbox"
+import { CircularProgress } from "../../ui/CircularProgress"
+import { Label } from "../../ui/Label"
 
 interface Device {
   id: string

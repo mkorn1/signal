@@ -1,16 +1,16 @@
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
-import { Button } from "../../../components/Button"
+import { cancelExport } from "../../actions"
+import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../components/Dialog"
-import { LinearProgress } from "../../../components/LinearProgress"
-import { cancelExport } from "../../actions"
-import { useStores } from "../../hooks/useStores"
-import { Localized } from "../../localize/useLocalization"
+} from "../Dialog/Dialog"
+import { Button } from "../ui/Button"
+import { LinearProgress } from "../ui/LinearProgress"
 
 export const ExportProgressDialog: FC = observer(() => {
   const rootStore = useStores()

@@ -5,14 +5,6 @@ import difference from "lodash/difference"
 import range from "lodash/range"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
-import { Button, PrimaryButton } from "../../../components/Button"
-import { Checkbox } from "../../../components/Checkbox"
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-} from "../../../components/Dialog"
-import { Label } from "../../../components/Label"
 import {
   setTrackInstrument as setTrackInstrumentAction,
   startNote,
@@ -23,8 +15,12 @@ import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
 import { getCategoryIndex } from "../../midi/GM"
 import { programChangeMidiEvent } from "../../midi/MidiEvent"
+import { Dialog, DialogActions, DialogContent } from "../Dialog/Dialog"
 import { FancyCategoryName } from "../TrackList/CategoryName"
 import { InstrumentName } from "../TrackList/InstrumentName"
+import { Button, PrimaryButton } from "../ui/Button"
+import { Checkbox } from "../ui/Checkbox"
+import { Label } from "../ui/Label"
 import { SelectBox } from "./SelectBox"
 
 export interface InstrumentSetting {

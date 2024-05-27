@@ -5,13 +5,6 @@ import ChevronDoubleLeftIcon from "mdi-react/ChevronDoubleLeftIcon"
 import ChevronDoubleRightIcon from "mdi-react/ChevronDoubleRightIcon"
 import { observer } from "mobx-react-lite"
 import { useCallback, useState } from "react"
-import { Button } from "../../../components/Button"
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from "../../../components/Dialog"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
 import {
@@ -20,6 +13,13 @@ import {
   isEqualControlMode,
 } from "../../stores/ControlStore"
 import { ControlName } from "../ControlPane/ControlName"
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "../Dialog/Dialog"
+import { Button } from "../ui/Button"
 import { DraggableList } from "./DraggableList"
 
 const nonControllerControlModes: ControlMode[] = [

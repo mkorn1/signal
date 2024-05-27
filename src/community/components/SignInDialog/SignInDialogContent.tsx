@@ -4,14 +4,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../components/Dialog"
+} from "../../../main/components/Dialog/Dialog"
 
 import styled from "@emotion/styled"
 import "firebase/auth"
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth"
-import { Button } from "../../../components/Button"
 import { auth } from "../../../firebase/firebase"
 import { StyledFirebaseAuth } from "../../../main/components/FirebaseAuth/StyledFirebaseAuth"
+import { Button } from "../../../main/components/ui/Button"
 import { Localized } from "../../localize/useLocalization"
 
 const BetaLabel = styled.span`

@@ -1,6 +1,5 @@
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useState } from "react"
-import { MenuItem } from "../../../components/Menu"
 import { addTimeSignature, setLoopBegin, setLoopEnd } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { envString } from "../../localize/envString"
@@ -11,6 +10,7 @@ import {
   ContextMenuProps,
   ContextMenuHotKey as HotKey,
 } from "../ContextMenu/ContextMenu"
+import { MenuItem } from "../ui/Menu"
 import { TimeSignatureDialog } from "./TimeSignatureDialog"
 
 export interface RulerContextMenuProps extends ContextMenuProps {

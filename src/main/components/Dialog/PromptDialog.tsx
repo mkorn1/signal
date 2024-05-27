@@ -1,8 +1,13 @@
 import { PromptContext, PromptProps } from "dialog-hooks"
 import { FC, useContext, useState } from "react"
-import { Button } from "./Button"
-import { Dialog, DialogActions, DialogContent, DialogTitle } from "./Dialog"
-import { TextField } from "./TextField"
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "../Dialog/Dialog"
+import { Button } from "../ui/Button"
+import { TextField } from "../ui/TextField"
 
 export const PromptDialog: FC<PromptProps> = (props) => {
   const [input, setInput] = useState(props.initialText)

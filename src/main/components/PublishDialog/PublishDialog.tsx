@@ -4,19 +4,19 @@ import OpenInNewIcon from "mdi-react/OpenInNewIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
 import { useAsyncEffect } from "../../../community/hooks/useAsyncEffect"
-import { Alert } from "../../../components/Alert"
-import { Button, PrimaryButton } from "../../../components/Button"
+import { publishSong, unpublishSong } from "../../actions/cloudSong"
+import { useStores } from "../../hooks/useStores"
+import { useTheme } from "../../hooks/useTheme"
+import { Localized, useLocalization } from "../../localize/useLocalization"
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../components/Dialog"
-import { LinkShare } from "../../../components/LinkShare"
-import { publishSong, unpublishSong } from "../../actions/cloudSong"
-import { useStores } from "../../hooks/useStores"
-import { useTheme } from "../../hooks/useTheme"
-import { Localized, useLocalization } from "../../localize/useLocalization"
+} from "../Dialog/Dialog"
+import { Alert } from "../ui/Alert"
+import { Button, PrimaryButton } from "../ui/Button"
+import { LinkShare } from "../ui/LinkShare"
 
 type PublishState = "publishable" | "published" | "notPublishable"
 

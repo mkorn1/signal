@@ -1,16 +1,16 @@
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useState } from "react"
-import { Alert } from "../../../components/Alert"
-import { Button, PrimaryButton } from "../../../components/Button"
+import { canExport, exportSongAsWav } from "../../actions"
+import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../components/Dialog"
-import { canExport, exportSongAsWav } from "../../actions"
-import { useStores } from "../../hooks/useStores"
-import { Localized } from "../../localize/useLocalization"
+} from "../Dialog/Dialog"
+import { Alert } from "../ui/Alert"
+import { Button, PrimaryButton } from "../ui/Button"
 
 export const ExportDialog: FC = observer(() => {
   const rootStore = useStores()

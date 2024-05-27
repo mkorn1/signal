@@ -1,7 +1,7 @@
 import { FC } from "react"
-import { MenuItem } from "../../../components/Menu"
 import { Localized } from "../../localize/useLocalization"
 import { ContextMenu, ContextMenuProps } from "../ContextMenu/ContextMenu"
+import { MenuItem } from "../ui/Menu"
 
 export type TrackListContextMenuProps = ContextMenuProps & {
   onClickAdd: () => void

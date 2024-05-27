@@ -1,5 +1,4 @@
 import React, { FC, useCallback } from "react"
-import { MenuItem } from "../../../components/Menu"
 import {
   copyControlSelection,
   deleteControlSelection,
@@ -14,6 +13,7 @@ import {
   ContextMenuProps,
   ContextMenuHotKey as HotKey,
 } from "../ContextMenu/ContextMenu"
+import { MenuItem } from "../ui/Menu"
 
 export const ControlSelectionContextMenu: FC<ContextMenuProps> = React.memo(
   (props) => {

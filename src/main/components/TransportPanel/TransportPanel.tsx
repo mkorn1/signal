@@ -7,7 +7,6 @@ import MetronomeIcon from "mdi-react/MetronomeIcon"
 import Stop from "mdi-react/StopIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
-import { CircularProgress } from "../../../components/CircularProgress"
 import {
   fastForwardOneBar,
   playOrPause,
@@ -18,6 +17,7 @@ import {
 import { toggleRecording } from "../../actions/recording"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
+import { CircularProgress } from "../ui/CircularProgress"
 import { Tooltip } from "../ui/Tooltip"
 import { CircleButton } from "./CircleButton"
 import { PlayButton } from "./PlayButton"

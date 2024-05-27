@@ -1,15 +1,15 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
-import { Button } from "../../../components/Button"
+import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../components/Dialog"
-import { useStores } from "../../hooks/useStores"
-import { Localized } from "../../localize/useLocalization"
+} from "../Dialog/Dialog"
+import { Button } from "../ui/Button"
 import { GeneralSettingsView } from "./GeneralSettingsView"
 import { MIDIDeviceView } from "./MIDIDeviceView/MIDIDeviceView"
 import { SettingNavigation, SettingRoute } from "./SettingNavigation"

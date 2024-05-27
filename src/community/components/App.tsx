@@ -1,8 +1,6 @@
-import { DialogProvider, PromptProvider, ToastProvider } from "dialog-hooks"
+import { ToastProvider } from "dialog-hooks"
 import { FC } from "react"
 import { HelmetProvider } from "react-helmet-async"
-import { ActionDialog } from "../../components/ActionDialog"
-import { PromptDialog } from "../../components/PromptDialog"
 import { EmotionThemeProvider } from "../../main/components/Theme/EmotionThemeProvider"
 import { Toast } from "../../main/components/ui/Toast"
 import { StoreContext } from "../hooks/useStores"
@@ -16,12 +14,8 @@ export const App: FC = () => {
       <EmotionThemeProvider>
         <HelmetProvider>
           <ToastProvider component={Toast}>
-            <PromptProvider component={PromptDialog}>
-              <DialogProvider component={ActionDialog}>
-                <GlobalCSS />
-                <RootView />
-              </DialogProvider>
-            </PromptProvider>
+            <GlobalCSS />
+            <RootView />
           </ToastProvider>
         </HelmetProvider>
       </EmotionThemeProvider>

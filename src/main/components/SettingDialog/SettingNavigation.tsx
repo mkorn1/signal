@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
-import { Button } from "../../../components/Button"
 import { Localized } from "../../localize/useLocalization"
+import { Button } from "../ui/Button"
 
 export type SettingRoute = "general" | "midi" | "soundfont"
 const routes: SettingRoute[] = ["general", "midi", "soundfont"]

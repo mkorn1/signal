@@ -1,5 +1,5 @@
 import { FC, useState } from "react"
-import { DialogContent, DialogTitle } from "../components/Dialog"
+import { DialogContent, DialogTitle } from "../main/components/Dialog/Dialog"
 
 import styled from "@emotion/styled"
 import "firebase/auth"

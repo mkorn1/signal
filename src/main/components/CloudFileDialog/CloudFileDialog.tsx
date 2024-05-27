@@ -1,14 +1,14 @@
 import { observer } from "mobx-react-lite"
 import { useCallback } from "react"
-import { Button } from "../../../components/Button"
+import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../components/Dialog"
-import { useStores } from "../../hooks/useStores"
-import { Localized } from "../../localize/useLocalization"
+} from "../Dialog/Dialog"
+import { Button } from "../ui/Button"
 import { CloudFileList } from "./CloudFileList"
 
 export const CloudFileDialog = observer(() => {

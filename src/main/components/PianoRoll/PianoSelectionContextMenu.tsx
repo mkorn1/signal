@@ -1,5 +1,4 @@
 import React, { FC, useCallback } from "react"
-import { MenuDivider, MenuItem } from "../../../components/Menu"
 import {
   copySelection,
   deleteSelection,
@@ -16,6 +15,7 @@ import {
   ContextMenuProps,
   ContextMenuHotKey as HotKey,
 } from "../ContextMenu/ContextMenu"
+import { MenuDivider, MenuItem } from "../ui/Menu"
 
 export const PianoSelectionContextMenu: FC<ContextMenuProps> = React.memo(
   (props) => {

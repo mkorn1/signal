@@ -4,11 +4,11 @@ import { useToast } from "dialog-hooks"
 import RemoveIcon from "mdi-react/RemoveIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
-import { Button } from "../../../components/Button"
-import { CircularProgress } from "../../../components/CircularProgress"
-import { RadioButton } from "../../../components/RadioButton"
 import { useStores } from "../../hooks/useStores"
 import { SoundFontFile } from "../../stores/SoundFontStore"
+import { Button } from "../ui/Button"
+import { CircularProgress } from "../ui/CircularProgress"
+import { RadioButton } from "../ui/RadioButton"
 
 const List = styled.div`
   display: flex;

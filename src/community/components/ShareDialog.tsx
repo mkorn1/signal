@@ -1,14 +1,14 @@
 import { CloudSong } from "@signal-app/api"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { Button } from "../../components/Button"
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../components/Dialog"
-import { LinkShare } from "../../components/LinkShare"
+} from "../../main/components/Dialog/Dialog"
+import { Button } from "../../main/components/ui/Button"
+import { LinkShare } from "../../main/components/ui/LinkShare"
 import { Localized, useLocalization } from "../localize/useLocalization"
 
 export interface ShareDialogProps {
