@@ -8,6 +8,9 @@ const config = (env) => ({
   mode: "production",
   optimization: {
     concatenateModules: false,
+    splitChunks: {
+      chunks: "all",
+    },
   },
   module: {
     rules: [
