@@ -18,7 +18,7 @@
     "package:electron": "npm run build:electron && npm run package:darwin --prefix electron",
     "make:electron": "npm run build:electron && npm run make:mas --prefix electron",
     "make:darwin": "npm run build:electron && npm run make:darwin --prefix electron",
-    "preinstall": "npm run build -w packages/api && npm run build -w packages/dialog-hooks && npm run build -w packages/player && npm run build -w packages/firebaseui-web-react"
+    "postinstall": "npm run build -w packages/api && npm run build -w packages/dialog-hooks && npm run build -w packages/player && npm run build -w packages/firebaseui-web-react"
   },
   "repository": {
     "type": "git",
