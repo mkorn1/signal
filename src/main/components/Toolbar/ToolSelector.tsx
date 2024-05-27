@@ -4,7 +4,7 @@ import PencilIcon from "../../images/icons/pencil.svg"
 import SelectionIcon from "../../images/icons/selection.svg"
 import { Localized } from "../../localize/useLocalization"
 import { PianoRollMouseMode } from "../../stores/PianoRollStore"
-import { Tooltip } from "../Tooltip"
+import { Tooltip } from "../ui/Tooltip"
 import {
   ToolbarButtonGroup,
   ToolbarButtonGroupItem,

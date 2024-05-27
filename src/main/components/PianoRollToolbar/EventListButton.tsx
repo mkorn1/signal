@@ -3,7 +3,7 @@ import { FC, MouseEvent, useCallback } from "react"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
 import { ToolbarButton } from "../Toolbar/ToolbarButton"
-import { Tooltip } from "../Tooltip"
+import { Tooltip } from "../ui/Tooltip"
 
 export const EventListButton: FC = () => {
   const { pianoRollStore } = useStores()

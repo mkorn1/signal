@@ -12,7 +12,7 @@ import TempoIcon from "../../images/icons/tempo.svg"
 import Logo from "../../images/logo-circle.svg"
 import { envString } from "../../localize/envString"
 import { Localized } from "../../localize/useLocalization"
-import { Tooltip } from "../Tooltip"
+import { Tooltip } from "../ui/Tooltip"
 import { FileMenuButton } from "./FileMenuButton"
 import { UserButton } from "./UserButton"
 

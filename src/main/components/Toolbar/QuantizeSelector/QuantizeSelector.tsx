@@ -3,7 +3,7 @@ import FiberManualRecord from "mdi-react/FiberManualRecordIcon"
 import MusicNote from "mdi-react/MusicNoteIcon"
 import React from "react"
 import { Localized } from "../../../localize/useLocalization"
-import { Tooltip } from "../../Tooltip"
+import { Tooltip } from "../../ui/Tooltip"
 import {
   ToolbarButtonGroup,
   ToolbarButtonGroupItem,

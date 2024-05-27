@@ -3,7 +3,7 @@ import Pause from "mdi-react/PauseIcon"
 import PlayArrow from "mdi-react/PlayArrowIcon"
 import { FC } from "react"
 import { Localized } from "../../localize/useLocalization"
-import { Tooltip } from "../Tooltip"
+import { Tooltip } from "../ui/Tooltip"
 import { CircleButton } from "./CircleButton"
 
 export const StyledButton = styled(CircleButton)`

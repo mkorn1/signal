@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import KeyboardTab from "mdi-react/KeyboardTabIcon"
 import { FC } from "react"
 import { Localized } from "../../localize/useLocalization"
-import { Tooltip } from "../Tooltip"
+import { Tooltip } from "../ui/Tooltip"
 import { ToolbarButton } from "./ToolbarButton"
 
 const AutoScrollIcon = styled(KeyboardTab)`

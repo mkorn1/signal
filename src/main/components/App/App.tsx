@@ -18,7 +18,7 @@ import { GlobalKeyboardShortcut } from "../KeyboardShortcut/GlobalKeyboardShortc
 import { RootView } from "../RootView/RootView"
 import { EmotionThemeProvider } from "../Theme/EmotionThemeProvider"
 import { GlobalCSS } from "../Theme/GlobalCSS"
-import { Toast } from "../Toast"
+import { Toast } from "../ui/Toast"
 import { ElectronCallbackHandler } from "./ElectronCallbackHandler"
 import { LocalizationProvider } from "./LocalizationProvider"
 
