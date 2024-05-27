@@ -1,9 +1,9 @@
 import { FC } from "react"
-import { ContextMenu, ContextMenuProps } from "../../../components/ContextMenu"
 import { MenuItem } from "../../../components/Menu"
 import { duplicateTrack, insertTrack, removeTrack } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
+import { ContextMenu, ContextMenuProps } from "../ContextMenu/ContextMenu"
 
 export const ArrangeTrackContextMenu: FC<ContextMenuProps> = (props) => {
   const { handleClose } = props

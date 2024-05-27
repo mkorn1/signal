@@ -1,9 +1,4 @@
 import { FC } from "react"
-import {
-  ContextMenu,
-  ContextMenuProps,
-  ContextMenuHotKey as HotKey,
-} from "../../../components/ContextMenu"
 import { MenuDivider, MenuItem } from "../../../components/Menu"
 import {
   arrangeCopySelection,
@@ -14,6 +9,11 @@ import {
 import { useStores } from "../../hooks/useStores"
 import { envString } from "../../localize/envString"
 import { Localized } from "../../localize/useLocalization"
+import {
+  ContextMenu,
+  ContextMenuProps,
+  ContextMenuHotKey as HotKey,
+} from "../ContextMenu/ContextMenu"
 
 export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
   const { handleClose } = props
