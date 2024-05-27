@@ -1,11 +1,11 @@
 import Color from "color"
 import React, { FC, useCallback, useState } from "react"
-import { noteNameWithOctString } from "../../../common/helpers/noteNumberString"
+import { noteNameWithOctString } from "../../../main/common/helpers/noteNumberString"
 import {
   noteOffMidiEvent,
   noteOnMidiEvent,
-} from "../../../common/midi/MidiEvent"
-import { Theme } from "../../../common/theme/Theme"
+} from "../../../main/common/midi/MidiEvent"
+import { Theme } from "../../../main/common/theme/Theme"
 import { Layout } from "../../Constants"
 import { observeDrag } from "../../helpers/observeDrag"
 import { useStores } from "../../hooks/useStores"

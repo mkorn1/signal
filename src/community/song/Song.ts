@@ -1,6 +1,6 @@
 import { AnyEvent } from "midifile-ts"
-import { addTick } from "../../common/helpers/toTrackEvents"
-import { DistributiveOmit } from "../../common/types"
+import { addTick } from "../../main/common/helpers/toTrackEvents"
+import { DistributiveOmit } from "../../main/common/types"
 import { getEndOfTrack } from "../track/Track"
 
 export type TrackEventOf<T> = DistributiveOmit<T, "deltaTime"> & {

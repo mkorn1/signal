@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
-import { TrackEvent } from "../../../common/track"
+import { TrackEvent } from "../../../main/common/track"
 import { Layout } from "../../Constants"
 import { ControlMark, DisplayEvent } from "./ControlMark"
 

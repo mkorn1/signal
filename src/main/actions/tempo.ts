@@ -1,9 +1,9 @@
 import { maxBy, min, minBy } from "lodash"
-import { isNotUndefined } from "../../common/helpers/array"
-import { isSetTempoEvent } from "../../common/track"
+import { isNotUndefined } from "../../main/common/helpers/array"
+import { isSetTempoEvent } from "../../main/common/track"
 import {
-  isTempoEventsClipboardData,
   TempoEventsClipboardData,
+  isTempoEventsClipboardData,
 } from "../clipboard/clipboardTypes"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"

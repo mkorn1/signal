@@ -7,7 +7,7 @@ import Warning from "mdi-react/AlertIcon"
 import CheckCircle from "mdi-react/CheckCircleIcon"
 import Info from "mdi-react/InformationIcon"
 import { FC, useEffect, useState } from "react"
-import { Theme } from "../common/theme/Theme"
+import { Theme } from "../main/common/theme/Theme"
 import { useTheme } from "../main/hooks/useTheme"
 
 export interface ToastProps {

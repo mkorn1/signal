@@ -7,14 +7,17 @@ import {
   observable,
   observe,
 } from "mobx"
-import { IPoint, IRect, containsPoint } from "../../common/geometry"
-import { isNotUndefined } from "../../common/helpers/array"
-import { filterEventsOverlapScroll } from "../../common/helpers/filterEvents"
-import { getMBTString } from "../../common/measure/mbt"
-import Quantizer from "../../common/quantizer"
-import { Selection, getSelectionBounds } from "../../common/selection/Selection"
-import Track, { TrackEvent, isNoteEvent } from "../../common/track"
-import { NoteCoordTransform } from "../../common/transform"
+import { IPoint, IRect, containsPoint } from "../../main/common/geometry"
+import { isNotUndefined } from "../../main/common/helpers/array"
+import { filterEventsOverlapScroll } from "../../main/common/helpers/filterEvents"
+import { getMBTString } from "../../main/common/measure/mbt"
+import Quantizer from "../../main/common/quantizer"
+import {
+  Selection,
+  getSelectionBounds,
+} from "../../main/common/selection/Selection"
+import Track, { TrackEvent, isNoteEvent } from "../../main/common/track"
+import { NoteCoordTransform } from "../../main/common/transform"
 import { Layout } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
 import RootStore from "./RootStore"

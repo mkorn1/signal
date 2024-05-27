@@ -5,13 +5,13 @@ import { makePersistable } from "mobx-persist-store"
 import {
   ValueEventType,
   isEqualValueEventType,
-} from "../../common/helpers/valueEvent"
-import { ControlSelection } from "../../common/selection/ControlSelection"
+} from "../../main/common/helpers/valueEvent"
+import { ControlSelection } from "../../main/common/selection/ControlSelection"
 import {
   TrackEventOf,
   isControllerEventWithType,
   isPitchBendEvent,
-} from "../../common/track"
+} from "../../main/common/track"
 import PianoRollStore from "./PianoRollStore"
 
 export type ControlMode = { type: "velocity" } | ValueEventType

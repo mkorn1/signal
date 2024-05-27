@@ -1,7 +1,7 @@
 import { SoundFontSynth } from "@signal-app/player"
 import { makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import { basename } from "../../common/helpers/path"
+import { basename } from "../../main/common/helpers/path"
 import { isRunningInElectron } from "../helpers/platform"
 import { IndexedDBStorage } from "../services/IndexedDBStorage"
 

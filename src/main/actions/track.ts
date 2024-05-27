@@ -1,24 +1,24 @@
 import { AnyChannelEvent, AnyEvent, SetTempoEvent } from "midifile-ts"
-import { closedRange } from "../../common/helpers/array"
+import { closedRange } from "../../main/common/helpers/array"
 import {
   ValueEventType,
   createValueEvent,
   isValueEvent,
-} from "../../common/helpers/valueEvent"
+} from "../../main/common/helpers/valueEvent"
 import {
   panMidiEvent,
   programChangeMidiEvent,
   timeSignatureMidiEvent,
   volumeMidiEvent,
-} from "../../common/midi/MidiEvent"
-import Quantizer from "../../common/quantizer"
-import { getMeasureStart } from "../../common/song/selector"
+} from "../../main/common/midi/MidiEvent"
+import Quantizer from "../../main/common/quantizer"
+import { getMeasureStart } from "../../main/common/song/selector"
 import Track, {
   NoteEvent,
   TrackEvent,
   TrackEventOf,
   isNoteEvent,
-} from "../../common/track"
+} from "../../main/common/track"
 import RootStore from "../stores/RootStore"
 import { stopNote } from "./player"
 import {

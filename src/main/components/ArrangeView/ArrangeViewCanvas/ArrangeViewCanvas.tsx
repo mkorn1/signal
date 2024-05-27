@@ -1,7 +1,11 @@
 import { GLCanvas, IPoint, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
-import { containsPoint, pointAdd, pointSub } from "../../../../common/geometry"
+import {
+  containsPoint,
+  pointAdd,
+  pointSub,
+} from "../../../../main/common/geometry"
 import {
   arrangeEndSelection,
   arrangeMoveSelection,

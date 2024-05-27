@@ -1,6 +1,6 @@
-import { IPoint, pointAdd } from "../../../../../common/geometry"
-import { ControlSelection } from "../../../../../common/selection/ControlSelection"
-import { ControlCoordTransform } from "../../../../../common/transform/ControlCoordTransform"
+import { IPoint, pointAdd } from "../../../../../main/common/geometry"
+import { ControlSelection } from "../../../../../main/common/selection/ControlSelection"
+import { ControlCoordTransform } from "../../../../../main/common/transform/ControlCoordTransform"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
 import RootStore from "../../../../stores/RootStore"
 

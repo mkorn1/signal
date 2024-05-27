@@ -4,7 +4,7 @@ import {
   Shader,
   VertexArray,
 } from "@ryohey/webgl-react"
-import { IRect } from "../../../../../common/geometry"
+import { IRect } from "../../../../../main/common/geometry"
 
 export class HorizontalGridBuffer implements Buffer<IRect, "position"> {
   constructor(readonly vertexArray: VertexArray<"position">) {}

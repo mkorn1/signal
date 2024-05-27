@@ -1,11 +1,11 @@
 import { autorun, computed, makeObservable, observable } from "mobx"
-import { IPoint, containsPoint } from "../../common/geometry"
-import Quantizer from "../../common/quantizer"
+import { IPoint, containsPoint } from "../../main/common/geometry"
+import Quantizer from "../../main/common/quantizer"
 import {
   TempoSelection,
   getTempoSelectionBounds,
-} from "../../common/selection/TempoSelection"
-import { TempoCoordTransform } from "../../common/transform"
+} from "../../main/common/selection/TempoSelection"
+import { TempoCoordTransform } from "../../main/common/transform"
 import { Layout } from "../Constants"
 import { DisplayEvent } from "../components/PianoRoll/ControlMark"
 import { transformEvents } from "../components/TempoGraph/transformEvents"

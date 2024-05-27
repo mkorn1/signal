@@ -2,7 +2,7 @@ import { Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { IRect } from "../../../../common/geometry"
+import { IRect } from "../../../../main/common/geometry"
 import { colorToVec4 } from "../../../gl/color"
 import { useTheme } from "../../../hooks/useTheme"
 

@@ -1,5 +1,5 @@
-import { basename } from "../../common/helpers/path"
-import { songFromMidi, songToMidi } from "../../common/midi/midiConversion"
+import { basename } from "../../main/common/helpers/path"
+import { songFromMidi, songToMidi } from "../../main/common/midi/midiConversion"
 import { writeFile } from "../services/fs-helper"
 import RootStore from "../stores/RootStore"
 import { setSong } from "./song"

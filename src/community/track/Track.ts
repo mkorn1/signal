@@ -1,6 +1,6 @@
 import { max } from "lodash"
 import { AnyEvent } from "midifile-ts"
-import { DistributiveOmit } from "../../common/types"
+import { DistributiveOmit } from "../../main/common/types"
 
 export type TrackEventOf<T> = DistributiveOmit<T, "deltaTime"> & {
   tick: number

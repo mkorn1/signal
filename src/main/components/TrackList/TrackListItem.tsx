@@ -6,9 +6,9 @@ import VolumeUp from "mdi-react/VolumeHighIcon"
 import VolumeOff from "mdi-react/VolumeOffIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
-import { categoryEmojis, getCategoryIndex } from "../../../common/midi/GM"
-import { trackColorToCSSColor } from "../../../common/track/TrackColor"
 import { IconButton } from "../../../components/IconButton"
+import { categoryEmojis, getCategoryIndex } from "../../../main/common/midi/GM"
+import { trackColorToCSSColor } from "../../../main/common/track/TrackColor"
 import {
   addTrack,
   removeTrack,

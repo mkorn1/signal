@@ -1,7 +1,7 @@
 import { CloudSong, User } from "@signal-app/api"
-import { basename } from "../../common/helpers/path"
-import { songFromMidi, songToMidi } from "../../common/midi/midiConversion"
-import Song from "../../common/song"
+import { basename } from "../../main/common/helpers/path"
+import { songFromMidi, songToMidi } from "../../main/common/midi/midiConversion"
+import Song from "../../main/common/song"
 import RootStore from "../stores/RootStore"
 
 export const loadSong =

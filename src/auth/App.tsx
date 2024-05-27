@@ -1,5 +1,5 @@
 import { FC } from "react"
-import { defaultTheme } from "../common/theme/Theme"
+import { defaultTheme } from "../main/common/theme/Theme"
 import { EmotionThemeProvider } from "../main/components/Theme/EmotionThemeProvider"
 import { GlobalCSS } from "../main/components/Theme/GlobalCSS"
 import { ThemeContext } from "../main/hooks/useTheme"

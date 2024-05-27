@@ -1,13 +1,13 @@
 import { clamp } from "lodash"
 import { SetTempoEvent } from "midifile-ts"
-import { IPoint, pointAdd, pointSub } from "../../../../common/geometry"
-import { isNotUndefined } from "../../../../common/helpers/array"
+import { IPoint, pointAdd, pointSub } from "../../../../main/common/geometry"
+import { isNotUndefined } from "../../../../main/common/helpers/array"
 import {
   bpmToUSecPerBeat,
   uSecPerBeatToBPM,
-} from "../../../../common/helpers/bpm"
-import { TrackEventOf } from "../../../../common/track"
-import { TempoCoordTransform } from "../../../../common/transform"
+} from "../../../../main/common/helpers/bpm"
+import { TrackEventOf } from "../../../../main/common/track"
+import { TempoCoordTransform } from "../../../../main/common/transform"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"

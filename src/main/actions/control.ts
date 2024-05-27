@@ -1,6 +1,6 @@
 import { maxBy, min, minBy } from "lodash"
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
-import { isNotUndefined } from "../../common/helpers/array"
+import { isNotUndefined } from "../../main/common/helpers/array"
 import {
   ControlEventsClipboardData,
   isControlEventsClipboardData,

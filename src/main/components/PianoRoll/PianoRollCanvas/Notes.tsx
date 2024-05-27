@@ -1,7 +1,7 @@
 import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { trackColorToCSSColor } from "../../../../common/track/TrackColor"
+import { trackColorToCSSColor } from "../../../../main/common/track/TrackColor"
 import { colorToVec4 } from "../../../gl/color"
 import { useStores } from "../../../hooks/useStores"
 import { useTheme } from "../../../hooks/useTheme"

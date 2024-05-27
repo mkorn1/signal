@@ -5,9 +5,6 @@ import difference from "lodash/difference"
 import range from "lodash/range"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
-import { isNotUndefined } from "../../../common/helpers/array"
-import { getCategoryIndex } from "../../../common/midi/GM"
-import { programChangeMidiEvent } from "../../../common/midi/MidiEvent"
 import { Button, PrimaryButton } from "../../../components/Button"
 import { Checkbox } from "../../../components/Checkbox"
 import {
@@ -16,6 +13,9 @@ import {
   DialogContent,
 } from "../../../components/Dialog"
 import { Label } from "../../../components/Label"
+import { isNotUndefined } from "../../../main/common/helpers/array"
+import { getCategoryIndex } from "../../../main/common/midi/GM"
+import { programChangeMidiEvent } from "../../../main/common/midi/MidiEvent"
 import {
   setTrackInstrument as setTrackInstrumentAction,
   startNote,

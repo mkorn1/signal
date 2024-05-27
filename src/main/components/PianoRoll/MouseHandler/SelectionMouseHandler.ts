@@ -1,4 +1,4 @@
-import { IPoint, IRect, pointAdd } from "../../../../common/geometry"
+import { IPoint, IRect, pointAdd } from "../../../../main/common/geometry"
 import {
   cloneSelection,
   fixSelection,

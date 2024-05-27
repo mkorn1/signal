@@ -4,8 +4,8 @@ import { IPoint } from "@ryohey/webgl-react"
 import { clamp } from "lodash"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useRef } from "react"
-import { pointAdd, pointSub } from "../../../common/geometry"
-import { ArrangePoint } from "../../../common/transform/ArrangePoint"
+import { pointAdd, pointSub } from "../../../main/common/geometry"
+import { ArrangePoint } from "../../../main/common/transform/ArrangePoint"
 import { Layout, WHEEL_SCROLL_RATE } from "../../Constants"
 import {
   arrangeEndSelection,

@@ -1,5 +1,5 @@
-import { IPoint, pointAdd } from "../../../../common/geometry"
-import { NoteEvent, isNoteEvent } from "../../../../common/track"
+import { IPoint, pointAdd } from "../../../../main/common/geometry"
+import { NoteEvent, isNoteEvent } from "../../../../main/common/track"
 import {
   addNoteToSelection,
   createNote,

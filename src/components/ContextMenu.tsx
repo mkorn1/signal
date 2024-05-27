@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import * as Portal from "@radix-ui/react-portal"
 import { FC, ReactNode, useEffect } from "react"
-import { IPoint } from "../common/geometry"
+import { IPoint } from "../main/common/geometry"
 
 export const ContextMenuHotKey = styled.div`
   font-size: 0.9em;

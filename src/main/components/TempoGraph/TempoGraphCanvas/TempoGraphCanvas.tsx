@@ -1,11 +1,11 @@
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { CSSProperties, FC, useCallback, useMemo } from "react"
-import { IPoint } from "../../../../common/geometry"
+import { IPoint } from "../../../../main/common/geometry"
 import {
   bpmToUSecPerBeat,
   uSecPerBeatToBPM,
-} from "../../../../common/helpers/bpm"
+} from "../../../../main/common/helpers/bpm"
 import { changeTempo } from "../../../actions"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { useStores } from "../../../hooks/useStores"

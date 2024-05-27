@@ -1,16 +1,19 @@
 import { min } from "lodash"
 import cloneDeep from "lodash/cloneDeep"
-import { intersects } from "../../common/geometry"
-import { isNotNull, isNotUndefined } from "../../common/helpers/array"
-import { tickToMillisec } from "../../common/helpers/bpm"
+import { intersects } from "../../main/common/geometry"
+import { isNotNull, isNotUndefined } from "../../main/common/helpers/array"
+import { tickToMillisec } from "../../main/common/helpers/bpm"
 import {
   Selection,
   clampSelection,
   movedSelection,
   regularizedSelection,
-} from "../../common/selection/Selection"
-import { NoteEvent, TrackEvent, isNoteEvent } from "../../common/track"
-import { NotePoint, clampNotePoint } from "../../common/transform/NotePoint"
+} from "../../main/common/selection/Selection"
+import { NoteEvent, TrackEvent, isNoteEvent } from "../../main/common/track"
+import {
+  NotePoint,
+  clampNotePoint,
+} from "../../main/common/transform/NotePoint"
 import {
   PianoNotesClipboardData,
   isPianoNotesClipboardData,

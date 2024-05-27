@@ -1,16 +1,16 @@
 import mapValues from "lodash/mapValues"
-import { isNotUndefined } from "../../common/helpers/array"
-import {
-  ArrangeSelection,
-  arrangeSelectionFromPoints,
-  movedSelection,
-} from "../../common/selection/ArrangeSelection"
-import Track from "../../common/track"
-import { ArrangePoint } from "../../common/transform/ArrangePoint"
 import {
   ArrangeNotesClipboardData,
   isArrangeNotesClipboardData,
 } from "../clipboard/clipboardTypes"
+import { isNotUndefined } from "../common/helpers/array"
+import {
+  ArrangeSelection,
+  arrangeSelectionFromPoints,
+  movedSelection,
+} from "../common/selection/ArrangeSelection"
+import Track from "../common/track"
+import { ArrangePoint } from "../common/transform/ArrangePoint"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import { pushHistory } from "./history"

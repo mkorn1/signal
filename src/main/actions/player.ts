@@ -1,4 +1,7 @@
-import { noteOffMidiEvent, noteOnMidiEvent } from "../../common/midi/MidiEvent"
+import {
+  noteOffMidiEvent,
+  noteOnMidiEvent,
+} from "../../main/common/midi/MidiEvent"
 import RootStore from "../stores/RootStore"
 
 export const playOrPause =

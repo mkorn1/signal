@@ -1,7 +1,7 @@
 import { GLNode, useProjectionMatrix } from "@ryohey/webgl-react"
 import { vec4 } from "gl-matrix"
 import { FC } from "react"
-import { IRect } from "../../../../common/geometry"
+import { IRect } from "../../../../main/common/geometry"
 import { INoteData, NoteBuffer, NoteShader } from "./shaders/NoteShader"
 
 export interface NoteRectanglesProps {

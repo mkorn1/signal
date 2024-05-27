@@ -2,7 +2,7 @@ import { BorderedRectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { vec4 } from "gl-matrix"
 import { FC } from "react"
-import { IRect } from "../../../common/geometry"
+import { IRect } from "../../../main/common/geometry"
 import { colorToVec4 } from "../../gl/color"
 import { useTheme } from "../../hooks/useTheme"
 

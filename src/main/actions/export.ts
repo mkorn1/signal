@@ -1,7 +1,7 @@
 import { renderAudio } from "@signal-app/player"
 import { encode } from "wav-encoder"
-import { downloadBlob } from "../../common/helpers/Downloader"
-import Song from "../../common/song"
+import { downloadBlob } from "../../main/common/helpers/Downloader"
+import Song from "../../main/common/song"
 import RootStore from "../stores/RootStore"
 
 const waitForAnimationFrame = () =>

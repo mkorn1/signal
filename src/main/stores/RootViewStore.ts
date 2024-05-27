@@ -1,5 +1,5 @@
 import { makeObservable, observable } from "mobx"
-import { TrackEvent } from "../../common/track"
+import { TrackEvent } from "../../main/common/track"
 
 export default class RootViewStore {
   isArrangeViewSelected: boolean = false

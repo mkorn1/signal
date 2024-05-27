@@ -1,8 +1,8 @@
-import { isNotNull } from "../../common/helpers/array"
-import { downloadSongAsMidi } from "../../common/midi/midiConversion"
-import Song, { emptySong } from "../../common/song"
-import { emptyTrack, isNoteEvent } from "../../common/track"
-import { clampNoteNumber } from "../../common/transform/NotePoint"
+import { isNotNull } from "../../main/common/helpers/array"
+import { downloadSongAsMidi } from "../../main/common/midi/midiConversion"
+import Song, { emptySong } from "../../main/common/song"
+import { emptyTrack, isNoteEvent } from "../../main/common/track"
+import { clampNoteNumber } from "../../main/common/transform/NotePoint"
 import RootStore from "../stores/RootStore"
 import { songFromFile } from "./file"
 

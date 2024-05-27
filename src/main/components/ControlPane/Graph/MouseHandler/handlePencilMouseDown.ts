@@ -1,9 +1,9 @@
-import { IPoint, pointAdd, pointSub } from "../../../../../common/geometry"
+import { IPoint, pointAdd, pointSub } from "../../../../../main/common/geometry"
 import {
   ValueEventType,
   createValueEvent,
-} from "../../../../../common/helpers/valueEvent"
-import { ControlCoordTransform } from "../../../../../common/transform/ControlCoordTransform"
+} from "../../../../../main/common/helpers/valueEvent"
+import { ControlCoordTransform } from "../../../../../main/common/transform/ControlCoordTransform"
 import {
   createEvent as createTrackEvent,
   updateValueEvents,

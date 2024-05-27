@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import useComponentSize from "@rehooks/component-size"
 import ArrowDropUp from "mdi-react/ArrowDropUpIcon"
 import React, { FC, useRef } from "react"
-import { IPoint } from "../../../common/geometry"
+import { IPoint } from "../../../main/common/geometry"
 import { observeDrag, observeDrag2 } from "../../helpers/observeDrag"
 
 export const BAR_WIDTH = 17
