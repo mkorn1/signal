@@ -23,7 +23,7 @@ module.exports = (env) => ({
     ],
   },
   resolve: {
-    modules: ["src", "node_modules", "src/main", "src/common"],
+    modules: ["src", "node_modules"],
     extensions: [".js", ".jsx", ".ts", ".tsx"],
   },
   plugins: [
