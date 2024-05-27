@@ -1,10 +1,10 @@
 import styled from "@emotion/styled"
 import { FC, useCallback } from "react"
-import { Tooltip } from "../../../components/Tooltip"
 import PencilIcon from "../../images/icons/pencil.svg"
 import SelectionIcon from "../../images/icons/selection.svg"
 import { Localized } from "../../localize/useLocalization"
 import { PianoRollMouseMode } from "../../stores/PianoRollStore"
+import { Tooltip } from "../Tooltip"
 import {
   ToolbarButtonGroup,
   ToolbarButtonGroupItem,

@@ -8,7 +8,6 @@ import Stop from "mdi-react/StopIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
 import { CircularProgress } from "../../../components/CircularProgress"
-import { Tooltip } from "../../../components/Tooltip"
 import {
   fastForwardOneBar,
   playOrPause,
@@ -19,6 +18,7 @@ import {
 import { toggleRecording } from "../../actions/recording"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
+import { Tooltip } from "../Tooltip"
 import { CircleButton } from "./CircleButton"
 import { PlayButton } from "./PlayButton"
 import { TempoForm } from "./TempoForm"

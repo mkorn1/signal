@@ -2,8 +2,8 @@ import styled from "@emotion/styled"
 import FiberManualRecord from "mdi-react/FiberManualRecordIcon"
 import MusicNote from "mdi-react/MusicNoteIcon"
 import React from "react"
-import { Tooltip } from "../../../../components/Tooltip"
 import { Localized } from "../../../localize/useLocalization"
+import { Tooltip } from "../../Tooltip"
 import {
   ToolbarButtonGroup,
   ToolbarButtonGroupItem,
