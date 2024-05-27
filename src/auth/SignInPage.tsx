@@ -4,9 +4,9 @@ import styled from "@emotion/styled"
 import "firebase/auth"
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth"
 import { auth } from "../firebase/firebase"
-import { StyledFirebaseAuth } from "../main/components/FirebaseAuth/StyledFirebaseAuth"
 import { Localized } from "../main/localize/useLocalization"
 import { SignInSuccessPage } from "./SignInSuccessPage"
+import { StyledFirebaseAuth } from "./StyledFirebaseAuth"
 
 const Title = styled.div`
   font-size: 1.25rem;

@@ -5,9 +5,9 @@ import styled from "@emotion/styled"
 import "firebase/auth"
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth"
 import { auth } from "../../../firebase/firebase"
-import { StyledFirebaseAuth } from "../../../main/components/FirebaseAuth/StyledFirebaseAuth"
 import { Localized } from "../../localize/useLocalization"
 import { Button } from "../Button"
+import { StyledFirebaseAuth } from "../StyledFirebaseAuth"
 
 const BetaLabel = styled.span`
   border: 1px solid currentColor;
