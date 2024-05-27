@@ -18,7 +18,7 @@
     "package:electron": "npm run build:electron && npm run package:darwin --prefix electron",
     "make:electron": "npm run build:electron && npm run make:mas --prefix electron",
     "make:darwin": "npm run build:electron && npm run make:darwin --prefix electron",
-    "preinstall": "npm run build -w packages/api && npm run build -w packages/dialog-hooks && npm run build -w packages/player"
+    "preinstall": "npm run build -w packages/api && npm run build -w packages/dialog-hooks && npm run build -w packages/player && npm run build -w packages/firebaseui-web-react"
   },
   "repository": {
     "type": "git",
@@ -49,12 +49,12 @@
     "@ryohey/webgl-react": "^0.4.2",
     "@sentry/browser": "^8.2.1",
     "@sentry/react": "^8.2.1",
+    "@signal-app/firebaseui-web-react": "^0.0.1",
     "@signal-app/player": "^0.0.1",
     "@types/react": "^18.3.2",
     "color": "^4.2.3",
     "dialog-hooks": "^0.0.1",
     "firebase": "^10.12.1",
-    "firebaseui": "^6.1.0",
     "gl-matrix": "^3.4.3",
     "lodash": "^4.17.21",
     "mdi-react": "^9.4.0",
