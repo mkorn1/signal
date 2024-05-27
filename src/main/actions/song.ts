@@ -1,9 +1,9 @@
-import { isNotNull } from "../../main/common/helpers/array"
-import { downloadSongAsMidi } from "../../main/common/midi/midiConversion"
-import Song, { emptySong } from "../../main/common/song"
-import { emptyTrack, isNoteEvent } from "../../main/common/track"
-import { clampNoteNumber } from "../../main/common/transform/NotePoint"
+import { isNotNull } from "../helpers/array"
+import { downloadSongAsMidi } from "../midi/midiConversion"
+import Song, { emptySong } from "../song"
 import RootStore from "../stores/RootStore"
+import { emptyTrack, isNoteEvent } from "../track"
+import { clampNoteNumber } from "../transform/NotePoint"
 import { songFromFile } from "./file"
 
 const openSongFile = async (input: HTMLInputElement): Promise<Song | null> => {

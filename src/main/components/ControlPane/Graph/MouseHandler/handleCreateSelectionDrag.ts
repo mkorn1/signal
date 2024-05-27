@@ -1,8 +1,8 @@
-import { IPoint, pointAdd } from "../../../../../main/common/geometry"
-import { ControlSelection } from "../../../../../main/common/selection/ControlSelection"
-import { ControlCoordTransform } from "../../../../../main/common/transform/ControlCoordTransform"
+import { IPoint, pointAdd } from "../../../../geometry"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
+import { ControlSelection } from "../../../../selection/ControlSelection"
 import RootStore from "../../../../stores/RootStore"
+import { ControlCoordTransform } from "../../../../transform/ControlCoordTransform"
 
 export const handleCreateSelectionDrag =
   (rootStore: RootStore) =>

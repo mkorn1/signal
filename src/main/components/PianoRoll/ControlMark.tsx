@@ -1,8 +1,8 @@
 import styled from "@emotion/styled"
 import { ControllerEvent, ProgramChangeEvent } from "midifile-ts"
 import { FC } from "react"
-import { controllerTypeString as CCNames } from "../../../main/common/helpers/noteNumberString"
-import { TrackEventRequired } from "../../../main/common/track"
+import { controllerTypeString as CCNames } from "../../helpers/noteNumberString"
+import { TrackEventRequired } from "../../track"
 
 export type DisplayEvent = TrackEventRequired &
   (ControllerEvent | ProgramChangeEvent)

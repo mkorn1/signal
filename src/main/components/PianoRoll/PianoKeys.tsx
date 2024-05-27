@@ -1,15 +1,12 @@
 import Color from "color"
 import React, { FC, useCallback, useState } from "react"
-import { noteNameWithOctString } from "../../../main/common/helpers/noteNumberString"
-import {
-  noteOffMidiEvent,
-  noteOnMidiEvent,
-} from "../../../main/common/midi/MidiEvent"
-import { Theme } from "../../../main/common/theme/Theme"
 import { Layout } from "../../Constants"
+import { noteNameWithOctString } from "../../helpers/noteNumberString"
 import { observeDrag } from "../../helpers/observeDrag"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
+import { noteOffMidiEvent, noteOnMidiEvent } from "../../midi/MidiEvent"
+import { Theme } from "../../theme/Theme"
 import DrawCanvas from "../DrawCanvas"
 
 // 0: white, 1: black

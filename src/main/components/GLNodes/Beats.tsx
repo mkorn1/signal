@@ -2,9 +2,9 @@ import { Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { partition } from "lodash"
 import { FC } from "react"
-import { IRect } from "../../../main/common/geometry"
-import { BeatWithX } from "../../../main/common/helpers/mapBeats"
+import { IRect } from "../../geometry"
 import { colorToVec4 } from "../../gl/color"
+import { BeatWithX } from "../../helpers/mapBeats"
 import { useTheme } from "../../hooks/useTheme"
 
 export const Beats: FC<{

@@ -2,16 +2,13 @@ import { cloneDeep } from "lodash"
 import { ControllerEvent, MIDIControlEvents, PitchBendEvent } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
-import {
-  ValueEventType,
-  isEqualValueEventType,
-} from "../../main/common/helpers/valueEvent"
-import { ControlSelection } from "../../main/common/selection/ControlSelection"
+import { ValueEventType, isEqualValueEventType } from "../helpers/valueEvent"
+import { ControlSelection } from "../selection/ControlSelection"
 import {
   TrackEventOf,
   isControllerEventWithType,
   isPitchBendEvent,
-} from "../../main/common/track"
+} from "../track"
 import PianoRollStore from "./PianoRollStore"
 
 export type ControlMode = { type: "velocity" } | ValueEventType

@@ -1,4 +1,4 @@
-import { IRect } from "../../../main/common/geometry"
+import { IRect } from "../../geometry"
 
 export interface TempoGraphItem {
   id: number

@@ -4,8 +4,6 @@ import { IPoint } from "@ryohey/webgl-react"
 import { clamp } from "lodash"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useRef } from "react"
-import { pointAdd, pointSub } from "../../../main/common/geometry"
-import { ArrangePoint } from "../../../main/common/transform/ArrangePoint"
 import { Layout, WHEEL_SCROLL_RATE } from "../../Constants"
 import {
   arrangeEndSelection,
@@ -13,12 +11,14 @@ import {
   arrangeStartSelection,
   selectTrack,
 } from "../../actions"
+import { pointAdd, pointSub } from "../../geometry"
 import { getClientPos } from "../../helpers/mouseEvent"
 import { observeDrag } from "../../helpers/observeDrag"
 import { isTouchPadEvent } from "../../helpers/touchpad"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
+import { ArrangePoint } from "../../transform/ArrangePoint"
 import CanvasPianoRuler from "../PianoRoll/CanvasPianoRuler"
 import { TrackName } from "../TrackList/TrackName"
 import {

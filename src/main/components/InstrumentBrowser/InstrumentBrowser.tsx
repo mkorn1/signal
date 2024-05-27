@@ -13,16 +13,16 @@ import {
   DialogContent,
 } from "../../../components/Dialog"
 import { Label } from "../../../components/Label"
-import { isNotUndefined } from "../../../main/common/helpers/array"
-import { getCategoryIndex } from "../../../main/common/midi/GM"
-import { programChangeMidiEvent } from "../../../main/common/midi/MidiEvent"
 import {
   setTrackInstrument as setTrackInstrumentAction,
   startNote,
   stopNote,
 } from "../../actions"
+import { isNotUndefined } from "../../helpers/array"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
+import { getCategoryIndex } from "../../midi/GM"
+import { programChangeMidiEvent } from "../../midi/MidiEvent"
 import { FancyCategoryName } from "../TrackList/CategoryName"
 import { InstrumentName } from "../TrackList/InstrumentName"
 import { SelectBox } from "./SelectBox"

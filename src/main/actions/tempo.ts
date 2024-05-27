@@ -1,12 +1,12 @@
 import { maxBy, min, minBy } from "lodash"
-import { isNotUndefined } from "../../main/common/helpers/array"
-import { isSetTempoEvent } from "../../main/common/track"
 import {
   TempoEventsClipboardData,
   isTempoEventsClipboardData,
 } from "../clipboard/clipboardTypes"
+import { isNotUndefined } from "../helpers/array"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
+import { isSetTempoEvent } from "../track"
 
 export const deleteTempoSelection =
   ({

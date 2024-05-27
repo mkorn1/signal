@@ -2,16 +2,12 @@ import { GLCanvas, IPoint, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import {
-  containsPoint,
-  pointAdd,
-  pointSub,
-} from "../../../../main/common/geometry"
-import {
   arrangeEndSelection,
   arrangeMoveSelection,
   arrangeResizeSelection,
   arrangeStartSelection,
 } from "../../../actions"
+import { containsPoint, pointAdd, pointSub } from "../../../geometry"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"

@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
-import { TrackEvent } from "../../../main/common/track"
 import { Layout } from "../../Constants"
+import { TrackEvent } from "../../track"
 import { ControlMark, DisplayEvent } from "./ControlMark"
 
 /// 重なって表示されないようにひとつのイベントとしてまとめる

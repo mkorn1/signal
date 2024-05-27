@@ -1,4 +1,3 @@
-import { IPoint, IRect, pointAdd } from "../../../../main/common/geometry"
 import {
   cloneSelection,
   fixSelection,
@@ -8,6 +7,7 @@ import {
   resizeSelectionRight,
   startSelection,
 } from "../../../actions"
+import { IPoint, IRect, pointAdd } from "../../../geometry"
 import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"
 import { MouseGesture } from "./NoteMouseHandler"

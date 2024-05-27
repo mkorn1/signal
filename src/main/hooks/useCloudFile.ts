@@ -1,10 +1,10 @@
 import { useDialog, useProgress, usePrompt, useToast } from "dialog-hooks"
 import { ChangeEvent } from "react"
-import { emptySong } from "../../main/common/song"
 import { openSong, saveSong, setSong } from "../actions"
 import { createSong, updateSong } from "../actions/cloudSong"
 import { hasFSAccess, openFile, saveFileAs } from "../actions/file"
 import { useLocalization } from "../localize/useLocalization"
+import { emptySong } from "../song"
 import { useStores } from "./useStores"
 
 export const useCloudFile = () => {

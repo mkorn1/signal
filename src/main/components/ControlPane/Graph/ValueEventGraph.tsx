@@ -1,8 +1,8 @@
 import { MIDIControlEvents } from "midifile-ts"
 import { observer } from "mobx-react-lite"
 import React, { FC, useMemo } from "react"
-import { ISize } from "../../../../main/common/geometry"
-import { ValueEventType } from "../../../../main/common/helpers/valueEvent"
+import { ISize } from "../../../geometry"
+import { ValueEventType } from "../../../helpers/valueEvent"
 import { useStores } from "../../../hooks/useStores"
 import LineGraphControl from "../LineGraph/LineGraph"
 

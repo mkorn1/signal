@@ -1,5 +1,3 @@
-import { IPoint, pointAdd } from "../../../../main/common/geometry"
-import { NoteEvent, isNoteEvent } from "../../../../main/common/track"
 import {
   addNoteToSelection,
   createNote,
@@ -15,9 +13,11 @@ import {
   startSelection,
   stopNote,
 } from "../../../actions"
+import { IPoint, pointAdd } from "../../../geometry"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import RootStore from "../../../stores/RootStore"
+import { NoteEvent, isNoteEvent } from "../../../track"
 import { MouseGesture } from "./NoteMouseHandler"
 
 export const getPencilActionForMouseDown =

@@ -1,17 +1,17 @@
-import { IPoint, pointAdd, pointSub } from "../../../../../main/common/geometry"
-import {
-  ValueEventType,
-  createValueEvent,
-} from "../../../../../main/common/helpers/valueEvent"
-import { ControlCoordTransform } from "../../../../../main/common/transform/ControlCoordTransform"
 import {
   createEvent as createTrackEvent,
   updateValueEvents,
 } from "../../../../actions"
 import { pushHistory } from "../../../../actions/history"
+import { IPoint, pointAdd, pointSub } from "../../../../geometry"
 import { getClientPos } from "../../../../helpers/mouseEvent"
 import { observeDrag } from "../../../../helpers/observeDrag"
+import {
+  ValueEventType,
+  createValueEvent,
+} from "../../../../helpers/valueEvent"
 import RootStore from "../../../../stores/RootStore"
+import { ControlCoordTransform } from "../../../../transform/ControlCoordTransform"
 
 export const handlePencilMouseDown =
   (rootStore: RootStore) =>

@@ -2,9 +2,9 @@ import { BorderedCircles, Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { partition } from "lodash"
 import { FC } from "react"
-import { IPoint, IRect } from "../../../../main/common/geometry"
-import { joinObjects } from "../../../../main/common/helpers/array"
+import { IPoint, IRect } from "../../../geometry"
 import { colorToVec4 } from "../../../gl/color"
+import { joinObjects } from "../../../helpers/array"
 import { useTheme } from "../../../hooks/useTheme"
 
 export interface LineGraphItemsProps {

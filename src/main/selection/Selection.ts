@@ -1,5 +1,5 @@
 import cloneDeep from "lodash/cloneDeep"
-import { MaxNoteNumber } from "../../main/Constants"
+import { MaxNoteNumber } from "../Constants"
 import { IRect } from "../geometry"
 import { NoteCoordTransform } from "../transform"
 import { clampNotePoint, NotePoint } from "../transform/NotePoint"

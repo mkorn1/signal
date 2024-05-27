@@ -1,10 +1,10 @@
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
-import { IPoint } from "../../../../../main/common/geometry"
-import { ValueEventType } from "../../../../../main/common/helpers/valueEvent"
-import { TrackEventOf } from "../../../../../main/common/track"
-import { ControlCoordTransform } from "../../../../../main/common/transform/ControlCoordTransform"
+import { IPoint } from "../../../../geometry"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
+import { ValueEventType } from "../../../../helpers/valueEvent"
 import RootStore from "../../../../stores/RootStore"
+import { TrackEventOf } from "../../../../track"
+import { ControlCoordTransform } from "../../../../transform/ControlCoordTransform"
 
 export const handleSelectionDragEvents =
   ({ controlStore, controlStore: { selectedTrack }, pushHistory }: RootStore) =>

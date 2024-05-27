@@ -1,25 +1,22 @@
 import { min } from "lodash"
 import cloneDeep from "lodash/cloneDeep"
-import { intersects } from "../../main/common/geometry"
-import { isNotNull, isNotUndefined } from "../../main/common/helpers/array"
-import { tickToMillisec } from "../../main/common/helpers/bpm"
+import {
+  PianoNotesClipboardData,
+  isPianoNotesClipboardData,
+} from "../clipboard/clipboardTypes"
+import { intersects } from "../geometry"
+import { isNotNull, isNotUndefined } from "../helpers/array"
+import { tickToMillisec } from "../helpers/bpm"
 import {
   Selection,
   clampSelection,
   movedSelection,
   regularizedSelection,
-} from "../../main/common/selection/Selection"
-import { NoteEvent, TrackEvent, isNoteEvent } from "../../main/common/track"
-import {
-  NotePoint,
-  clampNotePoint,
-} from "../../main/common/transform/NotePoint"
-import {
-  PianoNotesClipboardData,
-  isPianoNotesClipboardData,
-} from "../clipboard/clipboardTypes"
+} from "../selection/Selection"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
+import { NoteEvent, TrackEvent, isNoteEvent } from "../track"
+import { NotePoint, clampNotePoint } from "../transform/NotePoint"
 import { startNote, stopNote } from "./player"
 import { transposeNotes } from "./song"
 

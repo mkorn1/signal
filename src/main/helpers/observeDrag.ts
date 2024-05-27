@@ -1,4 +1,4 @@
-import { IPoint, pointSub } from "../../main/common/geometry"
+import { IPoint, pointSub } from "../geometry"
 import { getClientPos } from "./mouseEvent"
 
 export interface DragHandler {

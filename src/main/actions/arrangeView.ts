@@ -3,16 +3,16 @@ import {
   ArrangeNotesClipboardData,
   isArrangeNotesClipboardData,
 } from "../clipboard/clipboardTypes"
-import { isNotUndefined } from "../common/helpers/array"
+import { isNotUndefined } from "../helpers/array"
 import {
   ArrangeSelection,
   arrangeSelectionFromPoints,
   movedSelection,
-} from "../common/selection/ArrangeSelection"
-import Track from "../common/track"
-import { ArrangePoint } from "../common/transform/ArrangePoint"
+} from "../selection/ArrangeSelection"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
+import Track from "../track"
+import { ArrangePoint } from "../transform/ArrangePoint"
 import { pushHistory } from "./history"
 import { transposeNotes } from "./song"
 

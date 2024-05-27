@@ -1,12 +1,9 @@
 import { computed, makeObservable, observable } from "mobx"
-import { filterEventsWithScroll } from "../../main/common/helpers/filterEvents"
-import {
-  BeatWithX,
-  createBeatsWithXInRange,
-} from "../../main/common/helpers/mapBeats"
-import Quantizer from "../../main/common/quantizer"
-import Song from "../../main/common/song"
-import { isTimeSignatureEvent } from "../../main/common/track"
+import { filterEventsWithScroll } from "../helpers/filterEvents"
+import { BeatWithX, createBeatsWithXInRange } from "../helpers/mapBeats"
+import Quantizer from "../quantizer"
+import Song from "../song"
+import { isTimeSignatureEvent } from "../track"
 
 interface CoordTransform {
   pixelsPerTick: number

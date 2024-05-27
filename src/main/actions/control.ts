@@ -1,10 +1,10 @@
 import { maxBy, min, minBy } from "lodash"
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
-import { isNotUndefined } from "../../main/common/helpers/array"
 import {
   ControlEventsClipboardData,
   isControlEventsClipboardData,
 } from "../clipboard/clipboardTypes"
+import { isNotUndefined } from "../helpers/array"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 

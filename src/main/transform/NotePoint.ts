@@ -1,4 +1,4 @@
-import { MaxNoteNumber } from "../../main/Constants"
+import { MaxNoteNumber } from "../Constants"
 
 export interface NotePoint {
   tick: number

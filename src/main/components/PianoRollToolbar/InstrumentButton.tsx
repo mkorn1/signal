@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
-import { categoryEmojis, getCategoryIndex } from "../../../main/common/midi/GM"
 import { useStores } from "../../hooks/useStores"
+import { categoryEmojis, getCategoryIndex } from "../../midi/GM"
 import { ToolbarButton } from "../Toolbar/ToolbarButton"
 import { TrackInstrumentName } from "../TrackList/InstrumentName"
 

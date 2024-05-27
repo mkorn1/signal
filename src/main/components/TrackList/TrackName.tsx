@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import Track from "../../../main/common/track/Track"
 import { Localized } from "../../localize/useLocalization"
+import Track from "../../track/Track"
 
 // Display the track number if there is no name track name for display
 export const TrackName: FC<{ track: Track }> = observer(({ track }) => {

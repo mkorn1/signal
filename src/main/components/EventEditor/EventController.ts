@@ -1,5 +1,5 @@
-import { controllerTypeString } from "../../../main/common/helpers/noteNumberString"
-import { TrackEvent } from "../../../main/common/track"
+import { controllerTypeString } from "../../helpers/noteNumberString"
+import { TrackEvent } from "../../track"
 
 export type EventInputProp =
   | {

@@ -10,7 +10,6 @@ import { FC, useEffect } from "react"
 import { FirebaseCredential } from "../../../../electron/src/ipc"
 import { ElectronAPI } from "../../../../electron/src/preload"
 import { auth } from "../../../firebase/firebase"
-import { songToMidi } from "../../../main/common/midi/midiConversion"
 import { setSong } from "../../actions"
 import { songFromArrayBuffer } from "../../actions/file"
 import { redo, undo } from "../../actions/history"
@@ -23,6 +22,7 @@ import { useCloudFile } from "../../hooks/useCloudFile"
 import { useSongFile } from "../../hooks/useSongFile"
 import { useStores } from "../../hooks/useStores"
 import { useLocalization } from "../../localize/useLocalization"
+import { songToMidi } from "../../midi/midiConversion"
 
 declare global {
   interface Window {

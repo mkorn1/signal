@@ -7,8 +7,6 @@ import VolumeOff from "mdi-react/VolumeOffIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
 import { IconButton } from "../../../components/IconButton"
-import { categoryEmojis, getCategoryIndex } from "../../../main/common/midi/GM"
-import { trackColorToCSSColor } from "../../../main/common/track/TrackColor"
 import {
   addTrack,
   removeTrack,
@@ -20,6 +18,8 @@ import {
 } from "../../actions"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
+import { categoryEmojis, getCategoryIndex } from "../../midi/GM"
+import { trackColorToCSSColor } from "../../track/TrackColor"
 import { ColorPicker } from "../ColorPicker/ColorPicker"
 import { TrackInstrumentName } from "./InstrumentName"
 import { TrackDialog } from "./TrackDialog"

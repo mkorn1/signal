@@ -4,7 +4,7 @@ import {
   Shader,
   VertexArray,
 } from "@ryohey/webgl-react"
-import { IRect } from "../../../../../main/common/geometry"
+import { IRect } from "../../../../geometry"
 
 export interface INoteData {
   velocity: number

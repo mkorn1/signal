@@ -1,5 +1,5 @@
 import { SetTempoEvent } from "midifile-ts"
-import { NoteEvent, TrackEvent, TrackEventOf } from "../../main/common/track"
+import { NoteEvent, TrackEvent, TrackEventOf } from "../track"
 
 export interface PianoNotesClipboardData {
   type: "piano_notes"

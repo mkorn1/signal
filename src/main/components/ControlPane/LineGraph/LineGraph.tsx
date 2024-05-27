@@ -1,18 +1,15 @@
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { observer } from "mobx-react-lite"
 import React, { MouseEventHandler, useCallback, useMemo } from "react"
-import { IPoint, containsPoint } from "../../../../main/common/geometry"
-import { filterEventsWithRange } from "../../../../main/common/helpers/filterEvents"
-import {
-  ValueEventType,
-  createValueEvent,
-} from "../../../../main/common/helpers/valueEvent"
-import { TrackEventOf } from "../../../../main/common/track"
-import { ControlCoordTransform } from "../../../../main/common/transform/ControlCoordTransform"
 import { createOrUpdateControlEventsValue } from "../../../actions/control"
+import { IPoint, containsPoint } from "../../../geometry"
+import { filterEventsWithRange } from "../../../helpers/filterEvents"
+import { ValueEventType, createValueEvent } from "../../../helpers/valueEvent"
 import { useContextMenu } from "../../../hooks/useContextMenu"
 import { useStores } from "../../../hooks/useStores"
 import { pointToCircleRect } from "../../../stores/TempoEditorStore"
+import { TrackEventOf } from "../../../track"
+import { ControlCoordTransform } from "../../../transform/ControlCoordTransform"
 import { ControlSelectionContextMenu } from "../ControlSelectionContextMenu"
 import { handleCreateSelectionDrag } from "../Graph/MouseHandler/handleCreateSelectionDrag"
 import { handlePencilMouseDown } from "../Graph/MouseHandler/handlePencilMouseDown"

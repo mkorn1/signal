@@ -1,4 +1,4 @@
-import { IPoint } from "../../main/common/geometry"
+import { IPoint } from "../geometry"
 
 export const getClientPos = (e: MouseEvent): IPoint => ({
   x: e.clientX,
