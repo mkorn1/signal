@@ -2,9 +2,9 @@ import { CloudSong } from "@signal-app/api"
 import { useToast } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
-import { CircularProgress } from "../../main/components/ui/CircularProgress"
 import { useAsyncEffect } from "../hooks/useAsyncEffect"
 import { useStores } from "../hooks/useStores"
+import { CircularProgress } from "./CircularProgress"
 import { SongList } from "./SongList"
 
 export interface UserSongListProps {

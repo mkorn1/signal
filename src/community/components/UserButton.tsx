@@ -5,9 +5,9 @@ import { observer } from "mobx-react-lite"
 import { CSSProperties, useRef } from "react"
 import { useLocation } from "wouter"
 import { auth } from "../../firebase/firebase"
-import { Menu, MenuItem } from "../../main/components/ui/Menu"
 import { useStores } from "../hooks/useStores"
 import { Localized } from "../localize/useLocalization"
+import { Menu, MenuItem } from "./Menu"
 
 const IconStyle: CSSProperties = {
   width: "1.3rem",
