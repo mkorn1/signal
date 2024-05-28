@@ -1,7 +1,7 @@
 import { DistributiveOmit } from "@emotion/react"
 import { AnyEvent } from "midifile-ts"
-import { addTick } from "../helpers/addTick"
-import { getEndOfTrack } from "../track/Track"
+import { addTick } from "../helpers/addTick.js"
+import { getEndOfTrack } from "../track/Track.js"
 
 export type TrackEventOf<T> = DistributiveOmit<T, "deltaTime"> & {
   tick: number

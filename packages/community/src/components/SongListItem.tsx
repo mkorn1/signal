@@ -1,15 +1,15 @@
 import styled from "@emotion/styled"
 import { CloudSong } from "@signal-app/api"
 import { useToast } from "dialog-hooks"
-import Circle from "mdi-react/CircleIcon"
-import Pause from "mdi-react/PauseIcon"
-import PlayArrow from "mdi-react/PlayArrowIcon"
+import Circle from "mdi-react/CircleIcon.js"
+import Pause from "mdi-react/PauseIcon.js"
+import PlayArrow from "mdi-react/PlayArrowIcon.js"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { playSong } from "../actions/song"
-import { formatTimeAgo } from "../helpers/formatTimeAgo"
-import { useStores } from "../hooks/useStores"
-import { Localized } from "../localize/useLocalization"
+import { playSong } from "../actions/song.js"
+import { formatTimeAgo } from "../helpers/formatTimeAgo.js"
+import { useStores } from "../hooks/useStores.js"
+import { Localized } from "../localize/useLocalization.js"
 
 const Content = styled.div`
   display: flex;

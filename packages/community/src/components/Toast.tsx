@@ -2,12 +2,12 @@ import { keyframes, useTheme } from "@emotion/react"
 import styled from "@emotion/styled"
 import * as Portal from "@radix-ui/react-portal"
 import { ToastSeverity } from "dialog-hooks"
-import Error from "mdi-react/AlertCircleIcon"
-import Warning from "mdi-react/AlertIcon"
-import CheckCircle from "mdi-react/CheckCircleIcon"
-import Info from "mdi-react/InformationIcon"
+import Error from "mdi-react/AlertCircleIcon.js"
+import Warning from "mdi-react/AlertIcon.js"
+import CheckCircle from "mdi-react/CheckCircleIcon.js"
+import Info from "mdi-react/InformationIcon.js"
 import { FC, useEffect, useState } from "react"
-import { Theme } from "../theme/Theme"
+import { Theme } from "../theme/Theme.js"
 
 export interface ToastProps {
   message: string

@@ -1,5 +1,5 @@
 import { AnyEvent } from "midifile-ts"
-import { DistributiveOmit } from "../types"
+import { DistributiveOmit } from "../types.js"
 
 export type TrackEventOf<T> = DistributiveOmit<T, "deltaTime"> & {
   tick: number

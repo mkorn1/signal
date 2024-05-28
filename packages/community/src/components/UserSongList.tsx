@@ -2,10 +2,10 @@ import { CloudSong } from "@signal-app/api"
 import { useToast } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
-import { useAsyncEffect } from "../hooks/useAsyncEffect"
-import { useStores } from "../hooks/useStores"
-import { CircularProgress } from "./CircularProgress"
-import { SongList } from "./SongList"
+import { useAsyncEffect } from "../hooks/useAsyncEffect.js"
+import { useStores } from "../hooks/useStores.js"
+import { CircularProgress } from "./CircularProgress.js"
+import { SongList } from "./SongList.js"
 
 export interface UserSongListProps {
   userId: string

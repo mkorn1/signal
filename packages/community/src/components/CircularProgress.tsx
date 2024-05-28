@@ -1,5 +1,5 @@
 import { useTheme } from "@emotion/react"
-import NinetyRingWithBg from "@ryohey/react-svg-spinners/dist/NinetyRingWithBg"
+import NinetyRingWithBg from "@ryohey/react-svg-spinners/dist/NinetyRingWithBg.js"
 import { FC } from "react"
 
 export interface CircularProgressProps {

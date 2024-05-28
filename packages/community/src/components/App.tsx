@@ -2,12 +2,12 @@ import { ThemeProvider } from "@emotion/react"
 import { ToastProvider } from "dialog-hooks"
 import { FC } from "react"
 import { HelmetProvider } from "react-helmet-async"
-import { Toast } from "../components/Toast"
-import { StoreContext } from "../hooks/useStores"
-import RootStore from "../stores/RootStore"
-import { defaultTheme } from "../theme/Theme"
-import { GlobalCSS } from "./GlobalCSS"
-import { RootView } from "./RootView"
+import { Toast } from "../components/Toast.js"
+import { StoreContext } from "../hooks/useStores.js"
+import RootStore from "../stores/RootStore.js"
+import { defaultTheme } from "../theme/Theme.js"
+import { GlobalCSS } from "./GlobalCSS.js"
+import { RootView } from "./RootView.js"
 
 export const App: FC = () => {
   return (

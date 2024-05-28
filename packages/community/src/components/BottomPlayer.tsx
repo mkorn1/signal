@@ -1,14 +1,14 @@
 import styled from "@emotion/styled"
 import { useToast } from "dialog-hooks"
-import SkipNext from "mdi-react/SkipNextIcon"
-import SkipPrevious from "mdi-react/SkipPreviousIcon"
+import SkipNext from "mdi-react/SkipNextIcon.js"
+import SkipPrevious from "mdi-react/SkipPreviousIcon.js"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { playNextSong, playPreviousSong } from "../actions/song"
-import { useStores } from "../hooks/useStores"
-import { BottomPlayerSong } from "./BottomPlayerSong"
-import { CircleButton } from "./CircleButton"
-import { PlayButton } from "./PlayButton"
+import { playNextSong, playPreviousSong } from "../actions/song.js"
+import { useStores } from "../hooks/useStores.js"
+import { BottomPlayerSong } from "./BottomPlayerSong.js"
+import { CircleButton } from "./CircleButton.js"
+import { PlayButton } from "./PlayButton.js"
 
 const Wrapper = styled.div`
   border-top: 1px solid ${({ theme }) => theme.dividerColor};

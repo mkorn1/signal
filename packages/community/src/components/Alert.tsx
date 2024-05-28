@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
-import Warning from "mdi-react/AlertIcon"
-import Info from "mdi-react/InformationIcon"
+import Warning from "mdi-react/AlertIcon.js"
+import Info from "mdi-react/InformationIcon.js"
 import { CSSProperties, FC } from "react"
 
 const Wrapper = styled.div`

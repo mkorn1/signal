@@ -1,7 +1,7 @@
 import { CloudSong, ICloudSongRepository } from "@signal-app/api"
 import { SoundFontSynth } from "@signal-app/player"
-import debounce from "lodash/debounce"
-import RootStore from "../stores/RootStore"
+import debounce from "lodash/debounce.js"
+import RootStore from "../stores/RootStore.js"
 
 const debouncedIncrementPlayCount = debounce(
   (cloudSongRepository: ICloudSongRepository, songId: string) =>

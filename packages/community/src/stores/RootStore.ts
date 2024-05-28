@@ -4,12 +4,12 @@ import {
   createUserRepository,
 } from "@signal-app/api"
 import { Player, SoundFontSynth } from "@signal-app/player"
-import { auth, firestore } from "../firebase/firebase"
-import { EventSource } from "../services/EventSource"
-import { AuthStore } from "./AuthStore"
-import { CommunitySongStore } from "./CommunitySongStore"
-import RootViewStore from "./RootViewStore"
-import { SongStore } from "./SongStore"
+import { auth, firestore } from "../firebase/firebase.js"
+import { EventSource } from "../services/EventSource.js"
+import { AuthStore } from "./AuthStore.js"
+import { CommunitySongStore } from "./CommunitySongStore.js"
+import RootViewStore from "./RootViewStore.js"
+import { SongStore } from "./SongStore.js"
 
 export default class RootStore {
   readonly userRepository = createUserRepository(firestore, auth)

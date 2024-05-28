@@ -1,13 +1,13 @@
 import styled from "@emotion/styled"
 import Color from "color"
-import AccountCircle from "mdi-react/AccountCircleIcon"
+import AccountCircle from "mdi-react/AccountCircleIcon.js"
 import { observer } from "mobx-react-lite"
 import { CSSProperties, useRef } from "react"
 import { useLocation } from "wouter"
-import { auth } from "../firebase/firebase"
-import { useStores } from "../hooks/useStores"
-import { Localized } from "../localize/useLocalization"
-import { Menu, MenuItem } from "./Menu"
+import { auth } from "../firebase/firebase.js"
+import { useStores } from "../hooks/useStores.js"
+import { Localized } from "../localize/useLocalization.js"
+import { Menu, MenuItem } from "./Menu.js"
 
 const IconStyle: CSSProperties = {
   width: "1.3rem",

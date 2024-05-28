@@ -15,7 +15,7 @@ import {
   WhatsappShareButton,
   XIcon,
 } from "react-share"
-import { CopyTextForm } from "./CopyTextForm"
+import { CopyTextForm } from "./CopyTextForm.js"
 
 export interface LinkShareProps {
   url: string

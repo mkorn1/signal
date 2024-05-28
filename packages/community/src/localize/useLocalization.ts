@@ -1,5 +1,5 @@
 import { createLocalization } from "use-l10n"
-import localization from "./localization"
+import localization from "./localization.js"
 
 export const {
   LocalizationContext,

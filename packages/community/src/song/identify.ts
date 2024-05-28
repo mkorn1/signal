@@ -7,7 +7,7 @@ import {
   SetTempoEvent,
   TimeSignatureEvent,
 } from "midifile-ts"
-import { TrackEvent, TrackEventOf } from "./Song"
+import { TrackEvent, TrackEventOf } from "./Song.js"
 
 export const isProgramChangeEvent = (
   e: TrackEvent,

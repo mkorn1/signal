@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     "baseUrl": "./src",
+    "outDir": "./dist",
     "sourceMap": true,
+    "declaration": true,
     "target": "esnext",
     "module": "esnext",
     "esModuleInterop": true,
     "jsx": "react-jsx",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
     "lib": ["es2019", "dom"],
@@ -15,6 +17,7 @@
     "useDefineForClassFields": true,
     "resolveJsonModule": true,
     "strict": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*"]
 }

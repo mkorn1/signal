@@ -4,19 +4,19 @@ import {
   PlayerEventOf,
   SendableEvent,
 } from "@signal-app/player"
-import maxBy from "lodash/maxBy"
-import uniq from "lodash/uniq"
+import maxBy from "lodash/maxBy.js"
+import uniq from "lodash/uniq.js"
 import { AnyChannelEvent } from "midifile-ts"
-import { isNotUndefined } from "../helpers/array"
-import { filterEventsWithRange } from "../helpers/filterEvents"
-import { Song, TrackEvent } from "../song/Song"
+import { isNotUndefined } from "../helpers/array.js"
+import { filterEventsWithRange } from "../helpers/filterEvents.js"
+import { Song, TrackEvent } from "../song/Song.js"
 import {
   isControllerEvent,
   isControllerEventWithType,
   isPitchBendEvent,
   isProgramChangeEvent,
   isSetTempoEvent,
-} from "../song/identify"
+} from "../song/identify.js"
 
 export class EventSource implements IEventSource {
   constructor(private readonly songProvider: { song: Song }) {}

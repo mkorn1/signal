@@ -1,11 +1,11 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { Route } from "wouter"
-import { EditProfilePage } from "../pages/EditProfilePage"
-import { HomePage } from "../pages/HomePage"
-import { SongPage } from "../pages/SongPage"
-import { UserPage } from "../pages/UserPage"
-import { SignInDialog } from "./SignInDialog/SignInDialog"
+import { EditProfilePage } from "../pages/EditProfilePage.js"
+import { HomePage } from "../pages/HomePage.js"
+import { SongPage } from "../pages/SongPage.js"
+import { UserPage } from "../pages/UserPage.js"
+import { SignInDialog } from "./SignInDialog/SignInDialog.js"
 
 const Routes: FC = observer(() => {
   return (

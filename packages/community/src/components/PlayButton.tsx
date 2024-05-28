@@ -1,8 +1,8 @@
 import styled from "@emotion/styled"
-import Pause from "mdi-react/PauseIcon"
-import PlayArrow from "mdi-react/PlayArrowIcon"
+import Pause from "mdi-react/PauseIcon.js"
+import PlayArrow from "mdi-react/PlayArrowIcon.js"
 import { FC } from "react"
-import { CircleButton } from "./CircleButton"
+import { CircleButton } from "./CircleButton.js"
 
 export const StyledButton = styled(CircleButton)`
   background: ${({ theme }) => theme.themeColor};

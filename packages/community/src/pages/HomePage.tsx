@@ -1,7 +1,7 @@
 import { FC } from "react"
-import { RecentSongList } from "../components/RecentSongList"
-import { PageLayout, PageTitle } from "../layouts/PageLayout"
-import { Localized } from "../localize/useLocalization"
+import { RecentSongList } from "../components/RecentSongList.js"
+import { PageLayout, PageTitle } from "../layouts/PageLayout.js"
+import { Localized } from "../localize/useLocalization.js"
 
 export const HomePage: FC = () => {
   return (

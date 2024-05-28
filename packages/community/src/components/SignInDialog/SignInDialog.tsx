@@ -1,9 +1,9 @@
 import { useToast } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
-import { useStores } from "../../hooks/useStores"
-import { useLocalization } from "../../localize/useLocalization"
-import { SignInDialogContent } from "./SignInDialogContent"
+import { useStores } from "../../hooks/useStores.js"
+import { useLocalization } from "../../localize/useLocalization.js"
+import { SignInDialogContent } from "./SignInDialogContent.js"
 
 export const SignInDialog: FC = observer(() => {
   const rootStore = useStores()

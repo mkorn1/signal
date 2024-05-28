@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import { CloudSong } from "@signal-app/api"
 import { FC } from "react"
 import { Link } from "wouter"
-import { Localized } from "../localize/useLocalization"
+import { Localized } from "../localize/useLocalization.js"
 
 const Avatar = styled.img`
   border: 1px ${({ theme }) => theme.dividerColor} solid;
