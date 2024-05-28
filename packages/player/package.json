@@ -6,7 +6,7 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "vite build"
+    "build": "tsc"
   },
   "author": "ryohey",
   "license": "MIT",
@@ -16,8 +16,7 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "vite": "^5.2.11",
-    "vite-plugin-dts": "^3.9.1"
+    "typescript": "^5.4.5"
   },
   "dependencies": {
     "@ryohey/wavelet": "^0.7.1"

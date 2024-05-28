@@ -1,4 +1,4 @@
-import { tickToMillisec } from "./tick"
+import { tickToMillisec } from "./tick.js"
 
 export type SchedulableEvent = {
   tick: number

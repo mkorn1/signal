@@ -1,5 +1,5 @@
 import { SynthEvent, getSampleEventsFromSoundFont } from "@ryohey/wavelet"
-import { SendableEvent, SynthOutput } from "./SynthOutput"
+import { SendableEvent, SynthOutput } from "./SynthOutput.js"
 
 export class SoundFontSynth implements SynthOutput {
   private synth: AudioWorkletNode | null = null

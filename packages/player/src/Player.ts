@@ -1,12 +1,12 @@
-import range from "lodash/range"
-import throttle from "lodash/throttle"
+import range from "lodash/range.js"
+import throttle from "lodash/throttle.js"
 import { AnyEvent, MIDIControlEvents } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
-import { EventScheduler } from "./EventScheduler"
-import { controllerMidiEvent } from "./MidiEventFactory"
-import { PlayerEvent } from "./PlayerEvent"
-import { SendableEvent, SynthOutput } from "./SynthOutput"
-import { DistributiveOmit } from "./types"
+import { EventScheduler } from "./EventScheduler.js"
+import { controllerMidiEvent } from "./MidiEventFactory.js"
+import { PlayerEvent } from "./PlayerEvent.js"
+import { SendableEvent, SynthOutput } from "./SynthOutput.js"
+import { DistributiveOmit } from "./types.js"
 
 export interface LoopSetting {
   begin: number

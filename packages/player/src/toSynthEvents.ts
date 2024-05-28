@@ -1,6 +1,6 @@
 import { SynthEvent } from "@ryohey/wavelet"
-import { PlayerEvent } from "./PlayerEvent"
-import { tickToMillisec } from "./tick"
+import { PlayerEvent } from "./PlayerEvent.js"
+import { tickToMillisec } from "./tick.js"
 
 interface Keyframe {
   tick: number

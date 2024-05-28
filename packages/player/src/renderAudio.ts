@@ -3,8 +3,8 @@ import {
   getSampleEventsFromSoundFont,
   renderAudio as render,
 } from "@ryohey/wavelet"
-import { PlayerEvent } from "./PlayerEvent"
-import { toSynthEvents } from "./toSynthEvents"
+import { PlayerEvent } from "./PlayerEvent.js"
+import { toSynthEvents } from "./toSynthEvents.js"
 
 export const renderAudio = async (
   soundFontData: ArrayBuffer,

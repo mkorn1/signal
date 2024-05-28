@@ -1,5 +1,5 @@
 import { AnyChannelEvent } from "midifile-ts"
-import { DistributiveOmit } from "./types"
+import { DistributiveOmit } from "./types.js"
 
 export type SendableEvent = DistributiveOmit<AnyChannelEvent, "deltaTime">
 
