@@ -8,7 +8,7 @@ module.exports = (env) => ({
   entry: {
     browserMain: "./src/main/index.tsx",
     browserAuth: "./src/auth/index.tsx",
-    browserCommunity: "./src/community/index.tsx",
+    browserCommunity: "./src/community.tsx",
   },
   output: {
     filename: "[name]-[chunkhash].js",

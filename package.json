@@ -18,7 +18,7 @@
     "package:electron": "npm run build:electron && npm run package:darwin --prefix electron",
     "make:electron": "npm run build:electron && npm run make:mas --prefix electron",
     "make:darwin": "npm run build:electron && npm run make:darwin --prefix electron",
-    "postinstall": "npm run build -w packages/api && npm run build -w packages/dialog-hooks && npm run build -w packages/player && npm run build -w packages/firebaseui-web-react"
+    "postinstall": "npm run build --workspaces"
   },
   "repository": {
     "type": "git",
@@ -49,11 +49,12 @@
     "@ryohey/webgl-react": "^0.4.2",
     "@sentry/browser": "^8.2.1",
     "@sentry/react": "^8.2.1",
-    "@signal-app/firebaseui-web-react": "^0.0.1",
-    "@signal-app/player": "^0.0.1",
-    "@types/react": "^18.3.2",
+    "@signal-app/api": "*",
+    "@signal-app/community": "*",
+    "@signal-app/firebaseui-web-react": "*",
+    "@signal-app/player": "*",
     "color": "^4.2.3",
-    "dialog-hooks": "^0.0.1",
+    "dialog-hooks": "*",
     "firebase": "^10.12.1",
     "gl-matrix": "^3.4.3",
     "lodash": "^4.17.21",
@@ -69,8 +70,7 @@
     "react-window": "^1.8.10",
     "serializr": "^3.0.2",
     "use-l10n": "^0.0.4",
-    "wav-encoder": "^1.3.0",
-    "wouter": "^3.1.3"
+    "wav-encoder": "^1.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
@@ -84,6 +84,7 @@
     "@types/jest": "29.5.12",
     "@types/lodash": "^4.17.4",
     "@types/node": "20.12.12",
+    "@types/react": "^18.3.2",
     "@types/react-dom": "^18.3.0",
     "@types/react-helmet": "6.1.11",
     "@types/react-window": "^1.8.8",

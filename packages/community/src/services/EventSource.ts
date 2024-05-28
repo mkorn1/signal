@@ -7,8 +7,8 @@ import {
 import { maxBy } from "lodash"
 import uniq from "lodash/uniq"
 import { AnyChannelEvent } from "midifile-ts"
-import { isNotUndefined } from "../../main/helpers/array"
-import { filterEventsWithRange } from "../../main/helpers/filterEvents"
+import { isNotUndefined } from "../helpers/array"
+import { filterEventsWithRange } from "../helpers/filterEvents"
 import { Song, TrackEvent } from "../song/Song"
 import {
   isControllerEvent,

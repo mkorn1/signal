@@ -4,7 +4,7 @@ import { onAuthStateChanged } from "firebase/auth"
 import * as firebaseui from "firebaseui"
 import { useEffect, useRef, useState } from "react"
 
-interface Props {
+export interface Props {
   // The Firebase UI Web UI Config object.
   // See: https://github.com/firebase/firebaseui-web#configuration
   uiConfig: firebaseui.auth.Config

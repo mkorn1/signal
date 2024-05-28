@@ -2,8 +2,7 @@ import styled from "@emotion/styled"
 import { useToast } from "dialog-hooks"
 import OpenInNewIcon from "mdi-react/OpenInNewIcon"
 import { observer } from "mobx-react-lite"
-import { FC, useCallback, useState } from "react"
-import { useAsyncEffect } from "../../../community/hooks/useAsyncEffect"
+import { FC, useCallback, useEffect, useState } from "react"
 import { publishSong, unpublishSong } from "../../actions/cloudSong"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
@@ -31,21 +30,23 @@ export const PublishDialog: FC = observer(() => {
   const theme = useTheme()
   const localized = useLocalization()
 
-  useAsyncEffect(async () => {
-    if (open) {
-      setIsLoading(true)
-      const cloudSongId = rootStore.song.cloudSongId
-      if (cloudSongId === null) {
-        setPublishState("notPublishable")
+  useEffect(() => {
+    ;(async () => {
+      if (open) {
+        setIsLoading(true)
+        const cloudSongId = rootStore.song.cloudSongId
+        if (cloudSongId === null) {
+          setPublishState("notPublishable")
+          setIsLoading(false)
+          return
+        }
+        const cloudSong = await cloudSongRepository.get(cloudSongId)
+        cloudSong?.isPublic
+          ? setPublishState("published")
+          : setPublishState("publishable")
         setIsLoading(false)
-        return
       }
-      const cloudSong = await cloudSongRepository.get(cloudSongId)
-      cloudSong?.isPublic
-        ? setPublishState("published")
-        : setPublishState("publishable")
-      setIsLoading(false)
-    }
+    })()
   }, [open])
 
   const onClose = useCallback(

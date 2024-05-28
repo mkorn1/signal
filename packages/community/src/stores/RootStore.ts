@@ -4,9 +4,9 @@ import {
   createUserRepository,
 } from "@signal-app/api"
 import { Player, SoundFontSynth } from "@signal-app/player"
-import { auth, firestore } from "../../firebase/firebase"
-import { AuthStore } from "../../main/stores/AuthStore"
+import { auth, firestore } from "../firebase/firebase"
 import { EventSource } from "../services/EventSource"
+import { AuthStore } from "./AuthStore"
 import { CommunitySongStore } from "./CommunitySongStore"
 import RootViewStore from "./RootViewStore"
 import { SongStore } from "./SongStore"
