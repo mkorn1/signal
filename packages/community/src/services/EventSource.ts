@@ -4,7 +4,7 @@ import {
   PlayerEventOf,
   SendableEvent,
 } from "@signal-app/player"
-import { maxBy } from "lodash"
+import maxBy from "lodash/maxBy"
 import uniq from "lodash/uniq"
 import { AnyChannelEvent } from "midifile-ts"
 import { isNotUndefined } from "../helpers/array"
