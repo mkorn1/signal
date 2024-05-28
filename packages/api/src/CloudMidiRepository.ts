@@ -8,7 +8,7 @@ import {
   getDoc,
 } from "firebase/firestore"
 import { Functions, httpsCallable } from "firebase/functions"
-import { ICloudMidiRepository } from "./ICloudMidiRepository"
+import { ICloudMidiRepository } from "./ICloudMidiRepository.js"
 
 export const createCloudMidiRepository = (
   firestore: Firestore,

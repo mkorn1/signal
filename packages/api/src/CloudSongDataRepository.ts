@@ -13,7 +13,7 @@ import {
 import {
   CloudSongData,
   ICloudSongDataRepository,
-} from "./ICloudSongDataRepository"
+} from "./ICloudSongDataRepository.js"
 
 export const createCloudSongDataRepository = (
   firestore: Firestore,

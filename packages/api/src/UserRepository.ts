@@ -13,7 +13,7 @@ import {
   runTransaction,
   where,
 } from "firebase/firestore"
-import { AuthUser, IUserRepository, User } from "./IUserRepository"
+import { AuthUser, IUserRepository, User } from "./IUserRepository.js"
 
 export const createUserRepository = (
   firestore: Firestore,

@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
     "baseUrl": "./src",
+    "outDir": "./dist",
     "sourceMap": true,
+    "declaration": true,
     "target": "esnext",
     "module": "esnext",
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
     "lib": ["es2019", "dom"],

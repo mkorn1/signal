@@ -16,10 +16,10 @@ import {
   serverTimestamp,
   where,
 } from "firebase/firestore"
-import { songDataCollection } from "./CloudSongDataRepository"
-import { CloudSong, ICloudSongRepository } from "./ICloudSongRepository"
-import { User } from "./IUserRepository"
-import { FirestoreUser, convertUser } from "./UserRepository"
+import { songDataCollection } from "./CloudSongDataRepository.js"
+import { CloudSong, ICloudSongRepository } from "./ICloudSongRepository.js"
+import { User } from "./IUserRepository.js"
+import { FirestoreUser, convertUser } from "./UserRepository.js"
 
 export const createCloudSongRepository = (
   firestore: Firestore,
