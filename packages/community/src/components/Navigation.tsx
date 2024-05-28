@@ -4,7 +4,7 @@ import PlusIcon from "mdi-react/PlusIcon"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { Link } from "wouter"
-import LogoWhite from "../images/logo-white.svg"
+import logoWhite from "../images/logo-white.svg"
 import { Localized } from "../localize/useLocalization"
 import { UserButton } from "./UserButton"
 
@@ -68,7 +68,7 @@ export const Navigation: FC = observer(() => {
       <Container>
         <LogoWrapper>
           <Link href="/home">
-            <LogoWhite width={null} height={28} viewBox="16 0 449 120" />
+            <img src={logoWhite} height={28} />
           </Link>
         </LogoWrapper>
         <Right>
