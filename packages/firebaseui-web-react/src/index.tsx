@@ -1,6 +1,6 @@
 // Copy from https://github.com/firebase/firebaseui-web-react/pull/173#issuecomment-1151532176
 
-import { onAuthStateChanged } from "@firebase/auth"
+import { onAuthStateChanged } from "firebase/auth"
 import * as firebaseui from "firebaseui"
 import { useEffect, useRef, useState } from "react"
 
