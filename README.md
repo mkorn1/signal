@@ -43,6 +43,9 @@ By setting these constraints, signal aims to offer a streamlined and distraction
 
 ### Running the Application
 
+> [!NOTE]
+> The first time you run it, you will get a build error, so please run `npm run build` once before running `npm start`.
+
 1. To start the application, run:
    ```sh
    npm start
