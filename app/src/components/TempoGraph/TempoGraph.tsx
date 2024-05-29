@@ -63,6 +63,7 @@ export const TempoGraph: FC = observer(() => {
           position: "absolute",
           top: Layout.rulerHeight,
           left: Layout.keyWidth,
+          background: theme.darkBackgroundColor,
         }}
       />
       <TempoGraphAxis
