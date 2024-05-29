@@ -7,7 +7,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "npm run copy-assets && tsc",
-    "copy-assets": "copyfiles -u 1 src/**/*.svg dist/",
+    "copy-assets": "mkdir -p dist && copyfiles -u 1 src/**/*.svg dist/",
     "dev": "npm run build -- --watch",
     "test": "jest",
     "lint": "prettier --check src",
