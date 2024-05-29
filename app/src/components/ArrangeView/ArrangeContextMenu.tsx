@@ -2,6 +2,7 @@ import { FC } from "react"
 import {
   arrangeCopySelection,
   arrangeDeleteSelection,
+  arrangeDuplicateSelection,
   arrangePasteSelection,
   arrangeTransposeSelection,
 } from "../../actions/arrangeView"
@@ -57,6 +58,17 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
       >
         <Localized name="paste" />
         <HotKey>{envString.cmdOrCtrl}+V</HotKey>
+      </MenuItem>
+      <MenuItem
+        onClick={(e) => {
+          e.stopPropagation()
+          handleClose()
+          arrangeDuplicateSelection(rootStore)()
+        }}
+        disabled={arrangeViewStore.selection === null}
+      >
+        <Localized name="duplicate" />
+        <HotKey>{envString.cmdOrCtrl}+D</HotKey>
       </MenuItem>
       <MenuItem
         onClick={(e) => {
