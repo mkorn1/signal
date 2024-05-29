@@ -42,7 +42,11 @@ export const changeTempo =
 /* events */
 
 export const changeNotesVelocity =
-  ({ pianoRollStore: { selectedTrack }, pushHistory }: RootStore) =>
+  ({
+    pianoRollStore,
+    pianoRollStore: { selectedTrack },
+    pushHistory,
+  }: RootStore) =>
   (noteIds: number[], velocity: number) => {
     if (selectedTrack === undefined) {
       return
@@ -54,6 +58,7 @@ export const changeNotesVelocity =
         velocity: velocity,
       })),
     )
+    pianoRollStore.newNoteVelocity = velocity
   }
 
 export const createEvent =
@@ -172,7 +177,7 @@ export const removeEvent =
 export const createNote =
   ({
     pianoRollStore,
-    pianoRollStore: { quantizer, selectedTrack },
+    pianoRollStore: { quantizer, selectedTrack, newNoteVelocity },
     pushHistory,
     song,
   }: RootStore) =>
@@ -195,7 +200,7 @@ export const createNote =
       subtype: "note",
       noteNumber: noteNumber,
       tick,
-      velocity: 127,
+      velocity: newNoteVelocity,
       duration,
     }
 

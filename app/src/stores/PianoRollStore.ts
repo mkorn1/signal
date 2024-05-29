@@ -64,6 +64,7 @@ export default class PianoRollStore {
   showTrackList = false
   showEventList = false
   openTransposeDialog = false
+  newNoteVelocity = 100
 
   constructor(readonly rootStore: RootStore) {
     this.rulerStore = new RulerStore(this)
@@ -90,6 +91,7 @@ export default class PianoRollStore {
       showTrackList: observable,
       showEventList: observable,
       openTransposeDialog: observable,
+      newNoteVelocity: observable,
       contentWidth: computed,
       contentHeight: computed,
       scrollLeft: computed,
