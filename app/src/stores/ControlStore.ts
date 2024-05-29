@@ -42,39 +42,41 @@ export const isEqualControlMode = (a: ControlMode, b: ControlMode) => {
 
 export type SerializedControlStore = Pick<ControlStore, "controlModes">
 
+export const defaultControlModes: ControlMode[] = [
+  {
+    type: "velocity",
+  },
+  {
+    type: "pitchBend",
+  },
+  {
+    type: "controller",
+    controllerType: MIDIControlEvents.MSB_MAIN_VOLUME,
+  },
+  {
+    type: "controller",
+    controllerType: MIDIControlEvents.MSB_PAN,
+  },
+  {
+    type: "controller",
+    controllerType: MIDIControlEvents.MSB_EXPRESSION,
+  },
+  {
+    type: "controller",
+    controllerType: MIDIControlEvents.SUSTAIN,
+  },
+  {
+    type: "controller",
+    controllerType: MIDIControlEvents.MSB_MODWHEEL,
+  },
+]
+
 export class ControlStore {
   controlMode: ControlMode = { type: "velocity" }
   selection: ControlSelection | null = null
   selectedEventIds: number[] = []
 
-  controlModes: ControlMode[] = [
-    {
-      type: "velocity",
-    },
-    {
-      type: "pitchBend",
-    },
-    {
-      type: "controller",
-      controllerType: MIDIControlEvents.MSB_MAIN_VOLUME,
-    },
-    {
-      type: "controller",
-      controllerType: MIDIControlEvents.MSB_PAN,
-    },
-    {
-      type: "controller",
-      controllerType: MIDIControlEvents.MSB_EXPRESSION,
-    },
-    {
-      type: "controller",
-      controllerType: MIDIControlEvents.SUSTAIN,
-    },
-    {
-      type: "controller",
-      controllerType: MIDIControlEvents.MSB_MODWHEEL,
-    },
-  ]
+  controlModes: ControlMode[] = defaultControlModes
 
   constructor(private readonly pianoRollStore: PianoRollStore) {
     makeObservable(this, {

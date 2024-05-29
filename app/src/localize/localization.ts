@@ -141,6 +141,7 @@ export default {
     scan: "Scan",
     midi: "MIDI",
     "no-files": "No files",
+    "restore-defaults": "Restore Defaults",
     /* MIDI Instrument Categories */
     Piano: "Piano",
     "Chromatic Percussion": "Chromatic Percussion",
@@ -438,6 +439,7 @@ export default {
     scan: "スキャン",
     midi: "MIDI",
     "no-files": "ファイルがありません",
+    "restore-defaults": "デフォルトに戻す",
     /* MIDI Instrument Categories */
     Piano: "ピアノ",
     "Chromatic Percussion": "クロマチック",
@@ -736,6 +738,7 @@ export default {
     scan: "Scan",
     midi: "MIDI",
     "no-files": "No files",
+    "restore-defaults": "Restore Defaults",
     /* MIDI Instrument Categories */
     Piano: "钢琴",
     "Chromatic Percussion": "半音打击乐",
@@ -1032,6 +1035,7 @@ export default {
     scan: "Scan",
     midi: "MIDI",
     "no-files": "No files",
+    "restore-defaults": "Restore Defaults",
     /* MIDI Instrument Categories */
     Piano: "鋼琴",
     "Chromatic Percussion": "固定音高敲擊樂器",

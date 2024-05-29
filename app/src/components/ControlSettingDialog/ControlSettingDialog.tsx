@@ -10,6 +10,7 @@ import { Localized } from "../../localize/useLocalization"
 import {
   ControlMode,
   controlModeKey,
+  defaultControlModes,
   isEqualControlMode,
 } from "../../stores/ControlStore"
 import { ControlName } from "../ControlPane/ControlName"
@@ -139,6 +140,10 @@ export const ControlSettingDialog = observer(() => {
     )
   }
 
+  const onClickRestoreDefaults = () => {
+    controlStore.controlModes = defaultControlModes
+  }
+
   return (
     <Dialog open={open} onOpenChange={onClose} style={{ maxWidth: "40rem" }}>
       <DialogTitle>
@@ -190,6 +195,10 @@ export const ControlSettingDialog = observer(() => {
         </Content>
       </DialogContent>
       <DialogActions>
+        <Button onClick={onClickRestoreDefaults}>
+          <Localized name="restore-defaults" />
+        </Button>
+        <div style={{ flex: 1 }} />
         <Button onClick={onClose}>
           <Localized name="close" />
         </Button>

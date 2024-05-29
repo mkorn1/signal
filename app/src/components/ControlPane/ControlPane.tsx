@@ -53,7 +53,6 @@ const Toolbar = styled.div`
   box-sizing: border-box;
   display: flex;
   margin-left: ${Layout.keyWidth}px;
-  border-left: 1px solid ${({ theme }) => theme.dividerColor};
   height: 2rem;
   flex-shrink: 0;
   overflow-x: auto;
