@@ -8,7 +8,10 @@
   "scripts": {
     "build": "npm run copy-assets && tsc",
     "copy-assets": "copyfiles -u 1 src/**/*.svg dist/",
-    "dev": "npm run build -- --watch"
+    "dev": "npm run build -- --watch",
+    "test": "jest",
+    "lint": "prettier --check src",
+    "format": "prettier --write src"
   },
   "author": "ryohey",
   "license": "MIT",

@@ -8,7 +8,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc -w"
+    "dev": "tsc -w",
+    "lint": "prettier --check src",
+    "format": "prettier --write src"
   },
   "author": "ryohey",
   "license": "MIT",
