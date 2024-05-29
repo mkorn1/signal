@@ -5,7 +5,7 @@
   "scripts": {
     "start": "turbo run dev --parallel",
     "build": "npm run build:app && npm run build:static",
-    "build:app": "turbo build",
+    "build:app": "turbo build && cp -r app/dist dist",
     "build:static": "npm install --prefix static && npm run build --prefix static && cp -r static/out/* dist",
     "serve": "npx http-server dist",
     "test": "turbo test",
