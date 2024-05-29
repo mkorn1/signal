@@ -7,6 +7,7 @@ import {
   arrangeResizeSelection,
   arrangeStartSelection,
 } from "../../../actions"
+import { pushHistory } from "../../../actions/history"
 import { containsPoint, pointAdd, pointSub } from "../../../geometry"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { getClientPos } from "../../../helpers/mouseEvent"
@@ -77,10 +78,17 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
           selectionRect != null && containsPoint(selectionRect, startPosPx)
 
         if (isSelectionSelected) {
+          let isMoved = false
           observeDrag({
             onMouseMove: (e) => {
               const deltaPx = pointSub(getClientPos(e), startClientPos)
               const selectionFromPx = pointAdd(deltaPx, selectionRect)
+
+              if ((deltaPx.x !== 0 || deltaPx.y !== 0) && !isMoved) {
+                isMoved = true
+                pushHistory(rootStore)()
+              }
+
               arrangeMoveSelection(rootStore)(
                 trackTransform.getArrangePoint(selectionFromPx),
               )

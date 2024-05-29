@@ -13,6 +13,7 @@ import {
   startSelection,
   stopNote,
 } from "../../../actions"
+import { pushHistory } from "../../../actions/history"
 import { IPoint, pointAdd } from "../../../geometry"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
@@ -211,6 +212,7 @@ const startDragNote =
 
     let prevNoteNumber = note.noteNumber
     let prevTick = note.tick
+    let isMoved = false
 
     observeDrag2(e, {
       onMouseMove: (_e, delta) => {
@@ -223,6 +225,10 @@ const startDragNote =
         const pitchChanged = noteNumber !== prevNoteNumber
 
         if (pitchChanged || tickChanged) {
+          if (!isMoved) {
+            isMoved = true
+            pushHistory(rootStore)()
+          }
           moveSelectionBy(rootStore)({
             tick: tick - prevTick,
             noteNumber: noteNumber - prevNoteNumber,

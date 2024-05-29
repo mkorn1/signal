@@ -143,7 +143,6 @@ export const moveSelectionBy =
   ({
     pianoRollStore,
     pianoRollStore: { selectedTrack, selection, selectedNoteIds },
-    pushHistory,
   }: RootStore) =>
   (delta: NotePoint) => {
     if (delta.tick === 0 && delta.noteNumber === 0) {
@@ -153,8 +152,6 @@ export const moveSelectionBy =
     if (selectedTrack === undefined) {
       return
     }
-
-    pushHistory()
 
     if (selection !== null) {
       const s = movedSelection(selection, delta.tick, delta.noteNumber)

@@ -110,8 +110,6 @@ export const arrangeMoveSelectionBy =
       return
     }
 
-    pushHistory()
-
     // 選択範囲を移動
     // Move selection range
     const selection = movedSelection(s.selection, delta)
