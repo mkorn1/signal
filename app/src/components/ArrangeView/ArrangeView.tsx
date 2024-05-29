@@ -242,9 +242,9 @@ export const ArrangeView: FC = observer(() => {
             </TrackHeader>
           ))}
         </div>
-        <LeftTopSpace style={{ height: Layout.rulerHeight }} />
         <LeftBottomSpace style={{ height: BAR_WIDTH }} />
       </HeaderList>
+      <LeftTopSpace style={{ height: Layout.rulerHeight }} />
       <div
         style={{
           display: "flex",

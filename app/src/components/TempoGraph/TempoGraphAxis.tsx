@@ -6,7 +6,6 @@ import { TempoCoordTransform } from "../../transform"
 const Container = styled.div`
   position: absolute;
   left: 0;
-  top: 0;
   height: 100%;
   background: ${({ theme }) => theme.backgroundColor};
   pointer-events: none;
@@ -40,10 +39,10 @@ export const TempoGraphAxis: FC<TempoGraphAxisProps> = ({
   offset,
 }) => {
   return (
-    <Container style={{ width }}>
+    <Container style={{ width, top: offset }}>
       <Values>
         {range(30, transform.maxBPM, 30).map((t) => {
-          const top = Math.round(transform.getY(t)) + offset
+          const top = Math.round(transform.getY(t))
           return (
             <div style={{ top }} key={t}>
               {t}
