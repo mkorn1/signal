@@ -164,11 +164,10 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ trackId }) => {
   const onClickGhostTrack: React.MouseEventHandler<HTMLButtonElement> =
     useCallback(
       (e) => {
+        e.stopPropagation()
         if (e.nativeEvent.altKey) {
-          e.stopPropagation()
           toogleAllGhostTracks(rootStore)()
         } else {
-          e.stopPropagation()
           toogleGhostTrack(rootStore)(trackId)
         }
       },
@@ -231,13 +230,13 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ trackId }) => {
             </Instrument>
           </Label>
           <Controls>
-            <ControlButton active={solo} onClick={onClickSolo}>
+            <ControlButton active={solo} onMouseDown={onClickSolo}>
               <Headset />
             </ControlButton>
-            <ControlButton active={mute} onClick={onClickMute}>
+            <ControlButton active={mute} onMouseDown={onClickMute}>
               {mute ? <VolumeOff /> : <VolumeUp />}
             </ControlButton>
-            <ControlButton active={ghostTrack} onClick={onClickGhostTrack}>
+            <ControlButton active={ghostTrack} onMouseDown={onClickGhostTrack}>
               <Layers />
             </ControlButton>
             {channel !== undefined && (
