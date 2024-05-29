@@ -1,0 +1,74 @@
+import { ControllerEvent, PitchBendEvent } from "midifile-ts"
+import { IPoint } from "../../../../geometry"
+import { observeDrag2 } from "../../../../helpers/observeDrag"
+import { ValueEventType } from "../../../../helpers/valueEvent"
+import RootStore from "../../../../stores/RootStore"
+import { TrackEventOf } from "../../../../track"
+import { ControlCoordTransform } from "../../../../transform/ControlCoordTransform"
+
+export const handleSelectionDragEvents =
+  ({ controlStore, controlStore: { selectedTrack }, pushHistory }: RootStore) =>
+  <T extends ControllerEvent | PitchBendEvent>(
+    e: MouseEvent,
+    hitEventId: number,
+    startPoint: IPoint,
+    transform: ControlCoordTransform,
+    type: ValueEventType,
+  ) => {
+    if (selectedTrack === undefined) {
+      return
+    }
+
+    pushHistory()
+
+    if (!controlStore.selectedEventIds.includes(hitEventId)) {
+      controlStore.selectedEventIds = [hitEventId]
+    }
+
+    const controllerEvents = selectedTrack.events
+      .filter((e) => controlStore.selectedEventIds.includes(e.id))
+      .map((e) => ({ ...e }) as unknown as TrackEventOf<T>) // copy
+
+    const draggedEvent = controllerEvents.find((ev) => ev.id === hitEventId)
+    if (draggedEvent === undefined) {
+      return
+    }
+
+    const startValue = transform.getValue(startPoint.y)
+
+    observeDrag2(e, {
+      onMouseMove: (_e, delta) => {
+        const deltaTick = transform.getTicks(delta.x)
+        const offsetTick =
+          draggedEvent.tick +
+          deltaTick -
+          controlStore.quantizer.round(draggedEvent.tick + deltaTick)
+        const quantizedDeltaTick = deltaTick - offsetTick
+
+        const currentValue = transform.getValue(startPoint.y + delta.y)
+        const deltaValue = currentValue - startValue
+
+        selectedTrack.updateEvents(
+          controllerEvents.map((ev) => ({
+            id: ev.id,
+            tick: Math.max(0, Math.floor(ev.tick + quantizedDeltaTick)),
+            value: Math.min(
+              transform.maxValue,
+              Math.max(0, Math.floor(ev.value + deltaValue)),
+            ),
+          })),
+        )
+      },
+
+      onMouseUp: (_e) => {
+        // Find events with the same tick and remove it
+        const controllerEvents = selectedTrack.events.filter((e) =>
+          controlStore.selectedEventIds.includes(e.id),
+        )
+
+        selectedTrack.transaction((it) =>
+          controllerEvents.forEach((e) => it.removeRedundantEvents(e)),
+        )
+      },
+    })
+  }
