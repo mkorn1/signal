@@ -27,6 +27,7 @@ module.exports = (env) => ({
   },
   plugins: [
     new Dotenv({
+      path: path.join(__dirname, "../.env"),
       systemvars: true,
     }),
     new HtmlWebpackPlugin({
