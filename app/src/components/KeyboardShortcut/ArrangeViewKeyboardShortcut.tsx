@@ -2,6 +2,7 @@ import { FC } from "react"
 import {
   arrangeCopySelection,
   arrangeDeleteSelection,
+  arrangeDuplicateSelection,
   arrangePasteSelection,
   arrangeResetSelection,
 } from "../../actions"
@@ -33,6 +34,11 @@ export const ArrangeViewKeyboardShortcut: FC = () => {
         {
           code: "KeyT",
           run: () => (arrangeViewStore.openTransposeDialog = true),
+        },
+        {
+          code: "KeyD",
+          metaKey: true,
+          run: () => arrangeDuplicateSelection(rootStore)(),
         },
       ]}
       onCut={() => {

@@ -7,6 +7,7 @@ import {
   resizeSelectionRight,
   startSelection,
 } from "../../../actions"
+import { pushHistory } from "../../../actions/history"
 import { IPoint, IRect, pointAdd } from "../../../geometry"
 import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"
@@ -123,12 +124,22 @@ const moveSelectionAction =
       cloneSelection(rootStore)()
     }
 
+    let isMoved = false
+
     observeDrag2(e, {
       onMouseMove: (_e, delta) => {
         const position = pointAdd(selectionBounds, delta)
+        const tick = transform.getTicks(position.x)
+        const noteNumber = transform.getNoteNumberFractional(position.y)
+
+        if ((tick !== 0 || noteNumber !== 0) && !isMoved) {
+          isMoved = true
+          pushHistory(rootStore)()
+        }
+
         moveSelection(rootStore)({
-          tick: transform.getTicks(position.x),
-          noteNumber: Math.round(transform.getNoteNumberFractional(position.y)),
+          tick,
+          noteNumber,
         })
       },
     })

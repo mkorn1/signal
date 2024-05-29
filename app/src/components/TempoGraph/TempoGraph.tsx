@@ -5,8 +5,8 @@ import { FC, useCallback, useEffect, useRef } from "react"
 import { Layout } from "../../Constants"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
-import { BAR_WIDTH, HorizontalScrollBar } from "../inputs/ScrollBar"
 import CanvasPianoRuler from "../PianoRoll/CanvasPianoRuler"
+import { BAR_WIDTH, HorizontalScrollBar } from "../inputs/ScrollBar"
 import { TempoGraphAxis } from "./TempoGraphAxis"
 import { TempoGraphCanvas } from "./TempoGraphCanvas/TempoGraphCanvas"
 
@@ -63,6 +63,7 @@ export const TempoGraph: FC = observer(() => {
           position: "absolute",
           top: Layout.rulerHeight,
           left: Layout.keyWidth,
+          background: theme.darkBackgroundColor,
         }}
       />
       <TempoGraphAxis

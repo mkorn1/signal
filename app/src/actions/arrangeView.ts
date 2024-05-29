@@ -110,8 +110,6 @@ export const arrangeMoveSelectionBy =
       return
     }
 
-    pushHistory()
-
     // 選択範囲を移動
     // Move selection range
     const selection = movedSelection(s.selection, delta)
@@ -267,4 +265,48 @@ export const arrangeTransposeSelection =
       deltaPitch,
       rootStore.arrangeViewStore.selectedEventIds,
     )
+  }
+
+export const arrangeDuplicateSelection =
+  ({
+    song: { tracks },
+    arrangeViewStore,
+    arrangeViewStore: { selection, selectedEventIds },
+    pushHistory,
+  }: RootStore) =>
+  () => {
+    if (selection === null) {
+      return
+    }
+
+    pushHistory()
+
+    const deltaTick = selection.toTick - selection.fromTick
+    const addedEventIds: { [key: number]: number[] } = {}
+
+    for (const [trackIndex, eventIds] of Object.entries(selectedEventIds)) {
+      const trackId = parseInt(trackIndex, 10)
+      const track = tracks[trackId]
+      const events = eventIds
+        .map((id) => track.getEventById(id))
+        .filter(isNotUndefined)
+
+      const newEvent = track.addEvents(
+        events.map((e) => ({
+          ...e,
+          tick: e.tick + deltaTick,
+        })),
+      )
+
+      addedEventIds[trackId] = newEvent.map((e) => e.id)
+    }
+
+    arrangeViewStore.selection = {
+      fromTick: selection.fromTick + deltaTick,
+      fromTrackIndex: selection.fromTrackIndex,
+      toTick: selection.toTick + deltaTick,
+      toTrackIndex: selection.toTrackIndex,
+    }
+
+    arrangeViewStore.selectedEventIds = addedEventIds
   }

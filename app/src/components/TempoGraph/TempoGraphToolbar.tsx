@@ -12,6 +12,7 @@ const Title = styled.span`
   font-weight: bold;
   margin-right: 2em;
   font-size: 1rem;
+  margin-left: 0.5rem;
 `
 
 const FlexibleSpacer = styled.div`

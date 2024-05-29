@@ -15,6 +15,7 @@ const Title = styled.div`
   text-overflow: ellipsis;
   max-width: 14rem;
   min-width: 3em;
+  margin-left: 0.5rem;
 `
 
 const FlexibleSpacer = styled.div`
