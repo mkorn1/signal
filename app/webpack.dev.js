@@ -31,7 +31,7 @@ const config = {
         { from: /^\//, to: "/index.html" },
       ],
     },
-    open: true,
+    open: "edit",
   },
   module: {
     rules: [
