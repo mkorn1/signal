@@ -1,7 +1,7 @@
 import AccountCircle from "mdi-react/AccountCircleIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useRef, useState } from "react"
-import { auth } from "../../../firebase/firebase"
+import { auth } from "../.././firebase/firebase"
 import { isRunningInElectron } from "../../helpers/platform"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"

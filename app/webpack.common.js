@@ -6,7 +6,7 @@ const Dotenv = require("dotenv-webpack")
 module.exports = (env) => ({
   context: __dirname,
   entry: {
-    browserMain: "./src/main/index.tsx",
+    browserMain: "./src/index.tsx",
     browserAuth: "./src/auth/index.tsx",
     browserCommunity: "./src/community.tsx",
   },

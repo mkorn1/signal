@@ -1,16 +1,16 @@
 import { FC } from "react"
+import { StyledFirebaseAuth } from "../../auth/StyledFirebaseAuth"
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
 } from "../Dialog/Dialog"
-import { StyledFirebaseAuth } from "../FirebaseAuth/StyledFirebaseAuth"
 
 import styled from "@emotion/styled"
 import "firebase/auth"
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth"
-import { auth } from "../../../firebase/firebase"
+import { auth } from "../.././firebase/firebase"
 import { Localized } from "../../localize/useLocalization"
 import { Alert } from "../ui/Alert"
 import { Button } from "../ui/Button"

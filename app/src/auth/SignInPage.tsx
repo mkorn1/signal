@@ -4,7 +4,7 @@ import styled from "@emotion/styled"
 import "firebase/auth"
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth"
 import { auth } from "../firebase/firebase"
-import { Localized } from "../main/localize/useLocalization"
+import { Localized } from "../localize/useLocalization"
 import { SignInSuccessPage } from "./SignInSuccessPage"
 import { StyledFirebaseAuth } from "./StyledFirebaseAuth"
 

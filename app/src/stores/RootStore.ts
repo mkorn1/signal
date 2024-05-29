@@ -7,7 +7,7 @@ import {
 import { Player, SoundFontSynth } from "@signal-app/player"
 import { makeObservable, observable } from "mobx"
 import { deserialize, serialize } from "serializr"
-import { auth, firestore, functions } from "../../firebase/firebase"
+import { auth, firestore, functions } from ".././firebase/firebase"
 import { pushHistory } from "../actions/history"
 import { isRunningInElectron } from "../helpers/platform"
 import { EventSource } from "../player/EventSource"
