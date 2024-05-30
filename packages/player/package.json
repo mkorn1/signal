@@ -24,6 +24,6 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@ryohey/wavelet": "^0.7.1"
+    "@ryohey/wavelet": "^0.7.2"
   }
 }
