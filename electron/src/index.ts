@@ -7,7 +7,6 @@ import { defaultMenuTemplate } from "./defaultMenu"
 import { Ipc } from "./ipc"
 import { registerIpcMain } from "./ipcMain"
 import { menuTemplate } from "./menu"
-import { authCallbackUrl } from "./scheme"
 
 const isMas = process.mas === true
 
@@ -76,8 +75,10 @@ registerIpcMain({
   onMainWindowClose() {
     mainWindow.destroy()
   },
-  onAuthCallback(url) {
-    handleAuthCallback(url)
+  onAuthCallback(credential) {
+    log.info("electron:event:open-url", "ID Token is received")
+    mainWindow.focus()
+    ipc.send("onBrowserSignInCompleted", { credential })
   },
 })
 
@@ -202,28 +203,6 @@ app.on("browser-window-focus", (_event, window) => {
   const defaultMenu = Menu.buildFromTemplate(defaultMenuTemplate)
   Menu.setApplicationMenu(window === mainWindow ? mainMenu : defaultMenu)
 })
-
-app.on("open-url", (_event, url) => {
-  log.info("electron:event:open-url", url)
-  if (url.startsWith(authCallbackUrl)) {
-    handleAuthCallback(url)
-  }
-})
-
-function handleAuthCallback(url: string) {
-  // get ID token from the URL
-  const urlObj = new URL(url)
-  const credential = urlObj.searchParams.get("credential")
-  if (credential === null) {
-    log.error("electron:event:open-url", "ID Token is missing")
-  } else {
-    log.info("electron:event:open-url", "ID Token is received")
-    mainWindow.focus()
-    ipc.send("onBrowserSignInCompleted", {
-      credential: JSON.parse(credential),
-    })
-  }
-}
 
 function openSupportPage() {
   shell.openExternal("https://signal.vercel.app/support")
