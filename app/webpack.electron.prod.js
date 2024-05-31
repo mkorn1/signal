@@ -4,7 +4,7 @@ const CopyPlugin = require("copy-webpack-plugin")
 const { sentryWebpackPlugin } = require("@sentry/webpack-plugin")
 const WorkboxPlugin = require("workbox-webpack-plugin")
 
-module.exports = {
+module.exports = merge(common, {
   mode: "production",
   optimization: {
     concatenateModules: false,
@@ -32,4 +32,4 @@ module.exports = {
       ],
     }),
   ],
-}
+})
