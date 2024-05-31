@@ -13,8 +13,8 @@
     "format": "turbo format",
     "firebase": "npm --prefix functions run build && firebase emulators:start",
     "firebase:deploy": "firebase deploy",
-    "dev:electron": "concurrently \"npm start -- --env electron --no-open\" \"npm run dev --prefix electron\"",
-    "build:electron": "npm run build -w app -- --env electron && rm -rf electron/dist_renderer && cp -r dist electron/dist_renderer",
+    "dev:electron": "concurrently \"npm run dev:electron -w app\" \"npm run dev --prefix electron\"",
+    "build:electron": "npm run build:electron -w app && rm -rf electron/dist_renderer && cp -r app/dist electron/dist_renderer",
     "package:electron": "npm run build:electron && npm run package:darwin --prefix electron",
     "make:electron": "npm run build:electron && npm run make:mas --prefix electron",
     "make:darwin": "npm run build:electron && npm run make:darwin --prefix electron"
