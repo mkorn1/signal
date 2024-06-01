@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "webpack serve --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
+    "dev:electron": "webpack serve --config webpack.electron.dev.js",
+    "build:electron": "webpack --config webpack.electron.prod.js",
     "serve": "npx http-server dist",
     "test": "jest",
     "format": "prettier --write src",

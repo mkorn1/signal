@@ -11,13 +11,7 @@ export default [
       format: "cjs",
     },
     external: ["electron"],
-    plugins: [
-      nodeResolve({ preferBuiltins: true }),
-      commonjs(),
-      typescript({
-        tsconfig: "tsconfig.preload.json",
-      }),
-    ],
+    plugins: [nodeResolve({ preferBuiltins: true }), commonjs(), typescript()],
   },
   {
     input: "src/index.ts",

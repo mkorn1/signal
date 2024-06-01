@@ -4,7 +4,7 @@ const CopyPlugin = require("copy-webpack-plugin")
 const { sentryWebpackPlugin } = require("@sentry/webpack-plugin")
 const WorkboxPlugin = require("workbox-webpack-plugin")
 
-const config = (env) => ({
+module.exports = merge(common, {
   mode: "production",
   optimization: {
     concatenateModules: false,
@@ -24,33 +24,29 @@ const config = (env) => ({
     ],
   },
   plugins: [
-    ...(env.electron
-      ? []
-      : [
-          new WorkboxPlugin.GenerateSW({
-            maximumFileSizeToCacheInBytes: 50000000,
-            clientsClaim: true,
-            skipWaiting: true,
-            runtimeCaching: [
-              {
-                urlPattern: /^\/.*$/,
-                handler: "StaleWhileRevalidate",
-              },
-              {
-                urlPattern: /^.+\.sf2$/,
-                handler: "StaleWhileRevalidate",
-              },
-              {
-                urlPattern: /^https:\/\/fonts\.googleapis\.com/,
-                handler: "StaleWhileRevalidate",
-              },
-              {
-                urlPattern: /^https:\/\/fonts\.gstatic\.com/,
-                handler: "StaleWhileRevalidate",
-              },
-            ],
-          }),
-        ]),
+    new WorkboxPlugin.GenerateSW({
+      maximumFileSizeToCacheInBytes: 50000000,
+      clientsClaim: true,
+      skipWaiting: true,
+      runtimeCaching: [
+        {
+          urlPattern: /^\/.*$/,
+          handler: "StaleWhileRevalidate",
+        },
+        {
+          urlPattern: /^.+\.sf2$/,
+          handler: "StaleWhileRevalidate",
+        },
+        {
+          urlPattern: /^https:\/\/fonts\.googleapis\.com/,
+          handler: "StaleWhileRevalidate",
+        },
+        {
+          urlPattern: /^https:\/\/fonts\.gstatic\.com/,
+          handler: "StaleWhileRevalidate",
+        },
+      ],
+    }),
     new CopyPlugin({
       patterns: [
         { from: "public/*.svg", to: "[name][ext]" },
@@ -78,5 +74,3 @@ const config = (env) => ({
     }),
   ],
 })
-
-module.exports = (env) => merge(common(env), config(env))

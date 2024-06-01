@@ -4,7 +4,7 @@
     "module": "esnext",
     "allowJs": false,
     "noImplicitAny": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -15,6 +15,5 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/*.ts"],
-  "exclude": ["src/preload.ts"]
+  "include": ["src/**/*"]
 }

@@ -7,8 +7,6 @@ module.exports = {
   context: __dirname,
   entry: {
     browserMain: "./src/index.tsx",
-    browserAuth: "./src/auth/index.tsx",
-    browserCommunity: "./src/community.tsx",
   },
   output: {
     filename: "[name]-[chunkhash].js",
@@ -35,18 +33,6 @@ module.exports = {
       filename: "edit.html",
       chunks: ["browserMain"],
       template: path.join(__dirname, "public", "edit.html"),
-    }),
-    new HtmlWebpackPlugin({
-      inject: true,
-      filename: "auth.html",
-      chunks: ["browserAuth"],
-      template: path.join(__dirname, "public", "auth.html"),
-    }),
-    new HtmlWebpackPlugin({
-      inject: true,
-      filename: "community.html",
-      chunks: ["browserCommunity"],
-      template: path.join(__dirname, "public", "community.html"),
     }),
   ],
 }

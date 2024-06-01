@@ -175,7 +175,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
           try {
             await signInWithCredential(auth, credential)
           } catch (e) {
-            toast.error("Failed to sign in with Google")
+            toast.error("Failed to sign in")
           }
         },
       ),

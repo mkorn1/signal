@@ -1,14 +1,16 @@
 import { IpcMainInvokeEvent, app, dialog, ipcMain } from "electron"
+import log from "electron-log"
 import { readFile, readdir, writeFile } from "fs/promises"
 import { isAbsolute, join } from "path"
 import { getArgument } from "./arguments"
 import { signInWithBrowser } from "./auth"
+import { FirebaseCredential } from "./ipc"
 
 interface Callbacks {
   onReady: () => void
   onAuthStateChanged: (isLoggedIn: boolean) => void
   onMainWindowClose: () => void
-  onAuthCallback: (url: string) => void
+  onAuthCallback: (credential: FirebaseCredential) => void
 }
 
 const api = ({
@@ -74,9 +76,11 @@ const api = ({
   },
   getArgument: async () => getArgument(),
   openAuthWindow: async () => {
-    const callbackURL = await signInWithBrowser()
-    if (callbackURL) {
-      onAuthCallback(callbackURL)
+    try {
+      const credential = await signInWithBrowser()
+      onAuthCallback(credential)
+    } catch (e) {
+      log.error(e)
     }
   },
   authStateChanged: (_e: IpcMainInvokeEvent, isLoggedIn: boolean) => {
