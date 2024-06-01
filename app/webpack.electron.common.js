@@ -30,9 +30,9 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       inject: true,
-      filename: "auth.html",
-      chunks: ["browserAuth"],
-      template: path.join(__dirname, "public", "auth.html"),
+      filename: "edit.html",
+      chunks: ["browserMain"],
+      template: path.join(__dirname, "public", "edit.html"),
     }),
   ],
 }
