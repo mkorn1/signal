@@ -1,21 +1,66 @@
+import { styled } from "@kuma-ui/core"
+import dynamic from "next/dynamic"
 import githubIcon from "./images/github-icon.svg"
 import logoWhite from "./images/logo-white.svg"
-import styles from "./Navigation.module.css"
+
+const Localized = dynamic(() => import("../../components/Localized"), {
+  ssr: false,
+})
+
+const Header = styled.header`
+  background: var(--themeColor2);
+`
+
+const Content = styled.div`
+  padding: 1rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 60rem;
+  width: 100%;
+  margin: 0 auto;
+`
+
+const LogoLink = styled.a`
+  display: flex;
+
+  img {
+    height: 1.7rem;
+  }
+
+  &:hover {
+    opacity: 0.7;
+  }
+`
+
+const Menu = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+
+  & > a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+`
 
 export const Navigation = () => {
   return (
-    <header className={styles.header}>
-      <div className={styles.content}>
-        <a href="/" id="title">
+    <Header>
+      <Content>
+        <LogoLink href="/">
           <img src={logoWhite.src} />
-        </a>
-        <div className={styles.menu}>
-          <a href="/support">Support</a>
+        </LogoLink>
+        <Menu>
+          <a href="/support">
+            <Localized name="support" />
+          </a>
           <a href="https://github.com/ryohey/signal/" id="github-link">
             <img src={githubIcon.src} />
           </a>
-        </div>
-      </div>
-    </header>
+        </Menu>
+      </Content>
+    </Header>
   )
 }

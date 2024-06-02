@@ -22,15 +22,7 @@ a {
 section .content {
   padding: 5rem 0;
 }
-#title {
-  display: flex;
-}
-#title img {
-  height: 1.7rem;
-}
-#title:hover {
-  opacity: 0.7;
-}
+
 #hero {
   background: var(--themeColor);
   color: white;
