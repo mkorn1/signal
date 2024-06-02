@@ -1,18 +1,13 @@
 import { styled } from "@kuma-ui/core"
 import { Metadata } from "next"
+import { FeatureList } from "../components/FeatureList/FeatureList"
 import Localized from "../components/Localized"
 import { Navigation } from "../components/Navigation/Navigation"
-import generalMidiLogo from "./images/general-midi-logo.svg"
 import githubIcon from "./images/github-icon.svg"
-import chartIcon from "./images/iconmonstr-chart-21.svg"
 import favoriteIcon from "./images/iconmonstr-favorite-4.svg"
 import twitterIcon from "./images/iconmonstr-twitter-1.svg"
-import midiLogo from "./images/midi-logo.svg"
-import pwaLogo from "./images/pwa-logo.svg"
 import screenshot from "./images/screenshot.png"
-import synthesizerKeyboard from "./images/synthesizer-keyboard-svgrepo-com.svg"
 import twitterCard from "./images/twitter-card.png"
-import wavFile from "./images/wav-file.svg"
 
 export const metadata: Metadata = {
   title: "signal - Online MIDI Editor",
@@ -183,45 +178,6 @@ const Features = styled.section`
   }
 `
 
-const Feature = styled.div`
-  background: #ffffff0d;
-  padding: 2rem;
-  border-radius: 1rem;
-  margin-right: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 1rem 3rem 0 #0000000e;
-
-  .icon {
-    display: inline-flex;
-    width: 4rem;
-    border-radius: 2rem;
-    height: 4rem;
-    overflow: hidden;
-    background: white;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .title {
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .description {
-    opacity: 0.5;
-  }
-
-  .icon img {
-    width: 2rem;
-  }
-
-  @media screen and (max-width: 896px) {
-    margin-right: 0;
-  }
-`
-
 const ExternalLink = styled.a`
   font-size: 0.9rem;
   display: inline-flex;
@@ -282,78 +238,7 @@ export default function Home() {
             <SectionTitle>
               <Localized name="features" />
             </SectionTitle>
-
-            <Feature style={{ background: "#3c2fd740" }}>
-              <div className="icon" style={{ background: "#3c2fd7" }}>
-                <img src={midiLogo.src} style={{ width: "3rem" }} />
-              </div>
-              <div className="title">
-                <Localized name="feature-midi-file" />
-              </div>
-              <div className="description">
-                <Localized name="feature-midi-file-description" />
-              </div>
-            </Feature>
-
-            <Feature style={{ background: "#91322c73" }}>
-              <div className="icon" style={{ background: "#e7372c" }}>
-                <img src={generalMidiLogo.src} />
-              </div>
-              <div className="title">
-                <Localized name="feature-gm-module" />
-              </div>
-              <div className="description">
-                <Localized name="feature-gm-module-description" />
-              </div>
-            </Feature>
-
-            <Feature style={{ background: "#ff99002f" }}>
-              <div className="icon" style={{ background: "#ff9900" }}>
-                <img src={wavFile.src} />
-              </div>
-              <div className="title">
-                <Localized name="feature-export-audio" />
-              </div>
-              <div className="description">
-                <Localized name="feature-export-audio-description" />
-              </div>
-            </Feature>
-
-            <Feature style={{ background: "#249f9f2f" }}>
-              <div className="icon" style={{ background: "#249f9f" }}>
-                <img src={synthesizerKeyboard.src} />
-              </div>
-              <div className="title">
-                <Localized name="feature-midi-io" />
-              </div>
-              <div className="description">
-                <Localized name="feature-midi-io-description" />
-              </div>
-            </Feature>
-
-            <Feature style={{ background: "#3d2fd727" }}>
-              <div className="icon" style={{ background: "#3c2fd7" }}>
-                <img src={chartIcon.src} />
-              </div>
-              <div className="title">
-                <Localized name="feature-time-signature" />
-              </div>
-              <div className="description">
-                <Localized name="feature-time-signature-description" />
-              </div>
-            </Feature>
-
-            <Feature style={{ background: "#ff99002f" }}>
-              <div className="icon" style={{ background: "#ff9900" }}>
-                <img src={pwaLogo.src} />
-              </div>
-              <div className="title">
-                <Localized name="feature-pwa" />
-              </div>
-              <div className="description">
-                <Localized name="feature-pwa-description" />
-              </div>
-            </Feature>
+            <FeatureList />
           </div>
 
           <div
