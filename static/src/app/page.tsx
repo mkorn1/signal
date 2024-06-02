@@ -1,3 +1,4 @@
+import { styled } from "@kuma-ui/core"
 import { Metadata } from "next"
 import Localized from "../components/Localized"
 import { Navigation } from "../components/Navigation/Navigation"
@@ -33,13 +34,228 @@ export const metadata: Metadata = {
   },
 }
 
+const Hero = styled.section`
+  background: var(--themeColor);
+  color: white;
+  overflow: hidden;
+
+  > div {
+    display: flex;
+  }
+  .text h1 {
+    font-weight: 800;
+    font-size: 3.2rem;
+    line-height: 1;
+    margin: 0 0 1rem 0;
+  }
+  .image {
+    width: 35%;
+    padding-left: 2rem;
+  }
+  .image img {
+    width: 34rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1rem 8rem #0000004f;
+  }
+  .text .description {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  @media screen and (max-width: 896px) {
+    .content {
+      flex-direction: column;
+    }
+
+    .text h1 {
+      font-size: 2.5rem;
+    }
+
+    .image {
+      padding: 0;
+      width: 100%;
+    }
+
+    .image img {
+      margin-top: 3rem;
+      width: 100%;
+    }
+  }
+`
+
+const Platform = styled.p`
+  opacity: 0.8;
+  font-size: 0.9rem;
+`
+
+const SectionContent = styled.div`
+  padding: 5rem 0;
+  max-width: 60rem;
+  width: 100%;
+  margin: 0 auto;
+
+  @media screen and (max-width: 896px) {
+    width: 90%;
+  }
+`
+
+const SectionTitle = styled.h3`
+  font-size: 1.5rem;
+`
+
+const LaunchButton = styled.a`
+  background: white;
+  padding: 0.8rem 2rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  color: var(--themeColor);
+  font-weight: bold;
+  display: inline-block;
+  margin: 2rem 0 0 0;
+  font-size: 1.2rem;
+  border: 2px solid transparent;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+  box-shadow: 0 1rem 7rem #0000004f;
+
+  &:hover {
+    border-color: white;
+    background: transparent;
+    color: white;
+  }
+`
+
+const SponsorSection = styled.section`
+  background: #1f1f23;
+`
+
+const SponsorIntro = styled.div`
+  width: 40em;
+  line-height: 1.9;
+  margin-bottom: 1.5em;
+  max-width: 100%;
+`
+
+const SponsorButton = styled.a`
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  background: #bb5d9029;
+  border-radius: 0.3em;
+  padding: 1em 1.5em;
+  color: white;
+  text-decoration: none;
+  border: 2px solid transparent;
+  transition: 0.2s ease;
+
+  &:hover {
+    border-color: #bb5d90;
+  }
+
+  img {
+    margin-right: 0.7em;
+    width: 1.2em;
+  }
+`
+
+const Features = styled.section`
+  .content {
+    display: flex;
+  }
+
+  .content .left {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content .right {
+    flex-shrink: 0;
+    min-width: 342px;
+  }
+
+  @media screen and (max-width: 896px) {
+    .content {
+      flex-direction: column-reverse;
+    }
+  }
+`
+
+const Feature = styled.div`
+  background: #ffffff0d;
+  padding: 2rem;
+  border-radius: 1rem;
+  margin-right: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1rem 3rem 0 #0000000e;
+
+  .icon {
+    display: inline-flex;
+    width: 4rem;
+    border-radius: 2rem;
+    height: 4rem;
+    overflow: hidden;
+    background: white;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .description {
+    opacity: 0.5;
+  }
+
+  .icon img {
+    width: 2rem;
+  }
+
+  @media screen and (max-width: 896px) {
+    margin-right: 0;
+  }
+`
+
+const ExternalLink = styled.a`
+  font-size: 0.9rem;
+  display: inline-flex;
+  border: #3b3b44 2px solid;
+  border-radius: 0.3em;
+  padding: 0.5em 1em;
+  color: white;
+  text-decoration: none;
+  align-items: center;
+
+  img {
+    margin-right: 0.7em;
+  }
+`
+
+const SupportRow = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  span {
+    padding-left: 1em;
+    font-size: 0.9rem;
+    opacity: 0.6;
+  }
+`
+
 export default function Home() {
   return (
     <>
       <Navigation />
 
-      <section id="hero">
-        <div className="content">
+      <Hero>
+        <SectionContent>
           <div className="text">
             <h1>
               <Localized name="app-intro" />
@@ -47,27 +263,27 @@ export default function Home() {
             <p className="description">
               <Localized name="app-desc" />
             </p>
-            <a href="edit" id="launch-button">
+            <LaunchButton href="edit">
               <Localized name="launch" />
-            </a>
-            <p className="platform">
+            </LaunchButton>
+            <Platform>
               <Localized name="platform" />
-            </p>
+            </Platform>
           </div>
           <div className="image">
             <img src={screenshot.src} alt="Screenshot" />
           </div>
-        </div>
-      </section>
+        </SectionContent>
+      </Hero>
 
-      <section id="features">
-        <div className="content">
+      <Features>
+        <SectionContent className="content">
           <div className="left">
-            <h3>
+            <SectionTitle>
               <Localized name="features" />
-            </h3>
+            </SectionTitle>
 
-            <div className="feature" style={{ background: "#3c2fd740" }}>
+            <Feature style={{ background: "#3c2fd740" }}>
               <div className="icon" style={{ background: "#3c2fd7" }}>
                 <img src={midiLogo.src} style={{ width: "3rem" }} />
               </div>
@@ -77,9 +293,9 @@ export default function Home() {
               <div className="description">
                 <Localized name="feature-midi-file-description" />
               </div>
-            </div>
+            </Feature>
 
-            <div className="feature" style={{ background: "#91322c73" }}>
+            <Feature style={{ background: "#91322c73" }}>
               <div className="icon" style={{ background: "#e7372c" }}>
                 <img src={generalMidiLogo.src} />
               </div>
@@ -89,9 +305,9 @@ export default function Home() {
               <div className="description">
                 <Localized name="feature-gm-module-description" />
               </div>
-            </div>
+            </Feature>
 
-            <div className="feature" style={{ background: "#ff99002f" }}>
+            <Feature style={{ background: "#ff99002f" }}>
               <div className="icon" style={{ background: "#ff9900" }}>
                 <img src={wavFile.src} />
               </div>
@@ -101,9 +317,9 @@ export default function Home() {
               <div className="description">
                 <Localized name="feature-export-audio-description" />
               </div>
-            </div>
+            </Feature>
 
-            <div className="feature" style={{ background: "#249f9f2f" }}>
+            <Feature style={{ background: "#249f9f2f" }}>
               <div className="icon" style={{ background: "#249f9f" }}>
                 <img src={synthesizerKeyboard.src} />
               </div>
@@ -113,9 +329,9 @@ export default function Home() {
               <div className="description">
                 <Localized name="feature-midi-io-description" />
               </div>
-            </div>
+            </Feature>
 
-            <div className="feature" style={{ background: "#3d2fd727" }}>
+            <Feature style={{ background: "#3d2fd727" }}>
               <div className="icon" style={{ background: "#3c2fd7" }}>
                 <img src={chartIcon.src} />
               </div>
@@ -125,9 +341,9 @@ export default function Home() {
               <div className="description">
                 <Localized name="feature-time-signature-description" />
               </div>
-            </div>
+            </Feature>
 
-            <div className="feature" style={{ background: "#ff99002f" }}>
+            <Feature style={{ background: "#ff99002f" }}>
               <div className="icon" style={{ background: "#ff9900" }}>
                 <img src={pwaLogo.src} />
               </div>
@@ -137,7 +353,7 @@ export default function Home() {
               <div className="description">
                 <Localized name="feature-pwa-description" />
               </div>
-            </div>
+            </Feature>
           </div>
 
           <div
@@ -153,59 +369,53 @@ export default function Home() {
             `,
             }}
           />
-        </div>
-      </section>
+        </SectionContent>
+      </Features>
 
-      <section id="sponsor">
-        <div className="content">
-          <h3>
+      <SponsorSection>
+        <SectionContent>
+          <SectionTitle>
             <Localized name="become-sponsor" />
-          </h3>
-          <p className="sponsor-intro">
+          </SectionTitle>
+          <SponsorIntro>
             <Localized name="sponsor-intro" />
-          </p>
+          </SponsorIntro>
 
-          <a
-            className="sponsor-button"
-            href="https://github.com/sponsors/ryohey"
-          >
+          <SponsorButton href="https://github.com/sponsors/ryohey">
             <img src={favoriteIcon.src} />
             <span>
               <Localized name="open-github-sponsors" />
             </span>
-          </a>
-        </div>
-      </section>
+          </SponsorButton>
+        </SectionContent>
+      </SponsorSection>
 
       <section id="support">
-        <div className="content">
-          <h3>
+        <SectionContent>
+          <SectionTitle>
             <Localized name="support" />
-          </h3>
+          </SectionTitle>
 
-          <div className="support-row">
-            <a className="external-link" href="https://twitter.com/signalmidi">
+          <SupportRow>
+            <ExternalLink href="https://twitter.com/signalmidi">
               <img src={twitterIcon.src} />
               @signalmidi
-            </a>
+            </ExternalLink>
             <span>
               <Localized name="follow-twitter" />
             </span>
-          </div>
+          </SupportRow>
 
-          <div className="support-row">
-            <a
-              className="external-link"
-              href="https://github.com/ryohey/signal"
-            >
+          <SupportRow>
+            <ExternalLink href="https://github.com/ryohey/signal">
               <img src={githubIcon.src} />
               ryohey/signal
-            </a>
+            </ExternalLink>
             <span>
               <Localized name="support-github-desctiption" />
             </span>
-          </div>
-        </div>
+          </SupportRow>
+        </SectionContent>
       </section>
     </>
   )

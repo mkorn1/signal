@@ -4,7 +4,7 @@ import githubIcon from "./images/github-icon.svg"
 import logoWhite from "./images/logo-white.svg"
 
 const Header = styled.header`
-  background: var(--themeColor2);
+  background: var(--themeColorDark);
 `
 
 const Content = styled.div`
