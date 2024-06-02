@@ -10,8 +10,8 @@ export default {
     "feature-midi-file": "Fully equipped MIDI editor",
     "feature-midi-file-description":
       "Orchestrate freely with the multi-track piano roll editor. Of course, you can use velocity, pitch bend, expression, and modulation to create expressive sound.",
-    "feature-gm-module": "Supports SoundFonts",
-    "feature-gm-module-description":
+    "feature-soundfont": "Supports SoundFonts",
+    "feature-soundfont-description":
       "With our specially developed high-performance sound module, you can load your sound fonts and play sounds seamlessly.",
     "feature-time-signature": "Non-4/4 time signature and 300+ bpm",
     "feature-time-signature-description":
@@ -65,8 +65,8 @@ export default {
     "feature-midi-file": "フル機能のMIDIエディター",
     "feature-midi-file-description":
       "複数トラックに対応したピアノロールエディタを使って、自在に作曲しましょう。もちろんベロシティやピッチベンド、エクスプレッション、モジュレーションを使った豊かな表現ができます。",
-    "feature-gm-module": "サウンドフォント対応",
-    "feature-gm-module-description":
+    "feature-soundfont": "サウンドフォント対応",
+    "feature-soundfont-description":
       "専用に開発された高性能なサウンドモジュールにより、あなたの持っているサウンドフォントを読み込んで音を鳴らすことが出来ます。",
     "feature-time-signature": "4/4以外の拍子・テンポチェンジに対応",
     "feature-time-signature-description":
@@ -118,8 +118,8 @@ export default {
     "feature-midi-file": "全功能 MIDI 编辑器",
     "feature-midi-file-description":
       "使用多轨钢琴卷编辑器自由编排。您可以使用力度、弯音、情绪和调制等控制器来创作出富有表现力的曲目。",
-    "feature-gm-module": "Supports SoundFonts",
-    "feature-gm-module-description":
+    "feature-soundfont": "Supports SoundFonts",
+    "feature-soundfont-description":
       "With our specially developed high-performance sound module, you can load your sound fonts and play sounds seamlessly.",
     "feature-time-signature": "支持除 4/4 以外的拍号和 300+ BPM",
     "feature-time-signature-description":
@@ -171,8 +171,8 @@ export default {
     "feature-midi-file": "全能 MIDI 編輯器",
     "feature-midi-file-description":
       "用多軌鋼琴卷軸來自由自在地作曲吧！當然也能使用力度、滑音、表情和顫音等控制功能創造出豐富情感的曲子。",
-    "feature-gm-module": "Supports SoundFonts",
-    "feature-gm-module-description":
+    "feature-soundfont": "Supports SoundFonts",
+    "feature-soundfont-description":
       "With our specially developed high-performance sound module, you can load your sound fonts and play sounds seamlessly.",
     "feature-time-signature": "支援 4/4 以外的拍號以及高於 300 BPM 的拍速",
     "feature-time-signature-description":

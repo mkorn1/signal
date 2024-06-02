@@ -22,8 +22,8 @@ export const FeatureList: FC = () => {
         backgroundColor="#91322c73"
         iconBackgroundColor="#e7372c"
         iconSrc={soundFontIcon.src}
-        titleKey="feature-gm-module"
-        descriptionKey="feature-gm-module-description"
+        titleKey="feature-soundfont"
+        descriptionKey="feature-soundfont-description"
       />
       <Feature
         backgroundColor="#ff99002f"

@@ -235,7 +235,7 @@ export default function Home() {
                 </pre>
               </Platform>
             </LaunchWrapper>
-            <p style={{ marginTop: "4rem" }}>
+            <div style={{ marginTop: "4rem" }}>
               <StoreIntro>
                 <Localized name="store-intro" />
               </StoreIntro>
@@ -249,7 +249,7 @@ export default function Home() {
                   style={{ width: "12rem" }}
                 />
               </a>
-            </p>
+            </div>
           </div>
           <div className="image">
             <img src={screenshot.src} alt="Screenshot" />
