@@ -4,7 +4,8 @@ export default {
     "app-intro": "Fully Open-sourced Online MIDI Editor",
     "app-desc": "Start creating music without installing anything",
     launch: "Launch",
-    platform: "Supported desktop browsers: Google Chrome / Firefox / Safari",
+    platform: "Supported desktop browsers:\nGoogle Chrome / Firefox / Safari",
+    "store-intro": "Want offline version?",
     features: "Features",
     "feature-midi-file": "Fully equipped MIDI editor",
     "feature-midi-file-description":
@@ -58,7 +59,8 @@ export default {
     "app-desc": "すぐに使えるMIDI編集フリーソフト",
     launch: "起動",
     platform:
-      "対応ブラウザ (デスクトップ版のみ): Google Chrome / Firefox / Safari",
+      "対応ブラウザ (デスクトップ版のみ):\nGoogle Chrome / Firefox / Safari",
+    "store-intro": "オフラインで使えるアプリ版はこちら",
     features: "機能",
     "feature-midi-file": "フル機能のMIDIエディター",
     "feature-midi-file-description":
@@ -110,7 +112,8 @@ export default {
     "app-intro": "在浏览器中编辑曲目",
     "app-desc": "无需安装任何东西即可开始创作曲目",
     launch: "开始",
-    platform: "支持浏览器(仅限桌面版):Google Chrome / Firefox / Safari",
+    platform: "支持浏览器(仅限桌面版):\nGoogle Chrome / Firefox / Safari",
+    "store-intro": "Want offline version?",
     features: "功能",
     "feature-midi-file": "全功能 MIDI 编辑器",
     "feature-midi-file-description":
@@ -162,7 +165,8 @@ export default {
     "app-intro": "在瀏覽器中製作音樂",
     "app-desc": "可立即使用的MIDI編輯自由軟體",
     launch: "啟動",
-    platform: "支援的瀏覽器（限桌機版）：Google Chrome / Firefox / Safari",
+    platform: "支援的瀏覽器（限桌機版）：\nGoogle Chrome / Firefox / Safari",
+    "store-intro": "Want offline version?",
     features: "功能",
     "feature-midi-file": "全能 MIDI 編輯器",
     "feature-midi-file-description":
@@ -190,7 +194,8 @@ export default {
     "open-github-sponsors": "前往 GitHub Sponsors",
     "follow-twitter": "Follow 我們的 Twitter 取得最新消息",
     "bug-report": "錯誤回報／功能許願",
-    "bug-report-description": "歡迎在 GitHub Issues 上提交 Bug 回報和功能建議。",
+    "bug-report-description":
+      "歡迎在 GitHub Issues 上提交 Bug 回報和功能建議。",
     "open-github-issues": "進入 GitHub Issues",
     community: "社群",
     "community-description":

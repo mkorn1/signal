@@ -6,6 +6,7 @@ import { Navigation } from "../components/Navigation/Navigation"
 import githubIcon from "./images/github-icon.svg"
 import favoriteIcon from "./images/iconmonstr-favorite-4.svg"
 import twitterIcon from "./images/iconmonstr-twitter-1.svg"
+import macAppStore from "./images/mac-app-store.svg"
 import screenshot from "./images/screenshot.png"
 import twitterCard from "./images/twitter-card.png"
 
@@ -79,7 +80,7 @@ const Hero = styled.section`
 `
 
 const Platform = styled.p`
-  opacity: 0.8;
+  color: var(--secondaryTextColor);
   font-size: 0.9rem;
 `
 
@@ -94,15 +95,21 @@ const SectionTitle = styled.h3`
   font-size: 1.5rem;
 `
 
+const LaunchWrapper = styled.div`
+  display: flex;
+  margin-top: 3rem;
+  align-items: center;
+  gap: 1rem;
+`
+
 const LaunchButton = styled.a`
   background: var(--themeColor);
-  padding: 0.8rem 2rem;
+  padding: 1rem 3rem;
   border-radius: 9999px;
   text-decoration: none;
   color: var(--textColor);
   font-weight: bold;
   display: inline-block;
-  margin: 2rem 0 0 0;
   font-size: 1.2rem;
   border: 2px solid transparent;
   transition:
@@ -110,10 +117,15 @@ const LaunchButton = styled.a`
     background 0.2s ease,
     color 0.2s ease;
   box-shadow: 0 1rem 7rem #0000004f;
+  flex-shrink: 0;
 
   &:hover {
     background: color-mix(in srgb, var(--themeColor), white 20%);
   }
+`
+
+const StoreIntro = styled.p`
+  color: var(--secondaryTextColor);
 `
 
 const SponsorSection = styled.section`
@@ -213,12 +225,31 @@ export default function Home() {
             <p className="description">
               <Localized name="app-desc" />
             </p>
-            <LaunchButton href="edit">
-              <Localized name="launch" />
-            </LaunchButton>
-            <Platform>
-              <Localized name="platform" />
-            </Platform>
+            <LaunchWrapper>
+              <LaunchButton href="edit">
+                <Localized name="launch" />
+              </LaunchButton>
+              <Platform>
+                <pre>
+                  <Localized name="platform" />
+                </pre>
+              </Platform>
+            </LaunchWrapper>
+            <p style={{ marginTop: "4rem" }}>
+              <StoreIntro>
+                <Localized name="store-intro" />
+              </StoreIntro>
+              <a
+                href="https://apps.apple.com/us/app/signal-midi-editor/id6499489458"
+                target="_blank"
+              >
+                <img
+                  src={macAppStore.src}
+                  alt="Mac App Store"
+                  style={{ width: "12rem" }}
+                />
+              </a>
+            </p>
           </div>
           <div className="image">
             <img src={screenshot.src} alt="Screenshot" />
