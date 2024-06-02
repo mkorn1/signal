@@ -1,52 +1,70 @@
+import { styled } from "@kuma-ui/core"
 import { Metadata } from "next"
 import Localized from "../../components/Localized"
 import { Navigation } from "../../components/Navigation/Navigation"
 import { LocaleDate } from "./LocaleDate"
-import styles from "./styles.module.css"
 
 export const metadata: Metadata = {
   title: "Privacy Policy | signal",
 }
 
+const Content = styled.div`
+  max-width: 60rem;
+  width: 100%;
+  margin: 0 auto;
+`
+
+const Title = styled.h1`
+  margin-top: 4rem;
+`
+
+const Section = styled.section`
+  margin: 3rem 0;
+`
+
+const SectionContent = styled.div`
+  margin-top: 1rem;
+`
+
 export default function Page() {
   return (
     <>
       <Navigation />
-      <div className={styles.content}>
-        <h1 className={styles.title}>
+      <Content>
+        <Title>
           <Localized name="privacy-policy-title" />
-        </h1>
+        </Title>
         <p>
           <Localized name="privacy-policy-description" />
         </p>
 
-        <section className={styles.section}>
+        <Section>
           <h2>
             <Localized name="privacy-data-title" />
           </h2>
-          <div className={styles.sectionContent}>
+          <SectionContent>
             <p>
               <Localized name="privacy-data-description" />
             </p>
-          </div>
-        </section>
+          </SectionContent>
+        </Section>
 
-        <section className={styles.section}>
+        <Section>
           <h2>
             <Localized name="privacy-analytics-title" />
           </h2>
-          <div className={styles.sectionContent}>
+          <SectionContent>
             <p>
               <Localized name="privacy-analytics-description" />
             </p>
-          </div>
-        </section>
+          </SectionContent>
+        </Section>
 
         <p>
           <Localized name="privacy-updated" />
           <LocaleDate date={new Date("2024/05/03")} />
         </p>
-      </div>
+      </Content>
     </>
   )
 }
