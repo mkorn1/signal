@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 }
 
 const Hero = styled.section`
-  background: var(--themeColor);
+  background: #1f1f23;
   color: white;
   overflow: hidden;
 
@@ -86,12 +86,8 @@ const Platform = styled.p`
 const SectionContent = styled.div`
   padding: 5rem 0;
   max-width: 60rem;
-  width: 100%;
+  width: 90%;
   margin: 0 auto;
-
-  @media screen and (max-width: 896px) {
-    width: 90%;
-  }
 `
 
 const SectionTitle = styled.h3`
@@ -99,11 +95,11 @@ const SectionTitle = styled.h3`
 `
 
 const LaunchButton = styled.a`
-  background: white;
+  background: var(--themeColor);
   padding: 0.8rem 2rem;
   border-radius: 9999px;
   text-decoration: none;
-  color: var(--themeColor);
+  color: var(--textColor);
   font-weight: bold;
   display: inline-block;
   margin: 2rem 0 0 0;
@@ -116,9 +112,7 @@ const LaunchButton = styled.a`
   box-shadow: 0 1rem 7rem #0000004f;
 
   &:hover {
-    border-color: white;
-    background: transparent;
-    color: white;
+    background: color-mix(in srgb, var(--themeColor), white 20%);
   }
 `
 
@@ -211,7 +205,7 @@ export default function Home() {
       <Navigation />
 
       <Hero>
-        <SectionContent>
+        <SectionContent className="content">
           <div className="text">
             <h1>
               <Localized name="app-intro" />

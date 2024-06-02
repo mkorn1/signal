@@ -1,6 +1,8 @@
 :root {
-  --themeColor: #5a4edf;
-  --themeColorDark: #4c41cc;
+  --backgroundColor: #1f1f23;
+  --secondaryBackgroundColor: hsl(245deg 5% 16%);
+  --themeColor: hsl(230, 70%, 55%);
+  --textColor: white;
 }
 body {
   margin: 0;
@@ -8,8 +10,8 @@ body {
     sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  background: hsl(245deg 5% 16%);
-  color: white;
+  background: var(--backgroundColor);
+  color: var(--textColor);
 }
 a {
   color: var(--themeColor);

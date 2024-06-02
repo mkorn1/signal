@@ -4,16 +4,16 @@ import githubIcon from "./images/github-icon.svg"
 import logoWhite from "./images/logo-white.svg"
 
 const Header = styled.header`
-  background: var(--themeColorDark);
+  background: #1f1f23;
 `
 
 const Content = styled.div`
-  padding: 1rem 0;
+  padding: 2rem 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   max-width: 60rem;
-  width: 100%;
+  width: 90%;
   margin: 0 auto;
 `
 
