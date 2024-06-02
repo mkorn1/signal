@@ -1,12 +1,8 @@
 import { Metadata } from "next"
-import dynamic from "next/dynamic"
 import { Footer } from "../../components/Footer/Footer"
+import Localized from "../../components/Localized"
 import { Navigation } from "../../components/Navigation/Navigation"
 import styles from "./styles.module.css"
-
-const Localized = dynamic(() => import("../../components/Localized"), {
-  ssr: false,
-})
 
 export const metadata: Metadata = {
   title: "Support | signal",
@@ -17,7 +13,9 @@ export default function Page() {
     <>
       <Navigation />
       <div className={styles.content}>
-        <h1 className={styles.title}>Support</h1>
+        <h1 className={styles.title}>
+          <Localized name="support" />
+        </h1>
 
         <section className={styles.section}>
           <h2>

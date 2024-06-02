@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import dynamic from "next/dynamic"
+import Localized from "../components/Localized"
 import { Navigation } from "../components/Navigation/Navigation"
 import generalMidiLogo from "./images/general-midi-logo.svg"
 import githubIcon from "./images/github-icon.svg"
@@ -12,10 +12,6 @@ import screenshot from "./images/screenshot.png"
 import synthesizerKeyboard from "./images/synthesizer-keyboard-svgrepo-com.svg"
 import twitterCard from "./images/twitter-card.png"
 import wavFile from "./images/wav-file.svg"
-
-const Localized = dynamic(() => import("../components/Localized"), {
-  ssr: false,
-})
 
 export const metadata: Metadata = {
   title: "signal - Online MIDI Editor",

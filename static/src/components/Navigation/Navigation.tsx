@@ -1,11 +1,7 @@
 import { styled } from "@kuma-ui/core"
-import dynamic from "next/dynamic"
+import Localized from "../Localized"
 import githubIcon from "./images/github-icon.svg"
 import logoWhite from "./images/logo-white.svg"
-
-const Localized = dynamic(() => import("../../components/Localized"), {
-  ssr: false,
-})
 
 const Header = styled.header`
   background: var(--themeColor2);

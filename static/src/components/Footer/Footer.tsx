@@ -1,9 +1,6 @@
-import dynamic from "next/dynamic"
 import { styled } from "@kuma-ui/core"
+import Localized from "../Localized"
 
-const Localized = dynamic(() => import("../../components/Localized"), {
-  ssr: false,
-})
 const Content = styled.div`
   padding: 2rem 0;
   display: flex;
