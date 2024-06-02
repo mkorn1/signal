@@ -1,9 +1,9 @@
 import { FC } from "react"
 import { Feature } from "./Feature"
-import generalMidiLogo from "./images/general-midi-logo.svg"
 import chartIcon from "./images/iconmonstr-chart-21.svg"
 import midiLogo from "./images/midi-logo.svg"
 import pwaLogo from "./images/pwa-logo.svg"
+import soundFontIcon from "./images/soundfont-icon.svg"
 import synthesizerKeyboard from "./images/synthesizer-keyboard-svgrepo-com.svg"
 import wavFile from "./images/wav-file.svg"
 
@@ -21,7 +21,7 @@ export const FeatureList: FC = () => {
       <Feature
         backgroundColor="#91322c73"
         iconBackgroundColor="#e7372c"
-        iconSrc={generalMidiLogo.src}
+        iconSrc={soundFontIcon.src}
         titleKey="feature-gm-module"
         descriptionKey="feature-gm-module-description"
       />

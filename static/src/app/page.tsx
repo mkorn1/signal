@@ -79,7 +79,7 @@ const Hero = styled.section`
   }
 `
 
-const Platform = styled.p`
+const Platform = styled.div`
   color: var(--secondaryTextColor);
   font-size: 0.9rem;
 `

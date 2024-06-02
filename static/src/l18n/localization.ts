@@ -10,9 +10,9 @@ export default {
     "feature-midi-file": "Fully equipped MIDI editor",
     "feature-midi-file-description":
       "Orchestrate freely with the multi-track piano roll editor. Of course, you can use velocity, pitch bend, expression, and modulation to create expressive sound.",
-    "feature-gm-module": "GM compatible sound module",
+    "feature-gm-module": "Supports SoundFonts",
     "feature-gm-module-description":
-      "With a dedicated audio module built with WebAudio API and AudioWorklet, you can play any MIDI notes in the browser.",
+      "With our specially developed high-performance sound module, you can load your sound fonts and play sounds seamlessly.",
     "feature-time-signature": "Non-4/4 time signature and 300+ bpm",
     "feature-time-signature-description":
       "You can freely change the tempo and time signature anywhere in the song using the graph editor.",
@@ -65,9 +65,9 @@ export default {
     "feature-midi-file": "フル機能のMIDIエディター",
     "feature-midi-file-description":
       "複数トラックに対応したピアノロールエディタを使って、自在に作曲しましょう。もちろんベロシティやピッチベンド、エクスプレッション、モジュレーションを使った豊かな表現ができます。",
-    "feature-gm-module": "GM互換音源搭載",
+    "feature-gm-module": "サウンドフォント対応",
     "feature-gm-module-description":
-      "WebAudio APIとAudioWorkletで作られた専用の音源モジュールにより、ブラウザ上で大量のMIDIノートを鳴らすことが可能になりました。",
+      "専用に開発された高性能なサウンドモジュールにより、あなたの持っているサウンドフォントを読み込んで音を鳴らすことが出来ます。",
     "feature-time-signature": "4/4以外の拍子・テンポチェンジに対応",
     "feature-time-signature-description":
       "グラフエディタを使って、曲の途中でテンポや拍子を自由に変えることができます。",
@@ -118,9 +118,9 @@ export default {
     "feature-midi-file": "全功能 MIDI 编辑器",
     "feature-midi-file-description":
       "使用多轨钢琴卷编辑器自由编排。您可以使用力度、弯音、情绪和调制等控制器来创作出富有表现力的曲目。",
-    "feature-gm-module": "GM 兼容音源",
+    "feature-gm-module": "Supports SoundFonts",
     "feature-gm-module-description":
-      "快速加载 128 种虚拟乐器，同时使用 WebAudio API 和 AudioWorklet 构建的专用音频模块让您可以在浏览器中播放任何的音符。",
+      "With our specially developed high-performance sound module, you can load your sound fonts and play sounds seamlessly.",
     "feature-time-signature": "支持除 4/4 以外的拍号和 300+ BPM",
     "feature-time-signature-description":
       "您可以使用可视化编辑器自由更改曲目中的速度和拍号。",
@@ -171,9 +171,9 @@ export default {
     "feature-midi-file": "全能 MIDI 編輯器",
     "feature-midi-file-description":
       "用多軌鋼琴卷軸來自由自在地作曲吧！當然也能使用力度、滑音、表情和顫音等控制功能創造出豐富情感的曲子。",
-    "feature-gm-module": "GM 相容音源",
+    "feature-gm-module": "Supports SoundFonts",
     "feature-gm-module-description":
-      "以 WebAudio API 和 AudioWorklet 建構的專用音源模組，讓你可以在瀏覽器上彈奏大量的 MIDI 音符。",
+      "With our specially developed high-performance sound module, you can load your sound fonts and play sounds seamlessly.",
     "feature-time-signature": "支援 4/4 以外的拍號以及高於 300 BPM 的拍速",
     "feature-time-signature-description":
       "您可使用圖形編輯器，自由更改曲目中任何地方的速度和拍號。",
