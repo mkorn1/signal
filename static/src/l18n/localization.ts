@@ -4,14 +4,15 @@ export default {
     "app-intro": "Fully Open-sourced Online MIDI Editor",
     "app-desc": "Start creating music without installing anything",
     launch: "Launch",
-    platform: "Supported desktop browsers: Google Chrome / Firefox / Safari",
+    platform: "Supported desktop browsers:\nGoogle Chrome / Firefox / Safari",
+    "store-intro": "Want offline version?",
     features: "Features",
     "feature-midi-file": "Fully equipped MIDI editor",
     "feature-midi-file-description":
       "Orchestrate freely with the multi-track piano roll editor. Of course, you can use velocity, pitch bend, expression, and modulation to create expressive sound.",
-    "feature-gm-module": "GM compatible sound module",
-    "feature-gm-module-description":
-      "With a dedicated audio module built with WebAudio API and AudioWorklet, you can play any MIDI notes in the browser.",
+    "feature-soundfont": "Supports SoundFonts",
+    "feature-soundfont-description":
+      "With our specially developed high-performance sound module, you can load your sound fonts and play sounds seamlessly.",
     "feature-time-signature": "Non-4/4 time signature and 300+ bpm",
     "feature-time-signature-description":
       "You can freely change the tempo and time signature anywhere in the song using the graph editor.",
@@ -58,14 +59,15 @@ export default {
     "app-desc": "すぐに使えるMIDI編集フリーソフト",
     launch: "起動",
     platform:
-      "対応ブラウザ (デスクトップ版のみ): Google Chrome / Firefox / Safari",
+      "対応ブラウザ (デスクトップ版のみ):\nGoogle Chrome / Firefox / Safari",
+    "store-intro": "オフラインで使えるアプリ版はこちら",
     features: "機能",
     "feature-midi-file": "フル機能のMIDIエディター",
     "feature-midi-file-description":
       "複数トラックに対応したピアノロールエディタを使って、自在に作曲しましょう。もちろんベロシティやピッチベンド、エクスプレッション、モジュレーションを使った豊かな表現ができます。",
-    "feature-gm-module": "GM互換音源搭載",
-    "feature-gm-module-description":
-      "WebAudio APIとAudioWorkletで作られた専用の音源モジュールにより、ブラウザ上で大量のMIDIノートを鳴らすことが可能になりました。",
+    "feature-soundfont": "サウンドフォント対応",
+    "feature-soundfont-description":
+      "専用に開発された高性能なサウンドモジュールにより、あなたの持っているサウンドフォントを読み込んで音を鳴らすことが出来ます。",
     "feature-time-signature": "4/4以外の拍子・テンポチェンジに対応",
     "feature-time-signature-description":
       "グラフエディタを使って、曲の途中でテンポや拍子を自由に変えることができます。",
@@ -110,14 +112,15 @@ export default {
     "app-intro": "在浏览器中编辑曲目",
     "app-desc": "无需安装任何东西即可开始创作曲目",
     launch: "开始",
-    platform: "支持浏览器(仅限桌面版):Google Chrome / Firefox / Safari",
+    platform: "支持浏览器(仅限桌面版):\nGoogle Chrome / Firefox / Safari",
+    "store-intro": "Want offline version?",
     features: "功能",
     "feature-midi-file": "全功能 MIDI 编辑器",
     "feature-midi-file-description":
       "使用多轨钢琴卷编辑器自由编排。您可以使用力度、弯音、情绪和调制等控制器来创作出富有表现力的曲目。",
-    "feature-gm-module": "GM 兼容音源",
-    "feature-gm-module-description":
-      "快速加载 128 种虚拟乐器，同时使用 WebAudio API 和 AudioWorklet 构建的专用音频模块让您可以在浏览器中播放任何的音符。",
+    "feature-soundfont": "Supports SoundFonts",
+    "feature-soundfont-description":
+      "With our specially developed high-performance sound module, you can load your sound fonts and play sounds seamlessly.",
     "feature-time-signature": "支持除 4/4 以外的拍号和 300+ BPM",
     "feature-time-signature-description":
       "您可以使用可视化编辑器自由更改曲目中的速度和拍号。",
@@ -162,14 +165,15 @@ export default {
     "app-intro": "在瀏覽器中製作音樂",
     "app-desc": "可立即使用的MIDI編輯自由軟體",
     launch: "啟動",
-    platform: "支援的瀏覽器（限桌機版）：Google Chrome / Firefox / Safari",
+    platform: "支援的瀏覽器（限桌機版）：\nGoogle Chrome / Firefox / Safari",
+    "store-intro": "Want offline version?",
     features: "功能",
     "feature-midi-file": "全能 MIDI 編輯器",
     "feature-midi-file-description":
       "用多軌鋼琴卷軸來自由自在地作曲吧！當然也能使用力度、滑音、表情和顫音等控制功能創造出豐富情感的曲子。",
-    "feature-gm-module": "GM 相容音源",
-    "feature-gm-module-description":
-      "以 WebAudio API 和 AudioWorklet 建構的專用音源模組，讓你可以在瀏覽器上彈奏大量的 MIDI 音符。",
+    "feature-soundfont": "Supports SoundFonts",
+    "feature-soundfont-description":
+      "With our specially developed high-performance sound module, you can load your sound fonts and play sounds seamlessly.",
     "feature-time-signature": "支援 4/4 以外的拍號以及高於 300 BPM 的拍速",
     "feature-time-signature-description":
       "您可使用圖形編輯器，自由更改曲目中任何地方的速度和拍號。",
@@ -190,7 +194,8 @@ export default {
     "open-github-sponsors": "前往 GitHub Sponsors",
     "follow-twitter": "Follow 我們的 Twitter 取得最新消息",
     "bug-report": "錯誤回報／功能許願",
-    "bug-report-description": "歡迎在 GitHub Issues 上提交 Bug 回報和功能建議。",
+    "bug-report-description":
+      "歡迎在 GitHub Issues 上提交 Bug 回報和功能建議。",
     "open-github-issues": "進入 GitHub Issues",
     community: "社群",
     "community-description":

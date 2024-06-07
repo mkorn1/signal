@@ -256,6 +256,16 @@ const EventRow: FC<EventRowProps> = React.memo(
       [rootStore],
     )
 
+    const onChangeTick = useCallback(
+      (value: number | string) => {
+        if (typeof value === "string") {
+          return
+        }
+        selectedTrack?.updateEvent(item.id, { tick: value })
+      },
+      [rootStore, item],
+    )
+
     const onChangeGate = useCallback(
       (value: number | string) => {
         if (controller.gate === undefined) {
@@ -296,7 +306,14 @@ const EventRow: FC<EventRowProps> = React.memo(
         )}
         tabIndex={-1}
       >
-        <Cell style={{ width: widthForCell(0) }}>{item.tick}</Cell>
+        <InputCell
+          style={{ width: widthForCell(0) }}
+          value={item.tick}
+          type="number"
+          minValue={0}
+          maxValue={Infinity}
+          onChange={onChangeTick}
+        />
         <Cell
           style={{
             width: widthForCell(1),
