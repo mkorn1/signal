@@ -1,13 +1,38 @@
-import { Rectangles } from "@ryohey/webgl-react"
-import Color from "color"
-import { observer } from "mobx-react-lite"
+import { GLNode, useProjectionMatrix } from "@ryohey/webgl-react"
+import { vec4 } from "gl-matrix"
 import { FC } from "react"
 import { IRect } from "../../../geometry"
-import { colorToVec4 } from "../../../gl/color"
-import { useTheme } from "../../../hooks/useTheme"
+import { IVelocityData, VelocityBuffer, VelocityShader } from "./VelocityShader"
 
-export const VelocityItems: FC<{ rects: IRect[] }> = observer(({ rects }) => {
-  const theme = useTheme()
-  const color = colorToVec4(Color(theme.themeColor))
-  return <Rectangles rects={rects} color={color} />
-})
+export interface VelocityItemsProps {
+  rects: (IRect & IVelocityData)[]
+  strokeColor: vec4
+  activeColor: vec4
+  selectedColor: vec4
+  zIndex?: number
+}
+
+export const VelocityItems: FC<VelocityItemsProps> = ({
+  rects,
+  strokeColor,
+  activeColor,
+  selectedColor,
+  zIndex,
+}) => {
+  const projectionMatrix = useProjectionMatrix()
+
+  return (
+    <GLNode
+      createShader={VelocityShader}
+      createBuffer={(vertexArray) => new VelocityBuffer(vertexArray)}
+      uniforms={{
+        projectionMatrix,
+        strokeColor,
+        activeColor,
+        selectedColor,
+      }}
+      buffer={rects}
+      zIndex={zIndex}
+    />
+  )
+}
