@@ -4,16 +4,15 @@ import {
   Shader,
   VertexArray,
 } from "@ryohey/webgl-react"
-import { IRect } from "../../../../geometry"
+import { IRect } from "../../../geometry"
 
-export interface INoteData {
-  velocity: number
+export interface IVelocityData {
   isSelected: boolean
 }
 
-export class NoteBuffer
+export class VelocityBuffer
   implements
-    InstancedBuffer<(IRect & INoteData)[], "position" | "bounds" | "state">
+    InstancedBuffer<(IRect & IVelocityData)[], "position" | "bounds" | "state">
 {
   private _instanceCount: number = 0
   private boundsBuffer = new Float32Array(0)
@@ -28,7 +27,7 @@ export class NoteBuffer
     )
   }
 
-  update(rects: (IRect & INoteData)[]) {
+  update(rects: (IRect & IVelocityData)[]) {
     if (
       this.boundsBuffer.length < rects.length * 4 ||
       this.stateBuffer.length < rects.length * 2
@@ -45,8 +44,7 @@ export class NoteBuffer
       this.boundsBuffer[i * 4 + 2] = rect.width
       this.boundsBuffer[i * 4 + 3] = rect.height
 
-      this.stateBuffer[i * 2 + 0] = rect.velocity / 127
-      this.stateBuffer[i * 2 + 1] = rect.isSelected ? 1 : 0
+      this.stateBuffer[i * 2 + 0] = rect.isSelected ? 1 : 0
     }
 
     this.vertexArray.updateBuffer(
@@ -70,7 +68,7 @@ export class NoteBuffer
   }
 }
 
-export const NoteShader = (gl: WebGL2RenderingContext) =>
+export const VelocityShader = (gl: WebGL2RenderingContext) =>
   new Shader(
     gl,
     `#version 300 es
@@ -80,7 +78,7 @@ export const NoteShader = (gl: WebGL2RenderingContext) =>
 
       in vec4 position;
       in vec4 bounds;  // [x, y, width, height]
-      in vec2 state; // [velocity, isSelected]
+      in vec2 state; // [isSelected, <not used>]
 
       out vec4 vBounds;
       out vec2 vPosition;
@@ -99,7 +97,6 @@ export const NoteShader = (gl: WebGL2RenderingContext) =>
 
       uniform vec4 strokeColor;
       uniform vec4 selectedColor;
-      uniform vec4 inactiveColor;
       uniform vec4 activeColor;
 
       in vec4 vBounds;
@@ -125,8 +122,7 @@ export const NoteShader = (gl: WebGL2RenderingContext) =>
           outColor = strokeColor;
         } else {
           // if selected, draw selected color
-          // otherwise, draw color based on velocity by mixing active and inactive color
-          outColor = mix(mix(inactiveColor, activeColor, vState.x), selectedColor, vState.y);
+          outColor = mix(activeColor, selectedColor, vState.x);
         }
       }
     `,
@@ -138,7 +134,6 @@ export const NoteShader = (gl: WebGL2RenderingContext) =>
     {
       projectionMatrix: { type: "mat4" },
       strokeColor: { type: "vec4" },
-      inactiveColor: { type: "vec4" },
       activeColor: { type: "vec4" },
       selectedColor: { type: "vec4" },
     },

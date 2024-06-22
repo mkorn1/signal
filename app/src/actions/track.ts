@@ -1,5 +1,6 @@
 import { AnyChannelEvent, AnyEvent, SetTempoEvent } from "midifile-ts"
 import { closedRange } from "../helpers/array"
+import { filterEventsWithRange } from "../helpers/filterEvents"
 import {
   ValueEventType,
   createValueEvent,
@@ -84,6 +85,55 @@ export const createEvent =
     }
 
     return id
+  }
+
+export const updateVelocitiesInRange =
+  (rootStore: RootStore) =>
+  (
+    startTick: number,
+    startValue: number,
+    endTick: number,
+    endValue: number,
+  ) => {
+    const {
+      pianoRollStore: { selectedTrack, selectedNoteIds },
+    } = rootStore
+    if (selectedTrack === undefined) {
+      return
+    }
+    const minTick = Math.min(startTick, endTick)
+    const maxTick = Math.max(startTick, endTick)
+    const minValue = Math.min(startValue, endValue)
+    const maxValue = Math.max(startValue, endValue)
+    const getValue = (tick: number) =>
+      Math.floor(
+        Math.min(
+          maxValue,
+          Math.max(
+            minValue,
+            ((tick - startTick) / (endTick - startTick)) *
+              (endValue - startValue) +
+              startValue,
+          ),
+        ),
+      )
+
+    const notes =
+      selectedNoteIds.length > 0
+        ? selectedNoteIds.map(
+            (id) => selectedTrack.getEventById(id) as NoteEvent,
+          )
+        : selectedTrack.events.filter(isNoteEvent)
+
+    const events = filterEventsWithRange(notes, minTick, maxTick)
+    selectedTrack.transaction((it) => {
+      it.updateEvents(
+        events.map((e) => ({
+          id: e.id,
+          velocity: getValue(e.tick),
+        })),
+      )
+    })
   }
 
 // Update controller events in the range with linear interpolation values

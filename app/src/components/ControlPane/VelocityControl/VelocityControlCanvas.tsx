@@ -1,15 +1,24 @@
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
+import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
-import { changeNotesVelocity } from "../../../actions"
-import { IPoint, containsPoint } from "../../../geometry"
+import { changeNotesVelocity, updateVelocitiesInRange } from "../../../actions"
+import { IPoint, IRect, containsPoint, pointAdd } from "../../../geometry"
+import { colorToVec4 } from "../../../gl/color"
 import { matrixFromTranslation } from "../../../helpers/matrix"
-import { observeDrag } from "../../../helpers/observeDrag"
+import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
+import { useTheme } from "../../../hooks/useTheme"
 import { isNoteEvent } from "../../../track"
 import { Beats } from "../../GLNodes/Beats"
 import { Cursor } from "../../GLNodes/Cursor"
 import { VelocityItems } from "./VelocityItems"
+
+export type VelocityItem = IRect & {
+  id: number
+  isSelected: boolean
+  hitArea: IRect
+}
 
 export const VelocityControlCanvas: FC<{ width: number; height: number }> =
   observer(({ width, height }) => {
@@ -20,31 +29,35 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
         scrollLeft,
         windowedEvents,
         rulerStore: { beats },
+        selectedNoteIds,
         cursorX,
       },
     } = rootStore
-    const changeVelocity = useCallback(changeNotesVelocity(rootStore), [
-      rootStore,
-    ])
+    const theme = useTheme()
 
-    const items = windowedEvents.filter(isNoteEvent).map((note) => {
-      const { x } = transform.getRect(note)
-      const itemWidth = 5
-      const itemHeight = (note.velocity / 127) * height
-      return {
-        id: note.id,
-        x,
-        y: height - itemHeight,
-        width: itemWidth,
-        height: itemHeight,
-        hitArea: {
-          x,
-          y: 0,
-          width: itemWidth,
-          height,
-        },
-      }
-    })
+    const items: VelocityItem[] = useMemo(
+      () =>
+        windowedEvents.filter(isNoteEvent).map((note) => {
+          const { x } = transform.getRect(note)
+          const itemWidth = 5
+          const itemHeight = (note.velocity / 127) * height
+          return {
+            id: note.id,
+            x,
+            y: height - itemHeight,
+            width: itemWidth,
+            height: itemHeight,
+            isSelected: selectedNoteIds.includes(note.id),
+            hitArea: {
+              x,
+              y: 0,
+              width: itemWidth,
+              height,
+            },
+          }
+        }),
+      [windowedEvents, height, transform, selectedNoteIds],
+    )
 
     const hitTest = (point: IPoint) => {
       return items.filter((n) => containsPoint(n.hitArea, point))
@@ -53,14 +66,14 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
     const onMouseDown = useCallback(
       (ev: React.MouseEvent) => {
         const e = ev.nativeEvent
-        const local = {
+        const startPoint = {
           x: e.offsetX + scrollLeft,
           y: e.offsetY,
         }
-        const hitItems = hitTest(local)
+        let hitItems = hitTest(startPoint)
 
-        if (hitItems.length === 0) {
-          return
+        if (selectedNoteIds.length > 0) {
+          hitItems = hitItems.filter((e) => e.isSelected)
         }
 
         const startY = e.clientY - e.offsetY
@@ -72,15 +85,46 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
           )
         }
 
-        const noteIds = hitItems.map((e) => e.id)
+        if (hitItems.length === 0) {
+          handlePaintingDrag()
+        } else {
+          handleSingleDrag()
+        }
 
-        changeVelocity(noteIds, calcValue(e))
+        function handlePaintingDrag() {
+          let lastTick = transform.getTicks(startPoint.x)
+          let lastValue = calcValue(e)
 
-        observeDrag({
-          onMouseMove: (e) => changeVelocity(noteIds, calcValue(e)),
-        })
+          observeDrag2(e, {
+            onMouseMove: (e, delta) => {
+              const local = pointAdd(startPoint, delta)
+              const tick = transform.getTicks(local.x)
+              const value = calcValue(e)
+
+              updateVelocitiesInRange(rootStore)(
+                lastTick,
+                lastValue,
+                tick,
+                value,
+              )
+              lastTick = tick
+              lastValue = value
+            },
+          })
+        }
+
+        function handleSingleDrag() {
+          const noteIds = hitItems.map((e) => e.id)
+
+          changeNotesVelocity(rootStore)(noteIds, calcValue(e))
+
+          observeDrag({
+            onMouseMove: (e) =>
+              changeNotesVelocity(rootStore)(noteIds, calcValue(e)),
+          })
+        }
       },
-      [height, items, changeVelocity],
+      [height, items, rootStore, selectedNoteIds, scrollLeft],
     )
 
     const scrollXMatrix = useMemo(
@@ -88,10 +132,29 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
       [scrollLeft],
     )
 
+    const strokeColor = useMemo(
+      () => colorToVec4(Color(theme.themeColor).lighten(0.3)),
+      [theme],
+    )
+    const activeColor = useMemo(
+      () => colorToVec4(Color(theme.themeColor)),
+      [theme],
+    )
+    const selectedColor = useMemo(
+      () => colorToVec4(Color(theme.themeColor).lighten(0.7)),
+      [theme],
+    )
+
     return (
       <GLCanvas width={width} height={height} onMouseDown={onMouseDown}>
         <Transform matrix={scrollXMatrix}>
-          <VelocityItems rects={items} />
+          <VelocityItems
+            rects={items}
+            strokeColor={strokeColor}
+            activeColor={activeColor}
+            selectedColor={selectedColor}
+            zIndex={1}
+          />
           <Beats height={height} beats={beats} zIndex={2} />
           <Cursor x={cursorX} height={height} zIndex={4} />
         </Transform>
