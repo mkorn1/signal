@@ -11,24 +11,13 @@ export interface INoteData {
   isSelected: boolean
 }
 
-class Float32Data {
-  readonly data: Float32Array
-  private cursor: number = 0
-
-  constructor(size: number) {
-    this.data = new Float32Array(size)
-  }
-
-  push(value: number) {
-    this.data[this.cursor++] = value
-  }
-}
-
 export class NoteBuffer
   implements
     InstancedBuffer<(IRect & INoteData)[], "position" | "bounds" | "state">
 {
   private _instanceCount: number = 0
+  private boundsBuffer = new Float32Array(0)
+  private stateBuffer = new Float32Array(0)
 
   constructor(
     readonly vertexArray: VertexArray<"position" | "bounds" | "state">,
@@ -40,22 +29,28 @@ export class NoteBuffer
   }
 
   update(rects: (IRect & INoteData)[]) {
-    const boundsData = new Float32Data(rects.length * 4)
-    const stateData = new Float32Data(rects.length * 2)
+    if (
+      this.boundsBuffer.length < rects.length * 4 ||
+      this.stateBuffer.length < rects.length * 2
+    ) {
+      this.boundsBuffer = new Float32Array(rects.length * 4)
+      this.stateBuffer = new Float32Array(rects.length * 2)
+    }
 
     for (let i = 0; i < rects.length; i++) {
       const rect = rects[i]
-      boundsData.push(rect.x)
-      boundsData.push(rect.y)
-      boundsData.push(rect.width)
-      boundsData.push(rect.height)
 
-      stateData.push(rect.velocity / 127)
-      stateData.push(rect.isSelected ? 1 : 0)
+      this.boundsBuffer[i * 4 + 0] = rect.x
+      this.boundsBuffer[i * 4 + 1] = rect.y
+      this.boundsBuffer[i * 4 + 2] = rect.width
+      this.boundsBuffer[i * 4 + 3] = rect.height
+
+      this.stateBuffer[i * 2 + 0] = rect.velocity / 127
+      this.stateBuffer[i * 2 + 1] = rect.isSelected ? 1 : 0
     }
 
-    this.vertexArray.updateBuffer("bounds", boundsData.data)
-    this.vertexArray.updateBuffer("state", stateData.data)
+    this.vertexArray.updateBuffer("bounds", this.boundsBuffer)
+    this.vertexArray.updateBuffer("state", this.stateBuffer)
 
     this._instanceCount = rects.length
   }
