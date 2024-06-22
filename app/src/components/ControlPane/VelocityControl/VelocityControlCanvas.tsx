@@ -27,24 +27,28 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
       rootStore,
     ])
 
-    const items = windowedEvents.filter(isNoteEvent).map((note) => {
-      const { x } = transform.getRect(note)
-      const itemWidth = 5
-      const itemHeight = (note.velocity / 127) * height
-      return {
-        id: note.id,
-        x,
-        y: height - itemHeight,
-        width: itemWidth,
-        height: itemHeight,
-        hitArea: {
-          x,
-          y: 0,
-          width: itemWidth,
-          height,
-        },
-      }
-    })
+    const items = useMemo(
+      () =>
+        windowedEvents.filter(isNoteEvent).map((note) => {
+          const { x } = transform.getRect(note)
+          const itemWidth = 5
+          const itemHeight = (note.velocity / 127) * height
+          return {
+            id: note.id,
+            x,
+            y: height - itemHeight,
+            width: itemWidth,
+            height: itemHeight,
+            hitArea: {
+              x,
+              y: 0,
+              width: itemWidth,
+              height,
+            },
+          }
+        }),
+      [windowedEvents, height, transform],
+    )
 
     const hitTest = (point: IPoint) => {
       return items.filter((n) => containsPoint(n.hitArea, point))
@@ -58,11 +62,6 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
           y: e.offsetY,
         }
         const hitItems = hitTest(local)
-
-        if (hitItems.length === 0) {
-          return
-        }
-
         const startY = e.clientY - e.offsetY
 
         const calcValue = (e: MouseEvent) => {
@@ -72,13 +71,36 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
           )
         }
 
-        const noteIds = hitItems.map((e) => e.id)
+        if (hitItems.length === 0) {
+          handlePaintingDrag()
+        } else {
+          handleSingleDrag()
+        }
 
-        changeVelocity(noteIds, calcValue(e))
+        function handlePaintingDrag() {
+          observeDrag({
+            onMouseMove: (e) => {
+              const local = {
+                x: e.offsetX + scrollLeft,
+                y: e.offsetY,
+              }
+              const hitItems = hitTest(local)
+              const noteIds = hitItems.map((e) => e.id)
+              changeVelocity(noteIds, calcValue(e))
+              // TODO: update the events in the middle of the drag with linear interpolation values as well as updateEventsInRange
+            },
+          })
+        }
 
-        observeDrag({
-          onMouseMove: (e) => changeVelocity(noteIds, calcValue(e)),
-        })
+        function handleSingleDrag() {
+          const noteIds = hitItems.map((e) => e.id)
+
+          changeVelocity(noteIds, calcValue(e))
+
+          observeDrag({
+            onMouseMove: (e) => changeVelocity(noteIds, calcValue(e)),
+          })
+        }
       },
       [height, items, changeVelocity],
     )
