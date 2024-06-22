@@ -2,7 +2,7 @@ import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
-import { changeNotesVelocity } from "../../../actions"
+import { changeNotesVelocity, updateVelocitiesInRange } from "../../../actions"
 import { IPoint, IRect, containsPoint } from "../../../geometry"
 import { colorToVec4 } from "../../../gl/color"
 import { matrixFromTranslation } from "../../../helpers/matrix"
@@ -87,21 +87,26 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
         }
 
         function handlePaintingDrag() {
+          let lastTick = transform.getTicks(local.x)
+          let lastValue = calcValue(e)
+
           observeDrag({
             onMouseMove: (e) => {
               const local = {
                 x: e.offsetX + scrollLeft,
                 y: e.offsetY,
               }
-              let hitItems = hitTest(local)
+              const tick = transform.getTicks(local.x)
+              const value = calcValue(e)
 
-              if (selectedNoteIds.length > 0) {
-                hitItems = hitItems.filter((e) => e.isSelected)
-              }
-
-              const noteIds = hitItems.map((e) => e.id)
-              changeNotesVelocity(rootStore)(noteIds, calcValue(e))
-              // TODO: update the events in the middle of the drag with linear interpolation values as well as updateEventsInRange
+              updateVelocitiesInRange(rootStore)(
+                lastTick,
+                lastValue,
+                tick,
+                value,
+              )
+              lastTick = tick
+              lastValue = value
             },
           })
         }
