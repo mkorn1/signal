@@ -112,7 +112,14 @@ export const NoteShader = (gl: WebGL2RenderingContext) =>
         float localX = vPosition.x - vBounds.x;
         float localY = vPosition.y - vBounds.y;
 
-        if ((localX < border) || (localX >= (vBounds.z - border)) || (localY < border) || (localY > (vBounds.w - border))) {
+        float outlineTop = step(border, localY);
+        float outlineBottom = step(localY, vBounds.w - border);
+        float outlineLeft = step(border, localX);
+        float outlineRight = step(localX, vBounds.z - border);
+        
+        float isOutline = outlineTop * outlineBottom * outlineLeft * outlineRight;
+    
+        if (isOutline < 1.0) {
           // draw outline
           outColor = strokeColor;
         } else {
