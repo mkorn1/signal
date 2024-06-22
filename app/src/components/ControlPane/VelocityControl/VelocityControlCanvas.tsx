@@ -3,10 +3,10 @@ import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import { changeNotesVelocity, updateVelocitiesInRange } from "../../../actions"
-import { IPoint, IRect, containsPoint } from "../../../geometry"
+import { IPoint, IRect, containsPoint, pointAdd } from "../../../geometry"
 import { colorToVec4 } from "../../../gl/color"
 import { matrixFromTranslation } from "../../../helpers/matrix"
-import { observeDrag } from "../../../helpers/observeDrag"
+import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
 import { useTheme } from "../../../hooks/useTheme"
 import { isNoteEvent } from "../../../track"
@@ -66,11 +66,16 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
     const onMouseDown = useCallback(
       (ev: React.MouseEvent) => {
         const e = ev.nativeEvent
-        const local = {
+        const startPoint = {
           x: e.offsetX + scrollLeft,
           y: e.offsetY,
         }
-        const hitItems = hitTest(local)
+        let hitItems = hitTest(startPoint)
+
+        if (selectedNoteIds.length > 0) {
+          hitItems = hitItems.filter((e) => e.isSelected)
+        }
+
         const startY = e.clientY - e.offsetY
 
         const calcValue = (e: MouseEvent) => {
@@ -87,15 +92,12 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
         }
 
         function handlePaintingDrag() {
-          let lastTick = transform.getTicks(local.x)
+          let lastTick = transform.getTicks(startPoint.x)
           let lastValue = calcValue(e)
 
-          observeDrag({
-            onMouseMove: (e) => {
-              const local = {
-                x: e.offsetX + scrollLeft,
-                y: e.offsetY,
-              }
+          observeDrag2(e, {
+            onMouseMove: (e, delta) => {
+              const local = pointAdd(startPoint, delta)
               const tick = transform.getTicks(local.x)
               const value = calcValue(e)
 
