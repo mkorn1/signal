@@ -35,10 +35,6 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
     } = rootStore
     const theme = useTheme()
 
-    const changeVelocity = useCallback(changeNotesVelocity(rootStore), [
-      rootStore,
-    ])
-
     const items: VelocityItem[] = useMemo(
       () =>
         windowedEvents.filter(isNoteEvent).map((note) => {
@@ -97,9 +93,14 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
                 x: e.offsetX + scrollLeft,
                 y: e.offsetY,
               }
-              const hitItems = hitTest(local)
+              let hitItems = hitTest(local)
+
+              if (selectedNoteIds.length > 0) {
+                hitItems = hitItems.filter((e) => e.isSelected)
+              }
+
               const noteIds = hitItems.map((e) => e.id)
-              changeVelocity(noteIds, calcValue(e))
+              changeNotesVelocity(rootStore)(noteIds, calcValue(e))
               // TODO: update the events in the middle of the drag with linear interpolation values as well as updateEventsInRange
             },
           })
@@ -108,14 +109,15 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
         function handleSingleDrag() {
           const noteIds = hitItems.map((e) => e.id)
 
-          changeVelocity(noteIds, calcValue(e))
+          changeNotesVelocity(rootStore)(noteIds, calcValue(e))
 
           observeDrag({
-            onMouseMove: (e) => changeVelocity(noteIds, calcValue(e)),
+            onMouseMove: (e) =>
+              changeNotesVelocity(rootStore)(noteIds, calcValue(e)),
           })
         }
       },
-      [height, items, changeVelocity],
+      [height, items, rootStore, selectedNoteIds, scrollLeft],
     )
 
     const scrollXMatrix = useMemo(
