@@ -47,8 +47,14 @@ export class VelocityBuffer
       this.stateBuffer[i * 2 + 0] = rect.isSelected ? 1 : 0
     }
 
-    this.vertexArray.updateBuffer("bounds", this.boundsBuffer)
-    this.vertexArray.updateBuffer("state", this.stateBuffer)
+    this.vertexArray.updateBuffer(
+      "bounds",
+      this.boundsBuffer.subarray(0, rects.length * 4),
+    )
+    this.vertexArray.updateBuffer(
+      "state",
+      this.stateBuffer.subarray(0, rects.length * 2),
+    )
 
     this._instanceCount = rects.length
   }
