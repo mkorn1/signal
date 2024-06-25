@@ -11,7 +11,7 @@ export interface HorizontalGridProps {
   rect: IRect
   color: vec4
   highlightedColor: vec4
-  blackLaneColor: vec4
+  laneColors: Float32Array // 12 colors x 4 rgba
   height: number
   zIndex?: number
 }
@@ -20,7 +20,7 @@ export const HorizontalGrid: FC<HorizontalGridProps> = ({
   rect,
   color,
   highlightedColor,
-  blackLaneColor,
+  laneColors,
   height,
   zIndex,
 }) => {
@@ -34,7 +34,7 @@ export const HorizontalGrid: FC<HorizontalGridProps> = ({
         projectionMatrix,
         color,
         highlightedColor,
-        blackLaneColor,
+        laneColors,
         height,
       }}
       buffer={rect}

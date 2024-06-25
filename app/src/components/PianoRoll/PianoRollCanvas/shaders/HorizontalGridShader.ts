@@ -7,6 +7,7 @@ import {
   uniformVec4,
   VertexArray,
 } from "@ryohey/webgl-react"
+import isEqual from "lodash/isEqual"
 import { IRect } from "../../../../geometry"
 
 export class HorizontalGridBuffer implements Buffer<IRect, "position"> {
@@ -42,7 +43,7 @@ export const HorizontalGridShader = (gl: WebGL2RenderingContext) =>
 
       uniform vec4 color;
       uniform vec4 highlightedColor;
-      uniform vec4 blackLaneColor;
+      uniform vec4 laneColors[12];
       uniform float height;
       
       in vec4 vPosition;
@@ -68,12 +69,19 @@ export const HorizontalGridShader = (gl: WebGL2RenderingContext) =>
 
         // draw black lane
         outColor += (
-          step2(key - 1.0) + 
-          step2(key - 3.0) + 
-          step2(key - 6.0) + 
-          step2(key - 8.0) + 
-          step2(key - 10.0)
-        ) * blackLaneColor;
+          step2(key) * laneColors[0] +
+          step2(key - 1.0) * laneColors[1] + 
+          step2(key - 2.0) * laneColors[2] +
+          step2(key - 3.0) * laneColors[3] +
+          step2(key - 4.0) * laneColors[4] +
+          step2(key - 5.0) * laneColors[5] +
+          step2(key - 6.0) * laneColors[6] +
+          step2(key - 7.0) * laneColors[7] +
+          step2(key - 8.0) * laneColors[8] +
+          step2(key - 9.0) * laneColors[9] +
+          step2(key - 10.0) * laneColors[10] +
+          step2(key - 11.0) * laneColors[11]
+        );
       }
     `,
     {
@@ -83,7 +91,11 @@ export const HorizontalGridShader = (gl: WebGL2RenderingContext) =>
       projectionMatrix: uniformMat4(),
       color: uniformVec4(),
       highlightedColor: uniformVec4(),
-      blackLaneColor: uniformVec4(),
+      laneColors: {
+        initialValue: new Float32Array(4 * 12),
+        isEqual,
+        upload: (gl, loc, value) => gl.uniform4fv(loc, value, 0, 4 * 12),
+      },
       height: uniformFloat(),
     },
   )
