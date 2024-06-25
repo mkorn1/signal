@@ -1,4 +1,4 @@
-import { Shader } from "@ryohey/webgl-react"
+import { Shader, uniformMat4, uniformVec4 } from "@ryohey/webgl-react"
 
 export const DrumNoteShader = (gl: WebGL2RenderingContext) =>
   new Shader(
@@ -60,10 +60,10 @@ export const DrumNoteShader = (gl: WebGL2RenderingContext) =>
       state: { size: 2, type: gl.FLOAT, divisor: 1 },
     },
     {
-      projectionMatrix: { type: "mat4" },
-      strokeColor: { type: "vec4" },
-      inactiveColor: { type: "vec4" },
-      activeColor: { type: "vec4" },
-      selectedColor: { type: "vec4" },
+      projectionMatrix: uniformMat4(),
+      strokeColor: uniformVec4(),
+      inactiveColor: uniformVec4(),
+      activeColor: uniformVec4(),
+      selectedColor: uniformVec4(),
     },
   )

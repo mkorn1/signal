@@ -2,6 +2,9 @@ import {
   Buffer,
   rectToTriangles,
   Shader,
+  uniformFloat,
+  uniformMat4,
+  uniformVec4,
   VertexArray,
 } from "@ryohey/webgl-react"
 import { IRect } from "../../../../geometry"
@@ -77,10 +80,10 @@ export const HorizontalGridShader = (gl: WebGL2RenderingContext) =>
       position: { size: 2, type: gl.FLOAT },
     },
     {
-      projectionMatrix: { type: "mat4" },
-      color: { type: "vec4" },
-      highlightedColor: { type: "vec4" },
-      blackLaneColor: { type: "vec4" },
-      height: { type: "float" },
+      projectionMatrix: uniformMat4(),
+      color: uniformVec4(),
+      highlightedColor: uniformVec4(),
+      blackLaneColor: uniformVec4(),
+      height: uniformFloat(),
     },
   )
