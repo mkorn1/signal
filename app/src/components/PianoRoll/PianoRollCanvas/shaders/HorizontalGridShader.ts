@@ -50,38 +50,39 @@ export const HorizontalGridShader = (gl: WebGL2RenderingContext) =>
 
       out vec4 outColor;
 
-      float step2(float x) {
-        return step(0.0, x) * step(x, 1.0);
+      float line(float inputY, float y, float lineWidth) {
+       return step(y, inputY) * step(inputY, y + lineWidth);
       }
       
       void main() {
-        const float eps = 0.1;
-        float y = vPosition.y;
-        float border = 1.0;
-        float index = 128.0 - y / height;
-        float key = mod(index, 12.0);
+        float screenHeight = height * 128.0;
+        float modY = mod(screenHeight - vPosition.y, height * 12.0);
+        float laneHeight = height - 1.0;
 
-        // draw border
-        if (abs(key) < eps || abs(key - 5.0) < eps) {
-          vec4 color = mix(highlightedColor, color, step(0.1, key));
-          outColor = step(fract(index) * height, border) * color;
+        // draw lane colors
+        for (int i = 0; i < 12; i++) {
+          outColor += line(modY, height * float(i) + 1.0, laneHeight) * laneColors[i];
         }
 
-        // draw black lane
+        // draw lines
         outColor += (
-          step2(key) * laneColors[0] +
-          step2(key - 1.0) * laneColors[1] + 
-          step2(key - 2.0) * laneColors[2] +
-          step2(key - 3.0) * laneColors[3] +
-          step2(key - 4.0) * laneColors[4] +
-          step2(key - 5.0) * laneColors[5] +
-          step2(key - 6.0) * laneColors[6] +
-          step2(key - 7.0) * laneColors[7] +
-          step2(key - 8.0) * laneColors[8] +
-          step2(key - 9.0) * laneColors[9] +
-          step2(key - 10.0) * laneColors[10] +
-          step2(key - 11.0) * laneColors[11]
-        );
+          line(modY, height * 1.0, 1.0) +
+          line(modY, height * 2.0, 1.0) +
+          line(modY, height * 3.0, 1.0) +
+          line(modY, height * 4.0, 1.0) +
+          line(modY, height * 6.0, 1.0) +
+          line(modY, height * 7.0, 1.0) +
+          line(modY, height * 8.0, 1.0) +
+          line(modY, height * 9.0, 1.0) +
+          line(modY, height * 10.0, 1.0) +
+          line(modY, height * 11.0, 1.0)
+        ) * color;
+
+        // draw hihglighted lines for key 0 and 5
+        outColor += (
+          line(modY, 0.0, 1.0) +
+          line(modY, height * 5.0, 1.0)
+        ) * highlightedColor;
       }
     `,
     {
