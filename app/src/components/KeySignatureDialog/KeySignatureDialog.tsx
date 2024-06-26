@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
+import { Scale, ScaleName, scaleValues } from "../../scale/Scale"
 import {
   Dialog,
   DialogActions,
@@ -36,18 +37,6 @@ const keyNames = Array.from({ length: 12 }, (_, i) => {
   return names[i]
 })
 
-const scaleNames = [
-  "Major",
-  "Minor",
-  "Harmonic Minor",
-  "Melodic Minor",
-  "Dorian",
-  "Phrygian",
-  "Lydian",
-  "Mixolydian",
-  "Locrian",
-]
-
 const Row = styled.div`
   display: flex;
   flex-direction: row;
@@ -60,7 +49,7 @@ const Column = styled.div`
 
 export const KeySignatureDialog: FC<KeySignatureDialogProps> = observer(
   ({ open, onOpenChange }) => {
-    const rootStore = useStores()
+    const { pianoRollStore } = useStores()
     const onClose = () => onOpenChange(false)
 
     useEffect(() => {
@@ -70,16 +59,23 @@ export const KeySignatureDialog: FC<KeySignatureDialogProps> = observer(
 
     return (
       <Dialog open={open} onOpenChange={onClose} style={{ minWidth: "20rem" }}>
-        <DialogTitle>スケール</DialogTitle>
+        <DialogTitle>
+          <Localized name="scale" />
+        </DialogTitle>
         <DialogContent>
           <Row style={{ gap: "1rem" }}>
             <Column style={{ gap: "0.5rem", minWidth: "5rem" }}>
-              <Label>Key</Label>
+              <Label>
+                <Localized name="key" />
+              </Label>
               <Select
-                value={rootStore.pianoRollStore.keySignature?.key}
+                value={pianoRollStore.keySignature?.key}
                 onChange={(e) => {
                   const key = parseInt(e.target.value)
-                  // rootStore.pianoRollStore.setKeySignatureKey(key)
+                  pianoRollStore.keySignature = {
+                    scale: pianoRollStore.keySignature?.scale ?? "major",
+                    key,
+                  }
                 }}
               >
                 {keyNames.map((name, i) => (
@@ -90,17 +86,22 @@ export const KeySignatureDialog: FC<KeySignatureDialogProps> = observer(
               </Select>
             </Column>
             <Column style={{ gap: "0.5rem", minWidth: "5rem" }}>
-              <Label>Scale</Label>
+              <Label>
+                <Localized name="scale" />
+              </Label>
               <Select
-                value={"Major"}
+                value={pianoRollStore.keySignature?.scale}
                 onChange={(e) => {
-                  const scale = parseInt(e.target.value)
-                  // rootStore.pianoRollStore.setKeySignatureScale(scale)
+                  const scale = e.target.value as Scale
+                  pianoRollStore.keySignature = {
+                    key: pianoRollStore.keySignature?.key ?? 0,
+                    scale: scale,
+                  }
                 }}
               >
-                {scaleNames.map((name, i) => (
-                  <option key={i} value={i}>
-                    {name}
+                {scaleValues.map((name, i) => (
+                  <option key={i} value={name}>
+                    <ScaleName scale={name} />
                   </option>
                 ))}
               </Select>

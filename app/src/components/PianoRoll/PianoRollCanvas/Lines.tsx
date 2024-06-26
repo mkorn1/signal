@@ -5,11 +5,14 @@ import { Layout } from "../../../Constants"
 import { colorToVec4 } from "../../../gl/color"
 import { useStores } from "../../../hooks/useStores"
 import { useTheme } from "../../../hooks/useTheme"
-import { majorScale } from "../../../scale/Scale"
+import { KeySignature, getScaleIntervals } from "../../../scale/Scale"
 import { HorizontalGrid } from "./HorizontalGrid"
 
-function scaleToConditions(scale: number[], key: number = 0) {
-  return new Array(12).fill(false).map((_, i) => scale.includes((i - key) % 12))
+function keySignatureToConditions(keySignature: KeySignature) {
+  const intervals = getScaleIntervals(keySignature.scale)
+  return new Array(12)
+    .fill(false)
+    .map((_, i) => intervals.includes((i - keySignature.key + 12) % 12))
 }
 
 export const Lines: FC<{ zIndex: number }> = observer(({ zIndex }) => {
@@ -39,16 +42,15 @@ export const Lines: FC<{ zIndex: number }> = observer(({ zIndex }) => {
         Array(12)
           .fill(0)
           .map((_, i) =>
-            majorScale.includes(i) ? whiteLaneColor : blackLaneColor,
+            getScaleIntervals("major").includes(i)
+              ? whiteLaneColor
+              : blackLaneColor,
           )
           .flat(),
       )
     }
 
-    const highlightedKeys = scaleToConditions(
-      keySignature.scale,
-      keySignature.key,
-    )
+    const highlightedKeys = keySignatureToConditions(keySignature)
 
     const highlightedLaneColor = colorToVec4(
       Color(theme.pianoHighlightedLaneColor),
