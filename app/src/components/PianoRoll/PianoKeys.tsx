@@ -3,11 +3,13 @@ import React, { FC, useCallback, useState } from "react"
 import { Layout } from "../../Constants"
 import { noteNameWithOctString } from "../../helpers/noteNumberString"
 import { observeDrag } from "../../helpers/observeDrag"
+import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
 import { noteOffMidiEvent, noteOnMidiEvent } from "../../midi/MidiEvent"
 import { Theme } from "../../theme/Theme"
 import DrawCanvas from "../DrawCanvas"
+import { PianoKeysContextMenu } from "./PianoKeysContextMenu"
 
 // 0: white, 1: black
 const Colors = [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0]
@@ -193,6 +195,7 @@ const PianoKeys: FC<PianoKeysProps> = ({ numberOfKeys, keyHeight }) => {
   const width = Layout.keyWidth
   const blackKeyWidth = Layout.keyWidth * Layout.blackKeyWidthRatio
   const [touchingKeys, setTouchingKeys] = useState<number[]>([])
+  const { onContextMenu, menuProps } = useContextMenu()
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -211,6 +214,10 @@ const PianoKeys: FC<PianoKeysProps> = ({ numberOfKeys, keyHeight }) => {
 
   const onMouseDown = useCallback(
     (e: React.MouseEvent) => {
+      if (e.button !== 0) {
+        return
+      }
+
       function posToNoteNumber(x: number, y: number): number {
         const noteNumberFloat = numberOfKeys - y / keyHeight
         const noteNumber = Math.floor(noteNumberFloat)
@@ -265,12 +272,16 @@ const PianoKeys: FC<PianoKeysProps> = ({ numberOfKeys, keyHeight }) => {
   )
 
   return (
-    <DrawCanvas
-      draw={draw}
-      width={width}
-      height={keyHeight * numberOfKeys}
-      onMouseDown={onMouseDown}
-    />
+    <>
+      <DrawCanvas
+        draw={draw}
+        width={width}
+        height={keyHeight * numberOfKeys}
+        onMouseDown={onMouseDown}
+        onContextMenu={onContextMenu}
+      />
+      <PianoKeysContextMenu {...menuProps} />
+    </>
   )
 }
 
