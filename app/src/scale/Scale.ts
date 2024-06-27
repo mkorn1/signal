@@ -25,8 +25,8 @@ export interface KeySignature {
   scale: Scale
 }
 
-// An array of intervals contained in the scale. Intervals are represented by relative distances from the key.
-export const getScaleIntervals = (scale: Scale): number[] => {
+// An array of 12 integers representing the notes in the scale. 0 is C, 1 is C#, 2 is D, etc.
+export const getScaleIntegerNotation = (scale: Scale): number[] => {
   switch (scale) {
     case "major":
       return [0, 2, 4, 5, 7, 9, 11]
