@@ -213,13 +213,20 @@ export const updateValueEvents =
     )
 
 export const removeEvent =
-  ({ pianoRollStore: { selectedTrack }, pushHistory }: RootStore) =>
+  ({
+    pianoRollStore,
+    pianoRollStore: { selectedTrack },
+    pushHistory,
+  }: RootStore) =>
   (eventId: number) => {
     if (selectedTrack === undefined) {
       return
     }
     pushHistory()
     selectedTrack.removeEvent(eventId)
+    pianoRollStore.selectedNoteIds = pianoRollStore.selectedNoteIds.filter(
+      (id) => id !== eventId,
+    )
   }
 
 /* note */
