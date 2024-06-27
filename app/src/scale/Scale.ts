@@ -39,7 +39,7 @@ export interface KeySignature {
 }
 
 // An array of 12 integers representing the notes in the scale. 0 is C, 1 is C#, 2 is D, etc.
-export const getScaleIntegerNotation = (scale: Scale): number[] => {
+const getScaleIntegerNotation = (scale: Scale): number[] => {
   switch (scale) {
     case "major":
       return [0, 2, 4, 5, 7, 9, 11]
@@ -124,4 +124,10 @@ export const ScaleName: FC<{ scale: Scale }> = ({ scale }) => {
     case "wholeTone":
       return localized["scale-whole-tone"]
   }
+}
+
+// the function that transpose the scale to the key
+export const getScaleInterval = (keySignature: KeySignature): number[] => {
+  const scaleIntervals = getScaleIntegerNotation(keySignature.scale)
+  return scaleIntervals.map((i) => (i + keySignature.key) % 12)
 }

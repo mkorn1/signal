@@ -1,4 +1,5 @@
 import Color from "color"
+import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useState } from "react"
 import { Layout } from "../../Constants"
 import { noteNameWithOctString } from "../../helpers/noteNumberString"
@@ -7,6 +8,7 @@ import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
 import { noteOffMidiEvent, noteOnMidiEvent } from "../../midi/MidiEvent"
+import { getScaleInterval as getScaleIntervals } from "../../scale/Scale"
 import { Theme } from "../../theme/Theme"
 import DrawCanvas from "../DrawCanvas"
 import { PianoKeysContextMenu } from "./PianoKeysContextMenu"
@@ -46,11 +48,16 @@ function drawWhiteKey(
   height: number,
   theme: Theme,
   isSelected: boolean,
+  isInScale: boolean,
   bordered: boolean,
 ): void {
   if (isSelected) {
     ctx.fillStyle = theme.themeColor
     ctx.fillRect(0, 0.5, width, height)
+  }
+  if (isInScale) {
+    ctx.fillStyle = theme.themeColor
+    ctx.fillRect(width - 4, 0.5, 4, height)
   }
   if (bordered) {
     drawBorder(ctx, width, theme.dividerColor)
@@ -62,6 +69,8 @@ function drawBlackKey(
   keyWidth: number,
   width: number,
   height: number,
+  theme: Theme,
+  isInScale: boolean,
   fillStyle: CanvasFillStrokeStyles["fillStyle"],
   dividerColor: string,
 ): void {
@@ -69,6 +78,11 @@ function drawBlackKey(
 
   ctx.fillStyle = fillStyle
   ctx.fillRect(0, 0.5, keyWidth, height)
+
+  if (isInScale) {
+    ctx.fillStyle = theme.themeColor
+    ctx.fillRect(keyWidth - 4, 0.5, 4, height)
+  }
 
   ctx.lineWidth = 1
   ctx.strokeStyle = dividerColor
@@ -103,6 +117,7 @@ function drawKeys(
   numberOfKeys: number,
   theme: Theme,
   touchingKeys: number[],
+  scale: number[],
 ) {
   ctx.save()
   ctx.translate(0, 0.5)
@@ -121,6 +136,7 @@ function drawKeys(
   for (const keyNum of whiteKeys) {
     let y = (numberOfKeys - keyNum - 1) * keyHeight
     const isSelected = touchingKeys.includes(keyNum)
+    const isInScale = scale.includes(keyNum % 12)
 
     const bordered = keyNum % 12 === 4 || keyNum % 12 === 11
     const prevKeyBlack = Colors[(keyNum - 1) % Colors.length] === 1
@@ -138,17 +154,18 @@ function drawKeys(
     ctx.save()
     ctx.translate(0, y)
 
-    drawWhiteKey(ctx, width, height, theme, isSelected, bordered)
+    drawWhiteKey(ctx, width, height, theme, isSelected, isInScale, bordered)
     ctx.restore()
   }
+
+  const blackKeyFillStyle = makeBlackKeyFillStyle(ctx, blackKeyWidth)
+  const grayDividerColor = Color(theme.dividerColor).alpha(0.3).string()
 
   // Draw black keys
   for (const keyNum of blackKeys) {
     const y = (numberOfKeys - keyNum - 1) * keyHeight
     const isSelected = touchingKeys.includes(keyNum)
-
-    const blackKeyFillStyle = makeBlackKeyFillStyle(ctx, blackKeyWidth)
-    const grayDividerColor = Color(theme.dividerColor).alpha(0.3).string()
+    const isInScale = scale.includes(keyNum % 12)
 
     ctx.save()
     ctx.translate(0, y)
@@ -158,6 +175,8 @@ function drawKeys(
       blackKeyWidth,
       width,
       keyHeight,
+      theme,
+      isInScale,
       isSelected ? theme.themeColor : blackKeyFillStyle,
       grayDividerColor,
     )
@@ -184,21 +203,25 @@ function drawKeys(
   ctx.restore()
 }
 
-export interface PianoKeysProps {
-  numberOfKeys: number
-  keyHeight: number
-}
-
-const PianoKeys: FC<PianoKeysProps> = ({ numberOfKeys, keyHeight }) => {
+export const PianoKeys: FC = observer(() => {
   const theme = useTheme()
-  const rootStore = useStores()
+  const {
+    pianoRollStore,
+    pianoRollStore: {
+      keySignature,
+      transform: { numberOfKeys },
+    },
+    player,
+  } = useStores()
   const width = Layout.keyWidth
+  const keyHeight = Layout.keyHeight
   const blackKeyWidth = Layout.keyWidth * Layout.blackKeyWidthRatio
   const [touchingKeys, setTouchingKeys] = useState<number[]>([])
   const { onContextMenu, menuProps } = useContextMenu()
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D) => {
+      const scale = keySignature !== null ? getScaleIntervals(keySignature) : []
       drawKeys(
         ctx,
         blackKeyWidth,
@@ -207,9 +230,10 @@ const PianoKeys: FC<PianoKeysProps> = ({ numberOfKeys, keyHeight }) => {
         numberOfKeys,
         theme,
         touchingKeys,
+        scale,
       )
     },
-    [keyHeight, numberOfKeys, theme, touchingKeys],
+    [numberOfKeys, theme, touchingKeys, keySignature],
   )
 
   const onMouseDown = useCallback(
@@ -237,10 +261,7 @@ const PianoKeys: FC<PianoKeysProps> = ({ numberOfKeys, keyHeight }) => {
         x: e.nativeEvent.offsetX,
         y: e.nativeEvent.offsetY,
       }
-      const {
-        player,
-        pianoRollStore: { selectedTrack },
-      } = rootStore
+      const { selectedTrack } = pianoRollStore
       const channel = selectedTrack?.channel ?? 0
 
       let prevNoteNumber = posToNoteNumber(startPosition.x, startPosition.y)
@@ -283,13 +304,4 @@ const PianoKeys: FC<PianoKeysProps> = ({ numberOfKeys, keyHeight }) => {
       <PianoKeysContextMenu {...menuProps} />
     </>
   )
-}
-
-function equals(props: PianoKeysProps, nextProps: PianoKeysProps) {
-  return (
-    props.keyHeight === nextProps.keyHeight &&
-    props.numberOfKeys === nextProps.numberOfKeys
-  )
-}
-
-export default React.memo(PianoKeys, equals)
+})
