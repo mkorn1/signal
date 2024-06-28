@@ -209,12 +209,11 @@ export const PianoKeys: FC = observer(() => {
     pianoRollStore,
     pianoRollStore: {
       keySignature,
-      transform: { numberOfKeys },
+      transform: { numberOfKeys, pixelsPerKey: keyHeight },
     },
     player,
   } = useStores()
   const width = Layout.keyWidth
-  const keyHeight = Layout.keyHeight
   const blackKeyWidth = Layout.keyWidth * Layout.blackKeyWidthRatio
   const [touchingKeys, setTouchingKeys] = useState<number[]>([])
   const { onContextMenu, menuProps } = useContextMenu()
@@ -233,7 +232,7 @@ export const PianoKeys: FC = observer(() => {
         scale,
       )
     },
-    [numberOfKeys, theme, touchingKeys, keySignature],
+    [numberOfKeys, theme, touchingKeys, keySignature, keyHeight, blackKeyWidth],
   )
 
   const onMouseDown = useCallback(

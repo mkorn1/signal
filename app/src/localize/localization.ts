@@ -302,6 +302,8 @@ export default {
     value: "Value",
     key: "Key",
     scale: "Scale",
+    "show-scale": "Show Scale",
+    "hide-scale": "Hide Scale",
     /* Scale */
     "scale-major": "Major",
     "scale-minor": "Minor",
@@ -622,6 +624,8 @@ export default {
     value: "Value",
     key: "キー",
     scale: "スケール",
+    "show-scale": "スケールを表示",
+    "hide-scale": "スケールを隠す",
     /* Scale */
     "scale-major": "メジャー",
     "scale-minor": "マイナー",
@@ -943,6 +947,8 @@ export default {
     value: "值",
     key: "Key",
     scale: "Scale",
+    "show-scale": "Show Scale",
+    "hide-scale": "Hide Scale",
     /* Scale */
     "scale-major": "Major",
     "scale-minor": "Minor",
@@ -1263,6 +1269,8 @@ export default {
     value: "值",
     key: "Key",
     scale: "Scale",
+    "show-scale": "Show Scale",
+    "hide-scale": "Hide Scale",
     /* Scale */
     "scale-major": "Major",
     "scale-minor": "Minor",

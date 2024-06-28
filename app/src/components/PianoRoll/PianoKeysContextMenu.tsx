@@ -1,5 +1,6 @@
 import React, { FC, useState } from "react"
 import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
 import { ContextMenu, ContextMenuProps } from "../ContextMenu/ContextMenu"
 import { KeySignatureDialog } from "../KeySignatureDialog/KeySignatureDialog"
 import { MenuItem } from "../ui/Menu"
@@ -12,21 +13,34 @@ export const PianoKeysContextMenu: FC<ContextMenuProps> = React.memo(
     const [isKeySignatureDialogOpen, setKeySignatureDialogOpen] =
       useState(false)
 
-    const onClickScale = () => {
+    const onClickShowScale = () => {
+      if (pianoRollStore.keySignature === null) {
+        pianoRollStore.keySignature = {
+          scale: "major",
+          key: 0,
+        }
+      }
+
       setKeySignatureDialogOpen(true)
+      handleClose()
+    }
+
+    const onClickHideScale = () => {
+      pianoRollStore.keySignature = null
       handleClose()
     }
 
     return (
       <>
         <ContextMenu {...props}>
-          <MenuItem onClick={onClickScale}>
-            スケールを表示する
-            {/* <Localized name="cut" /> */}
+          <MenuItem onClick={onClickShowScale}>
+            <Localized name="show-scale" />
           </MenuItem>
-          <MenuItem onClick={onClickScale} disabled={true}>
-            スケールを隠す
-            {/* <Localized name="cut" /> */}
+          <MenuItem
+            onClick={onClickHideScale}
+            disabled={pianoRollStore.keySignature === null}
+          >
+            <Localized name="hide-scale" />
           </MenuItem>
         </ContextMenu>
         <KeySignatureDialog
