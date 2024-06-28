@@ -1,18 +1,65 @@
 import Color from "color"
 import { observer } from "mobx-react-lite"
-import { FC } from "react"
+import { FC, useMemo } from "react"
 import { Layout } from "../../../Constants"
 import { colorToVec4 } from "../../../gl/color"
 import { useStores } from "../../../hooks/useStores"
 import { useTheme } from "../../../hooks/useTheme"
+import { KeySignature, getScaleInterval } from "../../../scale/Scale"
 import { HorizontalGrid } from "./HorizontalGrid"
+
+function keySignatureToConditions(keySignature: KeySignature) {
+  const intervals = getScaleInterval(keySignature)
+  return new Array(12).fill(false).map((_, i) => intervals.includes(i % 12))
+}
 
 export const Lines: FC<{ zIndex: number }> = observer(({ zIndex }) => {
   const theme = useTheme()
   const rootStore = useStores()
   const {
-    pianoRollStore: { scrollTop, canvasWidth, canvasHeight, scaleY },
+    pianoRollStore: {
+      scrollTop,
+      canvasWidth,
+      canvasHeight,
+      scaleY,
+      keySignature,
+    },
   } = rootStore
+
+  const laneColors = useMemo(() => {
+    const whiteLaneColor = colorToVec4(
+      Color(theme.pianoWhiteKeyLaneColor),
+    ) as number[]
+
+    const blackLaneColor = colorToVec4(
+      Color(theme.pianoBlackKeyLaneColor),
+    ) as number[]
+
+    if (keySignature === null) {
+      return Float32Array.from(
+        Array(12)
+          .fill(0)
+          .map((_, i) =>
+            getScaleInterval({ scale: "major", key: 0 }).includes(i)
+              ? whiteLaneColor
+              : blackLaneColor,
+          )
+          .flat(),
+      )
+    }
+
+    const highlightedKeys = keySignatureToConditions(keySignature)
+
+    const highlightedLaneColor = colorToVec4(
+      Color(theme.pianoHighlightedLaneColor),
+    ) as number[]
+
+    const laneColors = highlightedKeys.map((isHighlighted) =>
+      isHighlighted ? highlightedLaneColor : whiteLaneColor,
+    )
+
+    return Float32Array.from(laneColors.flat())
+  }, [theme, keySignature])
 
   return (
     <HorizontalGrid
@@ -22,9 +69,9 @@ export const Lines: FC<{ zIndex: number }> = observer(({ zIndex }) => {
         width: canvasWidth,
         height: canvasHeight,
       }}
-      color={colorToVec4(Color(theme.dividerColor).alpha(0.2))}
-      highlightedColor={colorToVec4(Color(theme.dividerColor).alpha(0.5))}
-      blackLaneColor={colorToVec4(Color(theme.pianoBlackKeyLaneColor))}
+      color={colorToVec4(Color(theme.dividerColor).alpha(0.1))}
+      highlightedColor={colorToVec4(Color(theme.dividerColor).alpha(0.6))}
+      laneColors={laneColors}
       height={scaleY * Layout.keyHeight}
       zIndex={zIndex}
     />

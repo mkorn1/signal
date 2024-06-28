@@ -14,6 +14,7 @@ import { isNotUndefined } from "../helpers/array"
 import { filterEventsOverlapScroll } from "../helpers/filterEvents"
 import { getMBTString } from "../measure/mbt"
 import Quantizer from "../quantizer"
+import { KeySignature } from "../scale/Scale"
 import { Selection, getSelectionBounds } from "../selection/Selection"
 import Track, { TrackEvent, isNoteEvent } from "../track"
 import { NoteCoordTransform } from "../transform"
@@ -65,6 +66,7 @@ export default class PianoRollStore {
   showEventList = false
   openTransposeDialog = false
   newNoteVelocity = 100
+  keySignature: KeySignature | null = null
 
   constructor(readonly rootStore: RootStore) {
     this.rulerStore = new RulerStore(this)
@@ -92,6 +94,7 @@ export default class PianoRollStore {
       showEventList: observable,
       openTransposeDialog: observable,
       newNoteVelocity: observable,
+      keySignature: observable,
       contentWidth: computed,
       contentHeight: computed,
       scrollLeft: computed,

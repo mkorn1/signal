@@ -5,7 +5,7 @@ import { Layout } from "../../Constants"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
 import CanvasPianoRuler from "./CanvasPianoRuler"
-import PianoKeys from "./PianoKeys"
+import { PianoKeys } from "./PianoKeys"
 import { PianoRollCanvas } from "./PianoRollCanvas/PianoRollCanvas"
 
 export interface PianoRollStageProps {
@@ -47,10 +47,7 @@ export const PianoRollStage: FC<PianoRollStageProps> = observer(
           <PianoRollCanvas width={width} height={height - Layout.rulerHeight} />
         </ContentPosition>
         <PianoKeyPosition style={{ top: -scrollTop + Layout.rulerHeight }}>
-          <PianoKeys
-            keyHeight={transform.pixelsPerKey}
-            numberOfKeys={transform.numberOfKeys}
-          />
+          <PianoKeys />
         </PianoKeyPosition>
         <RulerPosition
           style={{

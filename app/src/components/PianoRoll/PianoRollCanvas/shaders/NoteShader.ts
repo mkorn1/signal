@@ -2,6 +2,8 @@ import {
   InstancedBuffer,
   rectToTriangles,
   Shader,
+  uniformMat4,
+  uniformVec4,
   VertexArray,
 } from "@ryohey/webgl-react"
 import { IRect } from "../../../../geometry"
@@ -136,10 +138,10 @@ export const NoteShader = (gl: WebGL2RenderingContext) =>
       state: { size: 2, type: gl.FLOAT, divisor: 1 },
     },
     {
-      projectionMatrix: { type: "mat4" },
-      strokeColor: { type: "vec4" },
-      inactiveColor: { type: "vec4" },
-      activeColor: { type: "vec4" },
-      selectedColor: { type: "vec4" },
+      projectionMatrix: uniformMat4(),
+      strokeColor: uniformVec4(),
+      inactiveColor: uniformVec4(),
+      activeColor: uniformVec4(),
+      selectedColor: uniformVec4(),
     },
   )

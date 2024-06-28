@@ -2,8 +2,12 @@ import {
   Buffer,
   rectToTriangles,
   Shader,
+  uniformFloat,
+  uniformMat4,
+  uniformVec4,
   VertexArray,
 } from "@ryohey/webgl-react"
+import isEqual from "lodash/isEqual"
 import { IRect } from "../../../../geometry"
 
 export class HorizontalGridBuffer implements Buffer<IRect, "position"> {
@@ -39,48 +43,60 @@ export const HorizontalGridShader = (gl: WebGL2RenderingContext) =>
 
       uniform vec4 color;
       uniform vec4 highlightedColor;
-      uniform vec4 blackLaneColor;
+      uniform vec4 laneColors[12];
       uniform float height;
       
       in vec4 vPosition;
 
       out vec4 outColor;
 
-      float step2(float x) {
-        return step(0.0, x) * step(x, 1.0);
+      float line(float inputY, float y, float lineWidth) {
+       return step(y, inputY) * step(inputY, y + lineWidth);
       }
       
       void main() {
-        const float eps = 0.1;
-        float y = vPosition.y;
-        float border = 1.0;
-        float index = 128.0 - y / height;
-        float key = mod(index, 12.0);
+        float screenHeight = height * 128.0;
+        float modY = mod(screenHeight - vPosition.y, height * 12.0);
+        float laneHeight = height - 1.0;
 
-        // draw border
-        if (abs(key) < eps || abs(key - 5.0) < eps) {
-          vec4 color = mix(highlightedColor, color, step(0.1, key));
-          outColor = step(fract(index) * height, border) * color;
+        // draw lane colors
+        for (int i = 0; i < 12; i++) {
+          outColor += line(modY, height * float(i) + 1.0, laneHeight) * laneColors[i];
         }
 
-        // draw black lane
+        // draw lines
         outColor += (
-          step2(key - 1.0) + 
-          step2(key - 3.0) + 
-          step2(key - 6.0) + 
-          step2(key - 8.0) + 
-          step2(key - 10.0)
-        ) * blackLaneColor;
+          line(modY, height * 1.0, 1.0) +
+          line(modY, height * 2.0, 1.0) +
+          line(modY, height * 3.0, 1.0) +
+          line(modY, height * 4.0, 1.0) +
+          line(modY, height * 6.0, 1.0) +
+          line(modY, height * 7.0, 1.0) +
+          line(modY, height * 8.0, 1.0) +
+          line(modY, height * 9.0, 1.0) +
+          line(modY, height * 10.0, 1.0) +
+          line(modY, height * 11.0, 1.0)
+        ) * color;
+
+        // draw hihglighted lines for key 0 and 5
+        outColor += (
+          line(modY, 0.0, 1.0) +
+          line(modY, height * 5.0, 1.0)
+        ) * highlightedColor;
       }
     `,
     {
       position: { size: 2, type: gl.FLOAT },
     },
     {
-      projectionMatrix: { type: "mat4" },
-      color: { type: "vec4" },
-      highlightedColor: { type: "vec4" },
-      blackLaneColor: { type: "vec4" },
-      height: { type: "float" },
+      projectionMatrix: uniformMat4(),
+      color: uniformVec4(),
+      highlightedColor: uniformVec4(),
+      laneColors: {
+        initialValue: new Float32Array(4 * 12),
+        isEqual,
+        upload: (gl, loc, value) => gl.uniform4fv(loc, value, 0, 4 * 12),
+      },
+      height: uniformFloat(),
     },
   )
