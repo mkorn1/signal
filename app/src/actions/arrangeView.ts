@@ -4,11 +4,7 @@ import {
   isArrangeNotesClipboardData,
 } from "../clipboard/clipboardTypes"
 import { isNotUndefined } from "../helpers/array"
-import {
-  ArrangeSelection,
-  arrangeSelectionFromPoints,
-  movedSelection,
-} from "../selection/ArrangeSelection"
+import { ArrangeSelection } from "../selection/ArrangeSelection"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import Track from "../track"
@@ -39,7 +35,7 @@ export const arrangeResizeSelection =
   (start: ArrangePoint, end: ArrangePoint) => {
     // 選択範囲作成時 (確定前) のドラッグ中
     // Drag during selection (before finalization)
-    arrangeViewStore.selection = arrangeSelectionFromPoints(
+    arrangeViewStore.selection = ArrangeSelection.fromPoints(
       start,
       end,
       quantizer,
@@ -112,7 +108,7 @@ export const arrangeMoveSelectionBy =
 
     // 選択範囲を移動
     // Move selection range
-    const selection = movedSelection(s.selection, delta)
+    const selection = ArrangeSelection.moved(s.selection, delta)
 
     s.selection = selection
 
