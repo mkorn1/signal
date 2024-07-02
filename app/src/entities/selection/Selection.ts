@@ -2,7 +2,7 @@ import cloneDeep from "lodash/cloneDeep"
 import { MaxNoteNumber } from "../../Constants"
 import { IRect } from "../../geometry"
 import { NoteCoordTransform } from "../../transform"
-import { clampNotePoint, NotePoint } from "../../transform/NotePoint"
+import { NotePoint } from "../../transform/NotePoint"
 
 export interface Selection {
   from: NotePoint
@@ -65,7 +65,7 @@ export namespace Selection {
   })
 
   export const clamp = (selection: Selection): Selection => ({
-    from: clampNotePoint(selection.from),
-    to: clampNotePoint(selection.to),
+    from: NotePoint.clamp(selection.from),
+    to: NotePoint.clamp(selection.to),
   })
 }

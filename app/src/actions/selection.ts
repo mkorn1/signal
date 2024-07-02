@@ -11,7 +11,7 @@ import { tickToMillisec } from "../helpers/bpm"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import { NoteEvent, TrackEvent, isNoteEvent } from "../track"
-import { NotePoint, clampNotePoint } from "../transform/NotePoint"
+import { NotePoint } from "../transform/NotePoint"
 import { startNote, stopNote } from "./player"
 import { transposeNotes } from "./song"
 
@@ -109,7 +109,7 @@ export const moveSelection = (rootStore: RootStore) => (point: NotePoint) => {
 
   // ノートと選択範囲を移動
   // Move notes and selection
-  const quantized = clampNotePoint({
+  const quantized = NotePoint.clamp({
     tick: quantizer.round(point.tick),
     noteNumber: Math.round(point.noteNumber),
   })
@@ -122,7 +122,7 @@ export const moveSelection = (rootStore: RootStore) => (point: NotePoint) => {
     noteNumber: selection.to.noteNumber + dn,
   }
 
-  const clampedTo = clampNotePoint(to)
+  const clampedTo = NotePoint.clamp(to)
   const limit = {
     tick: to.tick - clampedTo.tick,
     noteNumber: to.noteNumber - clampedTo.noteNumber,
@@ -160,7 +160,7 @@ export const moveSelectionBy =
           if (n == undefined || !isNoteEvent(n)) {
             return null
           }
-          const pos = clampNotePoint({
+          const pos = NotePoint.clamp({
             tick: n.tick + delta.tick,
             noteNumber: n.noteNumber + delta.noteNumber,
           })
