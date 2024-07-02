@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
-import { Scale, scaleValues } from "../../scale/Scale"
+import { Scale } from "../../scale/Scale"
 import {
   Dialog,
   DialogActions,
@@ -100,7 +100,7 @@ export const KeySignatureDialog: FC<KeySignatureDialogProps> = observer(
                   }
                 }}
               >
-                {scaleValues.map((name, i) => (
+                {Scale.values.map((name, i) => (
                   <option key={i} value={name}>
                     <ScaleName scale={name} />
                   </option>

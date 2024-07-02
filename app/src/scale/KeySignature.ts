@@ -1,4 +1,4 @@
-import { Scale, getScaleIntegerNotation } from "./Scale"
+import { Scale } from "./Scale"
 
 export interface KeySignature {
   key: number // 0 is C, 1 is C#, 2 is D, etc.
@@ -6,6 +6,6 @@ export interface KeySignature {
 } // the function that transpose the scale to the key
 
 export const getScaleInterval = (keySignature: KeySignature): number[] => {
-  const scaleIntervals = getScaleIntegerNotation(keySignature.scale)
+  const scaleIntervals = Scale.getIntegerNotation(keySignature.scale)
   return scaleIntervals.map((i) => (i + keySignature.key) % 12)
 }
