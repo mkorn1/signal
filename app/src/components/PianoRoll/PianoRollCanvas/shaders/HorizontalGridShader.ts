@@ -8,7 +8,7 @@ import {
   VertexArray,
 } from "@ryohey/webgl-react"
 import isEqual from "lodash/isEqual"
-import { IRect } from "../../../../geometry"
+import { IRect } from "../../../../entities/geometry/Rect"
 
 export class HorizontalGridBuffer implements Buffer<IRect, "position"> {
   constructor(readonly vertexArray: VertexArray<"position">) {}

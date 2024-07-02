@@ -1,8 +1,8 @@
 import cloneDeep from "lodash/cloneDeep"
 import { MaxNoteNumber } from "../../Constants"
-import { IRect } from "../../geometry"
-import { NoteCoordTransform } from "../../transform"
-import { NotePoint } from "../../transform/NotePoint"
+import { IRect } from "../geometry/Rect"
+import { NoteCoordTransform } from "../transform/NoteCoordTransform"
+import { NotePoint } from "../transform/NotePoint"
 
 export interface Selection {
   from: NotePoint

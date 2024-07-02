@@ -1,4 +1,4 @@
-import { GLCanvas, IPoint, Transform } from "@ryohey/webgl-react"
+import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import {
@@ -8,7 +8,8 @@ import {
   arrangeStartSelection,
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
-import { containsPoint, pointAdd, pointSub } from "../../../geometry"
+import { IPoint, pointAdd, pointSub } from "../../../entities/geometry/Point"
+import { containsPoint } from "../../../entities/geometry/Rect"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"

@@ -1,4 +1,4 @@
-import { intersects } from "."
+import { intersects } from "./Rect"
 
 describe("Rect", () => {
   describe("intersects", () => {

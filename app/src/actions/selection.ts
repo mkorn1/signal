@@ -4,14 +4,14 @@ import {
   PianoNotesClipboardData,
   isPianoNotesClipboardData,
 } from "../clipboard/clipboardTypes"
+import { intersects } from "../entities/geometry/Rect"
 import { Selection } from "../entities/selection/Selection"
-import { intersects } from "../geometry"
+import { NotePoint } from "../entities/transform/NotePoint"
 import { isNotNull, isNotUndefined } from "../helpers/array"
 import { tickToMillisec } from "../helpers/bpm"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import { NoteEvent, TrackEvent, isNoteEvent } from "../track"
-import { NotePoint } from "../transform/NotePoint"
 import { startNote, stopNote } from "./player"
 import { transposeNotes } from "./song"
 

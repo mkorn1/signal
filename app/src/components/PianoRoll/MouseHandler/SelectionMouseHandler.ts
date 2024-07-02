@@ -8,7 +8,8 @@ import {
   startSelection,
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
-import { IPoint, IRect, pointAdd } from "../../../geometry"
+import { IPoint, pointAdd } from "../../../entities/geometry/Point"
+import { IRect } from "../../../entities/geometry/Rect"
 import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"
 import { MouseGesture } from "./NoteMouseHandler"

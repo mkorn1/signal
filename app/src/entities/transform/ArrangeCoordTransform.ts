@@ -1,4 +1,4 @@
-import { IPoint } from "../geometry"
+import { IPoint } from "../geometry/Point"
 
 export class ArrangeCoordTransform {
   private _pixelsPerTick: number

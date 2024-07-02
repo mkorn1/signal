@@ -1,7 +1,7 @@
 import { GLNode, useProjectionMatrix } from "@ryohey/webgl-react"
 import { vec4 } from "gl-matrix"
 import { FC } from "react"
-import { IRect } from "../../../geometry"
+import { IRect } from "../../../entities/geometry/Rect"
 import { IVelocityData, VelocityBuffer, VelocityShader } from "./VelocityShader"
 
 export interface VelocityItemsProps {

@@ -1,4 +1,4 @@
-import NoteCoordTransform from "./NoteCoordTransform"
+import { NoteCoordTransform } from "./NoteCoordTransform"
 
 describe("NoteCoordTransform", () => {
   const t = new NoteCoordTransform(100, 30, 127)

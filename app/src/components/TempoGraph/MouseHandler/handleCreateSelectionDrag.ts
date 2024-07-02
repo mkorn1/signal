@@ -1,10 +1,10 @@
-import { IPoint, pointAdd, pointSub } from "../../../geometry"
+import { IPoint, pointAdd, pointSub } from "../../../entities/geometry/Point"
+import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
 import { filterEventsWithRange } from "../../../helpers/filterEvents"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"
 import { isSetTempoEvent } from "../../../track"
-import { TempoCoordTransform } from "../../../transform"
 
 export const handleCreateSelectionDrag =
   (rootStore: RootStore) =>

@@ -1,9 +1,9 @@
+import { NotePoint } from "../entities/transform/NotePoint"
 import { isNotNull } from "../helpers/array"
 import { downloadSongAsMidi } from "../midi/midiConversion"
 import Song, { emptySong } from "../song"
 import RootStore from "../stores/RootStore"
 import { emptyTrack, isNoteEvent } from "../track"
-import { clampNoteNumber } from "../transform/NotePoint"
 import { songFromFile } from "./file"
 
 const openSongFile = async (input: HTMLInputElement): Promise<Song | null> => {
@@ -133,7 +133,7 @@ export const transposeNotes =
             }
             return {
               id,
-              noteNumber: clampNoteNumber(n.noteNumber + deltaPitch),
+              noteNumber: NotePoint.clampNoteNumber(n.noteNumber + deltaPitch),
             }
           })
           .filter(isNotNull),

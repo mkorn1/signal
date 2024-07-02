@@ -4,11 +4,11 @@ import {
   isArrangeNotesClipboardData,
 } from "../clipboard/clipboardTypes"
 import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
+import { ArrangePoint } from "../entities/transform/ArrangePoint"
 import { isNotUndefined } from "../helpers/array"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import Track from "../track"
-import { ArrangePoint } from "../transform/ArrangePoint"
 import { pushHistory } from "./history"
 import { transposeNotes } from "./song"
 

@@ -1,8 +1,8 @@
-import { IPoint } from "../geometry"
-import { NoteEvent } from "../track"
+import { IPoint } from "../../entities/geometry/Point"
+import { NoteEvent } from "../../track"
 import { NotePoint } from "./NotePoint"
 
-export default class NoteCoordTransform {
+export class NoteCoordTransform {
   private _pixelsPerTick: number
   private _pixelsPerKey: number
   private _maxNoteNumber: number

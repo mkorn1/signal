@@ -1,12 +1,12 @@
 import { updateEventsInRange } from "../../../actions"
-import { IPoint, pointAdd, pointSub } from "../../../geometry"
+import { IPoint, pointAdd, pointSub } from "../../../entities/geometry/Point"
+import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
 import { bpmToUSecPerBeat } from "../../../helpers/bpm"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
 import { setTempoMidiEvent } from "../../../midi/MidiEvent"
 import RootStore from "../../../stores/RootStore"
 import { isSetTempoEvent } from "../../../track"
-import { TempoCoordTransform } from "../../../transform"
 
 export const handlePencilMouseDown =
   ({ song, tempoEditorStore: { quantizer }, pushHistory }: RootStore) =>

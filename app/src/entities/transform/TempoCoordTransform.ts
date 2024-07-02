@@ -1,6 +1,6 @@
-import { IPoint } from "../geometry"
+import { IPoint } from "../geometry/Point"
 
-export default class TempoCoordTransform {
+export class TempoCoordTransform {
   readonly pixelsPerTick: number
   // グラフの描画領域の高さ
   // Higher graph drawing area

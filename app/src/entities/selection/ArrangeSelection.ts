@@ -1,5 +1,5 @@
 import Quantizer from "../../quantizer"
-import { ArrangePoint } from "../../transform/ArrangePoint"
+import { ArrangePoint } from "../transform/ArrangePoint"
 
 export interface ArrangeSelection {
   fromTick: number

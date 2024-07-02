@@ -6,7 +6,7 @@ import {
   uniformVec4,
   VertexArray,
 } from "@ryohey/webgl-react"
-import { IRect } from "../../../geometry"
+import { IRect } from "../../../entities/geometry/Rect"
 
 export interface IVelocityData {
   isSelected: boolean

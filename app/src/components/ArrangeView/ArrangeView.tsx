@@ -1,6 +1,5 @@
 import styled from "@emotion/styled"
 import useComponentSize from "@rehooks/component-size"
-import { IPoint } from "@ryohey/webgl-react"
 import { clamp } from "lodash"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useRef } from "react"
@@ -11,14 +10,14 @@ import {
   arrangeStartSelection,
   selectTrack,
 } from "../../actions"
-import { pointAdd, pointSub } from "../../geometry"
+import { IPoint, pointAdd, pointSub } from "../../entities/geometry/Point"
+import { ArrangePoint } from "../../entities/transform/ArrangePoint"
 import { getClientPos } from "../../helpers/mouseEvent"
 import { observeDrag } from "../../helpers/observeDrag"
 import { isTouchPadEvent } from "../../helpers/touchpad"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
-import { ArrangePoint } from "../../transform/ArrangePoint"
 import CanvasPianoRuler from "../PianoRoll/CanvasPianoRuler"
 import { TrackName } from "../TrackList/TrackName"
 import {

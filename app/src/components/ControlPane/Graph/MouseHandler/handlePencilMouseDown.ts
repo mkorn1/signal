@@ -3,7 +3,8 @@ import {
   updateValueEvents,
 } from "../../../../actions"
 import { pushHistory } from "../../../../actions/history"
-import { IPoint, pointAdd, pointSub } from "../../../../geometry"
+import { IPoint, pointAdd, pointSub } from "../../../../entities/geometry/Point"
+import { ControlCoordTransform } from "../../../../entities/transform/ControlCoordTransform"
 import { getClientPos } from "../../../../helpers/mouseEvent"
 import { observeDrag } from "../../../../helpers/observeDrag"
 import {
@@ -11,7 +12,6 @@ import {
   createValueEvent,
 } from "../../../../helpers/valueEvent"
 import RootStore from "../../../../stores/RootStore"
-import { ControlCoordTransform } from "../../../../transform/ControlCoordTransform"
 
 export const handlePencilMouseDown =
   (rootStore: RootStore) =>

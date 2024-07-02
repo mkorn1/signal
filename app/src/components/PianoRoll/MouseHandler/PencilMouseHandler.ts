@@ -14,7 +14,7 @@ import {
   stopNote,
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
-import { IPoint, pointAdd } from "../../../geometry"
+import { IPoint, pointAdd } from "../../../entities/geometry/Point"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import RootStore from "../../../stores/RootStore"
