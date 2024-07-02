@@ -15,7 +15,7 @@ import { Selection } from "../entities/selection/Selection"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { isNotUndefined } from "../helpers/array"
 import { filterEventsOverlapScroll } from "../helpers/filterEvents"
-import { getMBTString } from "../measure/mbt"
+import { MeasureList } from "../measure/MeasureList"
 import Quantizer from "../quantizer"
 import { KeySignature } from "../scale/Scale"
 import Track, { TrackEvent, isNoteEvent } from "../track"
@@ -375,7 +375,7 @@ export default class PianoRollStore {
   }
 
   get currentMBTTime(): string {
-    return getMBTString(
+    return MeasureList.getMBTString(
       this.rootStore.song.measures,
       this.rootStore.player.position,
       this.rootStore.song.timebase,

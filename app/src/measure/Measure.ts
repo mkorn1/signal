@@ -5,25 +5,27 @@ export interface Measure {
   denominator: number
 }
 
-export const calculateMBT = (
-  measure: Measure,
-  tick: number,
-  ticksPerBeatBase: number,
-) => {
-  const ticksPerBeat = (ticksPerBeatBase * 4) / measure.denominator
-  const ticksPerMeasure = ticksPerBeat * measure.numerator
+export namespace Measure {
+  export const calculateMBT = (
+    measure: Measure,
+    tick: number,
+    ticksPerBeatBase: number,
+  ) => {
+    const ticksPerBeat = (ticksPerBeatBase * 4) / measure.denominator
+    const ticksPerMeasure = ticksPerBeat * measure.numerator
 
-  let aTick = tick - measure.startTick
+    let aTick = tick - measure.startTick
 
-  const deltaMeasure = Math.floor(aTick / ticksPerMeasure)
-  aTick -= deltaMeasure * ticksPerMeasure
+    const deltaMeasure = Math.floor(aTick / ticksPerMeasure)
+    aTick -= deltaMeasure * ticksPerMeasure
 
-  const beat = Math.floor(aTick / ticksPerBeat)
-  aTick -= beat * ticksPerBeat
+    const beat = Math.floor(aTick / ticksPerBeat)
+    aTick -= beat * ticksPerBeat
 
-  return {
-    measure: measure.measure + deltaMeasure,
-    beat: beat,
-    tick: aTick,
+    return {
+      measure: measure.measure + deltaMeasure,
+      beat: beat,
+      tick: aTick,
+    }
   }
 }

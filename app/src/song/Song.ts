@@ -11,7 +11,7 @@ import {
 import { createModelSchema, list, object, primitive } from "serializr"
 import { isNotUndefined } from "../helpers/array"
 import { Measure } from "../measure/Measure"
-import { getMeasuresFromConductorTrack } from "../measure/MeasureList"
+import { MeasureList } from "../measure/MeasureList"
 import { collectAllEvents } from "../player/collectAllEvents"
 import Track from "../track"
 
@@ -84,7 +84,7 @@ export default class Song {
     if (conductorTrack === undefined) {
       return []
     }
-    return getMeasuresFromConductorTrack(conductorTrack, this.timebase)
+    return MeasureList.fromConductorTrack(conductorTrack, this.timebase)
   }
 
   get endOfSong(): number {
