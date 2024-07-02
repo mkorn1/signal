@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import { changeNotesVelocity, updateVelocitiesInRange } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
-import { Rect, containsPoint } from "../../../entities/geometry/Rect"
+import { Rect } from "../../../entities/geometry/Rect"
 import { colorToVec4 } from "../../../gl/color"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
@@ -61,7 +61,7 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
     )
 
     const hitTest = (point: Point) => {
-      return items.filter((n) => containsPoint(n.hitArea, point))
+      return items.filter((n) => Rect.containsPoint(n.hitArea, point))
     }
 
     const onMouseDown = useCallback(

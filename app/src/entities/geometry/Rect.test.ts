@@ -1,10 +1,10 @@
-import { intersects } from "./Rect"
+import { Rect } from "./Rect"
 
 describe("Rect", () => {
   describe("intersects", () => {
     it("included", () => {
       expect(
-        intersects(
+        Rect.intersects(
           {
             x: 1,
             y: 1,
@@ -21,7 +21,7 @@ describe("Rect", () => {
       ).toBeTruthy()
 
       expect(
-        intersects(
+        Rect.intersects(
           {
             x: 1,
             y: 1,
@@ -40,7 +40,7 @@ describe("Rect", () => {
 
     it("overlapped", () => {
       expect(
-        intersects(
+        Rect.intersects(
           {
             x: 1,
             y: 1,
@@ -59,7 +59,7 @@ describe("Rect", () => {
 
     it("separated", () => {
       expect(
-        intersects(
+        Rect.intersects(
           {
             x: 0,
             y: 0,
@@ -78,7 +78,7 @@ describe("Rect", () => {
 
     it("adjacent", () => {
       expect(
-        intersects(
+        Rect.intersects(
           {
             x: 1,
             y: 1,
@@ -97,7 +97,7 @@ describe("Rect", () => {
 
     it("zero", () => {
       expect(
-        intersects(
+        Rect.intersects(
           {
             x: 1,
             y: 1,

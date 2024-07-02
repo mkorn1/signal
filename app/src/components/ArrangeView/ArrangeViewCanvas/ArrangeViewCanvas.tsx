@@ -9,7 +9,7 @@ import {
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
 import { Point } from "../../../entities/geometry/Point"
-import { containsPoint } from "../../../entities/geometry/Rect"
+import { Rect } from "../../../entities/geometry/Rect"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
@@ -76,7 +76,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
         const startClientPos = getClientPos(e.nativeEvent)
 
         const isSelectionSelected =
-          selectionRect != null && containsPoint(selectionRect, startPosPx)
+          selectionRect != null && Rect.containsPoint(selectionRect, startPosPx)
 
         if (isSelectionSelected) {
           let isMoved = false

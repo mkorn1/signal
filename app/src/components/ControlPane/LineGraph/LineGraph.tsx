@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite"
 import React, { MouseEventHandler, useCallback, useMemo } from "react"
 import { createOrUpdateControlEventsValue } from "../../../actions/control"
 import { Point } from "../../../entities/geometry/Point"
-import { containsPoint } from "../../../entities/geometry/Rect"
+import { Rect } from "../../../entities/geometry/Rect"
 import { ControlCoordTransform } from "../../../entities/transform/ControlCoordTransform"
 import { filterEventsWithRange } from "../../../helpers/filterEvents"
 import { ValueEventType, createValueEvent } from "../../../helpers/valueEvent"
@@ -74,7 +74,8 @@ const LineGraph = observer(
     }))
 
     const hitTest = useCallback(
-      (point: Point) => controlPoints.find((r) => containsPoint(r, point))?.id,
+      (point: Point) =>
+        controlPoints.find((r) => Rect.containsPoint(r, point))?.id,
       [controlPoints],
     )
 

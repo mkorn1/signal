@@ -4,7 +4,7 @@ import {
   PianoNotesClipboardData,
   isPianoNotesClipboardData,
 } from "../clipboard/clipboardTypes"
-import { intersects } from "../entities/geometry/Rect"
+import { Rect } from "../entities/geometry/Rect"
 import { Selection } from "../entities/selection/Selection"
 import { NotePoint } from "../entities/transform/NotePoint"
 import { isNotNull, isNotUndefined } from "../helpers/array"
@@ -23,7 +23,7 @@ function eventsInSelection(events: TrackEvent[], selection: Selection) {
     height: selection.from.noteNumber - selection.to.noteNumber,
   }
   return events.filter(isNoteEvent).filter((b) =>
-    intersects(
+    Rect.intersects(
       {
         x: b.tick,
         width: b.duration,

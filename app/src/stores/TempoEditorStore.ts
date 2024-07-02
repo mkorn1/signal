@@ -3,7 +3,7 @@ import { Layout } from "../Constants"
 import { DisplayEvent } from "../components/PianoRoll/ControlMark"
 import { transformEvents } from "../components/TempoGraph/transformEvents"
 import { Point } from "../entities/geometry/Point"
-import { containsPoint } from "../entities/geometry/Rect"
+import { Rect } from "../entities/geometry/Rect"
 import { TempoSelection } from "../entities/selection/TempoSelection"
 import { TempoCoordTransform } from "../entities/transform/TempoCoordTransform"
 import Quantizer from "../quantizer"
@@ -120,7 +120,7 @@ export default class TempoEditorStore {
   }
 
   hitTest(point: Point): number | undefined {
-    return this.controlPoints.find((r) => containsPoint(r, point))?.id
+    return this.controlPoints.find((r) => Rect.containsPoint(r, point))?.id
   }
 }
 

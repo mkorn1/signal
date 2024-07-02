@@ -10,7 +10,7 @@ import {
 import { Layout } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
 import { Point } from "../entities/geometry/Point"
-import { Rect, containsPoint } from "../entities/geometry/Rect"
+import { Rect } from "../entities/geometry/Rect"
 import { Selection } from "../entities/selection/Selection"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { isNotUndefined } from "../helpers/array"
@@ -313,7 +313,7 @@ export default class PianoRollStore {
 
   // hit test notes in canvas coordinates
   getNotes(local: Point): PianoNoteItem[] {
-    return this.notes.filter((n) => containsPoint(n, local))
+    return this.notes.filter((n) => Rect.containsPoint(n, local))
   }
 
   // convert mouse position to the local coordinate on the canvas
