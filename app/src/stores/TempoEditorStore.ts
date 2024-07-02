@@ -4,10 +4,7 @@ import { DisplayEvent } from "../components/PianoRoll/ControlMark"
 import { transformEvents } from "../components/TempoGraph/transformEvents"
 import { IPoint, containsPoint } from "../geometry"
 import Quantizer from "../quantizer"
-import {
-  TempoSelection,
-  getTempoSelectionBounds,
-} from "../selection/TempoSelection"
+import { TempoSelection } from "../selection/TempoSelection"
 import { TempoCoordTransform } from "../transform"
 import { PianoRollMouseMode } from "./PianoRollStore"
 import RootStore from "./RootStore"
@@ -117,7 +114,7 @@ export default class TempoEditorStore {
   get selectionRect() {
     const { selection, transform } = this
     return selection != null
-      ? getTempoSelectionBounds(selection, transform)
+      ? TempoSelection.getBounds(selection, transform)
       : null
   }
 
