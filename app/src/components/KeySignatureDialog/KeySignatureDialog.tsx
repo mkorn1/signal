@@ -1,9 +1,9 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
+import { Scale } from "../../entities/scale/Scale"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
-import { Scale } from "../../scale/Scale"
 import {
   Dialog,
   DialogActions,

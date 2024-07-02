@@ -2,10 +2,10 @@ import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC, useMemo } from "react"
 import { Layout } from "../../../Constants"
+import { KeySignature } from "../../../entities/scale/KeySignature"
 import { colorToVec4 } from "../../../gl/color"
 import { useStores } from "../../../hooks/useStores"
 import { useTheme } from "../../../hooks/useTheme"
-import { KeySignature } from "../../../scale/KeySignature"
 import { HorizontalGrid } from "./HorizontalGrid"
 
 function keySignatureToConditions(keySignature: KeySignature) {

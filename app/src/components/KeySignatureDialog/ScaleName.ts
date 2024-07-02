@@ -1,6 +1,6 @@
 import { FC } from "react"
+import { Scale } from "../../entities/scale/Scale"
 import { useLocalization } from "../../localize/useLocalization"
-import { Scale } from "../../scale/Scale"
 
 export const ScaleName: FC<{ scale: Scale }> = ({ scale }) => {
   const localized = useLocalization()

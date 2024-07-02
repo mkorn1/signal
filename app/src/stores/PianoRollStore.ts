@@ -7,12 +7,12 @@ import {
   observable,
   observe,
 } from "mobx"
-import { KeySignature } from "scale/KeySignature"
 import { Layout } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
 import { Point } from "../entities/geometry/Point"
 import { Rect } from "../entities/geometry/Rect"
 import { MeasureList } from "../entities/measure/MeasureList"
+import { KeySignature } from "../entities/scale/KeySignature"
 import { Selection } from "../entities/selection/Selection"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { isNotUndefined } from "../helpers/array"
