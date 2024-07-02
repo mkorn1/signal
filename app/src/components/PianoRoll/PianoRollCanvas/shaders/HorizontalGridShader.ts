@@ -8,12 +8,12 @@ import {
   VertexArray,
 } from "@ryohey/webgl-react"
 import isEqual from "lodash/isEqual"
-import { IRect } from "../../../../entities/geometry/Rect"
+import { Rect } from "../../../../entities/geometry/Rect"
 
-export class HorizontalGridBuffer implements Buffer<IRect, "position"> {
+export class HorizontalGridBuffer implements Buffer<Rect, "position"> {
   constructor(readonly vertexArray: VertexArray<"position">) {}
 
-  update(rect: IRect) {
+  update(rect: Rect) {
     const positions = rectToTriangles(rect)
     this.vertexArray.updateBuffer("position", new Float32Array(positions))
   }

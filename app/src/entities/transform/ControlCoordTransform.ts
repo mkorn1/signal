@@ -1,6 +1,6 @@
 import { ItemValue } from "../../components/ControlPane/LineGraph/LineGraph"
 import { Point } from "../geometry/Point"
-import { IRect } from "../geometry/Rect"
+import { Rect } from "../geometry/Rect"
 import { ControlSelection } from "../selection/ControlSelection"
 
 export class ControlCoordTransform {
@@ -61,7 +61,7 @@ export class ControlCoordTransform {
     }
   }
 
-  transformSelection(selection: ControlSelection): IRect {
+  transformSelection(selection: ControlSelection): Rect {
     const x = this.getX(selection.fromTick)
     return {
       x,

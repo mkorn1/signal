@@ -6,7 +6,7 @@ import {
   uniformVec4,
   VertexArray,
 } from "@ryohey/webgl-react"
-import { IRect } from "../../../entities/geometry/Rect"
+import { Rect } from "../../../entities/geometry/Rect"
 
 export interface IVelocityData {
   isSelected: boolean
@@ -14,7 +14,7 @@ export interface IVelocityData {
 
 export class VelocityBuffer
   implements
-    InstancedBuffer<(IRect & IVelocityData)[], "position" | "bounds" | "state">
+    InstancedBuffer<(Rect & IVelocityData)[], "position" | "bounds" | "state">
 {
   private _instanceCount: number = 0
   private boundsBuffer = new Float32Array(0)
@@ -29,7 +29,7 @@ export class VelocityBuffer
     )
   }
 
-  update(rects: (IRect & IVelocityData)[]) {
+  update(rects: (Rect & IVelocityData)[]) {
     if (
       this.boundsBuffer.length < rects.length * 4 ||
       this.stateBuffer.length < rects.length * 2

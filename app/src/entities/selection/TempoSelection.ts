@@ -1,4 +1,4 @@
-import { IRect } from "../geometry/Rect"
+import { Rect } from "../geometry/Rect"
 import { TempoCoordTransform } from "../transform/TempoCoordTransform"
 
 export interface TempoSelection {
@@ -10,7 +10,7 @@ export namespace TempoSelection {
   export const getBounds = (
     selection: TempoSelection,
     transform: TempoCoordTransform,
-  ): IRect => {
+  ): Rect => {
     const left = transform.getX(selection.fromTick)
     const right = transform.getX(selection.toTick)
     return {

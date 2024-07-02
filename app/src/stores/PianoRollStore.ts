@@ -10,7 +10,7 @@ import {
 import { Layout } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
 import { Point } from "../entities/geometry/Point"
-import { IRect, containsPoint } from "../entities/geometry/Rect"
+import { Rect, containsPoint } from "../entities/geometry/Rect"
 import { Selection } from "../entities/selection/Selection"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { isNotUndefined } from "../helpers/array"
@@ -24,7 +24,7 @@ import { RulerStore } from "./RulerStore"
 
 export type PianoRollMouseMode = "pencil" | "selection"
 
-export type PianoNoteItem = IRect & {
+export type PianoNoteItem = Rect & {
   id: number
   velocity: number
   isSelected: boolean
@@ -324,7 +324,7 @@ export default class PianoRollStore {
     }
   }
 
-  get selectionBounds(): IRect | null {
+  get selectionBounds(): Rect | null {
     if (this.selection !== null) {
       return Selection.getBounds(this.selection, this.transform)
     }

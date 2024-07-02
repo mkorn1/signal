@@ -2,11 +2,11 @@ import { BorderedRectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { vec4 } from "gl-matrix"
 import { FC } from "react"
-import { IRect } from "../../entities/geometry/Rect"
+import { Rect } from "../../entities/geometry/Rect"
 import { colorToVec4 } from "../../gl/color"
 import { useTheme } from "../../hooks/useTheme"
 
-export const Selection: FC<{ rect: IRect | null; zIndex: number }> = ({
+export const Selection: FC<{ rect: Rect | null; zIndex: number }> = ({
   rect,
   zIndex,
 }) => {

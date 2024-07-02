@@ -1,11 +1,11 @@
 import { GLNode, useProjectionMatrix } from "@ryohey/webgl-react"
 import { vec4 } from "gl-matrix"
 import { FC } from "react"
-import { IRect } from "../../../entities/geometry/Rect"
+import { Rect } from "../../../entities/geometry/Rect"
 import { INoteData, NoteBuffer, NoteShader } from "./shaders/NoteShader"
 
 export interface NoteRectanglesProps {
-  rects: (IRect & INoteData)[]
+  rects: (Rect & INoteData)[]
   strokeColor: vec4
   inactiveColor: vec4
   activeColor: vec4

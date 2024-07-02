@@ -9,7 +9,7 @@ import {
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
 import { Point } from "../../../entities/geometry/Point"
-import { IRect } from "../../../entities/geometry/Rect"
+import { Rect } from "../../../entities/geometry/Rect"
 import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"
 import { MouseGesture } from "./NoteMouseHandler"
@@ -65,7 +65,7 @@ export const getSelectionCursorForMouseMoven =
     }
   }
 
-function positionType(selectionBounds: IRect, pos: Point) {
+function positionType(selectionBounds: Rect, pos: Point) {
   const rect = selectionBounds
   const contains =
     rect.x <= pos.x &&
@@ -114,7 +114,7 @@ const createSelectionAction: MouseGesture = (rootStore) => (e) => {
 }
 
 const moveSelectionAction =
-  (selectionBounds: IRect): MouseGesture =>
+  (selectionBounds: Rect): MouseGesture =>
   (rootStore) =>
   (e) => {
     const { transform } = rootStore.pianoRollStore

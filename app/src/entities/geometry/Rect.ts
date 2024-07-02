@@ -1,11 +1,11 @@
 import { Point } from "./Point"
 
-export interface IRect extends Point {
+export interface Rect extends Point {
   width: number
   height: number
 }
 
-export function containsPoint(rect: IRect, point: Point) {
+export function containsPoint(rect: Rect, point: Point) {
   return (
     point.x >= rect.x &&
     point.x <= rect.x + rect.width &&
@@ -14,15 +14,15 @@ export function containsPoint(rect: IRect, point: Point) {
   )
 }
 
-export function right(rect: IRect) {
+export function right(rect: Rect) {
   return rect.x + rect.width
 }
 
-export function bottom(rect: IRect) {
+export function bottom(rect: Rect) {
   return rect.y + rect.height
 }
 
-export function intersects(rectA: IRect, rectB: IRect) {
+export function intersects(rectA: Rect, rectB: Rect) {
   return (
     right(rectA) > rectB.x &&
     right(rectB) > rectA.x &&
@@ -31,18 +31,18 @@ export function intersects(rectA: IRect, rectB: IRect) {
   )
 }
 
-export function containsRect(rectA: IRect, rectB: IRect) {
+export function containsRect(rectA: Rect, rectB: Rect) {
   return containsPoint(rectA, rectB) && containsPoint(rectA, br(rectB))
 }
 
-export function br(rect: IRect): Point {
+export function br(rect: Rect): Point {
   return {
     x: right(rect),
     y: bottom(rect),
   }
 }
 
-export function fromPoints(pointA: Point, pointB: Point): IRect {
+export function fromPoints(pointA: Point, pointB: Point): Rect {
   const x1 = Math.min(pointA.x, pointB.x)
   const x2 = Math.max(pointA.x, pointB.x)
   const y1 = Math.min(pointA.y, pointB.y)
@@ -56,7 +56,7 @@ export function fromPoints(pointA: Point, pointB: Point): IRect {
   }
 }
 
-export function scale(rect: IRect, scaleX: number, scaleY: number): IRect {
+export function scale(rect: Rect, scaleX: number, scaleY: number): Rect {
   return {
     x: rect.x * scaleX,
     y: rect.y * scaleY,
@@ -65,9 +65,9 @@ export function scale(rect: IRect, scaleX: number, scaleY: number): IRect {
   }
 }
 
-export const zeroRect: IRect = { x: 0, y: 0, width: 0, height: 0 }
+export const zeroRect: Rect = { x: 0, y: 0, width: 0, height: 0 }
 
-export function moveRect(rect: IRect, p: Point): IRect {
+export function moveRect(rect: Rect, p: Point): Rect {
   return {
     x: rect.x + p.x,
     y: rect.y + p.y,

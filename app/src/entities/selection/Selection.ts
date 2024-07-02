@@ -1,6 +1,6 @@
 import cloneDeep from "lodash/cloneDeep"
 import { MaxNoteNumber } from "../../Constants"
-import { IRect } from "../geometry/Rect"
+import { Rect } from "../geometry/Rect"
 import { NoteCoordTransform } from "../transform/NoteCoordTransform"
 import { NotePoint } from "../transform/NotePoint"
 
@@ -13,7 +13,7 @@ export namespace Selection {
   export const getBounds = (
     selection: Selection,
     transform: NoteCoordTransform,
-  ): IRect => {
+  ): Rect => {
     const left = transform.getX(selection.from.tick)
     const right = transform.getX(selection.to.tick)
     const top = transform.getY(selection.from.noteNumber)

@@ -2,7 +2,7 @@ import { clamp, cloneDeep } from "lodash"
 import { action, autorun, computed, makeObservable, observable } from "mobx"
 import { Layout } from "../Constants"
 import { BAR_WIDTH } from "../components/inputs/ScrollBar"
-import { IRect } from "../entities/geometry/Rect"
+import { Rect } from "../entities/geometry/Rect"
 import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
 import { ArrangeCoordTransform } from "../entities/transform/ArrangeCoordTransform"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
@@ -171,7 +171,7 @@ export default class ArrangeViewStore {
     )
   }
 
-  get notes(): IRect[] {
+  get notes(): Rect[] {
     const { transform, trackHeight } = this
 
     return this.rootStore.song.tracks
@@ -195,7 +195,7 @@ export default class ArrangeViewStore {
     return this.transform.getX(this.rootStore.player.position)
   }
 
-  get selectionRect(): IRect | null {
+  get selectionRect(): Rect | null {
     const { selection, trackTransform } = this
     if (selection === null) {
       return null

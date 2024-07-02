@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import { changeNotesVelocity, updateVelocitiesInRange } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
-import { IRect, containsPoint } from "../../../entities/geometry/Rect"
+import { Rect, containsPoint } from "../../../entities/geometry/Rect"
 import { colorToVec4 } from "../../../gl/color"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
@@ -15,10 +15,10 @@ import { Beats } from "../../GLNodes/Beats"
 import { Cursor } from "../../GLNodes/Cursor"
 import { VelocityItems } from "./VelocityItems"
 
-export type VelocityItem = IRect & {
+export type VelocityItem = Rect & {
   id: number
   isSelected: boolean
-  hitArea: IRect
+  hitArea: Rect
 }
 
 export const VelocityControlCanvas: FC<{ width: number; height: number }> =
