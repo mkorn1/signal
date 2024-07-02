@@ -3,8 +3,8 @@ import {
   ArrangeNotesClipboardData,
   isArrangeNotesClipboardData,
 } from "../clipboard/clipboardTypes"
+import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
 import { isNotUndefined } from "../helpers/array"
-import { ArrangeSelection } from "../selection/ArrangeSelection"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import Track from "../track"

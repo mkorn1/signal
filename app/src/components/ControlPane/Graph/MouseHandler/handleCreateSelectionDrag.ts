@@ -1,6 +1,6 @@
+import { ControlSelection } from "../../../../entities/selection/ControlSelection"
 import { IPoint, pointAdd } from "../../../../geometry"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
-import { ControlSelection } from "../../../../selection/ControlSelection"
 import RootStore from "../../../../stores/RootStore"
 import { ControlCoordTransform } from "../../../../transform/ControlCoordTransform"
 

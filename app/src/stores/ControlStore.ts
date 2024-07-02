@@ -2,8 +2,8 @@ import { cloneDeep } from "lodash"
 import { ControllerEvent, MIDIControlEvents, PitchBendEvent } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import { ControlSelection } from "../entities/selection/ControlSelection"
 import { ValueEventType, isEqualValueEventType } from "../helpers/valueEvent"
-import { ControlSelection } from "../selection/ControlSelection"
 import {
   TrackEventOf,
   isControllerEventWithType,

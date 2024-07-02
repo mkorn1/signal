@@ -4,10 +4,10 @@ import {
   PianoNotesClipboardData,
   isPianoNotesClipboardData,
 } from "../clipboard/clipboardTypes"
+import { Selection } from "../entities/selection/Selection"
 import { intersects } from "../geometry"
 import { isNotNull, isNotUndefined } from "../helpers/array"
 import { tickToMillisec } from "../helpers/bpm"
-import { Selection } from "../selection/Selection"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import { NoteEvent, TrackEvent, isNoteEvent } from "../track"

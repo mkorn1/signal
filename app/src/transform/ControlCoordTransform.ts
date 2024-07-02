@@ -1,6 +1,6 @@
 import { ItemValue } from "../components/ControlPane/LineGraph/LineGraph"
+import { ControlSelection } from "../entities/selection/ControlSelection"
 import { IPoint, IRect } from "../geometry"
-import { ControlSelection } from "../selection/ControlSelection"
 
 export class ControlCoordTransform {
   private _maxValue: number

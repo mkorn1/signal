@@ -1,5 +1,5 @@
-import { IRect } from "../geometry"
-import { TempoCoordTransform } from "../transform"
+import { IRect } from "../../geometry"
+import { TempoCoordTransform } from "../../transform"
 
 export interface TempoSelection {
   fromTick: number
