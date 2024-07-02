@@ -5,7 +5,7 @@ import { Layout } from "../../../Constants"
 import { colorToVec4 } from "../../../gl/color"
 import { useStores } from "../../../hooks/useStores"
 import { useTheme } from "../../../hooks/useTheme"
-import { KeySignature, getScaleInterval } from "../../../scale/Scale"
+import { KeySignature, getScaleInterval } from "../../../scale/KeySignature"
 import { HorizontalGrid } from "./HorizontalGrid"
 
 function keySignatureToConditions(keySignature: KeySignature) {

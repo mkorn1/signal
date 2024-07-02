@@ -7,6 +7,7 @@ import {
   observable,
   observe,
 } from "mobx"
+import { KeySignature } from "scale/KeySignature"
 import { Layout } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
 import { Point } from "../entities/geometry/Point"
@@ -17,7 +18,6 @@ import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { isNotUndefined } from "../helpers/array"
 import { filterEventsOverlapScroll } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
-import { KeySignature } from "../scale/Scale"
 import Track, { TrackEvent, isNoteEvent } from "../track"
 import RootStore from "./RootStore"
 import { RulerStore } from "./RulerStore"
