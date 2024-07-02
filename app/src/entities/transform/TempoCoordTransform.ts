@@ -1,4 +1,4 @@
-import { IPoint } from "../geometry/Point"
+import { Point } from "../geometry/Point"
 
 export class TempoCoordTransform {
   readonly pixelsPerTick: number
@@ -45,7 +45,7 @@ export class TempoCoordTransform {
     )
   }
 
-  fromPosition(position: IPoint) {
+  fromPosition(position: Point) {
     return {
       tick: this.getTicks(position.x),
       bpm: this.getBPM(position.y),

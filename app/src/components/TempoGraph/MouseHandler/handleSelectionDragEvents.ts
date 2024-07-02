@@ -1,6 +1,6 @@
 import { clamp } from "lodash"
 import { SetTempoEvent } from "midifile-ts"
-import { IPoint, pointAdd, pointSub } from "../../../entities/geometry/Point"
+import { Point, pointAdd, pointSub } from "../../../entities/geometry/Point"
 import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
 import { isNotUndefined } from "../../../helpers/array"
 import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../../../helpers/bpm"
@@ -19,7 +19,7 @@ export const handleSelectionDragEvents =
   (
     e: MouseEvent,
     hitEventId: number,
-    startPoint: IPoint,
+    startPoint: Point,
     transform: TempoCoordTransform,
   ) => {
     if (conductorTrack === undefined) {

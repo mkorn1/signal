@@ -2,7 +2,7 @@ import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { observer } from "mobx-react-lite"
 import React, { MouseEventHandler, useCallback, useMemo } from "react"
 import { createOrUpdateControlEventsValue } from "../../../actions/control"
-import { IPoint } from "../../../entities/geometry/Point"
+import { Point } from "../../../entities/geometry/Point"
 import { containsPoint } from "../../../entities/geometry/Rect"
 import { ControlCoordTransform } from "../../../entities/transform/ControlCoordTransform"
 import { filterEventsWithRange } from "../../../helpers/filterEvents"
@@ -74,11 +74,11 @@ const LineGraph = observer(
     }))
 
     const hitTest = useCallback(
-      (point: IPoint) => controlPoints.find((r) => containsPoint(r, point))?.id,
+      (point: Point) => controlPoints.find((r) => containsPoint(r, point))?.id,
       [controlPoints],
     )
 
-    const getLocal = (e: MouseEvent): IPoint => ({
+    const getLocal = (e: MouseEvent): Point => ({
       x: e.offsetX + scrollLeft,
       y: e.offsetY,
     })

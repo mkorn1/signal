@@ -1,5 +1,5 @@
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
-import { IPoint } from "../../../../entities/geometry/Point"
+import { Point } from "../../../../entities/geometry/Point"
 import { ControlCoordTransform } from "../../../../entities/transform/ControlCoordTransform"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
 import { ValueEventType } from "../../../../helpers/valueEvent"
@@ -11,7 +11,7 @@ export const handleSelectionDragEvents =
   <T extends ControllerEvent | PitchBendEvent>(
     e: MouseEvent,
     hitEventId: number,
-    startPoint: IPoint,
+    startPoint: Point,
     transform: ControlCoordTransform,
     type: ValueEventType,
   ) => {

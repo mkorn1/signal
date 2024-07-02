@@ -2,7 +2,7 @@ import { BorderedCircles, Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { partition } from "lodash"
 import { FC } from "react"
-import { IPoint } from "../../../entities/geometry/Point"
+import { Point } from "../../../entities/geometry/Point"
 import { IRect } from "../../../entities/geometry/Rect"
 import { colorToVec4 } from "../../../gl/color"
 import { joinObjects } from "../../../helpers/array"
@@ -11,7 +11,7 @@ import { useTheme } from "../../../hooks/useTheme"
 export interface LineGraphItemsProps {
   width: number
   scrollLeft: number
-  items: (IPoint & { id: number })[]
+  items: (Point & { id: number })[]
   controlPoints: (IRect & { id: number })[]
   selectedEventIds: number[]
   lineWidth: number
@@ -60,7 +60,7 @@ export const LineGraphItems: FC<LineGraphItemsProps> = ({
 }
 
 const createLineRects = (
-  values: IPoint[],
+  values: Point[],
   lineWidth: number,
   right: number,
 ): IRect[] => {

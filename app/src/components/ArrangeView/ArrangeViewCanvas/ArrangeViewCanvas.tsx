@@ -8,7 +8,7 @@ import {
   arrangeStartSelection,
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
-import { IPoint, pointAdd, pointSub } from "../../../entities/geometry/Point"
+import { Point, pointAdd, pointSub } from "../../../entities/geometry/Point"
 import { containsPoint } from "../../../entities/geometry/Rect"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { getClientPos } from "../../../helpers/mouseEvent"
@@ -69,7 +69,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
 
     const handleLeftClick = useCallback(
       (e: React.MouseEvent) => {
-        const startPosPx: IPoint = {
+        const startPosPx: Point = {
           x: e.nativeEvent.offsetX + scrollLeft,
           y: e.nativeEvent.offsetY + scrollTop,
         }

@@ -1,4 +1,4 @@
-import { IPoint, pointSub } from "../entities/geometry/Point"
+import { Point, pointSub } from "../entities/geometry/Point"
 import { getClientPos } from "./mouseEvent"
 
 export interface DragHandler {
@@ -35,7 +35,7 @@ export const observeDrag = ({
 }
 
 export interface DragHandler2 {
-  onMouseMove?: (e: MouseEvent, delta: IPoint) => void
+  onMouseMove?: (e: MouseEvent, delta: Point) => void
   onMouseUp?: (e: MouseEvent) => void
   onClick?: (e: MouseEvent) => void
 }

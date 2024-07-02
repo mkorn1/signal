@@ -1,7 +1,7 @@
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { CSSProperties, FC, useMemo } from "react"
-import { IPoint } from "../../../entities/geometry/Point"
+import { Point } from "../../../entities/geometry/Point"
 import { IRect } from "../../../entities/geometry/Rect"
 import { ControlCoordTransform } from "../../../entities/transform/ControlCoordTransform"
 import { matrixFromTranslation } from "../../../helpers/matrix"
@@ -19,7 +19,7 @@ export interface LineGraphCanvasProps {
   width: number
   height: number
   maxValue: number
-  items: (IPoint & IDValue)[]
+  items: (Point & IDValue)[]
   controlPoints: (IRect & IDValue)[]
   style?: CSSProperties
   onMouseDown: React.MouseEventHandler<Element>

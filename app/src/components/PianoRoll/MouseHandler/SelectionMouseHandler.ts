@@ -8,7 +8,7 @@ import {
   startSelection,
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
-import { IPoint, pointAdd } from "../../../entities/geometry/Point"
+import { Point, pointAdd } from "../../../entities/geometry/Point"
 import { IRect } from "../../../entities/geometry/Rect"
 import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"
@@ -65,7 +65,7 @@ export const getSelectionCursorForMouseMoven =
     }
   }
 
-function positionType(selectionBounds: IRect, pos: IPoint) {
+function positionType(selectionBounds: IRect, pos: Point) {
   const rect = selectionBounds
   const contains =
     rect.x <= pos.x &&

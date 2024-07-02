@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import * as Portal from "@radix-ui/react-portal"
 import { FC, ReactNode, useEffect } from "react"
-import { IPoint } from "../../entities/geometry/Point"
+import { Point } from "../../entities/geometry/Point"
 
 export const ContextMenuHotKey = styled.div`
   font-size: 0.9em;
@@ -36,7 +36,7 @@ const List = styled.ul`
 
 export interface ContextMenuProps {
   isOpen: boolean
-  position: IPoint
+  position: Point
   handleClose: () => void
   children?: ReactNode
 }

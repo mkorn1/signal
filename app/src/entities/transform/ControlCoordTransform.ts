@@ -1,5 +1,5 @@
 import { ItemValue } from "../../components/ControlPane/LineGraph/LineGraph"
-import { IPoint } from "../geometry/Point"
+import { Point } from "../geometry/Point"
 import { IRect } from "../geometry/Rect"
 import { ControlSelection } from "../selection/ControlSelection"
 
@@ -47,14 +47,14 @@ export class ControlCoordTransform {
     )
   }
 
-  toPosition(tick: number, value: number): IPoint {
+  toPosition(tick: number, value: number): Point {
     return {
       x: Math.round(this.getX(tick)),
       y: Math.round(this.getY(value)),
     }
   }
 
-  fromPosition(position: IPoint): ItemValue {
+  fromPosition(position: Point): ItemValue {
     return {
       tick: this.getTicks(position.x),
       value: this.getValue(position.y),

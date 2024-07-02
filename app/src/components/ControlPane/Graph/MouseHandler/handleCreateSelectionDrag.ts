@@ -1,4 +1,4 @@
-import { IPoint, pointAdd } from "../../../../entities/geometry/Point"
+import { Point, pointAdd } from "../../../../entities/geometry/Point"
 import { ControlSelection } from "../../../../entities/selection/ControlSelection"
 import { ControlCoordTransform } from "../../../../entities/transform/ControlCoordTransform"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
@@ -8,7 +8,7 @@ export const handleCreateSelectionDrag =
   (rootStore: RootStore) =>
   (
     e: MouseEvent,
-    startPoint: IPoint,
+    startPoint: Point,
     controlTransform: ControlCoordTransform,
     getControllerEventIdsInSelection: (selection: ControlSelection) => number[],
   ) => {

@@ -1,4 +1,4 @@
-import { IPoint, pointAdd, pointSub } from "../../../entities/geometry/Point"
+import { Point, pointAdd, pointSub } from "../../../entities/geometry/Point"
 import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
 import { filterEventsWithRange } from "../../../helpers/filterEvents"
 import { getClientPos } from "../../../helpers/mouseEvent"
@@ -8,7 +8,7 @@ import { isSetTempoEvent } from "../../../track"
 
 export const handleCreateSelectionDrag =
   (rootStore: RootStore) =>
-  (e: MouseEvent, startPoint: IPoint, transform: TempoCoordTransform) => {
+  (e: MouseEvent, startPoint: Point, transform: TempoCoordTransform) => {
     const {
       song: { conductorTrack },
       tempoEditorStore,

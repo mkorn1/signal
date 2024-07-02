@@ -2,7 +2,7 @@ import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { CSSProperties, FC, useCallback, useMemo } from "react"
 import { changeTempo } from "../../../actions"
-import { IPoint } from "../../../entities/geometry/Point"
+import { Point } from "../../../entities/geometry/Point"
 import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../../../helpers/bpm"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { useStores } from "../../../hooks/useStores"
@@ -49,7 +49,7 @@ export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
     )
 
     const findEvent = useCallback(
-      (local: IPoint) =>
+      (local: Point) =>
         items.find(
           (n) => local.x >= n.bounds.x && local.x < n.bounds.x + n.bounds.width,
         ),

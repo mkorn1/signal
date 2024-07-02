@@ -10,7 +10,7 @@ import {
   arrangeStartSelection,
   selectTrack,
 } from "../../actions"
-import { IPoint, pointAdd, pointSub } from "../../entities/geometry/Point"
+import { Point, pointAdd, pointSub } from "../../entities/geometry/Point"
 import { ArrangePoint } from "../../entities/transform/ArrangePoint"
 import { getClientPos } from "../../helpers/mouseEvent"
 import { observeDrag } from "../../helpers/observeDrag"
@@ -181,7 +181,7 @@ export const ArrangeView: FC = observer(() => {
           return
         }
 
-        const startPosPx: IPoint = {
+        const startPosPx: Point = {
           x: e.nativeEvent.offsetX + scrollLeft,
           y: e.nativeEvent.offsetY + scrollTop,
         }

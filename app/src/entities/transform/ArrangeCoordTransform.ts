@@ -1,4 +1,4 @@
-import { IPoint } from "../geometry/Point"
+import { Point } from "../geometry/Point"
 
 export class ArrangeCoordTransform {
   private _pixelsPerTick: number
@@ -25,7 +25,7 @@ export class ArrangeCoordTransform {
     return y / this._pixelsPerTrack
   }
 
-  getArrangePoint(point: IPoint) {
+  getArrangePoint(point: Point) {
     return {
       tick: this.getTick(point.x),
       trackIndex: this.getTrackIndex(point.y),

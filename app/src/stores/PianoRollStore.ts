@@ -9,7 +9,7 @@ import {
 } from "mobx"
 import { Layout } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
-import { IPoint } from "../entities/geometry/Point"
+import { Point } from "../entities/geometry/Point"
 import { IRect, containsPoint } from "../entities/geometry/Rect"
 import { Selection } from "../entities/selection/Selection"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
@@ -312,12 +312,12 @@ export default class PianoRollStore {
   }
 
   // hit test notes in canvas coordinates
-  getNotes(local: IPoint): PianoNoteItem[] {
+  getNotes(local: Point): PianoNoteItem[] {
     return this.notes.filter((n) => containsPoint(n, local))
   }
 
   // convert mouse position to the local coordinate on the canvas
-  getLocal(e: { offsetX: number; offsetY: number }): IPoint {
+  getLocal(e: { offsetX: number; offsetY: number }): Point {
     return {
       x: e.offsetX + this.scrollLeft,
       y: e.offsetY + this.scrollTop,

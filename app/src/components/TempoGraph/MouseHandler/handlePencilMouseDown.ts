@@ -1,5 +1,5 @@
 import { updateEventsInRange } from "../../../actions"
-import { IPoint, pointAdd, pointSub } from "../../../entities/geometry/Point"
+import { Point, pointAdd, pointSub } from "../../../entities/geometry/Point"
 import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
 import { bpmToUSecPerBeat } from "../../../helpers/bpm"
 import { getClientPos } from "../../../helpers/mouseEvent"
@@ -10,7 +10,7 @@ import { isSetTempoEvent } from "../../../track"
 
 export const handlePencilMouseDown =
   ({ song, tempoEditorStore: { quantizer }, pushHistory }: RootStore) =>
-  (e: MouseEvent, startPoint: IPoint, transform: TempoCoordTransform) => {
+  (e: MouseEvent, startPoint: Point, transform: TempoCoordTransform) => {
     const track = song.conductorTrack
     if (track === undefined) {
       return

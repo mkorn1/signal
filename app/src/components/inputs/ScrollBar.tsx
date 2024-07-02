@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import useComponentSize from "@rehooks/component-size"
 import ArrowDropUp from "mdi-react/ArrowDropUpIcon"
 import React, { FC, useRef } from "react"
-import { IPoint } from "../../entities/geometry/Point"
+import { Point } from "../../entities/geometry/Point"
 import { observeDrag, observeDrag2 } from "../../helpers/observeDrag"
 
 export const BAR_WIDTH = 17
@@ -257,7 +257,7 @@ const _ScrollBar: React.ForwardRefRenderFunction<
 
 export const ScrollBar = React.forwardRef(_ScrollBar)
 
-function getPoint(e: MouseEvent | React.MouseEvent): IPoint {
+function getPoint(e: MouseEvent | React.MouseEvent): Point {
   return {
     x: e.pageX,
     y: e.pageY,

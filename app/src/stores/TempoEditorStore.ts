@@ -2,7 +2,7 @@ import { autorun, computed, makeObservable, observable } from "mobx"
 import { Layout } from "../Constants"
 import { DisplayEvent } from "../components/PianoRoll/ControlMark"
 import { transformEvents } from "../components/TempoGraph/transformEvents"
-import { IPoint } from "../entities/geometry/Point"
+import { Point } from "../entities/geometry/Point"
 import { containsPoint } from "../entities/geometry/Rect"
 import { TempoSelection } from "../entities/selection/TempoSelection"
 import { TempoCoordTransform } from "../entities/transform/TempoCoordTransform"
@@ -119,12 +119,12 @@ export default class TempoEditorStore {
       : null
   }
 
-  hitTest(point: IPoint): number | undefined {
+  hitTest(point: Point): number | undefined {
     return this.controlPoints.find((r) => containsPoint(r, point))?.id
   }
 }
 
-export const pointToCircleRect = (p: IPoint, radius: number) => ({
+export const pointToCircleRect = (p: Point, radius: number) => ({
   x: p.x - radius,
   y: p.y - radius,
   width: radius * 2,

@@ -1,4 +1,4 @@
-import { IPoint } from "../../entities/geometry/Point"
+import { Point } from "../../entities/geometry/Point"
 import { NoteEvent } from "../../track"
 import { NotePoint } from "./NotePoint"
 
@@ -89,14 +89,14 @@ export class NoteCoordTransform {
     }
   }
 
-  getNotePoint(pos: IPoint): NotePoint {
+  getNotePoint(pos: Point): NotePoint {
     return {
       tick: this.getTicks(pos.x),
       noteNumber: this.getNoteNumber(pos.y),
     }
   }
 
-  getNotePointFractional(pos: IPoint): NotePoint {
+  getNotePointFractional(pos: Point): NotePoint {
     return {
       tick: this.getTicks(pos.x),
       noteNumber: this.getNoteNumberFractional(pos.y),

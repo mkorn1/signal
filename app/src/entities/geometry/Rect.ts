@@ -1,11 +1,11 @@
-import { IPoint } from "./Point"
+import { Point } from "./Point"
 
-export interface IRect extends IPoint {
+export interface IRect extends Point {
   width: number
   height: number
 }
 
-export function containsPoint(rect: IRect, point: IPoint) {
+export function containsPoint(rect: IRect, point: Point) {
   return (
     point.x >= rect.x &&
     point.x <= rect.x + rect.width &&
@@ -35,14 +35,14 @@ export function containsRect(rectA: IRect, rectB: IRect) {
   return containsPoint(rectA, rectB) && containsPoint(rectA, br(rectB))
 }
 
-export function br(rect: IRect): IPoint {
+export function br(rect: IRect): Point {
   return {
     x: right(rect),
     y: bottom(rect),
   }
 }
 
-export function fromPoints(pointA: IPoint, pointB: IPoint): IRect {
+export function fromPoints(pointA: Point, pointB: Point): IRect {
   const x1 = Math.min(pointA.x, pointB.x)
   const x2 = Math.max(pointA.x, pointB.x)
   const y1 = Math.min(pointA.y, pointB.y)
@@ -67,7 +67,7 @@ export function scale(rect: IRect, scaleX: number, scaleY: number): IRect {
 
 export const zeroRect: IRect = { x: 0, y: 0, width: 0, height: 0 }
 
-export function moveRect(rect: IRect, p: IPoint): IRect {
+export function moveRect(rect: IRect, p: Point): IRect {
   return {
     x: rect.x + p.x,
     y: rect.y + p.y,

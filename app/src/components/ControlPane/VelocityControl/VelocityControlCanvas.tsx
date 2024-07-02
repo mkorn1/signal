@@ -3,7 +3,7 @@ import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import { changeNotesVelocity, updateVelocitiesInRange } from "../../../actions"
-import { IPoint, pointAdd } from "../../../entities/geometry/Point"
+import { Point, pointAdd } from "../../../entities/geometry/Point"
 import { IRect, containsPoint } from "../../../entities/geometry/Rect"
 import { colorToVec4 } from "../../../gl/color"
 import { matrixFromTranslation } from "../../../helpers/matrix"
@@ -60,7 +60,7 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
       [windowedEvents, height, transform, selectedNoteIds],
     )
 
-    const hitTest = (point: IPoint) => {
+    const hitTest = (point: Point) => {
       return items.filter((n) => containsPoint(n.hitArea, point))
     }
 

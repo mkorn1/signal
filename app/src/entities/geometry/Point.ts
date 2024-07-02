@@ -1,16 +1,16 @@
-export interface IPoint {
+export interface Point {
   x: number
   y: number
 }
 
-export function pointSub(v1: IPoint, v2: IPoint) {
+export function pointSub(v1: Point, v2: Point) {
   return {
     x: v1.x - v2.x,
     y: v1.y - v2.y,
   }
 }
 
-export function pointAdd(v1: IPoint, v2: IPoint) {
+export function pointAdd(v1: Point, v2: Point) {
   return {
     x: v1.x + v2.x,
     y: v1.y + v2.y,
