@@ -1,4 +1,4 @@
-import { Point, pointAdd } from "../../../../entities/geometry/Point"
+import { Point } from "../../../../entities/geometry/Point"
 import { ControlSelection } from "../../../../entities/selection/ControlSelection"
 import { ControlCoordTransform } from "../../../../entities/transform/ControlCoordTransform"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
@@ -36,7 +36,7 @@ export const handleCreateSelectionDrag =
 
     observeDrag2(e, {
       onMouseMove: (_e, delta) => {
-        const local = pointAdd(startPoint, delta)
+        const local = Point.add(startPoint, delta)
         const endTick = quantizer.round(controlTransform.getTicks(local.x))
         controlStore.selection = {
           fromTick: Math.min(startTick, endTick),

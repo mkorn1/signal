@@ -8,7 +8,7 @@ import {
   startSelection,
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
-import { Point, pointAdd } from "../../../entities/geometry/Point"
+import { Point } from "../../../entities/geometry/Point"
 import { IRect } from "../../../entities/geometry/Rect"
 import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"
@@ -99,7 +99,7 @@ const createSelectionAction: MouseGesture = (rootStore) => (e) => {
 
   observeDrag2(e, {
     onMouseMove: (_e, delta) => {
-      const offsetPos = pointAdd(startPos, delta)
+      const offsetPos = Point.add(startPos, delta)
       const end = transform.getNotePointFractional(offsetPos)
       resizeSelection(rootStore)(
         { ...start, tick: quantizer.round(start.tick) },
@@ -129,7 +129,7 @@ const moveSelectionAction =
 
     observeDrag2(e, {
       onMouseMove: (_e, delta) => {
-        const position = pointAdd(selectionBounds, delta)
+        const position = Point.add(selectionBounds, delta)
         const tick = transform.getTicks(position.x)
         const noteNumber = transform.getNoteNumberFractional(position.y)
 

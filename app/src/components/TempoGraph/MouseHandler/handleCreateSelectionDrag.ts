@@ -1,4 +1,4 @@
-import { Point, pointAdd, pointSub } from "../../../entities/geometry/Point"
+import { Point } from "../../../entities/geometry/Point"
 import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
 import { filterEventsWithRange } from "../../../helpers/filterEvents"
 import { getClientPos } from "../../../helpers/mouseEvent"
@@ -31,8 +31,8 @@ export const handleCreateSelectionDrag =
     observeDrag({
       onMouseMove: (e) => {
         const posPx = getClientPos(e)
-        const deltaPx = pointSub(posPx, startClientPos)
-        const local = pointAdd(startPoint, deltaPx)
+        const deltaPx = Point.sub(posPx, startClientPos)
+        const local = Point.add(startPoint, deltaPx)
         const end = transform.fromPosition(local)
         tempoEditorStore.selection = {
           fromTick: Math.min(start.tick, end.tick),

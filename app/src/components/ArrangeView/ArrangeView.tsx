@@ -10,7 +10,7 @@ import {
   arrangeStartSelection,
   selectTrack,
 } from "../../actions"
-import { Point, pointAdd, pointSub } from "../../entities/geometry/Point"
+import { Point } from "../../entities/geometry/Point"
 import { ArrangePoint } from "../../entities/transform/ArrangePoint"
 import { getClientPos } from "../../helpers/mouseEvent"
 import { observeDrag } from "../../helpers/observeDrag"
@@ -195,8 +195,8 @@ export const ArrangeView: FC = observer(() => {
 
         observeDrag({
           onMouseMove: (e) => {
-            const deltaPx = pointSub(getClientPos(e), startClientPos)
-            const selectionToPx = pointAdd(startPosPx, deltaPx)
+            const deltaPx = Point.sub(getClientPos(e), startClientPos)
+            const selectionToPx = Point.add(startPosPx, deltaPx)
             const endPos = {
               tick: trackTransform.getTick(selectionToPx.x),
               trackIndex: tracks.length,

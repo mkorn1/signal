@@ -1,5 +1,5 @@
 import { updateEventsInRange } from "../../../actions"
-import { Point, pointAdd, pointSub } from "../../../entities/geometry/Point"
+import { Point } from "../../../entities/geometry/Point"
 import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
 import { bpmToUSecPerBeat } from "../../../helpers/bpm"
 import { getClientPos } from "../../../helpers/mouseEvent"
@@ -34,8 +34,8 @@ export const handlePencilMouseDown =
     observeDrag({
       onMouseMove: (e) => {
         const posPx = getClientPos(e)
-        const deltaPx = pointSub(posPx, startClientPos)
-        const local = pointAdd(startPoint, deltaPx)
+        const deltaPx = Point.sub(posPx, startClientPos)
+        const local = Point.add(startPoint, deltaPx)
         const value = Math.max(
           0,
           Math.min(transform.maxBPM, transform.fromPosition(local).bpm),

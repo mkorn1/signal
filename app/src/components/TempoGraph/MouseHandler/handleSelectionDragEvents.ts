@@ -1,6 +1,6 @@
 import { clamp } from "lodash"
 import { SetTempoEvent } from "midifile-ts"
-import { Point, pointAdd, pointSub } from "../../../entities/geometry/Point"
+import { Point } from "../../../entities/geometry/Point"
 import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
 import { isNotUndefined } from "../../../helpers/array"
 import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../../../helpers/bpm"
@@ -53,8 +53,8 @@ export const handleSelectionDragEvents =
     observeDrag({
       onMouseMove: (e) => {
         const posPx = getClientPos(e)
-        const deltaPx = pointSub(posPx, startClientPos)
-        const local = pointAdd(startPoint, deltaPx)
+        const deltaPx = Point.sub(posPx, startClientPos)
+        const local = Point.add(startPoint, deltaPx)
         const pos = transform.fromPosition(local)
         const deltaTick = pos.tick - start.tick
         const offsetTick =

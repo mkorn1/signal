@@ -3,7 +3,7 @@ import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import { changeNotesVelocity, updateVelocitiesInRange } from "../../../actions"
-import { Point, pointAdd } from "../../../entities/geometry/Point"
+import { Point } from "../../../entities/geometry/Point"
 import { IRect, containsPoint } from "../../../entities/geometry/Rect"
 import { colorToVec4 } from "../../../gl/color"
 import { matrixFromTranslation } from "../../../helpers/matrix"
@@ -98,7 +98,7 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
 
           observeDrag2(e, {
             onMouseMove: (e, delta) => {
-              const local = pointAdd(startPoint, delta)
+              const local = Point.add(startPoint, delta)
               const tick = transform.getTicks(local.x)
               const value = calcValue(e)
 

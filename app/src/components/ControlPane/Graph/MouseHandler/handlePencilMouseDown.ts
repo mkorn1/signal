@@ -3,7 +3,7 @@ import {
   updateValueEvents,
 } from "../../../../actions"
 import { pushHistory } from "../../../../actions/history"
-import { Point, pointAdd, pointSub } from "../../../../entities/geometry/Point"
+import { Point } from "../../../../entities/geometry/Point"
 import { ControlCoordTransform } from "../../../../entities/transform/ControlCoordTransform"
 import { getClientPos } from "../../../../helpers/mouseEvent"
 import { observeDrag } from "../../../../helpers/observeDrag"
@@ -40,8 +40,8 @@ export const handlePencilMouseDown =
     observeDrag({
       onMouseMove: (e) => {
         const posPx = getClientPos(e)
-        const deltaPx = pointSub(posPx, startClientPos)
-        const local = pointAdd(startPoint, deltaPx)
+        const deltaPx = Point.sub(posPx, startClientPos)
+        const local = Point.add(startPoint, deltaPx)
         const value = Math.max(
           0,
           Math.min(transform.maxValue, transform.fromPosition(local).value),

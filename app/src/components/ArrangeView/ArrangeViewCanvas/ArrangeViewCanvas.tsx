@@ -8,7 +8,7 @@ import {
   arrangeStartSelection,
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
-import { Point, pointAdd, pointSub } from "../../../entities/geometry/Point"
+import { Point } from "../../../entities/geometry/Point"
 import { containsPoint } from "../../../entities/geometry/Rect"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { getClientPos } from "../../../helpers/mouseEvent"
@@ -82,8 +82,8 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
           let isMoved = false
           observeDrag({
             onMouseMove: (e) => {
-              const deltaPx = pointSub(getClientPos(e), startClientPos)
-              const selectionFromPx = pointAdd(deltaPx, selectionRect)
+              const deltaPx = Point.sub(getClientPos(e), startClientPos)
+              const selectionFromPx = Point.add(deltaPx, selectionRect)
 
               if ((deltaPx.x !== 0 || deltaPx.y !== 0) && !isMoved) {
                 isMoved = true
@@ -107,8 +107,8 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
 
           observeDrag({
             onMouseMove: (e) => {
-              const deltaPx = pointSub(getClientPos(e), startClientPos)
-              const selectionToPx = pointAdd(startPosPx, deltaPx)
+              const deltaPx = Point.sub(getClientPos(e), startClientPos)
+              const selectionToPx = Point.add(startPosPx, deltaPx)
               arrangeResizeSelection(rootStore)(
                 startPos,
                 trackTransform.getArrangePoint(selectionToPx),
@@ -133,7 +133,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
         observeDrag({
           onMouseMove(e) {
             const pos = createPoint(e)
-            const delta = pointSub(pos, startPos)
+            const delta = Point.sub(pos, startPos)
             setScrollLeft(Math.max(0, scrollLeft - delta.x))
             setScrollTop(Math.max(0, scrollTop - delta.y))
           },

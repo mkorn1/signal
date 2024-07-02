@@ -14,7 +14,7 @@ import {
   stopNote,
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
-import { Point, pointAdd } from "../../../entities/geometry/Point"
+import { Point } from "../../../entities/geometry/Point"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import RootStore from "../../../stores/RootStore"
@@ -282,7 +282,7 @@ const removeNoteAction: MouseGesture = (rootStore) => (e) => {
 
   observeDrag2(e, {
     onMouseMove: (_e, delta) => {
-      const local = pointAdd(startPos, delta)
+      const local = Point.add(startPos, delta)
       const items = rootStore.pianoRollStore.getNotes(local)
       if (items.length > 0) {
         removeEvent(rootStore)(items[0].id)
@@ -303,7 +303,7 @@ const selectNoteAction: MouseGesture = (rootStore) => (e) => {
 
   observeDrag2(e, {
     onMouseMove: (_e, delta) => {
-      const offsetPos = pointAdd(startPos, delta)
+      const offsetPos = Point.add(startPos, delta)
       const end = transform.getNotePoint(offsetPos)
       resizeSelection(rootStore)(start, end)
     },
