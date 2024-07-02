@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
-import { Scale, ScaleName, scaleValues } from "../../scale/Scale"
+import { Scale, scaleValues } from "../../scale/Scale"
 import {
   Dialog,
   DialogActions,
@@ -13,6 +13,7 @@ import {
 import { Button } from "../ui/Button"
 import { Label } from "../ui/Label"
 import { Select } from "../ui/Select"
+import { ScaleName } from "./ScaleName"
 
 export interface KeySignatureDialogProps {
   open: boolean
