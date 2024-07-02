@@ -5,7 +5,9 @@ export interface KeySignature {
   scale: Scale
 } // the function that transpose the scale to the key
 
-export const getScaleInterval = (keySignature: KeySignature): number[] => {
-  const scaleIntervals = Scale.getIntegerNotation(keySignature.scale)
-  return scaleIntervals.map((i) => (i + keySignature.key) % 12)
+export namespace KeySignature {
+  export const getIntervals = (keySignature: KeySignature): number[] => {
+    const scaleIntervals = Scale.getIntegerNotation(keySignature.scale)
+    return scaleIntervals.map((i) => (i + keySignature.key) % 12)
+  }
 }

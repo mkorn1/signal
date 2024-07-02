@@ -8,7 +8,7 @@ import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
 import { useTheme } from "../../hooks/useTheme"
 import { noteOffMidiEvent, noteOnMidiEvent } from "../../midi/MidiEvent"
-import { getScaleInterval as getScaleIntervals } from "../../scale/KeySignature"
+import { KeySignature } from "../../scale/KeySignature"
 import { Theme } from "../../theme/Theme"
 import DrawCanvas from "../DrawCanvas"
 import { PianoKeysContextMenu } from "./PianoKeysContextMenu"
@@ -220,7 +220,8 @@ export const PianoKeys: FC = observer(() => {
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D) => {
-      const scale = keySignature !== null ? getScaleIntervals(keySignature) : []
+      const scale =
+        keySignature !== null ? KeySignature.getIntervals(keySignature) : []
       drawKeys(
         ctx,
         blackKeyWidth,

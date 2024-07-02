@@ -5,11 +5,11 @@ import { Layout } from "../../../Constants"
 import { colorToVec4 } from "../../../gl/color"
 import { useStores } from "../../../hooks/useStores"
 import { useTheme } from "../../../hooks/useTheme"
-import { KeySignature, getScaleInterval } from "../../../scale/KeySignature"
+import { KeySignature } from "../../../scale/KeySignature"
 import { HorizontalGrid } from "./HorizontalGrid"
 
 function keySignatureToConditions(keySignature: KeySignature) {
-  const intervals = getScaleInterval(keySignature)
+  const intervals = KeySignature.getIntervals(keySignature)
   return new Array(12).fill(false).map((_, i) => intervals.includes(i % 12))
 }
 
@@ -40,7 +40,7 @@ export const Lines: FC<{ zIndex: number }> = observer(({ zIndex }) => {
         Array(12)
           .fill(0)
           .map((_, i) =>
-            getScaleInterval({ scale: "major", key: 0 }).includes(i)
+            KeySignature.getIntervals({ scale: "major", key: 0 }).includes(i)
               ? whiteLaneColor
               : blackLaneColor,
           )
