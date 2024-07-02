@@ -1,4 +1,4 @@
-export interface ISize {
+export interface Size {
   width: number
   height: number
 }
