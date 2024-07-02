@@ -7,12 +7,7 @@ import {
 import { intersects } from "../geometry"
 import { isNotNull, isNotUndefined } from "../helpers/array"
 import { tickToMillisec } from "../helpers/bpm"
-import {
-  Selection,
-  clampSelection,
-  movedSelection,
-  regularizedSelection,
-} from "../selection/Selection"
+import { Selection } from "../selection/Selection"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import { NoteEvent, TrackEvent, isNoteEvent } from "../track"
@@ -43,7 +38,7 @@ function eventsInSelection(events: TrackEvent[], selection: Selection) {
 export const resizeSelection =
   ({ pianoRollStore }: RootStore) =>
   (start: NotePoint, end: NotePoint) => {
-    let selection = regularizedSelection(
+    let selection = Selection.regularized(
       start.tick,
       start.noteNumber,
       end.tick,
@@ -55,7 +50,7 @@ export const resizeSelection =
     selection.to.noteNumber = Math.floor(selection.to.noteNumber)
 
     ++selection.to.noteNumber
-    selection = clampSelection(selection)
+    selection = Selection.clamp(selection)
     --selection.to.noteNumber
 
     pianoRollStore.selection = selection
@@ -94,7 +89,7 @@ export const transposeSelection =
     pushHistory()
 
     if (selection !== null) {
-      const s = movedSelection(selection, 0, deltaPitch)
+      const s = Selection.moved(selection, 0, deltaPitch)
       pianoRollStore.selection = s
     }
 
@@ -154,7 +149,7 @@ export const moveSelectionBy =
     }
 
     if (selection !== null) {
-      const s = movedSelection(selection, delta.tick, delta.noteNumber)
+      const s = Selection.moved(selection, delta.tick, delta.noteNumber)
       pianoRollStore.selection = s
     }
 

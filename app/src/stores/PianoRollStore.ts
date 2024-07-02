@@ -15,7 +15,7 @@ import { filterEventsOverlapScroll } from "../helpers/filterEvents"
 import { getMBTString } from "../measure/mbt"
 import Quantizer from "../quantizer"
 import { KeySignature } from "../scale/Scale"
-import { Selection, getSelectionBounds } from "../selection/Selection"
+import { Selection } from "../selection/Selection"
 import Track, { TrackEvent, isNoteEvent } from "../track"
 import { NoteCoordTransform } from "../transform"
 import RootStore from "./RootStore"
@@ -325,7 +325,7 @@ export default class PianoRollStore {
 
   get selectionBounds(): IRect | null {
     if (this.selection !== null) {
-      return getSelectionBounds(this.selection, this.transform)
+      return Selection.getBounds(this.selection, this.transform)
     }
     return null
   }
