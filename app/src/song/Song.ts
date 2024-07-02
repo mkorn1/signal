@@ -9,9 +9,9 @@ import {
   transaction,
 } from "mobx"
 import { createModelSchema, list, object, primitive } from "serializr"
+import { Measure } from "../entities/measure/Measure"
+import { MeasureList } from "../entities/measure/MeasureList"
 import { isNotUndefined } from "../helpers/array"
-import { Measure } from "../measure/Measure"
-import { MeasureList } from "../measure/MeasureList"
 import { collectAllEvents } from "../player/collectAllEvents"
 import Track from "../track"
 

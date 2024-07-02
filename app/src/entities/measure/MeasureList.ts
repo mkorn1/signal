@@ -1,4 +1,4 @@
-import Track, { isTimeSignatureEvent } from "../track"
+import Track, { isTimeSignatureEvent } from "../../track"
 import { Measure } from "./Measure"
 
 export type MeasureList = Measure[]

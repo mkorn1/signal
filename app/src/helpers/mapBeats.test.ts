@@ -1,4 +1,4 @@
-import { Measure } from "../measure/Measure"
+import { Measure } from "../entities/measure/Measure"
 import { createBeatsInRange } from "./mapBeats"
 
 describe("createBeatsInRange", () => {

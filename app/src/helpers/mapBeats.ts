@@ -1,4 +1,4 @@
-import { Measure } from "../measure/Measure"
+import { Measure } from "../entities/measure/Measure"
 
 export interface Beat {
   measure: number
