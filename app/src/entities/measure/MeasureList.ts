@@ -67,6 +67,51 @@ export namespace MeasureList {
     ticksPerBeat: number,
     formatter = defaultMBTFormatter,
   ): string => formatter(getMBT(measures, tick, ticksPerBeat))
+
+  // Find the measure in the range. The first element also includes those before startTick
+  export const getMeasuresInRange = (
+    measures: Measure[],
+    startTick: number,
+    endTick: number,
+  ) => {
+    let i = 0
+    const result: Measure[] = []
+
+    for (const measure of measures) {
+      const nextMeasure = measures[i + 1]
+      i++
+
+      // Find the first measure
+      if (result.length === 0) {
+        if (nextMeasure !== undefined && nextMeasure.startTick <= startTick) {
+          // Skip if the next Measure can be the first
+          continue
+        }
+        if (measure.startTick > startTick) {
+          console.warn("There is no initial time signature. Use 4/4 by default")
+          result.push({
+            startTick: 0,
+            measure: 0,
+            numerator: 4,
+            denominator: 4,
+          })
+        } else {
+          result.push(measure)
+        }
+      }
+
+      // Find the remaining measures. Check if there is another first measure again to handle the case where there is no first measure correctly.
+      if (result.length !== 0) {
+        if (measure.startTick <= endTick) {
+          result.push(measure)
+        } else {
+          break
+        }
+      }
+    }
+
+    return result
+  }
 }
 
 interface Beat {
