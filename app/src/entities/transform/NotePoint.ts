@@ -13,4 +13,8 @@ export namespace NotePoint {
     tick: Math.max(0, point.tick),
     noteNumber: clampNoteNumber(point.noteNumber),
   })
+
+  export function equals(a: NotePoint, b: NotePoint): boolean {
+    return a.tick === b.tick && a.noteNumber === b.noteNumber
+  }
 }

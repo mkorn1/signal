@@ -1,5 +1,6 @@
 import cloneDeep from "lodash/cloneDeep"
 import { MaxNoteNumber } from "../../Constants"
+import { Range } from "../geometry/Range"
 import { Rect } from "../geometry/Rect"
 import { NoteCoordTransform } from "../transform/NoteCoordTransform"
 import { NotePoint } from "../transform/NotePoint"
@@ -88,5 +89,25 @@ export namespace Selection {
     --selection.to.noteNumber
 
     return selection
+  }
+
+  // Fix the right end and change the length
+  export function resizeLeft(
+    selection: Selection,
+    tick: number,
+    minLength: number,
+  ) {
+    const range = Range.create(selection.from.tick, selection.to.tick)
+    const [newFromTick, newToTick] = Range.resizeStart(range, tick, minLength)
+    return Selection.regularized(
+      newFromTick,
+      selection.from.noteNumber,
+      newToTick,
+      selection.to.noteNumber,
+    )
+  }
+
+  export function equals(a: Selection, b: Selection) {
+    return NotePoint.equals(a.from, b.from) && NotePoint.equals(a.to, b.to)
   }
 }

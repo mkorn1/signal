@@ -194,47 +194,35 @@ export const updateSelectedNotes =
     )
   }
 
-export const resizeSelectionLeft = (rootStore: RootStore) => (tick: number) => {
-  const {
-    pianoRollStore,
-    pianoRollStore: { selection, quantizer },
-    pushHistory,
-  } = rootStore
+const MIN_LENGTH = 10
 
-  if (selection === null) {
-    return
+// Extend and shrink the selection and notes to the left
+export const resizeSelectionLeft =
+  (rootStore: RootStore) => (tick: number, quantize: boolean) => {
+    const {
+      pianoRollStore,
+      pianoRollStore: { selection, quantizer },
+      pushHistory,
+    } = rootStore
+
+    if (selection === null) {
+      return
+    }
+
+    const fromTick = quantizer.round(tick)
+    const minLength = quantize ? quantizer.unit : MIN_LENGTH
+    const newSelection = Selection.resizeLeft(selection, fromTick, minLength)
+
+    if (!Selection.equals(newSelection, selection)) {
+      pushHistory()
+      pianoRollStore.selection = newSelection
+      const delta = newSelection.from.tick - selection.from.tick
+      updateSelectedNotes(rootStore)((note) => ({
+        duration: note.duration - delta,
+        tick: note.tick + delta,
+      }))
+    }
   }
-
-  // 選択範囲とノートを左方向に伸長・縮小する
-  // Level and reduce the selection and notes in the left direction
-  const fromTick = quantizer.round(tick)
-  const delta = fromTick - selection.from.tick
-
-  // 変形していないときは終了
-  // End when not deformed
-  if (delta === 0) {
-    return
-  }
-
-  // 選択領域のサイズがゼロになるときは終了
-  // End when the size of selection area becomes zero
-  if (selection.to.tick - fromTick <= 0 || fromTick < 0) {
-    return
-  }
-
-  // 右端を固定して長さを変更
-  // Fix the right end and change the length
-  const s = Selection.clone(selection)
-  s.from.tick = fromTick
-  pianoRollStore.selection = s
-
-  pushHistory()
-
-  updateSelectedNotes(rootStore)((note) => ({
-    duration: note.duration - delta,
-    tick: note.tick + delta,
-  }))
-}
 
 export const resizeSelectionRight =
   (rootStore: RootStore) => (tick: number) => {

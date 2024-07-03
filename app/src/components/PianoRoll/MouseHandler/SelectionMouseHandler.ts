@@ -147,11 +147,16 @@ const moveSelectionAction =
   }
 
 const dragSelectionLeftEdgeAction: MouseGesture = (rootStore) => (e) => {
+  const {
+    pianoRollStore,
+    pianoRollStore: { isQuantizeEnabled },
+  } = rootStore
+  const quantize = !e.shiftKey && isQuantizeEnabled
   observeDrag({
     onMouseMove: (e2) => {
-      const local = rootStore.pianoRollStore.getLocal(e2)
-      const tick = rootStore.pianoRollStore.transform.getTicks(local.x)
-      resizeSelectionLeft(rootStore)(tick)
+      const local = pianoRollStore.getLocal(e2)
+      const tick = pianoRollStore.transform.getTicks(local.x)
+      resizeSelectionLeft(rootStore)(tick, quantize)
     },
   })
 }
