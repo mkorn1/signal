@@ -68,4 +68,23 @@ export namespace Selection {
     from: NotePoint.clamp(selection.from),
     to: NotePoint.clamp(selection.to),
   })
+
+  export function fromPoints(start: NotePoint, end: NotePoint) {
+    let selection = Selection.regularized(
+      start.tick,
+      start.noteNumber,
+      end.tick,
+      end.noteNumber,
+    )
+
+    // integer containing the original coordinates.
+    selection.from.noteNumber = Math.ceil(selection.from.noteNumber)
+    selection.to.noteNumber = Math.floor(selection.to.noteNumber)
+
+    ++selection.to.noteNumber
+    selection = Selection.clamp(selection)
+    --selection.to.noteNumber
+
+    return selection
+  }
 }
