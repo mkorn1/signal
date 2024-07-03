@@ -1,5 +1,4 @@
 import { min } from "lodash"
-import cloneDeep from "lodash/cloneDeep"
 import {
   PianoNotesClipboardData,
   isPianoNotesClipboardData,
@@ -187,7 +186,7 @@ export const resizeSelectionLeft = (rootStore: RootStore) => (tick: number) => {
 
   // 右端を固定して長さを変更
   // Fix the right end and change the length
-  const s = cloneDeep(selection)
+  const s = Selection.clone(selection)
   s.from.tick = fromTick
   pianoRollStore.selection = s
 
@@ -260,7 +259,7 @@ export const resizeSelectionRight =
 
     // 右端を固定して長さを変更
     // Fix the right end and change the length
-    const s = cloneDeep(selection)
+    const s = Selection.clone(selection)
     s.to.tick = toTick
     pianoRollStore.selection = s
 
@@ -476,7 +475,7 @@ export const duplicateSelection =
 
     // select the created notes
     const addedNotes = selectedTrack.addEvents(notes)
-    const s = cloneDeep(selection)
+    const s = Selection.clone(selection)
     s.from.tick += deltaTick
     s.to.tick += deltaTick
     pianoRollStore.selection = s

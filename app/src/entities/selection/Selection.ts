@@ -26,12 +26,14 @@ export namespace Selection {
     }
   }
 
+  export const clone = (selection: Selection): Selection => cloneDeep(selection)
+
   export const moved = (
     selection: Selection,
     dt: number,
     dn: number,
   ): Selection => {
-    const s = cloneDeep(selection)
+    const s = clone(selection)
 
     s.from.tick += dt
     s.to.tick += dt

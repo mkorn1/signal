@@ -147,7 +147,7 @@ export default class PianoRollStore {
 
   serialize(): SerializedPianoRollStore {
     return {
-      selection: cloneDeep(this.selection),
+      selection: this.selection ? Selection.clone(this.selection) : null,
       selectedNoteIds: cloneDeep(this.selectedNoteIds),
     }
   }
