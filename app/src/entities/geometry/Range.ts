@@ -36,4 +36,8 @@ export namespace Range {
       length: end - start,
     }
   }
+
+  export function equals(a: Range, b: Range) {
+    return a[0] === b[0] && a[1] === b[1]
+  }
 }

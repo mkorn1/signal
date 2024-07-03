@@ -174,12 +174,14 @@ const dragNoteEdgeAction =
 
     const local = pianoRollStore.getLocal(e)
     const startTick = transform.getTicks(local.x)
+    const quantize = !e.shiftKey && isQuantizeEnabled
+    const minDuration = quantize ? quantizer.unit : MIN_DURATION
+
     let isChanged = false
 
     observeDrag2(e, {
       onMouseMove: (e, delta) => {
         let tick = startTick + transform.getTicks(delta.x)
-        const quantize = !e.shiftKey && isQuantizeEnabled
         if (quantize) {
           tick = quantizer.round(tick)
         }
@@ -187,25 +189,23 @@ const dragNoteEdgeAction =
         if (note == undefined || !isNoteEvent(note)) {
           return
         }
-        const minDuration = quantize ? quantizer.unit : MIN_DURATION
         const range = Range.create(note.tick, note.tick + note.duration)
 
-        const { start: newTick, length: newDuration } = Range.toSpan(
-          (() => {
-            switch (edge) {
-              case "left":
-                return Range.resizeStart(range, tick, minDuration)
-              case "right":
-                return Range.resizeEnd(range, tick, minDuration)
-            }
-          })(),
-        )
+        const newRange = (() => {
+          switch (edge) {
+            case "left":
+              return Range.resizeStart(range, tick, minDuration)
+            case "right":
+              return Range.resizeEnd(range, tick, minDuration)
+          }
+        })()
 
-        if (newTick !== note.tick || newDuration !== note.duration) {
+        if (!Range.equals(range, newRange)) {
           if (!isChanged) {
             pushHistory(rootStore)()
             isChanged = true
           }
+          const { start: newTick, length: newDuration } = Range.toSpan(newRange)
           pianoRollStore.lastNoteDuration = newDuration
           selectedTrack.updateEvent(note.id, {
             tick: newTick,
