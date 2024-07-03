@@ -3,7 +3,6 @@ import {
   fixSelection,
   moveSelection,
   resizeSelection,
-  resizeSelectionRight,
   startSelection,
   updateSelectedNotes,
 } from "../../../actions"
@@ -149,53 +148,68 @@ const moveSelectionAction =
     })
   }
 
-// Extend and shrink the selection and notes to the left
-const dragSelectionLeftEdgeAction: MouseGesture = (rootStore) => (e) => {
-  const {
-    pianoRollStore,
-    pianoRollStore: { isQuantizeEnabled, quantizer },
-    pushHistory,
-  } = rootStore
+const dragSelectionEdgeAction =
+  (edge: "left" | "right"): MouseGesture =>
+  (rootStore) =>
+  (e) => {
+    const {
+      pianoRollStore,
+      pianoRollStore: { isQuantizeEnabled, quantizer },
+      pushHistory,
+    } = rootStore
 
-  const quantize = !e.shiftKey && isQuantizeEnabled
-  const minLength = quantize ? quantizer.unit : MIN_LENGTH
-  let isChanged = false
+    const quantize = !e.shiftKey && isQuantizeEnabled
+    const minLength = quantize ? quantizer.unit : MIN_LENGTH
+    let isChanged = false
 
-  observeDrag({
-    onMouseMove: (e2) => {
-      const { selection } = pianoRollStore
+    observeDrag({
+      onMouseMove: (e2) => {
+        const { selection } = pianoRollStore
 
-      if (selection === null) {
-        return
-      }
-
-      const local = pianoRollStore.getLocal(e2)
-      const tick = pianoRollStore.transform.getTicks(local.x)
-      const fromTick = quantizer.round(tick)
-      const newSelection = Selection.resizeLeft(selection, fromTick, minLength)
-
-      if (!Selection.equals(newSelection, selection)) {
-        if (!isChanged) {
-          isChanged = true
-          pushHistory()
+        if (selection === null) {
+          return
         }
-        pianoRollStore.selection = newSelection
-        const delta = newSelection.from.tick - selection.from.tick
-        updateSelectedNotes(rootStore)((note) => ({
-          duration: note.duration - delta,
-          tick: note.tick + delta,
-        }))
-      }
-    },
-  })
-}
 
-const dragSelectionRightEdgeAction: MouseGesture = (rootStore) => (e) => {
-  observeDrag({
-    onMouseMove: (e2) => {
-      const local = rootStore.pianoRollStore.getLocal(e2)
-      const tick = rootStore.pianoRollStore.transform.getTicks(local.x)
-      resizeSelectionRight(rootStore)(tick)
-    },
-  })
-}
+        const local = pianoRollStore.getLocal(e2)
+        const tick = pianoRollStore.transform.getTicks(local.x)
+        const fromTick = quantizer.round(tick)
+        const newSelection = (() => {
+          switch (edge) {
+            case "left":
+              return Selection.resizeLeft(selection, fromTick, minLength)
+            case "right":
+              return Selection.resizeRight(selection, fromTick, minLength)
+          }
+        })()
+
+        if (!Selection.equals(newSelection, selection)) {
+          if (!isChanged) {
+            isChanged = true
+            pushHistory()
+          }
+          pianoRollStore.selection = newSelection
+
+          switch (edge) {
+            case "left": {
+              const delta = newSelection.from.tick - selection.from.tick
+              updateSelectedNotes(rootStore)((note) => ({
+                duration: note.duration - delta,
+                tick: note.tick + delta,
+              }))
+              break
+            }
+            case "right": {
+              const delta = newSelection.to.tick - selection.to.tick
+              updateSelectedNotes(rootStore)((note) => ({
+                duration: note.duration + delta,
+              }))
+              break
+            }
+          }
+        }
+      },
+    })
+  }
+
+const dragSelectionLeftEdgeAction = dragSelectionEdgeAction("left")
+const dragSelectionRightEdgeAction = dragSelectionEdgeAction("right")

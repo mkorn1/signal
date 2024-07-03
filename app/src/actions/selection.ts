@@ -194,48 +194,6 @@ export const updateSelectedNotes =
     )
   }
 
-export const resizeSelectionRight =
-  (rootStore: RootStore) => (tick: number) => {
-    const {
-      pianoRollStore,
-      pianoRollStore: { selection, quantizer },
-      pushHistory,
-    } = rootStore
-
-    if (selection === null) {
-      return
-    }
-
-    // 選択範囲とノートを右方向に伸長・縮小する
-    // Return and reduce the selection and note in the right direction
-    const toTick = quantizer.round(tick)
-    const delta = toTick - selection.to.tick
-
-    // 変形していないときは終了
-    // End when not deformed
-    if (delta === 0) {
-      return
-    }
-
-    // 選択領域のサイズがゼロになるときは終了
-    // End when the size of selection area becomes zero
-    if (toTick - selection.from.tick <= 0) {
-      return
-    }
-
-    // 右端を固定して長さを変更
-    // Fix the right end and change the length
-    const s = Selection.clone(selection)
-    s.to.tick = toTick
-    pianoRollStore.selection = s
-
-    pushHistory()
-
-    updateSelectedNotes(rootStore)((note) => ({
-      duration: note.duration + delta,
-    }))
-  }
-
 export const startSelection =
   ({
     pianoRollStore,

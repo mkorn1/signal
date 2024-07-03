@@ -107,6 +107,21 @@ export namespace Selection {
     )
   }
 
+  export function resizeRight(
+    selection: Selection,
+    tick: number,
+    minLength: number,
+  ) {
+    const range = Range.create(selection.from.tick, selection.to.tick)
+    const [newFromTick, newToTick] = Range.resizeEnd(range, tick, minLength)
+    return Selection.regularized(
+      newFromTick,
+      selection.from.noteNumber,
+      newToTick,
+      selection.to.noteNumber,
+    )
+  }
+
   export function equals(a: Selection, b: Selection) {
     return NotePoint.equals(a.from, b.from) && NotePoint.equals(a.to, b.to)
   }
