@@ -5,8 +5,6 @@ import {
   moveSelectionBy,
   removeEvent,
   removeNoteFromSelection,
-  resizeNoteLeft,
-  resizeNoteRight,
   resizeSelection,
   selectNote,
   startNote,
@@ -20,6 +18,8 @@ import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import RootStore from "../../../stores/RootStore"
 import { NoteEvent, isNoteEvent } from "../../../track"
 import { MouseGesture } from "./NoteMouseHandler"
+
+const MIN_DURATION = 10
 
 export const getPencilActionForMouseDown =
   (rootStore: RootStore) =>
@@ -150,8 +150,13 @@ const dragNoteEdgeAction =
   (rootStore) =>
   (e) => {
     const {
-      player,
-      pianoRollStore: { selectedTrack, transform, isQuantizeEnabled },
+      pianoRollStore,
+      pianoRollStore: {
+        selectedTrack,
+        transform,
+        isQuantizeEnabled,
+        quantizer,
+      },
     } = rootStore
 
     if (selectedTrack === undefined || selectedTrack.channel === undefined) {
@@ -166,22 +171,53 @@ const dragNoteEdgeAction =
     const { channel } = selectedTrack
     startNote(rootStore)({ ...note, channel })
 
-    const local = rootStore.pianoRollStore.getLocal(e)
+    const local = pianoRollStore.getLocal(e)
     const startTick = transform.getTicks(local.x)
+    let isChanged = false
 
     observeDrag2(e, {
       onMouseMove: (e, delta) => {
-        const tick = startTick + transform.getTicks(delta.x)
+        let tick = startTick + transform.getTicks(delta.x)
         const quantize = !e.shiftKey && isQuantizeEnabled
-
-        switch (edge) {
-          case "left":
-            resizeNoteLeft(rootStore)(item.id, tick, quantize)
-            break
-          case "right":
-            resizeNoteRight(rootStore)(item.id, tick, quantize)
-            break
+        if (quantize) {
+          tick = quantizer.round(tick)
         }
+        const note = selectedTrack.getEventById(item.id)
+        if (note == undefined || !isNoteEvent(note)) {
+          return
+        }
+        const minDuration = quantize ? quantizer.unit : MIN_DURATION
+
+        const newSize = (() => {
+          switch (edge) {
+            case "left":
+              const newTick = Math.max(
+                0,
+                Math.min(tick, note.tick + note.duration - minDuration),
+              )
+              return {
+                tick: newTick,
+                duration: note.duration + (note.tick - newTick),
+              }
+            case "right":
+              return {
+                tick: note.tick,
+                duration: tick - note.tick,
+              }
+          }
+        })()
+
+        newSize.duration = Math.max(newSize.duration, minDuration)
+
+        if (newSize.tick !== note.tick || newSize.duration !== note.duration) {
+          if (!isChanged) {
+            pushHistory(rootStore)()
+            isChanged = true
+          }
+          pianoRollStore.lastNoteDuration = newSize.duration
+          selectedTrack.updateEvent(note.id, newSize)
+        }
+
         e.stopPropagation()
       },
       onMouseUp: () => {

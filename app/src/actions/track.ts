@@ -22,10 +22,6 @@ import Track, {
   isNoteEvent,
 } from "../track"
 import { stopNote } from "./player"
-import {
-  resizeNotesInSelectionLeftBy,
-  resizeNotesInSelectionRightBy,
-} from "./selection"
 
 export const changeTempo =
   ({ song, pushHistory }: RootStore) =>
@@ -271,60 +267,6 @@ export const muteNote =
       return
     }
     stopNote({ player })({ channel: selectedTrack.channel, noteNumber })
-  }
-
-const MIN_DURATION = 10
-
-export const resizeNoteLeft =
-  (rootStore: RootStore) => (id: number, tick: number, quantize: boolean) => {
-    const {
-      pianoRollStore,
-      pianoRollStore: { quantizer, selectedTrack },
-      pushHistory,
-    } = rootStore
-    if (selectedTrack === undefined) {
-      return
-    }
-    // 右端を固定して長さを変更
-    // Fix the right end and change the length
-    if (quantize) {
-      tick = quantizer.round(tick)
-    }
-    const note = selectedTrack.getEventById(id)
-    if (note == undefined || !isNoteEvent(note)) {
-      return null
-    }
-    const duration = note.duration + (note.tick - tick)
-    const minDuration = quantize ? quantizer.unit : MIN_DURATION
-    if (note.tick !== tick && duration >= minDuration) {
-      pushHistory()
-      pianoRollStore.lastNoteDuration = duration
-      resizeNotesInSelectionLeftBy(rootStore)(tick - note.tick)
-    }
-  }
-
-export const resizeNoteRight =
-  (rootStore: RootStore) => (id: number, tick: number, quantize: boolean) => {
-    const {
-      pianoRollStore,
-      pianoRollStore: { quantizer, selectedTrack },
-      pushHistory,
-    } = rootStore
-    if (selectedTrack === undefined) {
-      return
-    }
-    const note = selectedTrack.getEventById(id)
-    if (note == undefined || !isNoteEvent(note)) {
-      return null
-    }
-    const right = quantize ? quantizer.round(tick) : tick
-    const minDuration = quantize ? quantizer.unit : MIN_DURATION
-    const duration = Math.max(minDuration, right - note.tick)
-    if (note.duration !== duration) {
-      pushHistory()
-      pianoRollStore.lastNoteDuration = duration
-      resizeNotesInSelectionRightBy(rootStore)(duration - note.duration)
-    }
   }
 
 /* track meta */
