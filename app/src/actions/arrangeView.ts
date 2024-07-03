@@ -76,21 +76,12 @@ export const arrangeMoveSelection =
     }
 
     // clamp
-    point = {
-      tick: Math.max(0, point.tick),
-      trackIndex: Math.max(
-        0,
-        Math.min(
-          tracks.length - (selection.toTrackIndex - selection.fromTrackIndex),
-          point.trackIndex,
-        ),
-      ),
-    }
+    point = ArrangePoint.clamp(
+      point,
+      tracks.length - (selection.toTrackIndex - selection.fromTrackIndex),
+    )
 
-    const delta: ArrangePoint = {
-      tick: point.tick - selection.fromTick,
-      trackIndex: point.trackIndex - selection.fromTrackIndex,
-    }
+    const delta = ArrangePoint.sub(point, ArrangeSelection.start(selection))
 
     arrangeMoveSelectionBy(rootStore)(delta)
   }

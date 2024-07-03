@@ -68,4 +68,18 @@ export namespace ArrangeSelection {
     fromTrackIndex: selection.fromTrackIndex + delta.trackIndex,
     toTrackIndex: selection.toTrackIndex + delta.trackIndex,
   })
+
+  export function start(selection: ArrangeSelection): ArrangePoint {
+    return {
+      tick: selection.fromTick,
+      trackIndex: selection.fromTrackIndex,
+    }
+  }
+
+  export function end(selection: ArrangeSelection): ArrangePoint {
+    return {
+      tick: selection.toTick,
+      trackIndex: selection.toTrackIndex,
+    }
+  }
 }
