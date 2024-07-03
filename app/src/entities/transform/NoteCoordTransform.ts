@@ -37,7 +37,7 @@ export class NoteCoordTransform {
 
   // ticks
 
-  getTicks(pixels: number) {
+  getTick(pixels: number) {
     return pixels / this._pixelsPerTick
   }
 
@@ -91,14 +91,14 @@ export class NoteCoordTransform {
 
   getNotePoint(pos: Point): NotePoint {
     return {
-      tick: this.getTicks(pos.x),
+      tick: this.getTick(pos.x),
       noteNumber: this.getNoteNumber(pos.y),
     }
   }
 
   getNotePointFractional(pos: Point): NotePoint {
     return {
-      tick: this.getTicks(pos.x),
+      tick: this.getTick(pos.x),
       noteNumber: this.getNoteNumberFractional(pos.y),
     }
   }

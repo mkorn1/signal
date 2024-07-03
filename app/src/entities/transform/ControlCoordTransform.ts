@@ -29,7 +29,7 @@ export class ControlCoordTransform {
     return tick * this._pixelsPerTick
   }
 
-  getTicks(pixels: number) {
+  getTick(pixels: number) {
     return Math.floor(pixels / this._pixelsPerTick)
   }
 
@@ -56,7 +56,7 @@ export class ControlCoordTransform {
 
   fromPosition(position: Point): ItemValue {
     return {
-      tick: this.getTicks(position.x),
+      tick: this.getTick(position.x),
       value: this.getValue(position.y),
     }
   }

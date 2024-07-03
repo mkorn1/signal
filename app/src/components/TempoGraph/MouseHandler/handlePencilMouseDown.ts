@@ -40,7 +40,7 @@ export const handlePencilMouseDown =
           0,
           Math.min(transform.maxBPM, transform.fromPosition(local).bpm),
         )
-        const tick = transform.getTicks(local.x)
+        const tick = transform.getTick(local.x)
 
         updateEventsInRange(track, quantizer, isSetTempoEvent, (v) =>
           setTempoMidiEvent(0, bpmToUSecPerBeat(v)),

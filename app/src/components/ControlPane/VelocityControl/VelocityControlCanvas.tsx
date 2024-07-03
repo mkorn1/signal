@@ -93,13 +93,13 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
         }
 
         function handlePaintingDrag() {
-          let lastTick = transform.getTicks(startPoint.x)
+          let lastTick = transform.getTick(startPoint.x)
           let lastValue = calcValue(e)
 
           observeDrag2(e, {
             onMouseMove: (e, delta) => {
               const local = Point.add(startPoint, delta)
-              const tick = transform.getTicks(local.x)
+              const tick = transform.getTick(local.x)
               const value = calcValue(e)
 
               updateVelocitiesInRange(rootStore)(

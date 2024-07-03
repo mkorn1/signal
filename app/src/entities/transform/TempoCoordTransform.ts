@@ -25,7 +25,7 @@ export class TempoCoordTransform {
     return this.height
   }
 
-  getTicks(pixels: number) {
+  getTick(pixels: number) {
     return pixels / this.pixelsPerTick
   }
 
@@ -47,7 +47,7 @@ export class TempoCoordTransform {
 
   fromPosition(position: Point) {
     return {
-      tick: this.getTicks(position.x),
+      tick: this.getTick(position.x),
       bpm: this.getBPM(position.y),
     }
   }

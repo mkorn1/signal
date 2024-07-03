@@ -38,7 +38,7 @@ export const handleSelectionDragEvents =
 
     observeDrag2(e, {
       onMouseMove: (_e, delta) => {
-        const deltaTick = transform.getTicks(delta.x)
+        const deltaTick = transform.getTick(delta.x)
         const offsetTick =
           draggedEvent.tick +
           deltaTick -

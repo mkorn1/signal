@@ -132,7 +132,7 @@ const moveSelectionAction =
     observeDrag2(e, {
       onMouseMove: (_e, delta) => {
         const position = Point.add(selectionBounds, delta)
-        const tick = transform.getTicks(position.x)
+        const tick = transform.getTick(position.x)
         const noteNumber = transform.getNoteNumberFractional(position.y)
 
         if ((tick !== 0 || noteNumber !== 0) && !isChanged) {
@@ -171,7 +171,7 @@ const dragSelectionEdgeAction =
         }
 
         const local = pianoRollStore.getLocal(e2)
-        const tick = pianoRollStore.transform.getTicks(local.x)
+        const tick = pianoRollStore.transform.getTick(local.x)
         const fromTick = quantizer.round(tick)
         const newSelection = (() => {
           switch (edge) {

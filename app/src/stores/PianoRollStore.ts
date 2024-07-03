@@ -161,7 +161,7 @@ export default class PianoRollStore {
     const { scrollLeft, transform, canvasWidth } = this
     const trackEndTick = this.rootStore.song.endOfSong
     const startTick = scrollLeft / transform.pixelsPerTick
-    const widthTick = transform.getTicks(canvasWidth)
+    const widthTick = transform.getTick(canvasWidth)
     const endTick = startTick + widthTick
     return Math.max(trackEndTick, endTick) * transform.pixelsPerTick
   }
@@ -183,7 +183,7 @@ export default class PianoRollStore {
     const { canvasWidth, contentWidth } = this
     const maxX = contentWidth - canvasWidth
     const scrollLeft = clamp(x, 0, maxX)
-    this.scrollLeftTicks = this.transform.getTicks(scrollLeft)
+    this.scrollLeftTicks = this.transform.getTick(scrollLeft)
   }
 
   setScrollTopInPixels(y: number) {
@@ -207,13 +207,13 @@ export default class PianoRollStore {
   }
 
   scaleAroundPointX(scaleXDelta: number, pixelX: number) {
-    const pixelXInTicks0 = this.transform.getTicks(this.scrollLeft + pixelX)
+    const pixelXInTicks0 = this.transform.getTick(this.scrollLeft + pixelX)
     this.scaleX = clamp(
       this.scaleX * (1 + scaleXDelta),
       this.SCALE_X_MIN,
       this.SCALE_X_MAX,
     )
-    const pixelXInTicks1 = this.transform.getTicks(this.scrollLeft + pixelX)
+    const pixelXInTicks1 = this.transform.getTick(this.scrollLeft + pixelX)
     const scrollInTicks = pixelXInTicks1 - pixelXInTicks0
     this.setScrollLeftInTicks(this.scrollLeftTicks - scrollInTicks)
   }

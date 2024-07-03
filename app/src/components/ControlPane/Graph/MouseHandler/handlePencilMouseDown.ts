@@ -46,7 +46,7 @@ export const handlePencilMouseDown =
           0,
           Math.min(transform.maxValue, transform.fromPosition(local).value),
         )
-        const tick = transform.getTicks(local.x)
+        const tick = transform.getTick(local.x)
 
         updateValueEvents(type)(rootStore)(lastValue, value, lastTick, tick)
 

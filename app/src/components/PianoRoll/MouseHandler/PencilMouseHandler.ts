@@ -173,7 +173,7 @@ const dragNoteEdgeAction =
     startNote(rootStore)({ ...note, channel })
 
     const local = pianoRollStore.getLocal(e)
-    const startTick = transform.getTicks(local.x)
+    const startTick = transform.getTick(local.x)
     const quantize = !e.shiftKey && isQuantizeEnabled
     const minDuration = quantize ? quantizer.unit : MIN_DURATION
 
@@ -181,7 +181,7 @@ const dragNoteEdgeAction =
 
     observeDrag2(e, {
       onMouseMove: (e, delta) => {
-        let tick = startTick + transform.getTicks(delta.x)
+        let tick = startTick + transform.getTick(delta.x)
         if (quantize) {
           tick = quantizer.round(tick)
         }
@@ -247,7 +247,7 @@ const startDragNote =
 
     observeDrag2(e, {
       onMouseMove: (_e, delta) => {
-        const tick = quantizer.round(note.tick + transform.getTicks(delta.x))
+        const tick = quantizer.round(note.tick + transform.getTick(delta.x))
         const noteNumber = Math.round(
           note.noteNumber + transform.getDeltaNoteNumber(delta.y),
         )

@@ -104,7 +104,7 @@ export default class ArrangeViewStore {
     const { canvasWidth, contentWidth } = this
     const maxOffset = Math.max(0, contentWidth - canvasWidth)
     const scrollLeft = Math.floor(Math.min(maxOffset, Math.max(0, x)))
-    this.scrollLeftTicks = this.transform.getTicks(scrollLeft)
+    this.scrollLeftTicks = this.transform.getTick(scrollLeft)
   }
 
   setScrollTop(value: number) {
@@ -119,13 +119,13 @@ export default class ArrangeViewStore {
   }
 
   scaleAroundPointX(scaleXDelta: number, pixelX: number) {
-    const pixelXInTicks0 = this.transform.getTicks(this.scrollLeft + pixelX)
+    const pixelXInTicks0 = this.transform.getTick(this.scrollLeft + pixelX)
     this.scaleX = clamp(
       this.scaleX * (1 + scaleXDelta),
       this.SCALE_X_MIN,
       this.SCALE_X_MAX,
     )
-    const pixelXInTicks1 = this.transform.getTicks(this.scrollLeft + pixelX)
+    const pixelXInTicks1 = this.transform.getTick(this.scrollLeft + pixelX)
     const scrollInTicks = pixelXInTicks1 - pixelXInTicks0
     this.scrollLeftTicks = Math.max(this.scrollLeftTicks - scrollInTicks, 0)
   }
@@ -138,7 +138,7 @@ export default class ArrangeViewStore {
   get contentWidth(): number {
     const { scrollLeft, transform, canvasWidth } = this
     const startTick = scrollLeft / transform.pixelsPerTick
-    const widthTick = transform.getTicks(canvasWidth)
+    const widthTick = transform.getTick(canvasWidth)
     const endTick = startTick + widthTick
     return (
       Math.max(this.rootStore.song.endOfSong, endTick) * transform.pixelsPerTick

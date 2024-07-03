@@ -92,7 +92,7 @@ export default class TempoEditorStore {
     const { scrollLeft, transform, canvasWidth } = this
     const trackEndTick = this.rootStore.song.endOfSong
     const startTick = scrollLeft / transform.pixelsPerTick
-    const widthTick = transform.getTicks(canvasWidth)
+    const widthTick = transform.getTick(canvasWidth)
     const endTick = startTick + widthTick
 
     return Math.max(trackEndTick, endTick) * transform.pixelsPerTick
