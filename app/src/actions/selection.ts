@@ -157,10 +157,48 @@ export const moveSelectionBy =
     )
   }
 
+export const updateSelectedNotes =
+  (rootStore: RootStore) =>
+  (update: (note: NoteEvent) => Partial<NoteEvent>) => {
+    const {
+      pianoRollStore: { selectedTrack, selectedNoteIds },
+    } = rootStore
+
+    if (selectedTrack === undefined) {
+      return
+    }
+
+    selectedTrack.updateEvents(
+      selectedNoteIds.flatMap((id) => {
+        const event = selectedTrack.getEventById(id)
+        if (event == undefined || !isNoteEvent(event)) {
+          return []
+        }
+        const newNote = update(event)
+        if (
+          ("duration" in newNote &&
+            newNote.duration !== undefined &&
+            newNote.duration <= 0) ||
+          ("tick" in newNote && newNote.tick !== undefined && newNote.tick < 0)
+        ) {
+          // Do not deform if the width is zero
+          return []
+        }
+        return [
+          {
+            id,
+            ...newNote,
+          },
+        ]
+      }),
+    )
+  }
+
 export const resizeSelectionLeft = (rootStore: RootStore) => (tick: number) => {
   const {
     pianoRollStore,
     pianoRollStore: { selection, quantizer },
+    pushHistory,
   } = rootStore
 
   if (selection === null) {
@@ -190,50 +228,20 @@ export const resizeSelectionLeft = (rootStore: RootStore) => (tick: number) => {
   s.from.tick = fromTick
   pianoRollStore.selection = s
 
-  resizeNotesInSelectionLeftBy(rootStore)(delta)
+  pushHistory()
+
+  updateSelectedNotes(rootStore)((note) => ({
+    duration: note.duration - delta,
+    tick: note.tick + delta,
+  }))
 }
-
-export const resizeNotesInSelectionLeftBy =
-  ({
-    pianoRollStore: { selectedNoteIds, selectedTrack },
-    pushHistory,
-  }: RootStore) =>
-  (deltaTick: number) => {
-    if (selectedTrack === undefined || selectedNoteIds.length === 0) {
-      return
-    }
-
-    pushHistory()
-
-    selectedTrack.updateEvents(
-      selectedNoteIds
-        .map((id) => {
-          const n = selectedTrack.getEventById(id)
-          if (n == undefined || !isNoteEvent(n)) {
-            return null
-          }
-          const duration = n.duration - deltaTick
-          const tick = n.tick + deltaTick
-          if (duration <= 0 || tick < 0) {
-            // 幅がゼロになる場合は変形しない
-            // Do not deform if the width is zero
-            return { id }
-          }
-          return {
-            id,
-            tick,
-            duration,
-          }
-        })
-        .filter(isNotNull),
-    )
-  }
 
 export const resizeSelectionRight =
   (rootStore: RootStore) => (tick: number) => {
     const {
       pianoRollStore,
       pianoRollStore: { selection, quantizer },
+      pushHistory,
     } = rootStore
 
     if (selection === null) {
@@ -263,41 +271,11 @@ export const resizeSelectionRight =
     s.to.tick = toTick
     pianoRollStore.selection = s
 
-    resizeNotesInSelectionRightBy(rootStore)(delta)
-  }
-
-export const resizeNotesInSelectionRightBy =
-  ({
-    pianoRollStore: { selectedTrack, selectedNoteIds },
-    pushHistory,
-  }: RootStore) =>
-  (deltaDuration: number) => {
-    if (selectedTrack === undefined || selectedNoteIds.length === 0) {
-      return
-    }
-
     pushHistory()
 
-    selectedTrack.updateEvents(
-      selectedNoteIds
-        .map((id) => {
-          const n = selectedTrack.getEventById(id)
-          if (n == undefined || !isNoteEvent(n)) {
-            return null
-          }
-          const duration = n.duration + deltaDuration
-          if (duration <= 0) {
-            // 幅がゼロになる場合は変形しない
-            // Do not deform if the width is zero
-            return { id }
-          }
-          return {
-            id,
-            duration,
-          }
-        })
-        .filter(isNotNull),
-    )
+    updateSelectedNotes(rootStore)((note) => ({
+      duration: note.duration + delta,
+    }))
   }
 
 export const startSelection =
