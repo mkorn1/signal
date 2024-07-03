@@ -13,6 +13,7 @@ import {
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
 import { Point } from "../../../entities/geometry/Point"
+import { Range } from "../../../entities/geometry/Range"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import RootStore from "../../../stores/RootStore"
@@ -187,35 +188,29 @@ const dragNoteEdgeAction =
           return
         }
         const minDuration = quantize ? quantizer.unit : MIN_DURATION
+        const range = Range.create(note.tick, note.tick + note.duration)
 
-        const newSize = (() => {
-          switch (edge) {
-            case "left":
-              const newTick = Math.max(
-                0,
-                Math.min(tick, note.tick + note.duration - minDuration),
-              )
-              return {
-                tick: newTick,
-                duration: note.duration + (note.tick - newTick),
-              }
-            case "right":
-              return {
-                tick: note.tick,
-                duration: tick - note.tick,
-              }
-          }
-        })()
+        const { start: newTick, length: newDuration } = Range.toSpan(
+          (() => {
+            switch (edge) {
+              case "left":
+                return Range.resizeStart(range, tick, minDuration)
+              case "right":
+                return Range.resizeEnd(range, tick, minDuration)
+            }
+          })(),
+        )
 
-        newSize.duration = Math.max(newSize.duration, minDuration)
-
-        if (newSize.tick !== note.tick || newSize.duration !== note.duration) {
+        if (newTick !== note.tick || newDuration !== note.duration) {
           if (!isChanged) {
             pushHistory(rootStore)()
             isChanged = true
           }
-          pianoRollStore.lastNoteDuration = newSize.duration
-          selectedTrack.updateEvent(note.id, newSize)
+          pianoRollStore.lastNoteDuration = newDuration
+          selectedTrack.updateEvent(note.id, {
+            tick: newTick,
+            duration: newDuration,
+          })
         }
 
         e.stopPropagation()
