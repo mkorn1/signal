@@ -194,36 +194,6 @@ export const updateSelectedNotes =
     )
   }
 
-const MIN_LENGTH = 10
-
-// Extend and shrink the selection and notes to the left
-export const resizeSelectionLeft =
-  (rootStore: RootStore) => (tick: number, quantize: boolean) => {
-    const {
-      pianoRollStore,
-      pianoRollStore: { selection, quantizer },
-      pushHistory,
-    } = rootStore
-
-    if (selection === null) {
-      return
-    }
-
-    const fromTick = quantizer.round(tick)
-    const minLength = quantize ? quantizer.unit : MIN_LENGTH
-    const newSelection = Selection.resizeLeft(selection, fromTick, minLength)
-
-    if (!Selection.equals(newSelection, selection)) {
-      pushHistory()
-      pianoRollStore.selection = newSelection
-      const delta = newSelection.from.tick - selection.from.tick
-      updateSelectedNotes(rootStore)((note) => ({
-        duration: note.duration - delta,
-        tick: note.tick + delta,
-      }))
-    }
-  }
-
 export const resizeSelectionRight =
   (rootStore: RootStore) => (tick: number) => {
     const {
