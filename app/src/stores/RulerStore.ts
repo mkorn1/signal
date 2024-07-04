@@ -58,9 +58,8 @@ export class RulerStore {
 
     return filterEventsWithScroll(
       track.events,
-      transform.pixelsPerTick,
-      scrollLeft,
-      canvasWidth,
+      transform.getTick(scrollLeft),
+      transform.getTick(canvasWidth),
     )
       .filter(isTimeSignatureEvent)
       .map((e) => ({

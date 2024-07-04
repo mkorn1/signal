@@ -178,9 +178,8 @@ export default class ArrangeViewStore {
       .map((t, i) =>
         filterEventsOverlapScroll(
           t.events,
-          transform.pixelsPerTick,
-          this.scrollLeft,
-          this.canvasWidth,
+          transform.getTick(this.scrollLeft),
+          transform.getTick(this.canvasWidth),
         )
           .filter(isNoteEvent)
           .map((e) => {

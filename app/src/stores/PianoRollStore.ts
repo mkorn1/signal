@@ -259,9 +259,8 @@ export default class PianoRollStore {
 
     return filterEventsOverlapScroll(
       track.events,
-      transform.pixelsPerTick,
-      scrollLeft,
-      canvasWidth,
+      transform.getTick(scrollLeft),
+      transform.getTick(canvasWidth),
     )
   }
 

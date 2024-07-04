@@ -1,23 +1,16 @@
-export type Range = [start: number, end: number]
-
-const getRange = (
-  pixelsPerTick: number,
-  scrollLeft: number,
-  width: number,
-): Range => [scrollLeft / pixelsPerTick, (scrollLeft + width) / pixelsPerTick]
+import { Range } from "../entities/geometry/Range"
 
 export const filterEventsWithRange = <T extends { tick: number }>(
   events: T[],
   ...range: Range
-): T[] => events.filter((e) => e.tick >= range[0] && e.tick < range[1])
+): T[] => events.filter((e) => Range.contains(range, e.tick))
 
 export const filterEventsWithScroll = <T extends { tick: number }>(
   events: T[],
-  pixelsPerTick: number,
-  scrollLeft: number,
-  width: number,
+  scrollLeftTick: number,
+  widthTick: number,
 ): T[] =>
-  filterEventsWithRange(events, ...getRange(pixelsPerTick, scrollLeft, width))
+  filterEventsWithRange(events, ...Range.fromLength(scrollLeftTick, widthTick))
 
 export const filterEventsOverlapRange = <
   T extends { tick: number; duration?: number },
@@ -28,9 +21,10 @@ export const filterEventsOverlapRange = <
   return events.filter((e) => {
     if ("duration" in e && typeof e.duration === "number") {
       const eventTickEnd = e.tick + e.duration
-      return e.tick < range[1] && eventTickEnd > range[0]
+      const noteRange = Range.create(e.tick, eventTickEnd)
+      return Range.intersects(range, noteRange)
     }
-    return e.tick >= range[0] && e.tick < range[1]
+    return Range.contains(range, e.tick)
   })
 }
 
@@ -38,12 +32,11 @@ export const filterEventsOverlapScroll = <
   T extends { tick: number; duration?: number },
 >(
   events: T[],
-  pixelsPerTick: number,
-  scrollLeft: number,
-  width: number,
+  scrollLeftTick: number,
+  widthTick: number,
 ): T[] => {
   return filterEventsOverlapRange(
     events,
-    ...getRange(pixelsPerTick, scrollLeft, width),
+    ...Range.fromLength(scrollLeftTick, widthTick),
   )
 }

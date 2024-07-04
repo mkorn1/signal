@@ -24,9 +24,8 @@ export const GhostNotes: FC<{ zIndex: number; trackId: number }> = observer(
       () =>
         filterEventsOverlapScroll(
           track.events.filter(isNoteEvent),
-          transform.pixelsPerTick,
-          scrollLeft,
-          canvasWidth,
+          transform.getTick(scrollLeft),
+          transform.getTick(canvasWidth),
         ),
       [scrollLeft, canvasWidth, transform.pixelsPerTick, track.events],
     )
