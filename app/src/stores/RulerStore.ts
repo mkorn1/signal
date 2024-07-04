@@ -1,17 +1,14 @@
 import { computed, makeObservable, observable } from "mobx"
 import { BeatWithX } from "../entities/beat/BeatWithX"
+import { TickTransform } from "../entities/transform/TickTransform"
 import { filterEventsWithScroll } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
 import Song from "../song"
 import { isTimeSignatureEvent } from "../track"
 
-interface CoordTransform {
-  pixelsPerTick: number
-}
-
 interface RulerProvider {
   rootStore: { song: Song }
-  transform: CoordTransform
+  transform: TickTransform
   scrollLeft: number
   canvasWidth: number
   quantizer: Quantizer
@@ -40,7 +37,7 @@ export class RulerStore {
   get beats(): BeatWithX[] {
     const { scrollLeft, transform, canvasWidth, rootStore } = this.parent
 
-    const startTick = scrollLeft / transform.pixelsPerTick
+    const startTick = transform.getTick(scrollLeft)
 
     return BeatWithX.createInRange(
       rootStore.song.measures,
@@ -78,8 +75,7 @@ export class RulerStore {
 
   getTick(offsetX: number) {
     const { transform, scrollLeft } = this.parent
-    const tick = (offsetX + scrollLeft) / transform.pixelsPerTick
-    return tick
+    return transform.getTick(offsetX + scrollLeft)
   }
 
   getQuantizedTick(offsetX: number) {

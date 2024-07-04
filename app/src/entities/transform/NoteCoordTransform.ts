@@ -1,44 +1,33 @@
 import { Point } from "../../entities/geometry/Point"
 import { NoteEvent } from "../../track"
 import { NotePoint } from "./NotePoint"
+import { TickTransform } from "./TickTransform"
 
-export class NoteCoordTransform {
-  private _pixelsPerTick: number
-  private _pixelsPerKey: number
-  private _maxNoteNumber: number
-
+export class NoteCoordTransform implements TickTransform {
   constructor(
-    pixelsPerTick: number,
-    pixelsPerKey: number,
-    maxNoteNumber: number,
-  ) {
-    this._pixelsPerTick = pixelsPerTick
-    this._pixelsPerKey = pixelsPerKey
-    this._maxNoteNumber = maxNoteNumber
-  }
+    readonly pixelsPerTick: number,
+    readonly pixelsPerKey: number,
+    readonly maxNoteNumber: number,
+  ) {}
 
   // pixels
 
   getX(tick: number) {
-    return tick * this._pixelsPerTick
+    return tick * this.pixelsPerTick
   }
 
   getY(noteNumber: number) {
-    return (this._maxNoteNumber - noteNumber) * this._pixelsPerKey
+    return (this.maxNoteNumber - noteNumber) * this.pixelsPerKey
   }
 
   getDeltaY(deltaNoteNumber: number) {
-    return -deltaNoteNumber * this._pixelsPerKey
-  }
-
-  get pixelsPerTick() {
-    return this._pixelsPerTick
+    return -deltaNoteNumber * this.pixelsPerKey
   }
 
   // ticks
 
   getTick(pixels: number) {
-    return pixels / this._pixelsPerTick
+    return pixels / this.pixelsPerTick
   }
 
   getNoteNumber(pixels: number) {
@@ -46,29 +35,21 @@ export class NoteCoordTransform {
   }
 
   getNoteNumberFractional(pixels: number) {
-    return this._maxNoteNumber - pixels / this._pixelsPerKey
+    return this.maxNoteNumber - pixels / this.pixelsPerKey
   }
 
   getDeltaNoteNumber(deltaPixels: number) {
-    return -deltaPixels / this._pixelsPerKey
-  }
-
-  get maxNoteNumber() {
-    return this._maxNoteNumber
+    return -deltaPixels / this.pixelsPerKey
   }
 
   get numberOfKeys() {
-    return this._maxNoteNumber + 1
-  }
-
-  get pixelsPerKey() {
-    return this._pixelsPerKey
+    return this.maxNoteNumber + 1
   }
 
   //
 
   getMaxY() {
-    return (this._maxNoteNumber + 1) * this._pixelsPerKey
+    return (this.maxNoteNumber + 1) * this.pixelsPerKey
   }
 
   getRect(note: NoteEvent) {
@@ -76,16 +57,16 @@ export class NoteCoordTransform {
       x: this.getX(note.tick),
       y: this.getY(note.noteNumber),
       width: this.getX(note.duration),
-      height: this._pixelsPerKey,
+      height: this.pixelsPerKey,
     }
   }
 
   getDrumRect(note: NoteEvent) {
     return {
-      x: this.getX(note.tick) - this._pixelsPerKey / 2,
+      x: this.getX(note.tick) - this.pixelsPerKey / 2,
       y: this.getY(note.noteNumber),
-      width: this._pixelsPerKey,
-      height: this._pixelsPerKey,
+      width: this.pixelsPerKey,
+      height: this.pixelsPerKey,
     }
   }
 

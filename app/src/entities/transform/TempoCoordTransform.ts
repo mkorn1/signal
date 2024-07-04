@@ -1,17 +1,13 @@
 import { Point } from "../geometry/Point"
+import { TickTransform } from "./TickTransform"
 
-export class TempoCoordTransform {
-  readonly pixelsPerTick: number
-  // グラフの描画領域の高さ
-  // Higher graph drawing area
-  readonly height: number
-  readonly maxBPM: number
-
-  constructor(pixelsPerTick: number, height: number, maxBPM = 320) {
-    this.pixelsPerTick = pixelsPerTick
-    this.height = height
-    this.maxBPM = maxBPM
-  }
+export class TempoCoordTransform implements TickTransform {
+  constructor(
+    readonly pixelsPerTick: number,
+    // The height of the drawing area of the graph
+    readonly height: number,
+    readonly maxBPM = 320,
+  ) {}
 
   getX(tick: number) {
     return tick * this.pixelsPerTick

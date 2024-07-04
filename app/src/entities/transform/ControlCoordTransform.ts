@@ -2,48 +2,35 @@ import { ItemValue } from "../../components/ControlPane/LineGraph/LineGraph"
 import { Point } from "../geometry/Point"
 import { Rect } from "../geometry/Rect"
 import { ControlSelection } from "../selection/ControlSelection"
+import { TickTransform } from "./TickTransform"
 
-export class ControlCoordTransform {
-  private _maxValue: number
-  private _height: number
-  private _lineWidth: number
-  private _pixelsPerTick: number
-
+export class ControlCoordTransform implements TickTransform {
   constructor(
-    pixelsPerTick: number,
-    maxValue: number,
-    height: number,
-    lineWidth: number,
-  ) {
-    this._pixelsPerTick = pixelsPerTick
-    this._maxValue = maxValue
-    this._height = height
-    this._lineWidth = lineWidth
-  }
-
-  get maxValue() {
-    return this._maxValue
-  }
+    readonly pixelsPerTick: number,
+    readonly maxValue: number,
+    readonly height: number,
+    readonly lineWidth: number,
+  ) {}
 
   getX(tick: number) {
-    return tick * this._pixelsPerTick
+    return tick * this.pixelsPerTick
   }
 
   getTick(pixels: number) {
-    return Math.floor(pixels / this._pixelsPerTick)
+    return Math.floor(pixels / this.pixelsPerTick)
   }
 
   getY(value: number) {
     return (
-      (1 - value / this._maxValue) * (this._height - this._lineWidth * 2) +
-      this._lineWidth
+      (1 - value / this.maxValue) * (this.height - this.lineWidth * 2) +
+      this.lineWidth
     )
   }
 
   getValue(y: number) {
     return Math.floor(
-      (1 - (y - this._lineWidth) / (this._height - this._lineWidth * 2)) *
-        this._maxValue,
+      (1 - (y - this.lineWidth) / (this.height - this.lineWidth * 2)) *
+        this.maxValue,
     )
   }
 
@@ -67,7 +54,7 @@ export class ControlCoordTransform {
       x,
       y: 0,
       width: this.getX(selection.toTick) - x,
-      height: this._height,
+      height: this.height,
     }
   }
 }
