@@ -29,12 +29,11 @@ export interface ArrangeViewCanvasProps {
 export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
   ({ width, onContextMenu }) => {
     const rootStore = useStores()
-    const { arrangeViewStore, song, player } = rootStore
-    const tracks = song.tracks
+    const { arrangeViewStore, player } = rootStore
     const {
-      trackHeight,
       scrollLeft,
       scrollTop,
+      contentHeight: height,
       rulerStore: { beats },
       cursorX,
       selection,
@@ -64,8 +63,6 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
       (v: number) => arrangeViewStore.setScrollTop(v),
       [],
     )
-
-    const height = trackHeight * tracks.length
 
     const handleLeftClick = useCallback(
       (e: React.MouseEvent) => {

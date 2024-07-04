@@ -144,7 +144,7 @@ export default class ArrangeViewStore {
   }
 
   get contentHeight(): number {
-    return this.trackHeight * this.rootStore.song.tracks.length
+    return this.trackTransform.getY(this.rootStore.song.tracks.length)
   }
 
   get transform(): NoteCoordTransform {
@@ -170,19 +170,23 @@ export default class ArrangeViewStore {
   }
 
   get notes(): Rect[] {
-    const { transform, trackHeight } = this
+    const { transform, trackTransform, scrollLeft, canvasWidth, scaleY } = this
 
     return this.rootStore.song.tracks
       .map((t, i) =>
         filterEventsOverlapScroll(
           t.events,
-          transform.getTick(this.scrollLeft),
-          transform.getTick(this.canvasWidth),
+          transform.getTick(scrollLeft),
+          transform.getTick(canvasWidth),
         )
           .filter(isNoteEvent)
           .map((e) => {
             const rect = transform.getRect(e)
-            return { ...rect, height: this.scaleY, y: trackHeight * i + rect.y }
+            return {
+              ...rect,
+              height: scaleY,
+              y: trackTransform.getY(i) + rect.y,
+            }
           }),
       )
       .flat()
