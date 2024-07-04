@@ -1,3 +1,4 @@
+import { Range } from "../geometry/Range"
 import { Measure } from "../measure/Measure"
 import { Beat } from "./Beat"
 
@@ -11,7 +12,11 @@ describe("createBeatsInRange", () => {
       { startTick: timebase * 7, measure: 2, numerator: 3, denominator: 4 },
     ]
 
-    const beats = Beat.createInRange(measures, timebase, 0, timebase * 15)
+    const beats = Beat.createInRange(
+      measures,
+      timebase,
+      Range.create(0, timebase * 15),
+    )
 
     expect(beats).toStrictEqual([
       // first measure (4/4)
@@ -53,7 +58,11 @@ describe("createBeatsInRange", () => {
         denominator: 8,
       },
     ]
-    const beats = Beat.createInRange(measures, timebase, 0, timebase * 4)
+    const beats = Beat.createInRange(
+      measures,
+      timebase,
+      Range.create(0, timebase * 4),
+    )
     expect(beats).toStrictEqual([
       { measure: 0, beat: 0, tick: 0 },
       { measure: 0, beat: 1, tick: timebase },

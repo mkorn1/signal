@@ -1,5 +1,6 @@
 import { IEventSource, PlayerEvent, SendableEvent } from "@signal-app/player"
 import { Beat } from "../entities/beat/Beat"
+import { Range } from "../entities/geometry/Range"
 import { filterEventsWithRange } from "../helpers/filterEvents"
 import { noteOnMidiEvent } from "../midi/MidiEvent"
 import { SongProvider } from "../song/SongProvider"
@@ -26,8 +27,7 @@ export class EventSource implements IEventSource {
         Beat.createInRange(
           song.measures,
           song.timebase,
-          startTick,
-          endTick,
+          Range.create(startTick, endTick),
         ).flatMap((b) => beatToEvents(b)),
         startTick,
         endTick,

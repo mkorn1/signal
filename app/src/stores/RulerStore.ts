@@ -37,13 +37,11 @@ export class RulerStore {
   get beats(): BeatWithX[] {
     const { scrollLeft, transform, canvasWidth, rootStore } = this.parent
 
-    const startTick = transform.getTick(scrollLeft)
-
     return BeatWithX.createInRange(
       rootStore.song.measures,
-      transform.pixelsPerTick,
+      transform,
       rootStore.song.timebase,
-      startTick,
+      scrollLeft,
       canvasWidth,
     )
   }

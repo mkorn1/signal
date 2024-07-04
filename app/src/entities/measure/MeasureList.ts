@@ -1,4 +1,5 @@
 import Track, { isTimeSignatureEvent } from "../../track"
+import { Range } from "../geometry/Range"
 import { Measure } from "./Measure"
 
 export type MeasureList = Measure[]
@@ -69,11 +70,7 @@ export namespace MeasureList {
   ): string => formatter(getMBT(measures, tick, ticksPerBeat))
 
   // Find the measure in the range. The first element also includes those before startTick
-  export const getMeasuresInRange = (
-    measures: Measure[],
-    startTick: number,
-    endTick: number,
-  ) => {
+  export const getMeasuresInRange = (measures: Measure[], tickRange: Range) => {
     let i = 0
     const result: Measure[] = []
 
@@ -83,11 +80,14 @@ export namespace MeasureList {
 
       // Find the first measure
       if (result.length === 0) {
-        if (nextMeasure !== undefined && nextMeasure.startTick <= startTick) {
+        if (
+          nextMeasure !== undefined &&
+          nextMeasure.startTick <= tickRange[0]
+        ) {
           // Skip if the next Measure can be the first
           continue
         }
-        if (measure.startTick > startTick) {
+        if (measure.startTick > tickRange[0]) {
           console.warn("There is no initial time signature. Use 4/4 by default")
           result.push({
             startTick: 0,
@@ -102,7 +102,7 @@ export namespace MeasureList {
 
       // Find the remaining measures. Check if there is another first measure again to handle the case where there is no first measure correctly.
       if (result.length !== 0) {
-        if (measure.startTick <= endTick) {
+        if (measure.startTick <= tickRange[1]) {
           result.push(measure)
         } else {
           break

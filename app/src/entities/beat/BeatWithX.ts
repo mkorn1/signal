@@ -1,4 +1,6 @@
+import { Range } from "../geometry/Range"
 import { MeasureList } from "../measure/MeasureList"
+import { TickTransform } from "../transform/TickTransform"
 import { Beat } from "./Beat"
 
 export type BeatWithX = Beat & {
@@ -8,17 +10,18 @@ export type BeatWithX = Beat & {
 export namespace BeatWithX {
   export const createInRange = (
     allMeasures: MeasureList,
-    pixelsPerTick: number,
+    transform: TickTransform,
     timebase: number,
-    startTick: number,
+    scrollLeft: number,
     width: number,
   ): BeatWithX[] => {
-    const endTick = startTick + width / pixelsPerTick
-    return Beat.createInRange(allMeasures, timebase, startTick, endTick).map(
-      (b) => ({
-        ...b,
-        x: Math.round(b.tick * pixelsPerTick),
-      }),
-    )
+    return Beat.createInRange(
+      allMeasures,
+      timebase,
+      Range.fromLength(transform.getTick(scrollLeft), transform.getTick(width)),
+    ).map((b) => ({
+      ...b,
+      x: Math.round(transform.getX(b.tick)),
+    }))
   }
 }
