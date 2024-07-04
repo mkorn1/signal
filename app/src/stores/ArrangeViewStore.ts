@@ -137,12 +137,10 @@ export default class ArrangeViewStore {
 
   get contentWidth(): number {
     const { scrollLeft, transform, canvasWidth } = this
-    const startTick = scrollLeft / transform.pixelsPerTick
+    const startTick = transform.getTick(scrollLeft)
     const widthTick = transform.getTick(canvasWidth)
     const endTick = startTick + widthTick
-    return (
-      Math.max(this.rootStore.song.endOfSong, endTick) * transform.pixelsPerTick
-    )
+    return transform.getX(Math.max(this.rootStore.song.endOfSong, endTick))
   }
 
   get contentHeight(): number {
@@ -159,7 +157,7 @@ export default class ArrangeViewStore {
 
   get trackTransform(): ArrangeCoordTransform {
     const { transform, trackHeight } = this
-    return new ArrangeCoordTransform(transform.pixelsPerTick, trackHeight)
+    return new ArrangeCoordTransform(transform, trackHeight)
   }
 
   get trackHeight(): number {

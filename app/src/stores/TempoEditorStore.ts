@@ -91,11 +91,11 @@ export default class TempoEditorStore {
   get contentWidth() {
     const { scrollLeft, transform, canvasWidth } = this
     const trackEndTick = this.rootStore.song.endOfSong
-    const startTick = scrollLeft / transform.pixelsPerTick
+    const startTick = transform.getTick(scrollLeft)
     const widthTick = transform.getTick(canvasWidth)
     const endTick = startTick + widthTick
 
-    return Math.max(trackEndTick, endTick) * transform.pixelsPerTick
+    return transform.getX(Math.max(trackEndTick, endTick))
   }
 
   get quantizer(): Quantizer {

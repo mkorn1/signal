@@ -37,7 +37,7 @@ const PianoKeyPosition = styled.div`
 export const PianoRollStage: FC<PianoRollStageProps> = observer(
   ({ width, height }) => {
     const { pianoRollStore } = useStores()
-    const { scrollTop, transform } = pianoRollStore
+    const { scrollTop } = pianoRollStore
 
     const theme = useTheme()
 

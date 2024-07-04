@@ -6,18 +6,18 @@ import { TickTransform } from "./TickTransform"
 
 export class ControlCoordTransform implements TickTransform {
   constructor(
-    readonly pixelsPerTick: number,
+    private readonly transform: TickTransform,
     readonly maxValue: number,
     readonly height: number,
     readonly lineWidth: number,
   ) {}
 
   getX(tick: number) {
-    return tick * this.pixelsPerTick
+    return this.transform.getX(tick)
   }
 
   getTick(pixels: number) {
-    return Math.floor(pixels / this.pixelsPerTick)
+    return Math.floor(this.transform.getTick(pixels))
   }
 
   getY(value: number) {

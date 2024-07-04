@@ -160,10 +160,10 @@ export default class PianoRollStore {
   get contentWidth(): number {
     const { scrollLeft, transform, canvasWidth } = this
     const trackEndTick = this.rootStore.song.endOfSong
-    const startTick = scrollLeft / transform.pixelsPerTick
+    const startTick = transform.getTick(scrollLeft)
     const widthTick = transform.getTick(canvasWidth)
     const endTick = startTick + widthTick
-    return Math.max(trackEndTick, endTick) * transform.pixelsPerTick
+    return transform.getTick(Math.max(trackEndTick, endTick))
   }
 
   get contentHeight(): number {
@@ -344,8 +344,8 @@ export default class PianoRollStore {
 
     // Add controller events in the outside of the visible area
 
-    const tickStart = scrollLeft / transform.pixelsPerTick
-    const tickEnd = (scrollLeft + canvasWidth) / transform.pixelsPerTick
+    const tickStart = transform.getTick(scrollLeft)
+    const tickEnd = transform.getTick(scrollLeft + canvasWidth)
 
     const prevEvent = maxBy(
       controllerEvents.filter((e) => e.tick < tickStart),

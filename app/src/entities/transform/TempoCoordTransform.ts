@@ -3,7 +3,7 @@ import { TickTransform } from "./TickTransform"
 
 export class TempoCoordTransform implements TickTransform {
   constructor(
-    readonly pixelsPerTick: number,
+    private readonly pixelsPerTick: number,
     // The height of the drawing area of the graph
     readonly height: number,
     readonly maxBPM = 320,

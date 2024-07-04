@@ -51,14 +51,8 @@ export const LineGraphCanvas: FC<LineGraphCanvasProps> = observer(
     } = rootStore.controlStore
 
     const controlTransform = useMemo(
-      () =>
-        new ControlCoordTransform(
-          transform.pixelsPerTick,
-          maxValue,
-          height,
-          lineWidth,
-        ),
-      [transform.pixelsPerTick, maxValue, height],
+      () => new ControlCoordTransform(transform, maxValue, height, lineWidth),
+      [transform.horizontalId, maxValue, height],
     )
 
     const selectionRect =

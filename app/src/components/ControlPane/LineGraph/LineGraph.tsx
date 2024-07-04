@@ -53,14 +53,8 @@ const LineGraph = observer(
     } = rootStore
 
     const controlTransform = useMemo(
-      () =>
-        new ControlCoordTransform(
-          transform.pixelsPerTick,
-          maxValue,
-          height,
-          lineWidth,
-        ),
-      [transform.pixelsPerTick, maxValue, height, lineWidth],
+      () => new ControlCoordTransform(transform, maxValue, height, lineWidth),
+      [transform.horizontalId, maxValue, height, lineWidth],
     )
 
     const items = events.map((e) => ({

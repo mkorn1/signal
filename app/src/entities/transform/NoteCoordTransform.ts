@@ -5,9 +5,9 @@ import { TickTransform } from "./TickTransform"
 
 export class NoteCoordTransform implements TickTransform {
   constructor(
-    readonly pixelsPerTick: number,
+    private readonly pixelsPerTick: number,
     readonly pixelsPerKey: number,
-    readonly maxNoteNumber: number,
+    private readonly maxNoteNumber: number,
   ) {}
 
   // pixels
@@ -90,5 +90,10 @@ export class NoteCoordTransform implements TickTransform {
       this.pixelsPerTick === t.pixelsPerTick &&
       this.maxNoteNumber === t.maxNoteNumber
     )
+  }
+
+  // Unique integer representing the horizontal transformation
+  get horizontalId(): number {
+    return this.pixelsPerTick
   }
 }

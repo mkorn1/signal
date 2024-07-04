@@ -3,12 +3,12 @@ import { TickTransform } from "./TickTransform"
 
 export class ArrangeCoordTransform implements TickTransform {
   constructor(
-    readonly pixelsPerTick: number,
-    readonly pixelsPerTrack: number,
+    private readonly transform: TickTransform,
+    private readonly pixelsPerTrack: number,
   ) {}
 
   getX(tick: number): number {
-    return tick * this.pixelsPerTick
+    return this.transform.getX(tick)
   }
 
   getY(trackIndex: number): number {
@@ -16,7 +16,7 @@ export class ArrangeCoordTransform implements TickTransform {
   }
 
   getTick(x: number): number {
-    return x / this.pixelsPerTick
+    return this.transform.getTick(x)
   }
 
   getTrackIndex(y: number): number {

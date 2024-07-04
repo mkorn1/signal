@@ -27,7 +27,7 @@ export const GhostNotes: FC<{ zIndex: number; trackId: number }> = observer(
           transform.getTick(scrollLeft),
           transform.getTick(canvasWidth),
         ),
-      [scrollLeft, canvasWidth, transform.pixelsPerTick, track.events],
+      [scrollLeft, canvasWidth, transform.horizontalId, track.events],
     )
 
     const notes = useMemo(
