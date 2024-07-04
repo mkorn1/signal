@@ -2,8 +2,8 @@ import { cloneDeep } from "lodash"
 import { ControllerEvent, MIDIControlEvents, PitchBendEvent } from "midifile-ts"
 import { computed, makeObservable, observable } from "mobx"
 import { makePersistable } from "mobx-persist-store"
+import { ValueEventType } from "../entities/event/ValueEventType"
 import { ControlSelection } from "../entities/selection/ControlSelection"
-import { ValueEventType, isEqualValueEventType } from "../helpers/valueEvent"
 import {
   TrackEventOf,
   isControllerEventWithType,
@@ -35,7 +35,7 @@ export const isEqualControlMode = (a: ControlMode, b: ControlMode) => {
         case "pitchBend":
           return false
         case "controller":
-          return isEqualValueEventType(a, b)
+          return ValueEventType.equals(a, b)
       }
   }
 }

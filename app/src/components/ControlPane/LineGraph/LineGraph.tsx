@@ -2,11 +2,11 @@ import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { observer } from "mobx-react-lite"
 import React, { MouseEventHandler, useCallback, useMemo } from "react"
 import { createOrUpdateControlEventsValue } from "../../../actions/control"
+import { ValueEventType } from "../../../entities/event/ValueEventType"
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
 import { ControlCoordTransform } from "../../../entities/transform/ControlCoordTransform"
 import { filterEventsWithRange } from "../../../helpers/filterEvents"
-import { ValueEventType, createValueEvent } from "../../../helpers/valueEvent"
 import { useContextMenu } from "../../../hooks/useContextMenu"
 import { useStores } from "../../../hooks/useStores"
 import { pointToCircleRect } from "../../../stores/TempoEditorStore"
@@ -125,7 +125,7 @@ const LineGraph = observer(
 
     const onClickAxis = useCallback(
       (value: number) => {
-        const event = createValueEvent(eventType)(value)
+        const event = ValueEventType.getEventFactory(eventType)(value)
         createOrUpdateControlEventsValue(rootStore)(event)
       },
       [eventType],

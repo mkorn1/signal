@@ -1,8 +1,8 @@
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
+import { ValueEventType } from "../../../../entities/event/ValueEventType"
 import { Point } from "../../../../entities/geometry/Point"
 import { ControlCoordTransform } from "../../../../entities/transform/ControlCoordTransform"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
-import { ValueEventType } from "../../../../helpers/valueEvent"
 import RootStore from "../../../../stores/RootStore"
 import { TrackEventOf } from "../../../../track"
 

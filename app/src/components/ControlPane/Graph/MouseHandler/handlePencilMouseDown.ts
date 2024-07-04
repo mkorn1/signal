@@ -3,14 +3,11 @@ import {
   updateValueEvents,
 } from "../../../../actions"
 import { pushHistory } from "../../../../actions/history"
+import { ValueEventType } from "../../../../entities/event/ValueEventType"
 import { Point } from "../../../../entities/geometry/Point"
 import { ControlCoordTransform } from "../../../../entities/transform/ControlCoordTransform"
 import { getClientPos } from "../../../../helpers/mouseEvent"
 import { observeDrag } from "../../../../helpers/observeDrag"
-import {
-  ValueEventType,
-  createValueEvent,
-} from "../../../../helpers/valueEvent"
 import RootStore from "../../../../stores/RootStore"
 
 export const handlePencilMouseDown =
@@ -31,7 +28,7 @@ export const handlePencilMouseDown =
     const startClientPos = getClientPos(e)
     const pos = transform.fromPosition(startPoint)
 
-    const event = createValueEvent(type)(pos.value)
+    const event = ValueEventType.getEventFactory(type)(pos.value)
     createTrackEvent(rootStore)(event, pos.tick)
 
     let lastTick = pos.tick

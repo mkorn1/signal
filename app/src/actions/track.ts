@@ -1,11 +1,7 @@
 import { AnyChannelEvent, AnyEvent, SetTempoEvent } from "midifile-ts"
+import { ValueEventType } from "../entities/event/ValueEventType"
 import { closedRange } from "../helpers/array"
 import { filterEventsWithRange } from "../helpers/filterEvents"
-import {
-  ValueEventType,
-  createValueEvent,
-  isValueEvent,
-} from "../helpers/valueEvent"
 import {
   panMidiEvent,
   programChangeMidiEvent,
@@ -204,8 +200,8 @@ export const updateValueEvents =
     updateEventsInRange(
       pianoRollStore.selectedTrack,
       pianoRollStore.quantizer,
-      isValueEvent(type),
-      createValueEvent(type),
+      ValueEventType.getEventPredicate(type),
+      ValueEventType.getEventFactory(type),
     )
 
 export const removeEvent =
