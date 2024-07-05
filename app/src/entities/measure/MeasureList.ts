@@ -1,6 +1,6 @@
-import Track, { isTimeSignatureEvent } from "../../track"
 import { Range } from "../geometry/Range"
 import { Measure } from "./Measure"
+import { TimeSignature } from "./TimeSignature"
 
 export type MeasureList = Measure[]
 
@@ -21,15 +21,10 @@ export namespace MeasureList {
     return lastMeasure
   }
 
-  export function fromConductorTrack(
-    conductorTrack: Track,
+  export function fromTimeSignatures(
+    events: TimeSignature[],
     timebase: number,
   ): Measure[] {
-    const events = conductorTrack.events
-      .filter(isTimeSignatureEvent)
-      .slice()
-      .sort((a, b) => a.tick - b.tick)
-
     if (events.length === 0) {
       return [
         {

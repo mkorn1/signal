@@ -1,3 +1,4 @@
+import { TimeSignature } from "../entities/measure/TimeSignature"
 import { noteOffMidiEvent, noteOnMidiEvent } from "../midi/MidiEvent"
 import RootStore from "../stores/RootStore"
 
@@ -19,41 +20,15 @@ export const stop =
     pianoRollStore.setScrollLeftInTicks(0)
   }
 
-const defaultTimeSignature = {
-  numerator: 4,
-  denominator: 4,
-  tick: 0,
-}
-
 export const rewindOneBar =
   ({ song, player, pianoRollStore }: RootStore) =>
   () => {
-    const e =
-      song.conductorTrack?.getTimeSignatureEvent(player.position) ??
-      defaultTimeSignature
-    const ticksPerMeasure = ((song.timebase * 4) / e.denominator) * e.numerator
-    const measures = (player.position - e.tick) / ticksPerMeasure
-    const fixedMeasures = Math.floor(measures)
-
-    // move to the beginning of current measure
-    // or if already there (smaller than 1 beat) we further rewind
-    const beginMeasureTick = e.tick + ticksPerMeasure * fixedMeasures
-    if (measures - fixedMeasures >= 1 / e.denominator) {
-      player.position = beginMeasureTick
-    } else if (beginMeasureTick !== e.tick) {
-      // same time signature
-      player.position = beginMeasureTick - ticksPerMeasure
-    } else {
-      // another time signature
-      const e2 = song.conductorTrack?.getTimeSignatureEvent(
-        beginMeasureTick - 1,
-      )
-      if (e2 !== undefined) {
-        const ticksPerMeasure2 =
-          ((song.timebase * 4) / e2.denominator) * e2.numerator
-        player.position = beginMeasureTick - ticksPerMeasure2
-      }
-    }
+    const tick = TimeSignature.getPreviousMeasureTick(
+      song.timeSignatures,
+      player.position,
+      song.timebase,
+    )
+    player.position = tick
 
     // make sure player doesn't move out of sight to the left
     if (player.position < pianoRollStore.scrollLeftTicks) {
@@ -61,25 +36,24 @@ export const rewindOneBar =
     }
   }
 
-export const fastForwardOneBar = (rootStore: RootStore) => () => {
-  const { song, player, pianoRollStore } = rootStore
-  const { quantizer } = pianoRollStore
+export const fastForwardOneBar =
+  ({ song, player, pianoRollStore }: RootStore) =>
+  () => {
+    const tick = TimeSignature.getNextMeasureTick(
+      song.timeSignatures,
+      player.position,
+      song.timebase,
+    )
+    player.position = tick
 
-  const e =
-    song.conductorTrack?.getTimeSignatureEvent(player.position) ??
-    defaultTimeSignature
-  const ticksPerBeat = (song.timebase * 4) / e.denominator
-  const ticksPerMeasure = ticksPerBeat * e.numerator
-  player.position = quantizer.round(player.position + ticksPerMeasure)
-
-  // make sure player doesn't move out of sight to the right
-  const { transform, scrollLeft } = pianoRollStore
-  const x = transform.getX(player.position)
-  const screenX = x - scrollLeft
-  if (screenX > pianoRollStore.canvasWidth * 0.7) {
-    pianoRollStore.setScrollLeftInPixels(x - pianoRollStore.canvasWidth * 0.7)
+    // make sure player doesn't move out of sight to the right
+    const { transform, scrollLeft } = pianoRollStore
+    const x = transform.getX(player.position)
+    const screenX = x - scrollLeft
+    if (screenX > pianoRollStore.canvasWidth * 0.7) {
+      pianoRollStore.setScrollLeftInPixels(x - pianoRollStore.canvasWidth * 0.7)
+    }
   }
-}
 
 export const nextTrack =
   ({ pianoRollStore, song }: RootStore) =>
