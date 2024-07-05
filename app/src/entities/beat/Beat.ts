@@ -1,5 +1,5 @@
 import { Range } from "../geometry/Range"
-import { MeasureList } from "../measure/MeasureList"
+import { Measure } from "../measure/Measure"
 
 export interface Beat {
   measure: number
@@ -9,12 +9,12 @@ export interface Beat {
 
 export namespace Beat {
   export const createInRange = (
-    allMeasures: MeasureList,
+    allMeasures: Measure[],
     timebase: number,
     tickRange: Range,
   ): Beat[] => {
     const beats: Beat[] = []
-    const measures = MeasureList.getMeasuresInRange(allMeasures, tickRange)
+    const measures = Measure.getMeasuresInRange(allMeasures, tickRange)
 
     measures.forEach((measure, i) => {
       const nextMeasure = measures[i + 1]

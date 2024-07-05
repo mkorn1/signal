@@ -11,7 +11,7 @@ import { Layout } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
 import { Point } from "../entities/geometry/Point"
 import { Rect } from "../entities/geometry/Rect"
-import { MeasureList } from "../entities/measure/MeasureList"
+import { Measure } from "../entities/measure/Measure"
 import { KeySignature } from "../entities/scale/KeySignature"
 import { Selection } from "../entities/selection/Selection"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
@@ -374,7 +374,7 @@ export default class PianoRollStore {
   }
 
   get currentMBTTime(): string {
-    return MeasureList.getMBTString(
+    return Measure.getMBTString(
       this.rootStore.song.measures,
       this.rootStore.player.position,
       this.rootStore.song.timebase,

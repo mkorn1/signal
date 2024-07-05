@@ -1,5 +1,5 @@
 import { Range } from "../geometry/Range"
-import { MeasureList } from "../measure/MeasureList"
+import { Measure } from "../measure/Measure"
 import { TickTransform } from "../transform/TickTransform"
 import { Beat } from "./Beat"
 
@@ -9,7 +9,7 @@ export type BeatWithX = Beat & {
 
 export namespace BeatWithX {
   export const createInRange = (
-    allMeasures: MeasureList,
+    allMeasures: Measure[],
     transform: TickTransform,
     timebase: number,
     scrollLeft: number,

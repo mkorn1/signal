@@ -10,7 +10,6 @@ import {
 } from "mobx"
 import { createModelSchema, list, object, primitive } from "serializr"
 import { Measure } from "../entities/measure/Measure"
-import { MeasureList } from "../entities/measure/MeasureList"
 import { TimeSignature } from "../entities/measure/TimeSignature"
 import { isNotUndefined } from "../helpers/array"
 import { collectAllEvents } from "../player/collectAllEvents"
@@ -83,7 +82,7 @@ export default class Song {
 
   get measures(): Measure[] {
     const { timeSignatures, timebase } = this
-    return MeasureList.fromTimeSignatures(timeSignatures, timebase)
+    return Measure.fromTimeSignatures(timeSignatures, timebase)
   }
 
   get timeSignatures(): TimeSignature[] {
