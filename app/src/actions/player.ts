@@ -1,4 +1,4 @@
-import { TimeSignature } from "../entities/measure/TimeSignature"
+import { Measure } from "../entities/measure/Measure"
 import { noteOffMidiEvent, noteOnMidiEvent } from "../midi/MidiEvent"
 import RootStore from "../stores/RootStore"
 
@@ -23,8 +23,8 @@ export const stop =
 export const rewindOneBar =
   ({ song, player, pianoRollStore }: RootStore) =>
   () => {
-    const tick = TimeSignature.getPreviousMeasureTick(
-      song.timeSignatures,
+    const tick = Measure.getPreviousMeasureTick(
+      song.measures,
       player.position,
       song.timebase,
     )
@@ -39,8 +39,8 @@ export const rewindOneBar =
 export const fastForwardOneBar =
   ({ song, player, pianoRollStore }: RootStore) =>
   () => {
-    const tick = TimeSignature.getNextMeasureTick(
-      song.timeSignatures,
+    const tick = Measure.getNextMeasureTick(
+      song.measures,
       player.position,
       song.timebase,
     )

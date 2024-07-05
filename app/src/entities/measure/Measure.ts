@@ -1,16 +1,25 @@
 import { Beat } from "../beat/Beat"
 import { Range } from "../geometry/Range"
-import { TimeSignature } from "./TimeSignature"
 
-export interface Measure {
-  startTick: number
-  measure: number
+interface TimeSignature {
+  tick: number
   numerator: number
   denominator: number
 }
 
+export interface Measure extends TimeSignature {
+  measure: number
+}
+
 export namespace Measure {
-  export const calculateMBT = (
+  const defaultValue: Measure = {
+    tick: 0,
+    measure: 0,
+    denominator: 4,
+    numerator: 4,
+  }
+
+  const calculateMBT = (
     measure: Measure,
     tick: number,
     ticksPerBeatBase: number,
@@ -18,7 +27,7 @@ export namespace Measure {
     const ticksPerBeat = (ticksPerBeatBase * 4) / measure.denominator
     const ticksPerMeasure = ticksPerBeat * measure.numerator
 
-    let aTick = tick - measure.startTick
+    let aTick = tick - measure.tick
 
     const deltaMeasure = Math.floor(aTick / ticksPerMeasure)
     aTick -= deltaMeasure * ticksPerMeasure
@@ -33,15 +42,10 @@ export namespace Measure {
     }
   }
 
-  export function getMeasureAt(measures: Measure[], tick: number): Measure {
-    let lastMeasure: Measure = {
-      startTick: 0,
-      measure: 0,
-      denominator: 4,
-      numerator: 4,
-    }
+  function getMeasureAt(measures: Measure[], tick: number): Measure {
+    let lastMeasure = defaultValue
     for (const m of measures) {
-      if (m.startTick > tick) {
+      if (m.tick > tick) {
         break
       }
       lastMeasure = m
@@ -54,14 +58,7 @@ export namespace Measure {
     timebase: number,
   ): Measure[] {
     if (events.length === 0) {
-      return [
-        {
-          startTick: 0,
-          measure: 0,
-          denominator: 4,
-          numerator: 4,
-        },
-      ]
+      return [defaultValue]
     } else {
       let lastMeasure = 0
       return events.map((e, i) => {
@@ -76,7 +73,7 @@ export namespace Measure {
           lastMeasure = measure
         }
         return {
-          startTick: e.tick,
+          tick: e.tick,
           measure,
           numerator: e.numerator,
           denominator: e.denominator,
@@ -103,21 +100,13 @@ export namespace Measure {
 
       // Find the first measure
       if (result.length === 0) {
-        if (
-          nextMeasure !== undefined &&
-          nextMeasure.startTick <= tickRange[0]
-        ) {
+        if (nextMeasure !== undefined && nextMeasure.tick <= tickRange[0]) {
           // Skip if the next Measure can be the first
           continue
         }
-        if (measure.startTick > tickRange[0]) {
+        if (measure.tick > tickRange[0]) {
           console.warn("There is no initial time signature. Use 4/4 by default")
-          result.push({
-            startTick: 0,
-            measure: 0,
-            numerator: 4,
-            denominator: 4,
-          })
+          result.push(defaultValue)
         } else {
           result.push(measure)
         }
@@ -125,7 +114,7 @@ export namespace Measure {
 
       // Find the remaining measures. Check if there is another first measure again to handle the case where there is no first measure correctly.
       if (result.length !== 0) {
-        if (measure.startTick <= tickRange[1]) {
+        if (measure.tick <= tickRange[1]) {
           result.push(measure)
         } else {
           break
@@ -142,6 +131,57 @@ export namespace Measure {
     ticksPerBeat: number,
   ): Beat => {
     return calculateMBT(getMeasureAt(measures, tick), tick, ticksPerBeat)
+  }
+
+  function getMeasureStart(
+    measures: Measure[],
+    tick: number,
+    timebase: number,
+  ) {
+    const e = getMeasureAt(measures, tick)
+    const ticksPerMeasure = ((timebase * 4) / e.denominator) * e.numerator
+    const measuresFromLastMeasure = (tick - e.tick) / ticksPerMeasure
+    const fixedMeasures = Math.floor(measuresFromLastMeasure)
+    const beginMeasureTick = e.tick + ticksPerMeasure * fixedMeasures
+    const ticksPerBeat = (timebase * 4) / e.denominator
+    return {
+      tick: beginMeasureTick,
+      duration: ticksPerMeasure,
+      ticksPerBeat,
+    }
+  }
+
+  /**
+   * Returns the tick one measure before the specified tick
+   *
+   * If the tick is already at the beginning of a measure, it returns the tick of the previous measure
+   *
+   * To prevent the inability to rewind during playback,
+   * if the position has not advanced more than 1 beat from the beginning of the measure,
+   * rewind further to the previous measure
+   */
+  export function getPreviousMeasureTick(
+    measures: Measure[],
+    position: number,
+    timebase: number,
+  ): number {
+    const measureStart = getMeasureStart(measures, position, timebase)
+
+    if (position > measureStart.tick + measureStart.ticksPerBeat) {
+      return measureStart.tick
+    }
+
+    // previous measure
+    return getMeasureStart(measures, measureStart.tick - 1, timebase).tick
+  }
+
+  export function getNextMeasureTick(
+    measures: Measure[],
+    position: number,
+    timebase: number,
+  ): number {
+    const measureStart = getMeasureStart(measures, position, timebase)
+    return measureStart.tick + measureStart.duration
   }
 }
 

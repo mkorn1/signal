@@ -7,9 +7,9 @@ describe("createBeatsInRange", () => {
 
   it("should create beats", () => {
     const measures: Measure[] = [
-      { startTick: 0, measure: 0, numerator: 4, denominator: 4 },
-      { startTick: timebase * 4, measure: 1, numerator: 6, denominator: 8 },
-      { startTick: timebase * 7, measure: 2, numerator: 3, denominator: 4 },
+      { tick: 0, measure: 0, numerator: 4, denominator: 4 },
+      { tick: timebase * 4, measure: 1, numerator: 6, denominator: 8 },
+      { tick: timebase * 7, measure: 2, numerator: 3, denominator: 4 },
     ]
 
     const beats = Beat.createInRange(
@@ -52,7 +52,7 @@ describe("createBeatsInRange", () => {
   it("should create default beats without the initial measure", () => {
     const measures: Measure[] = [
       {
-        startTick: timebase * 4, // starts at out of the range
+        tick: timebase * 4, // starts at out of the range
         measure: 0,
         numerator: 5,
         denominator: 8,

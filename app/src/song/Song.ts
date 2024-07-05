@@ -10,7 +10,6 @@ import {
 } from "mobx"
 import { createModelSchema, list, object, primitive } from "serializr"
 import { Measure } from "../entities/measure/Measure"
-import { TimeSignature } from "../entities/measure/TimeSignature"
 import { isNotUndefined } from "../helpers/array"
 import { collectAllEvents } from "../player/collectAllEvents"
 import Track, { isTimeSignatureEvent } from "../track"
@@ -85,7 +84,7 @@ export default class Song {
     return Measure.fromTimeSignatures(timeSignatures, timebase)
   }
 
-  get timeSignatures(): TimeSignature[] {
+  get timeSignatures() {
     const { conductorTrack } = this
     if (conductorTrack === undefined) {
       return []

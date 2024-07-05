@@ -23,16 +23,16 @@ export namespace Beat {
 
       // 次の小節か曲の endTick まで拍を作る
       // Make a beat up to the next bar or song EndTick
-      const lastTick = nextMeasure ? nextMeasure.startTick : tickRange[1]
+      const lastTick = nextMeasure ? nextMeasure.tick : tickRange[1]
 
       const startBeat = Math.max(
         0,
-        Math.floor((tickRange[0] - measure.startTick) / ticksPerBeat),
+        Math.floor((tickRange[0] - measure.tick) / ticksPerBeat),
       )
-      const endBeat = (lastTick - measure.startTick) / ticksPerBeat
+      const endBeat = (lastTick - measure.tick) / ticksPerBeat
 
       for (let beat = startBeat; beat < endBeat; beat++) {
-        const tick = measure.startTick + ticksPerBeat * beat
+        const tick = measure.tick + ticksPerBeat * beat
         beats.push({
           measure: measure.measure + Math.floor(beat / measure.numerator),
           beat: beat % measure.numerator,
