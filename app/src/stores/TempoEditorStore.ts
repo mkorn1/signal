@@ -1,6 +1,5 @@
 import { autorun, computed, makeObservable, observable } from "mobx"
 import { Layout } from "../Constants"
-import { DisplayEvent } from "../components/PianoRoll/ControlMark"
 import { transformEvents } from "../components/TempoGraph/transformEvents"
 import { Point } from "../entities/geometry/Point"
 import { Rect } from "../entities/geometry/Rect"
@@ -75,16 +74,7 @@ export default class TempoEditorStore {
 
   get items() {
     const { transform, canvasWidth, scrollLeft } = this
-
-    const sourceEvents =
-      this.rootStore.song.conductorTrack !== undefined
-        ? this.rootStore.song.conductorTrack.events
-        : []
-
-    const events = sourceEvents.filter(
-      (e) => (e as any).subtype === "setTempo",
-    ) as DisplayEvent[]
-
+    const events = this.rootStore.song.conductorTrack?.events ?? []
     return transformEvents(events, transform, canvasWidth + scrollLeft)
   }
 

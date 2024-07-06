@@ -1,10 +1,6 @@
-import { SetTempoEvent } from "midifile-ts"
 import { TempoCoordTransform } from "../../entities/transform/TempoCoordTransform"
-import { TrackEvent } from "../../track"
+import { isSetTempoEvent, TrackEvent } from "../../track"
 import { TempoGraphItem } from "./TempoGraphItem"
-
-const isSetTempoEvent = (e: any): e is TrackEvent & SetTempoEvent =>
-  e.subtype == "setTempo"
 
 export const transformEvents = (
   events: TrackEvent[],
