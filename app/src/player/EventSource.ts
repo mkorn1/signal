@@ -22,17 +22,11 @@ export class EventSource implements IEventSource {
 
   getEvents(startTick: number, endTick: number): PlayerEvent[] {
     const { song } = this.songStore
-    return song.allEvents
-      .filter(isEventInRange(Range.create(startTick, endTick)))
-      .concat(
-        Beat.createInRange(
-          song.measures,
-          song.timebase,
-          Range.create(startTick, endTick),
-        )
-          .filter(isEventInRange(Range.create(startTick, endTick)))
-          .flatMap((b) => beatToEvents(b)),
-      )
+    const range = Range.create(startTick, endTick)
+    const beatEvents = Beat.createInRange(song.measures, song.timebase, range)
+      .filter(isEventInRange(range))
+      .flatMap((b) => beatToEvents(b))
+    return song.allEvents.filter(isEventInRange(range)).concat(beatEvents)
   }
 
   getCurrentStateEvents(tick: number): SendableEvent[] {

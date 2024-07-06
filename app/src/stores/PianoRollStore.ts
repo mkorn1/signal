@@ -295,10 +295,10 @@ export default class PianoRollStore {
       return []
     }
 
-    const startX = scrollLeft
-    const endX = scrollLeft + canvasWidth
-
-    return allNotes.filter((n) => n.x + n.width > startX && n.x < endX)
+    const range = Range.fromLength(scrollLeft, canvasWidth)
+    return allNotes.filter((n) =>
+      Range.intersects(Range.fromLength(n.x, n.width), range),
+    )
   }
 
   get ghostTrackIds(): number[] {
