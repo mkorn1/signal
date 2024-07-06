@@ -181,6 +181,8 @@ export const ArrangeView: FC = observer(() => {
           return
         }
 
+        const { scrollLeft, scrollTop, trackTransform } = arrangeViewStore
+
         const startPosPx: Point = {
           x: e.nativeEvent.offsetX + scrollLeft,
           y: e.nativeEvent.offsetY + scrollTop,
