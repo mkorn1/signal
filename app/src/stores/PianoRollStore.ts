@@ -10,13 +10,14 @@ import {
 import { Layout } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
 import { Point } from "../entities/geometry/Point"
+import { Range } from "../entities/geometry/Range"
 import { Rect } from "../entities/geometry/Rect"
 import { Measure } from "../entities/measure/Measure"
 import { KeySignature } from "../entities/scale/KeySignature"
 import { Selection } from "../entities/selection/Selection"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { isNotUndefined } from "../helpers/array"
-import { filterEventsOverlapScroll } from "../helpers/filterEvents"
+import { isEventOverlapRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
 import Track, { TrackEvent, isNoteEvent } from "../track"
 import RootStore from "./RootStore"
@@ -257,10 +258,13 @@ export default class PianoRollStore {
       return []
     }
 
-    return filterEventsOverlapScroll(
-      track.events,
-      transform.getTick(scrollLeft),
-      transform.getTick(canvasWidth),
+    return track.events.filter(
+      isEventOverlapRange(
+        Range.fromLength(
+          transform.getTick(scrollLeft),
+          transform.getTick(canvasWidth),
+        ),
+      ),
     )
   }
 

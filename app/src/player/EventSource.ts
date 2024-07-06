@@ -1,7 +1,7 @@
 import { IEventSource, PlayerEvent, SendableEvent } from "@signal-app/player"
 import { Beat } from "../entities/beat/Beat"
 import { Range } from "../entities/geometry/Range"
-import { filterEventsWithRange } from "../helpers/filterEvents"
+import { isEventInRange } from "../helpers/filterEvents"
 import { noteOnMidiEvent } from "../midi/MidiEvent"
 import { SongProvider } from "../song/SongProvider"
 import { getStatusEvents } from "../track/selector"
@@ -22,17 +22,17 @@ export class EventSource implements IEventSource {
 
   getEvents(startTick: number, endTick: number): PlayerEvent[] {
     const { song } = this.songStore
-    return filterEventsWithRange(song.allEvents, startTick, endTick).concat(
-      filterEventsWithRange(
+    return song.allEvents
+      .filter(isEventInRange(Range.create(startTick, endTick)))
+      .concat(
         Beat.createInRange(
           song.measures,
           song.timebase,
           Range.create(startTick, endTick),
-        ).flatMap((b) => beatToEvents(b)),
-        startTick,
-        endTick,
-      ),
-    )
+        )
+          .filter(isEventInRange(Range.create(startTick, endTick)))
+          .flatMap((b) => beatToEvents(b)),
+      )
   }
 
   getCurrentStateEvents(tick: number): SendableEvent[] {

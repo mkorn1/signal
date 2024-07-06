@@ -3,9 +3,11 @@ import {
   ArrangeNotesClipboardData,
   isArrangeNotesClipboardData,
 } from "../clipboard/clipboardTypes"
+import { Range } from "../entities/geometry/Range"
 import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
 import { ArrangePoint } from "../entities/transform/ArrangePoint"
 import { isNotUndefined } from "../helpers/array"
+import { isEventInRange } from "../helpers/filterEvents"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import Track from "../track"
@@ -238,7 +240,7 @@ function getEventsInSelection(tracks: Track[], selection: ArrangeSelection) {
   ) {
     const track = tracks[trackIndex]
     const events = track.events.filter(
-      (e) => e.tick >= selection.fromTick && e.tick < selection.toTick,
+      isEventInRange(Range.create(selection.fromTick, selection.toTick)),
     )
     ids[trackIndex] = events.map((e) => e.id)
   }

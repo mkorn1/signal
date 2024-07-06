@@ -4,9 +4,10 @@ import React, { MouseEventHandler, useCallback, useMemo } from "react"
 import { createOrUpdateControlEventsValue } from "../../../actions/control"
 import { ValueEventType } from "../../../entities/event/ValueEventType"
 import { Point } from "../../../entities/geometry/Point"
+import { Range } from "../../../entities/geometry/Range"
 import { Rect } from "../../../entities/geometry/Rect"
 import { ControlCoordTransform } from "../../../entities/transform/ControlCoordTransform"
-import { filterEventsWithRange } from "../../../helpers/filterEvents"
+import { isEventInRange } from "../../../helpers/filterEvents"
 import { useContextMenu } from "../../../hooks/useContextMenu"
 import { useStores } from "../../../hooks/useStores"
 import { pointToCircleRect } from "../../../stores/TempoEditorStore"
@@ -111,9 +112,9 @@ const LineGraph = observer(
             local,
             controlTransform,
             (s) =>
-              filterEventsWithRange(events, s.fromTick, s.toTick).map(
-                (e) => e.id,
-              ),
+              events
+                .filter(isEventInRange(Range.create(s.fromTick, s.toTick)))
+                .map((e) => e.id),
           )
         }
       },

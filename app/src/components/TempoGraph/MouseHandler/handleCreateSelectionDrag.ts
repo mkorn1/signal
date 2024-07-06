@@ -1,6 +1,7 @@
 import { Point } from "../../../entities/geometry/Point"
+import { Range } from "../../../entities/geometry/Range"
 import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
-import { filterEventsWithRange } from "../../../helpers/filterEvents"
+import { isEventInRange } from "../../../helpers/filterEvents"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"
@@ -45,11 +46,12 @@ export const handleCreateSelectionDrag =
           return
         }
 
-        tempoEditorStore.selectedEventIds = filterEventsWithRange(
-          conductorTrack.events.filter(isSetTempoEvent),
-          selection.fromTick,
-          selection.toTick,
-        ).map((e) => e.id)
+        tempoEditorStore.selectedEventIds = conductorTrack.events
+          .filter(isSetTempoEvent)
+          .filter(
+            isEventInRange(Range.create(selection.fromTick, selection.toTick)),
+          )
+          .map((e) => e.id)
 
         tempoEditorStore.selection = null
       },

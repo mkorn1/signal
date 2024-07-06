@@ -1,8 +1,9 @@
 import { AnyChannelEvent, AnyEvent, SetTempoEvent } from "midifile-ts"
 import { ValueEventType } from "../entities/event/ValueEventType"
+import { Range } from "../entities/geometry/Range"
 import { Measure } from "../entities/measure/Measure"
 import { closedRange } from "../helpers/array"
-import { filterEventsWithRange } from "../helpers/filterEvents"
+import { isEventInRange } from "../helpers/filterEvents"
 import {
   panMidiEvent,
   programChangeMidiEvent,
@@ -117,7 +118,7 @@ export const updateVelocitiesInRange =
           )
         : selectedTrack.events.filter(isNoteEvent)
 
-    const events = filterEventsWithRange(notes, minTick, maxTick)
+    const events = notes.filter(isEventInRange(Range.create(minTick, maxTick)))
     selectedTrack.transaction((it) => {
       it.updateEvents(
         events.map((e) => ({

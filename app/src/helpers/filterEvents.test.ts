@@ -1,4 +1,5 @@
-import { filterEventsOverlapRange, filterEventsWithRange } from "./filterEvents"
+import { Range } from "../entities/geometry/Range"
+import { isEventInRange, isEventOverlapRange } from "./filterEvents"
 
 describe("filterEvents", () => {
   const events = [
@@ -11,18 +12,19 @@ describe("filterEvents", () => {
     { tick: 50 },
   ]
 
-  describe("filterEventsWithRange", () => {
+  describe("isEventInRange", () => {
     it("should contain the event placed at the start tick but the end tick", () => {
-      expect(filterEventsWithRange(events, 10, 50)).toStrictEqual([
-        { tick: 10 },
-        { tick: 20 },
-      ])
+      expect(events.filter(isEventInRange(Range.create(10, 50)))).toStrictEqual(
+        [{ tick: 10 }, { tick: 20 }],
+      )
     })
   })
 
-  describe("filterEventsWithinView", () => {
+  describe("isEventOverlapRange", () => {
     it("should contain events with duration", () => {
-      expect(filterEventsOverlapRange(events, 10, 50)).toStrictEqual([
+      expect(
+        events.filter(isEventOverlapRange(Range.create(10, 50))),
+      ).toStrictEqual([
         { tick: 5, duration: 6 },
         { tick: 5, duration: 100 },
         { tick: 10 },

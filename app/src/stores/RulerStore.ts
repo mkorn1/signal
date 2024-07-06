@@ -1,10 +1,10 @@
 import { computed, makeObservable, observable } from "mobx"
 import { BeatWithX } from "../entities/beat/BeatWithX"
+import { Range } from "../entities/geometry/Range"
 import { TickTransform } from "../entities/transform/TickTransform"
-import { filterEventsWithScroll } from "../helpers/filterEvents"
+import { isEventInRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
 import Song from "../song"
-import { isTimeSignatureEvent } from "../track"
 
 interface RulerProvider {
   rootStore: { song: Song }
@@ -49,17 +49,17 @@ export class RulerStore {
   get timeSignatures(): TimeSignature[] {
     const { transform, scrollLeft, canvasWidth, rootStore } = this.parent
     const { selectedTimeSignatureEventIds } = this
-    const track = rootStore.song.conductorTrack
-    if (track === undefined) {
-      return []
-    }
+    const { timeSignatures } = rootStore.song
 
-    return filterEventsWithScroll(
-      track.events,
-      transform.getTick(scrollLeft),
-      transform.getTick(canvasWidth),
-    )
-      .filter(isTimeSignatureEvent)
+    return timeSignatures
+      .filter(
+        isEventInRange(
+          Range.fromLength(
+            transform.getTick(scrollLeft),
+            transform.getTick(canvasWidth),
+          ),
+        ),
+      )
       .map((e) => ({
         ...e,
         isSelected: selectedTimeSignatureEventIds.includes(e.id),

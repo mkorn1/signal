@@ -2,11 +2,12 @@ import { clamp, cloneDeep } from "lodash"
 import { action, autorun, computed, makeObservable, observable } from "mobx"
 import { Layout } from "../Constants"
 import { BAR_WIDTH } from "../components/inputs/ScrollBar"
+import { Range } from "../entities/geometry/Range"
 import { Rect } from "../entities/geometry/Rect"
 import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
 import { ArrangeCoordTransform } from "../entities/transform/ArrangeCoordTransform"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
-import { filterEventsOverlapScroll } from "../helpers/filterEvents"
+import { isEventOverlapRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
 import { isNoteEvent } from "../track"
 import RootStore from "./RootStore"
@@ -174,11 +175,15 @@ export default class ArrangeViewStore {
 
     return this.rootStore.song.tracks
       .map((t, i) =>
-        filterEventsOverlapScroll(
-          t.events,
-          transform.getTick(scrollLeft),
-          transform.getTick(canvasWidth),
-        )
+        t.events
+          .filter(
+            isEventOverlapRange(
+              Range.fromLength(
+                transform.getTick(scrollLeft),
+                transform.getTick(canvasWidth),
+              ),
+            ),
+          )
           .filter(isNoteEvent)
           .map((e) => {
             const rect = transform.getRect(e)
