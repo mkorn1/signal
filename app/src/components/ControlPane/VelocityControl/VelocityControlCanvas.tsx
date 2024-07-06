@@ -1,23 +1,24 @@
+import { useTheme } from "@emotion/react"
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import { changeNotesVelocity, updateVelocitiesInRange } from "../../../actions"
-import { IPoint, IRect, containsPoint, pointAdd } from "../../../geometry"
+import { Point } from "../../../entities/geometry/Point"
+import { Rect } from "../../../entities/geometry/Rect"
 import { colorToVec4 } from "../../../gl/color"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
-import { useTheme } from "../../../hooks/useTheme"
 import { isNoteEvent } from "../../../track"
 import { Beats } from "../../GLNodes/Beats"
 import { Cursor } from "../../GLNodes/Cursor"
 import { VelocityItems } from "./VelocityItems"
 
-export type VelocityItem = IRect & {
+export type VelocityItem = Rect & {
   id: number
   isSelected: boolean
-  hitArea: IRect
+  hitArea: Rect
 }
 
 export const VelocityControlCanvas: FC<{ width: number; height: number }> =
@@ -59,8 +60,8 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
       [windowedEvents, height, transform, selectedNoteIds],
     )
 
-    const hitTest = (point: IPoint) => {
-      return items.filter((n) => containsPoint(n.hitArea, point))
+    const hitTest = (point: Point) => {
+      return items.filter((n) => Rect.containsPoint(n.hitArea, point))
     }
 
     const onMouseDown = useCallback(
@@ -92,13 +93,13 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
         }
 
         function handlePaintingDrag() {
-          let lastTick = transform.getTicks(startPoint.x)
+          let lastTick = transform.getTick(startPoint.x)
           let lastValue = calcValue(e)
 
           observeDrag2(e, {
             onMouseMove: (e, delta) => {
-              const local = pointAdd(startPoint, delta)
-              const tick = transform.getTicks(local.x)
+              const local = Point.add(startPoint, delta)
+              const tick = transform.getTick(local.x)
               const value = calcValue(e)
 
               updateVelocitiesInRange(rootStore)(

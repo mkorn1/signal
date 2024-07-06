@@ -1,11 +1,11 @@
+import { useTheme } from "@emotion/react"
 import { Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { partition } from "lodash"
 import { FC } from "react"
-import { IRect } from "../../geometry"
+import { BeatWithX } from "../../entities/beat/BeatWithX"
+import { Rect } from "../../entities/geometry/Rect"
 import { colorToVec4 } from "../../gl/color"
-import { BeatWithX } from "../../helpers/mapBeats"
-import { useTheme } from "../../hooks/useTheme"
 
 export const Beats: FC<{
   height: number
@@ -14,7 +14,7 @@ export const Beats: FC<{
 }> = ({ height, beats, zIndex }) => {
   const theme = useTheme()
 
-  const vline = (x: number): IRect => ({
+  const vline = (x: number): Rect => ({
     x,
     y: 0,
     width: 1,

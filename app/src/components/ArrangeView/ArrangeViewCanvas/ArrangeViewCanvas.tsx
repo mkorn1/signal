@@ -1,4 +1,4 @@
-import { GLCanvas, IPoint, Transform } from "@ryohey/webgl-react"
+import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import {
@@ -8,7 +8,8 @@ import {
   arrangeStartSelection,
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
-import { containsPoint, pointAdd, pointSub } from "../../../geometry"
+import { Point } from "../../../entities/geometry/Point"
+import { Rect } from "../../../entities/geometry/Rect"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
@@ -28,12 +29,11 @@ export interface ArrangeViewCanvasProps {
 export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
   ({ width, onContextMenu }) => {
     const rootStore = useStores()
-    const { arrangeViewStore, song, player } = rootStore
-    const tracks = song.tracks
+    const { arrangeViewStore, player } = rootStore
     const {
-      trackHeight,
       scrollLeft,
       scrollTop,
+      contentHeight: height,
       rulerStore: { beats },
       cursorX,
       selection,
@@ -64,25 +64,23 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
       [],
     )
 
-    const height = trackHeight * tracks.length
-
     const handleLeftClick = useCallback(
       (e: React.MouseEvent) => {
-        const startPosPx: IPoint = {
+        const startPosPx: Point = {
           x: e.nativeEvent.offsetX + scrollLeft,
           y: e.nativeEvent.offsetY + scrollTop,
         }
         const startClientPos = getClientPos(e.nativeEvent)
 
         const isSelectionSelected =
-          selectionRect != null && containsPoint(selectionRect, startPosPx)
+          selectionRect != null && Rect.containsPoint(selectionRect, startPosPx)
 
         if (isSelectionSelected) {
           let isMoved = false
           observeDrag({
             onMouseMove: (e) => {
-              const deltaPx = pointSub(getClientPos(e), startClientPos)
-              const selectionFromPx = pointAdd(deltaPx, selectionRect)
+              const deltaPx = Point.sub(getClientPos(e), startClientPos)
+              const selectionFromPx = Point.add(deltaPx, selectionRect)
 
               if ((deltaPx.x !== 0 || deltaPx.y !== 0) && !isMoved) {
                 isMoved = true
@@ -106,8 +104,8 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
 
           observeDrag({
             onMouseMove: (e) => {
-              const deltaPx = pointSub(getClientPos(e), startClientPos)
-              const selectionToPx = pointAdd(startPosPx, deltaPx)
+              const deltaPx = Point.sub(getClientPos(e), startClientPos)
+              const selectionToPx = Point.add(startPosPx, deltaPx)
               arrangeResizeSelection(rootStore)(
                 startPos,
                 trackTransform.getArrangePoint(selectionToPx),
@@ -132,7 +130,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
         observeDrag({
           onMouseMove(e) {
             const pos = createPoint(e)
-            const delta = pointSub(pos, startPos)
+            const delta = Point.sub(pos, startPos)
             setScrollLeft(Math.max(0, scrollLeft - delta.x))
             setScrollTop(Math.max(0, scrollTop - delta.y))
           },

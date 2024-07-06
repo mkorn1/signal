@@ -1,3 +1,4 @@
+import { useTheme } from "@emotion/react"
 import styled from "@emotion/styled"
 import { useToast } from "dialog-hooks"
 import OpenInNewIcon from "mdi-react/OpenInNewIcon"
@@ -5,7 +6,6 @@ import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useState } from "react"
 import { publishSong, unpublishSong } from "../../actions/cloudSong"
 import { useStores } from "../../hooks/useStores"
-import { useTheme } from "../../hooks/useTheme"
 import { Localized, useLocalization } from "../../localize/useLocalization"
 import {
   Dialog,

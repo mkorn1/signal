@@ -8,7 +8,6 @@ import maxBy from "lodash/maxBy.js"
 import uniq from "lodash/uniq.js"
 import { AnyChannelEvent } from "midifile-ts"
 import { isNotUndefined } from "../helpers/array.js"
-import { filterEventsWithRange } from "../helpers/filterEvents.js"
 import { Song, TrackEvent } from "../song/Song.js"
 import {
   isControllerEvent,
@@ -17,6 +16,11 @@ import {
   isProgramChangeEvent,
   isSetTempoEvent,
 } from "../song/identify.js"
+
+export const isEventInRange =
+  <T extends { tick: number }>(startTick: number, endTick: number) =>
+  (e: T) =>
+    e.tick >= startTick && e.tick < endTick
 
 export class EventSource implements IEventSource {
   constructor(private readonly songProvider: { song: Song }) {}
@@ -31,7 +35,7 @@ export class EventSource implements IEventSource {
 
   getEvents(startTick: number, endTick: number): PlayerEvent[] {
     return this.songProvider.song.tracks.flatMap((track, trackId) =>
-      filterEventsWithRange(track.events, startTick, endTick).map((event) => ({
+      track.events.filter(isEventInRange(startTick, endTick)).map((event) => ({
         ...event,
         trackId,
       })),

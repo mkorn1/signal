@@ -1,15 +1,15 @@
+import { useTheme } from "@emotion/react"
 import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC, useMemo } from "react"
 import { Layout } from "../../../Constants"
+import { KeySignature } from "../../../entities/scale/KeySignature"
 import { colorToVec4 } from "../../../gl/color"
 import { useStores } from "../../../hooks/useStores"
-import { useTheme } from "../../../hooks/useTheme"
-import { KeySignature, getScaleInterval } from "../../../scale/Scale"
 import { HorizontalGrid } from "./HorizontalGrid"
 
 function keySignatureToConditions(keySignature: KeySignature) {
-  const intervals = getScaleInterval(keySignature)
+  const intervals = KeySignature.getIntervals(keySignature)
   return new Array(12).fill(false).map((_, i) => intervals.includes(i % 12))
 }
 
@@ -40,7 +40,7 @@ export const Lines: FC<{ zIndex: number }> = observer(({ zIndex }) => {
         Array(12)
           .fill(0)
           .map((_, i) =>
-            getScaleInterval({ scale: "major", key: 0 }).includes(i)
+            KeySignature.getIntervals({ scale: "major", key: 0 }).includes(i)
               ? whiteLaneColor
               : blackLaneColor,
           )

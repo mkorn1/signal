@@ -1,14 +1,14 @@
+import { useTheme } from "@emotion/react"
 import Color from "color"
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useState } from "react"
 import { Layout } from "../../Constants"
+import { KeySignature } from "../../entities/scale/KeySignature"
 import { noteNameWithOctString } from "../../helpers/noteNumberString"
 import { observeDrag } from "../../helpers/observeDrag"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
-import { useTheme } from "../../hooks/useTheme"
 import { noteOffMidiEvent, noteOnMidiEvent } from "../../midi/MidiEvent"
-import { getScaleInterval as getScaleIntervals } from "../../scale/Scale"
 import { Theme } from "../../theme/Theme"
 import DrawCanvas from "../DrawCanvas"
 import { PianoKeysContextMenu } from "./PianoKeysContextMenu"
@@ -220,7 +220,8 @@ export const PianoKeys: FC = observer(() => {
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D) => {
-      const scale = keySignature !== null ? getScaleIntervals(keySignature) : []
+      const scale =
+        keySignature !== null ? KeySignature.getIntervals(keySignature) : []
       drawKeys(
         ctx,
         blackKeyWidth,

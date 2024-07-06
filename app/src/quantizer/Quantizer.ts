@@ -1,5 +1,5 @@
+import { Measure } from "../entities/measure/Measure"
 import { SongProvider } from "../song/SongProvider"
-import { getMeasureStart } from "../song/selector"
 
 export default class Quantizer {
   private denominator: number
@@ -28,9 +28,12 @@ export default class Quantizer {
     if (!this.isEnabled) {
       return Math.round(tick)
     }
-    const measureStart = getMeasureStart(this.songStore.song, tick)
-    const beats =
-      this.denominator === 1 ? measureStart?.timeSignature.numerator ?? 4 : 4
+    const measureStart = Measure.getMeasureStart(
+      this.songStore.song.measures,
+      tick,
+      this.songStore.song.timebase,
+    )
+    const beats = this.denominator === 1 ? measureStart.numerator ?? 4 : 4
     const u = (this.timebase * beats) / this.denominator
     const offset = measureStart?.tick ?? 0
     return fn((tick - offset) / u) * u + offset

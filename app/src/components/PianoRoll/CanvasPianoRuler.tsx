@@ -1,13 +1,14 @@
+import { useTheme } from "@emotion/react"
 import { LoopSetting } from "@signal-app/player"
 import { findLast, isEqual } from "lodash"
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useState } from "react"
 import { Layout } from "../../Constants"
 import { setLoopBegin, setLoopEnd, updateTimeSignature } from "../../actions"
-import { BeatWithX } from "../../helpers/mapBeats"
+import { BeatWithX } from "../../entities/beat/BeatWithX"
+import { TickTransform } from "../../entities/transform/TickTransform"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
-import { useTheme } from "../../hooks/useTheme"
 import { RulerStore, TimeSignature } from "../../stores/RulerStore"
 import { Theme } from "../../theme/Theme"
 import DrawCanvas from "../DrawCanvas"
@@ -61,7 +62,7 @@ function drawLoopPoints(
   ctx: CanvasRenderingContext2D,
   loop: LoopSetting,
   height: number,
-  pixelsPerTick: number,
+  transform: TickTransform,
   theme: Theme,
 ) {
   const flagSize = 8
@@ -70,8 +71,8 @@ function drawLoopPoints(
   ctx.strokeStyle = loop.enabled ? theme.themeColor : theme.secondaryTextColor
   ctx.beginPath()
 
-  const beginX = loop.begin * pixelsPerTick
-  const endX = loop.end * pixelsPerTick
+  const beginX = transform.getX(loop.begin)
+  const endX = transform.getX(loop.end)
 
   if (loop.begin !== null) {
     const x = beginX
@@ -120,13 +121,13 @@ function drawTimeSignatures(
   ctx: CanvasRenderingContext2D,
   height: number,
   events: TimeSignature[],
-  pixelsPerTick: number,
+  transform: TickTransform,
   theme: Theme,
 ) {
   ctx.textBaseline = "bottom"
   ctx.font = `11px ${theme.canvasFont}`
   events.forEach((e) => {
-    const x = e.tick * pixelsPerTick
+    const x = transform.getX(e.tick)
     const text = `${e.numerator}/${e.denominator}`
     const size = ctx.measureText(text)
     const textHeight =
@@ -172,11 +173,7 @@ const PianoRuler: FC<PianoRulerProps> = observer(
     const [rightClickTick, setRightClickTick] = useState(0)
     const height = Layout.rulerHeight
 
-    const {
-      canvasWidth: width,
-      transform: { pixelsPerTick },
-      scrollLeft,
-    } = rulerStore.parent
+    const { canvasWidth: width, transform, scrollLeft } = rulerStore.parent
     const { beats, timeSignatures, quantizer } = rulerStore
     const {
       player,
@@ -184,7 +181,7 @@ const PianoRuler: FC<PianoRulerProps> = observer(
     } = rootStore
 
     const timeSignatureHitTest = (tick: number) => {
-      const widthTick = TIME_SIGNATURE_HIT_WIDTH / pixelsPerTick
+      const widthTick = transform.getTick(TIME_SIGNATURE_HIT_WIDTH)
       return findLast(
         timeSignatures,
         (e) => e.tick < tick && e.tick + widthTick >= tick,
@@ -244,7 +241,7 @@ const PianoRuler: FC<PianoRulerProps> = observer(
 
         _onMouseDown?.(e)
       },
-      [rootStore, quantizer, player, scrollLeft, pixelsPerTick, timeSignatures],
+      [rootStore, quantizer, player, scrollLeft, transform, timeSignatures],
     )
 
     const draw = useCallback(
@@ -254,12 +251,12 @@ const PianoRuler: FC<PianoRulerProps> = observer(
         ctx.translate(-scrollLeft + 0.5, 0)
         drawRuler(ctx, height, beats, theme)
         if (loop !== null) {
-          drawLoopPoints(ctx, loop, height, pixelsPerTick, theme)
+          drawLoopPoints(ctx, loop, height, transform, theme)
         }
-        drawTimeSignatures(ctx, height, timeSignatures, pixelsPerTick, theme)
+        drawTimeSignatures(ctx, height, timeSignatures, transform, theme)
         ctx.restore()
       },
-      [width, pixelsPerTick, scrollLeft, beats, timeSignatures, loop],
+      [width, transform, scrollLeft, beats, timeSignatures, loop],
     )
 
     const closeOpenTimeSignatureDialog = useCallback(() => {

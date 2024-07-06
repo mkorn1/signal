@@ -1,11 +1,9 @@
 import { AnyChannelEvent, AnyEvent, SetTempoEvent } from "midifile-ts"
+import { ValueEventType } from "../entities/event/ValueEventType"
+import { Range } from "../entities/geometry/Range"
+import { Measure } from "../entities/measure/Measure"
 import { closedRange } from "../helpers/array"
-import { filterEventsWithRange } from "../helpers/filterEvents"
-import {
-  ValueEventType,
-  createValueEvent,
-  isValueEvent,
-} from "../helpers/valueEvent"
+import { isEventInRange } from "../helpers/filterEvents"
 import {
   panMidiEvent,
   programChangeMidiEvent,
@@ -13,7 +11,6 @@ import {
   volumeMidiEvent,
 } from "../midi/MidiEvent"
 import Quantizer from "../quantizer"
-import { getMeasureStart } from "../song/selector"
 import RootStore from "../stores/RootStore"
 import Track, {
   NoteEvent,
@@ -22,10 +19,6 @@ import Track, {
   isNoteEvent,
 } from "../track"
 import { stopNote } from "./player"
-import {
-  resizeNotesInSelectionLeftBy,
-  resizeNotesInSelectionRightBy,
-} from "./selection"
 
 export const changeTempo =
   ({ song, pushHistory }: RootStore) =>
@@ -125,7 +118,7 @@ export const updateVelocitiesInRange =
           )
         : selectedTrack.events.filter(isNoteEvent)
 
-    const events = filterEventsWithRange(notes, minTick, maxTick)
+    const events = notes.filter(isEventInRange(Range.create(minTick, maxTick)))
     selectedTrack.transaction((it) => {
       it.updateEvents(
         events.map((e) => ({
@@ -208,8 +201,8 @@ export const updateValueEvents =
     updateEventsInRange(
       pianoRollStore.selectedTrack,
       pianoRollStore.quantizer,
-      isValueEvent(type),
-      createValueEvent(type),
+      ValueEventType.getEventPredicate(type),
+      ValueEventType.getEventFactory(type),
     )
 
 export const removeEvent =
@@ -271,60 +264,6 @@ export const muteNote =
       return
     }
     stopNote({ player })({ channel: selectedTrack.channel, noteNumber })
-  }
-
-const MIN_DURATION = 10
-
-export const resizeNoteLeft =
-  (rootStore: RootStore) => (id: number, tick: number, quantize: boolean) => {
-    const {
-      pianoRollStore,
-      pianoRollStore: { quantizer, selectedTrack },
-      pushHistory,
-    } = rootStore
-    if (selectedTrack === undefined) {
-      return
-    }
-    // 右端を固定して長さを変更
-    // Fix the right end and change the length
-    if (quantize) {
-      tick = quantizer.round(tick)
-    }
-    const note = selectedTrack.getEventById(id)
-    if (note == undefined || !isNoteEvent(note)) {
-      return null
-    }
-    const duration = note.duration + (note.tick - tick)
-    const minDuration = quantize ? quantizer.unit : MIN_DURATION
-    if (note.tick !== tick && duration >= minDuration) {
-      pushHistory()
-      pianoRollStore.lastNoteDuration = duration
-      resizeNotesInSelectionLeftBy(rootStore)(tick - note.tick)
-    }
-  }
-
-export const resizeNoteRight =
-  (rootStore: RootStore) => (id: number, tick: number, quantize: boolean) => {
-    const {
-      pianoRollStore,
-      pianoRollStore: { quantizer, selectedTrack },
-      pushHistory,
-    } = rootStore
-    if (selectedTrack === undefined) {
-      return
-    }
-    const note = selectedTrack.getEventById(id)
-    if (note == undefined || !isNoteEvent(note)) {
-      return null
-    }
-    const right = quantize ? quantizer.round(tick) : tick
-    const minDuration = quantize ? quantizer.unit : MIN_DURATION
-    const duration = Math.max(minDuration, right - note.tick)
-    if (note.duration !== duration) {
-      pushHistory()
-      pianoRollStore.lastNoteDuration = duration
-      resizeNotesInSelectionRightBy(rootStore)(duration - note.duration)
-    }
   }
 
 /* track meta */
@@ -406,15 +345,14 @@ export const toogleAllGhostTracks =
 export const addTimeSignature =
   ({ song, pushHistory }: RootStore) =>
   (tick: number, numerator: number, denominator: number) => {
-    const measureStart = getMeasureStart(song, tick)
-
-    const timeSignatureTick = measureStart?.tick ?? 0
+    const measureStart = Measure.getMeasureStart(
+      song.measures,
+      tick,
+      song.timebase,
+    )
 
     // prevent duplication
-    if (
-      measureStart !== null &&
-      measureStart.timeSignature.tick === measureStart.tick
-    ) {
+    if (measureStart.eventTick === measureStart.tick) {
       return
     }
 
@@ -422,7 +360,7 @@ export const addTimeSignature =
 
     song.conductorTrack?.addEvent({
       ...timeSignatureMidiEvent(0, numerator, denominator),
-      tick: timeSignatureTick,
+      tick: measureStart.tick,
     })
   }
 

@@ -1,17 +1,18 @@
+import { useTheme } from "@emotion/react"
 import { BorderedCircles, Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { partition } from "lodash"
 import { FC } from "react"
-import { IPoint, IRect } from "../../../geometry"
+import { Point } from "../../../entities/geometry/Point"
+import { Rect } from "../../../entities/geometry/Rect"
 import { colorToVec4 } from "../../../gl/color"
 import { joinObjects } from "../../../helpers/array"
-import { useTheme } from "../../../hooks/useTheme"
 
 export interface LineGraphItemsProps {
   width: number
   scrollLeft: number
-  items: (IPoint & { id: number })[]
-  controlPoints: (IRect & { id: number })[]
+  items: (Point & { id: number })[]
+  controlPoints: (Rect & { id: number })[]
   selectedEventIds: number[]
   lineWidth: number
   zIndex: number
@@ -59,10 +60,10 @@ export const LineGraphItems: FC<LineGraphItemsProps> = ({
 }
 
 const createLineRects = (
-  values: IPoint[],
+  values: Point[],
   lineWidth: number,
   right: number,
-): IRect[] => {
+): Rect[] => {
   const horizontalLineRects = values.map(({ x, y }, i) => {
     const next = values[i + 1]
     const nextX = next ? next.x : right // 次がなければ右端まで描画する
@@ -75,7 +76,7 @@ const createLineRects = (
   })
 
   // add vertical lines between horizontal lines
-  return joinObjects<IRect>(horizontalLineRects, (prev, next) => {
+  return joinObjects<Rect>(horizontalLineRects, (prev, next) => {
     const y = Math.min(prev.y, next.y)
     const height = Math.abs(prev.y - next.y) + lineWidth
     return {

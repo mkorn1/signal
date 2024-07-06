@@ -1,14 +1,15 @@
-import { IPoint, pointAdd, pointSub } from "../../../geometry"
-import { filterEventsWithRange } from "../../../helpers/filterEvents"
+import { Point } from "../../../entities/geometry/Point"
+import { Range } from "../../../entities/geometry/Range"
+import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
+import { isEventInRange } from "../../../helpers/filterEvents"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"
 import { isSetTempoEvent } from "../../../track"
-import { TempoCoordTransform } from "../../../transform"
 
 export const handleCreateSelectionDrag =
   (rootStore: RootStore) =>
-  (e: MouseEvent, startPoint: IPoint, transform: TempoCoordTransform) => {
+  (e: MouseEvent, startPoint: Point, transform: TempoCoordTransform) => {
     const {
       song: { conductorTrack },
       tempoEditorStore,
@@ -31,8 +32,8 @@ export const handleCreateSelectionDrag =
     observeDrag({
       onMouseMove: (e) => {
         const posPx = getClientPos(e)
-        const deltaPx = pointSub(posPx, startClientPos)
-        const local = pointAdd(startPoint, deltaPx)
+        const deltaPx = Point.sub(posPx, startClientPos)
+        const local = Point.add(startPoint, deltaPx)
         const end = transform.fromPosition(local)
         tempoEditorStore.selection = {
           fromTick: Math.min(start.tick, end.tick),
@@ -45,11 +46,12 @@ export const handleCreateSelectionDrag =
           return
         }
 
-        tempoEditorStore.selectedEventIds = filterEventsWithRange(
-          conductorTrack.events.filter(isSetTempoEvent),
-          selection.fromTick,
-          selection.toTick,
-        ).map((e) => e.id)
+        tempoEditorStore.selectedEventIds = conductorTrack.events
+          .filter(isSetTempoEvent)
+          .filter(
+            isEventInRange(Range.create(selection.fromTick, selection.toTick)),
+          )
+          .map((e) => e.id)
 
         tempoEditorStore.selection = null
       },

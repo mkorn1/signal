@@ -1,13 +1,13 @@
 import { clamp } from "lodash"
 import { SetTempoEvent } from "midifile-ts"
-import { IPoint, pointAdd, pointSub } from "../../../geometry"
+import { Point } from "../../../entities/geometry/Point"
+import { TempoCoordTransform } from "../../../entities/transform/TempoCoordTransform"
 import { isNotUndefined } from "../../../helpers/array"
 import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../../../helpers/bpm"
 import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"
 import { TrackEventOf } from "../../../track"
-import { TempoCoordTransform } from "../../../transform"
 
 export const handleSelectionDragEvents =
   ({
@@ -19,7 +19,7 @@ export const handleSelectionDragEvents =
   (
     e: MouseEvent,
     hitEventId: number,
-    startPoint: IPoint,
+    startPoint: Point,
     transform: TempoCoordTransform,
   ) => {
     if (conductorTrack === undefined) {
@@ -53,8 +53,8 @@ export const handleSelectionDragEvents =
     observeDrag({
       onMouseMove: (e) => {
         const posPx = getClientPos(e)
-        const deltaPx = pointSub(posPx, startClientPos)
-        const local = pointAdd(startPoint, deltaPx)
+        const deltaPx = Point.sub(posPx, startClientPos)
+        const local = Point.add(startPoint, deltaPx)
         const pos = transform.fromPosition(local)
         const deltaTick = pos.tick - start.tick
         const offsetTick =

@@ -1,17 +1,17 @@
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
-import { IPoint } from "../../../../geometry"
+import { ValueEventType } from "../../../../entities/event/ValueEventType"
+import { Point } from "../../../../entities/geometry/Point"
+import { ControlCoordTransform } from "../../../../entities/transform/ControlCoordTransform"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
-import { ValueEventType } from "../../../../helpers/valueEvent"
 import RootStore from "../../../../stores/RootStore"
 import { TrackEventOf } from "../../../../track"
-import { ControlCoordTransform } from "../../../../transform/ControlCoordTransform"
 
 export const handleSelectionDragEvents =
   ({ controlStore, controlStore: { selectedTrack }, pushHistory }: RootStore) =>
   <T extends ControllerEvent | PitchBendEvent>(
     e: MouseEvent,
     hitEventId: number,
-    startPoint: IPoint,
+    startPoint: Point,
     transform: ControlCoordTransform,
     type: ValueEventType,
   ) => {
@@ -38,7 +38,7 @@ export const handleSelectionDragEvents =
 
     observeDrag2(e, {
       onMouseMove: (_e, delta) => {
-        const deltaTick = transform.getTicks(delta.x)
+        const deltaTick = transform.getTick(delta.x)
         const offsetTick =
           draggedEvent.tick +
           deltaTick -

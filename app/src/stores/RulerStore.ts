@@ -1,17 +1,14 @@
 import { computed, makeObservable, observable } from "mobx"
-import { filterEventsWithScroll } from "../helpers/filterEvents"
-import { BeatWithX, createBeatsWithXInRange } from "../helpers/mapBeats"
+import { BeatWithX } from "../entities/beat/BeatWithX"
+import { Range } from "../entities/geometry/Range"
+import { TickTransform } from "../entities/transform/TickTransform"
+import { isEventInRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
 import Song from "../song"
-import { isTimeSignatureEvent } from "../track"
-
-interface CoordTransform {
-  pixelsPerTick: number
-}
 
 interface RulerProvider {
   rootStore: { song: Song }
-  transform: CoordTransform
+  transform: TickTransform
   scrollLeft: number
   canvasWidth: number
   quantizer: Quantizer
@@ -40,13 +37,11 @@ export class RulerStore {
   get beats(): BeatWithX[] {
     const { scrollLeft, transform, canvasWidth, rootStore } = this.parent
 
-    const startTick = scrollLeft / transform.pixelsPerTick
-
-    return createBeatsWithXInRange(
+    return BeatWithX.createInRange(
       rootStore.song.measures,
-      transform.pixelsPerTick,
+      transform,
       rootStore.song.timebase,
-      startTick,
+      scrollLeft,
       canvasWidth,
     )
   }
@@ -54,18 +49,17 @@ export class RulerStore {
   get timeSignatures(): TimeSignature[] {
     const { transform, scrollLeft, canvasWidth, rootStore } = this.parent
     const { selectedTimeSignatureEventIds } = this
-    const track = rootStore.song.conductorTrack
-    if (track === undefined) {
-      return []
-    }
+    const { timeSignatures } = rootStore.song
 
-    return filterEventsWithScroll(
-      track.events,
-      transform.pixelsPerTick,
-      scrollLeft,
-      canvasWidth,
-    )
-      .filter(isTimeSignatureEvent)
+    return timeSignatures
+      .filter(
+        isEventInRange(
+          Range.fromLength(
+            transform.getTick(scrollLeft),
+            transform.getTick(canvasWidth),
+          ),
+        ),
+      )
       .map((e) => ({
         ...e,
         isSelected: selectedTimeSignatureEventIds.includes(e.id),
@@ -78,8 +72,7 @@ export class RulerStore {
 
   getTick(offsetX: number) {
     const { transform, scrollLeft } = this.parent
-    const tick = (offsetX + scrollLeft) / transform.pixelsPerTick
-    return tick
+    return transform.getTick(offsetX + scrollLeft)
   }
 
   getQuantizedTick(offsetX: number) {

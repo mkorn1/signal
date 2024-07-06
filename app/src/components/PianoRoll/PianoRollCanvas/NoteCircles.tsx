@@ -1,12 +1,12 @@
 import { GLNode, useProjectionMatrix } from "@ryohey/webgl-react"
 import { vec4 } from "gl-matrix"
 import { FC } from "react"
-import { IRect } from "../../../geometry"
+import { Rect } from "../../../entities/geometry/Rect"
 import { DrumNoteShader } from "./shaders/DrumNoteShader"
 import { INoteData, NoteBuffer } from "./shaders/NoteShader"
 
 export interface NoteCirclesProps {
-  rects: (IRect & INoteData)[]
+  rects: (Rect & INoteData)[]
   strokeColor: vec4
   inactiveColor: vec4
   activeColor: vec4

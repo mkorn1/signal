@@ -1,6 +1,6 @@
+import { useTheme } from "@emotion/react"
 import styled from "@emotion/styled"
 import useComponentSize from "@rehooks/component-size"
-import { IPoint } from "@ryohey/webgl-react"
 import { clamp } from "lodash"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useRef } from "react"
@@ -11,14 +11,13 @@ import {
   arrangeStartSelection,
   selectTrack,
 } from "../../actions"
-import { pointAdd, pointSub } from "../../geometry"
+import { Point } from "../../entities/geometry/Point"
+import { ArrangePoint } from "../../entities/transform/ArrangePoint"
 import { getClientPos } from "../../helpers/mouseEvent"
 import { observeDrag } from "../../helpers/observeDrag"
 import { isTouchPadEvent } from "../../helpers/touchpad"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
-import { useTheme } from "../../hooks/useTheme"
-import { ArrangePoint } from "../../transform/ArrangePoint"
 import CanvasPianoRuler from "../PianoRoll/CanvasPianoRuler"
 import { TrackName } from "../TrackList/TrackName"
 import {
@@ -182,7 +181,9 @@ export const ArrangeView: FC = observer(() => {
           return
         }
 
-        const startPosPx: IPoint = {
+        const { scrollLeft, scrollTop, trackTransform } = arrangeViewStore
+
+        const startPosPx: Point = {
           x: e.nativeEvent.offsetX + scrollLeft,
           y: e.nativeEvent.offsetY + scrollTop,
         }
@@ -196,8 +197,8 @@ export const ArrangeView: FC = observer(() => {
 
         observeDrag({
           onMouseMove: (e) => {
-            const deltaPx = pointSub(getClientPos(e), startClientPos)
-            const selectionToPx = pointAdd(startPosPx, deltaPx)
+            const deltaPx = Point.sub(getClientPos(e), startClientPos)
+            const selectionToPx = Point.add(startPosPx, deltaPx)
             const endPos = {
               tick: trackTransform.getTick(selectionToPx.x),
               trackIndex: tracks.length,

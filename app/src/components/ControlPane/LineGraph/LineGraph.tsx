@@ -2,14 +2,16 @@ import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { observer } from "mobx-react-lite"
 import React, { MouseEventHandler, useCallback, useMemo } from "react"
 import { createOrUpdateControlEventsValue } from "../../../actions/control"
-import { IPoint, containsPoint } from "../../../geometry"
-import { filterEventsWithRange } from "../../../helpers/filterEvents"
-import { ValueEventType, createValueEvent } from "../../../helpers/valueEvent"
+import { ValueEventType } from "../../../entities/event/ValueEventType"
+import { Point } from "../../../entities/geometry/Point"
+import { Range } from "../../../entities/geometry/Range"
+import { Rect } from "../../../entities/geometry/Rect"
+import { ControlCoordTransform } from "../../../entities/transform/ControlCoordTransform"
+import { isEventInRange } from "../../../helpers/filterEvents"
 import { useContextMenu } from "../../../hooks/useContextMenu"
 import { useStores } from "../../../hooks/useStores"
 import { pointToCircleRect } from "../../../stores/TempoEditorStore"
 import { TrackEventOf } from "../../../track"
-import { ControlCoordTransform } from "../../../transform/ControlCoordTransform"
 import { ControlSelectionContextMenu } from "../ControlSelectionContextMenu"
 import { handleCreateSelectionDrag } from "../Graph/MouseHandler/handleCreateSelectionDrag"
 import { handlePencilMouseDown } from "../Graph/MouseHandler/handlePencilMouseDown"
@@ -52,14 +54,8 @@ const LineGraph = observer(
     } = rootStore
 
     const controlTransform = useMemo(
-      () =>
-        new ControlCoordTransform(
-          transform.pixelsPerTick,
-          maxValue,
-          height,
-          lineWidth,
-        ),
-      [transform.pixelsPerTick, maxValue, height, lineWidth],
+      () => new ControlCoordTransform(transform, maxValue, height, lineWidth),
+      [transform.horizontalId, maxValue, height, lineWidth],
     )
 
     const items = events.map((e) => ({
@@ -73,11 +69,12 @@ const LineGraph = observer(
     }))
 
     const hitTest = useCallback(
-      (point: IPoint) => controlPoints.find((r) => containsPoint(r, point))?.id,
+      (point: Point) =>
+        controlPoints.find((r) => Rect.containsPoint(r, point))?.id,
       [controlPoints],
     )
 
-    const getLocal = (e: MouseEvent): IPoint => ({
+    const getLocal = (e: MouseEvent): Point => ({
       x: e.offsetX + scrollLeft,
       y: e.offsetY,
     })
@@ -115,9 +112,9 @@ const LineGraph = observer(
             local,
             controlTransform,
             (s) =>
-              filterEventsWithRange(events, s.fromTick, s.toTick).map(
-                (e) => e.id,
-              ),
+              events
+                .filter(isEventInRange(Range.create(s.fromTick, s.toTick)))
+                .map((e) => e.id),
           )
         }
       },
@@ -129,7 +126,7 @@ const LineGraph = observer(
 
     const onClickAxis = useCallback(
       (value: number) => {
-        const event = createValueEvent(eventType)(value)
+        const event = ValueEventType.getEventFactory(eventType)(value)
         createOrUpdateControlEventsValue(rootStore)(event)
       },
       [eventType],

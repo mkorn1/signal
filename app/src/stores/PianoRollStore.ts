@@ -9,21 +9,23 @@ import {
 } from "mobx"
 import { Layout } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
-import { IPoint, IRect, containsPoint } from "../geometry"
+import { Point } from "../entities/geometry/Point"
+import { Range } from "../entities/geometry/Range"
+import { Rect } from "../entities/geometry/Rect"
+import { Measure } from "../entities/measure/Measure"
+import { KeySignature } from "../entities/scale/KeySignature"
+import { Selection } from "../entities/selection/Selection"
+import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { isNotUndefined } from "../helpers/array"
-import { filterEventsOverlapScroll } from "../helpers/filterEvents"
-import { getMBTString } from "../measure/mbt"
+import { isEventOverlapRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
-import { KeySignature } from "../scale/Scale"
-import { Selection, getSelectionBounds } from "../selection/Selection"
 import Track, { TrackEvent, isNoteEvent } from "../track"
-import { NoteCoordTransform } from "../transform"
 import RootStore from "./RootStore"
 import { RulerStore } from "./RulerStore"
 
 export type PianoRollMouseMode = "pencil" | "selection"
 
-export type PianoNoteItem = IRect & {
+export type PianoNoteItem = Rect & {
   id: number
   velocity: number
   isSelected: boolean
@@ -146,7 +148,7 @@ export default class PianoRollStore {
 
   serialize(): SerializedPianoRollStore {
     return {
-      selection: cloneDeep(this.selection),
+      selection: this.selection ? Selection.clone(this.selection) : null,
       selectedNoteIds: cloneDeep(this.selectedNoteIds),
     }
   }
@@ -159,10 +161,10 @@ export default class PianoRollStore {
   get contentWidth(): number {
     const { scrollLeft, transform, canvasWidth } = this
     const trackEndTick = this.rootStore.song.endOfSong
-    const startTick = scrollLeft / transform.pixelsPerTick
-    const widthTick = transform.getTicks(canvasWidth)
+    const startTick = transform.getTick(scrollLeft)
+    const widthTick = transform.getTick(canvasWidth)
     const endTick = startTick + widthTick
-    return Math.max(trackEndTick, endTick) * transform.pixelsPerTick
+    return transform.getTick(Math.max(trackEndTick, endTick))
   }
 
   get contentHeight(): number {
@@ -182,7 +184,7 @@ export default class PianoRollStore {
     const { canvasWidth, contentWidth } = this
     const maxX = contentWidth - canvasWidth
     const scrollLeft = clamp(x, 0, maxX)
-    this.scrollLeftTicks = this.transform.getTicks(scrollLeft)
+    this.scrollLeftTicks = this.transform.getTick(scrollLeft)
   }
 
   setScrollTopInPixels(y: number) {
@@ -206,13 +208,13 @@ export default class PianoRollStore {
   }
 
   scaleAroundPointX(scaleXDelta: number, pixelX: number) {
-    const pixelXInTicks0 = this.transform.getTicks(this.scrollLeft + pixelX)
+    const pixelXInTicks0 = this.transform.getTick(this.scrollLeft + pixelX)
     this.scaleX = clamp(
       this.scaleX * (1 + scaleXDelta),
       this.SCALE_X_MIN,
       this.SCALE_X_MAX,
     )
-    const pixelXInTicks1 = this.transform.getTicks(this.scrollLeft + pixelX)
+    const pixelXInTicks1 = this.transform.getTick(this.scrollLeft + pixelX)
     const scrollInTicks = pixelXInTicks1 - pixelXInTicks0
     this.setScrollLeftInTicks(this.scrollLeftTicks - scrollInTicks)
   }
@@ -256,11 +258,13 @@ export default class PianoRollStore {
       return []
     }
 
-    return filterEventsOverlapScroll(
-      track.events,
-      transform.pixelsPerTick,
-      scrollLeft,
-      canvasWidth,
+    return track.events.filter(
+      isEventOverlapRange(
+        Range.fromLength(
+          transform.getTick(scrollLeft),
+          transform.getTick(canvasWidth),
+        ),
+      ),
     )
   }
 
@@ -291,10 +295,10 @@ export default class PianoRollStore {
       return []
     }
 
-    const startX = scrollLeft
-    const endX = scrollLeft + canvasWidth
-
-    return allNotes.filter((n) => n.x + n.width > startX && n.x < endX)
+    const range = Range.fromLength(scrollLeft, canvasWidth)
+    return allNotes.filter((n) =>
+      Range.intersects(Range.fromLength(n.x, n.width), range),
+    )
   }
 
   get ghostTrackIds(): number[] {
@@ -311,21 +315,21 @@ export default class PianoRollStore {
   }
 
   // hit test notes in canvas coordinates
-  getNotes(local: IPoint): PianoNoteItem[] {
-    return this.notes.filter((n) => containsPoint(n, local))
+  getNotes(local: Point): PianoNoteItem[] {
+    return this.notes.filter((n) => Rect.containsPoint(n, local))
   }
 
   // convert mouse position to the local coordinate on the canvas
-  getLocal(e: { offsetX: number; offsetY: number }): IPoint {
+  getLocal(e: { offsetX: number; offsetY: number }): Point {
     return {
       x: e.offsetX + this.scrollLeft,
       y: e.offsetY + this.scrollTop,
     }
   }
 
-  get selectionBounds(): IRect | null {
+  get selectionBounds(): Rect | null {
     if (this.selection !== null) {
-      return getSelectionBounds(this.selection, this.transform)
+      return Selection.getBounds(this.selection, this.transform)
     }
     return null
   }
@@ -344,8 +348,8 @@ export default class PianoRollStore {
 
     // Add controller events in the outside of the visible area
 
-    const tickStart = scrollLeft / transform.pixelsPerTick
-    const tickEnd = (scrollLeft + canvasWidth) / transform.pixelsPerTick
+    const tickStart = transform.getTick(scrollLeft)
+    const tickEnd = transform.getTick(scrollLeft + canvasWidth)
 
     const prevEvent = maxBy(
       controllerEvents.filter((e) => e.tick < tickStart),
@@ -374,7 +378,7 @@ export default class PianoRollStore {
   }
 
   get currentMBTTime(): string {
-    return getMBTString(
+    return Measure.getMBTString(
       this.rootStore.song.measures,
       this.rootStore.player.position,
       this.rootStore.song.timebase,

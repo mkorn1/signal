@@ -1,22 +1,16 @@
 import { min } from "lodash"
-import cloneDeep from "lodash/cloneDeep"
 import {
   PianoNotesClipboardData,
   isPianoNotesClipboardData,
 } from "../clipboard/clipboardTypes"
-import { intersects } from "../geometry"
+import { Rect } from "../entities/geometry/Rect"
+import { Selection } from "../entities/selection/Selection"
+import { NotePoint } from "../entities/transform/NotePoint"
 import { isNotNull, isNotUndefined } from "../helpers/array"
 import { tickToMillisec } from "../helpers/bpm"
-import {
-  Selection,
-  clampSelection,
-  movedSelection,
-  regularizedSelection,
-} from "../selection/Selection"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import { NoteEvent, TrackEvent, isNoteEvent } from "../track"
-import { NotePoint, clampNotePoint } from "../transform/NotePoint"
 import { startNote, stopNote } from "./player"
 import { transposeNotes } from "./song"
 
@@ -28,7 +22,7 @@ function eventsInSelection(events: TrackEvent[], selection: Selection) {
     height: selection.from.noteNumber - selection.to.noteNumber,
   }
   return events.filter(isNoteEvent).filter((b) =>
-    intersects(
+    Rect.intersects(
       {
         x: b.tick,
         width: b.duration,
@@ -43,22 +37,7 @@ function eventsInSelection(events: TrackEvent[], selection: Selection) {
 export const resizeSelection =
   ({ pianoRollStore }: RootStore) =>
   (start: NotePoint, end: NotePoint) => {
-    let selection = regularizedSelection(
-      start.tick,
-      start.noteNumber,
-      end.tick,
-      end.noteNumber,
-    )
-
-    // integer containing the original coordinates.
-    selection.from.noteNumber = Math.ceil(selection.from.noteNumber)
-    selection.to.noteNumber = Math.floor(selection.to.noteNumber)
-
-    ++selection.to.noteNumber
-    selection = clampSelection(selection)
-    --selection.to.noteNumber
-
-    pianoRollStore.selection = selection
+    pianoRollStore.selection = Selection.fromPoints(start, end)
   }
 
 export const fixSelection =
@@ -94,7 +73,7 @@ export const transposeSelection =
     pushHistory()
 
     if (selection !== null) {
-      const s = movedSelection(selection, 0, deltaPitch)
+      const s = Selection.moved(selection, 0, deltaPitch)
       pianoRollStore.selection = s
     }
 
@@ -114,7 +93,7 @@ export const moveSelection = (rootStore: RootStore) => (point: NotePoint) => {
 
   // ノートと選択範囲を移動
   // Move notes and selection
-  const quantized = clampNotePoint({
+  const quantized = NotePoint.clamp({
     tick: quantizer.round(point.tick),
     noteNumber: Math.round(point.noteNumber),
   })
@@ -127,7 +106,7 @@ export const moveSelection = (rootStore: RootStore) => (point: NotePoint) => {
     noteNumber: selection.to.noteNumber + dn,
   }
 
-  const clampedTo = clampNotePoint(to)
+  const clampedTo = NotePoint.clamp(to)
   const limit = {
     tick: to.tick - clampedTo.tick,
     noteNumber: to.noteNumber - clampedTo.noteNumber,
@@ -154,7 +133,7 @@ export const moveSelectionBy =
     }
 
     if (selection !== null) {
-      const s = movedSelection(selection, delta.tick, delta.noteNumber)
+      const s = Selection.moved(selection, delta.tick, delta.noteNumber)
       pianoRollStore.selection = s
     }
 
@@ -165,7 +144,7 @@ export const moveSelectionBy =
           if (n == undefined || !isNoteEvent(n)) {
             return null
           }
-          const pos = clampNotePoint({
+          const pos = NotePoint.clamp({
             tick: n.tick + delta.tick,
             noteNumber: n.noteNumber + delta.noteNumber,
           })
@@ -178,146 +157,40 @@ export const moveSelectionBy =
     )
   }
 
-export const resizeSelectionLeft = (rootStore: RootStore) => (tick: number) => {
-  const {
-    pianoRollStore,
-    pianoRollStore: { selection, quantizer },
-  } = rootStore
-
-  if (selection === null) {
-    return
-  }
-
-  // 選択範囲とノートを左方向に伸長・縮小する
-  // Level and reduce the selection and notes in the left direction
-  const fromTick = quantizer.round(tick)
-  const delta = fromTick - selection.from.tick
-
-  // 変形していないときは終了
-  // End when not deformed
-  if (delta === 0) {
-    return
-  }
-
-  // 選択領域のサイズがゼロになるときは終了
-  // End when the size of selection area becomes zero
-  if (selection.to.tick - fromTick <= 0 || fromTick < 0) {
-    return
-  }
-
-  // 右端を固定して長さを変更
-  // Fix the right end and change the length
-  const s = cloneDeep(selection)
-  s.from.tick = fromTick
-  pianoRollStore.selection = s
-
-  resizeNotesInSelectionLeftBy(rootStore)(delta)
-}
-
-export const resizeNotesInSelectionLeftBy =
-  ({
-    pianoRollStore: { selectedNoteIds, selectedTrack },
-    pushHistory,
-  }: RootStore) =>
-  (deltaTick: number) => {
-    if (selectedTrack === undefined || selectedNoteIds.length === 0) {
-      return
-    }
-
-    pushHistory()
-
-    selectedTrack.updateEvents(
-      selectedNoteIds
-        .map((id) => {
-          const n = selectedTrack.getEventById(id)
-          if (n == undefined || !isNoteEvent(n)) {
-            return null
-          }
-          const duration = n.duration - deltaTick
-          const tick = n.tick + deltaTick
-          if (duration <= 0 || tick < 0) {
-            // 幅がゼロになる場合は変形しない
-            // Do not deform if the width is zero
-            return { id }
-          }
-          return {
-            id,
-            tick,
-            duration,
-          }
-        })
-        .filter(isNotNull),
-    )
-  }
-
-export const resizeSelectionRight =
-  (rootStore: RootStore) => (tick: number) => {
+export const updateSelectedNotes =
+  (rootStore: RootStore) =>
+  (update: (note: NoteEvent) => Partial<NoteEvent>) => {
     const {
-      pianoRollStore,
-      pianoRollStore: { selection, quantizer },
+      pianoRollStore: { selectedTrack, selectedNoteIds },
     } = rootStore
 
-    if (selection === null) {
+    if (selectedTrack === undefined) {
       return
     }
-
-    // 選択範囲とノートを右方向に伸長・縮小する
-    // Return and reduce the selection and note in the right direction
-    const toTick = quantizer.round(tick)
-    const delta = toTick - selection.to.tick
-
-    // 変形していないときは終了
-    // End when not deformed
-    if (delta === 0) {
-      return
-    }
-
-    // 選択領域のサイズがゼロになるときは終了
-    // End when the size of selection area becomes zero
-    if (toTick - selection.from.tick <= 0) {
-      return
-    }
-
-    // 右端を固定して長さを変更
-    // Fix the right end and change the length
-    const s = cloneDeep(selection)
-    s.to.tick = toTick
-    pianoRollStore.selection = s
-
-    resizeNotesInSelectionRightBy(rootStore)(delta)
-  }
-
-export const resizeNotesInSelectionRightBy =
-  ({
-    pianoRollStore: { selectedTrack, selectedNoteIds },
-    pushHistory,
-  }: RootStore) =>
-  (deltaDuration: number) => {
-    if (selectedTrack === undefined || selectedNoteIds.length === 0) {
-      return
-    }
-
-    pushHistory()
 
     selectedTrack.updateEvents(
-      selectedNoteIds
-        .map((id) => {
-          const n = selectedTrack.getEventById(id)
-          if (n == undefined || !isNoteEvent(n)) {
-            return null
-          }
-          const duration = n.duration + deltaDuration
-          if (duration <= 0) {
-            // 幅がゼロになる場合は変形しない
-            // Do not deform if the width is zero
-            return { id }
-          }
-          return {
+      selectedNoteIds.flatMap((id) => {
+        const event = selectedTrack.getEventById(id)
+        if (event == undefined || !isNoteEvent(event)) {
+          return []
+        }
+        const newNote = update(event)
+        if (
+          ("duration" in newNote &&
+            newNote.duration !== undefined &&
+            newNote.duration <= 0) ||
+          ("tick" in newNote && newNote.tick !== undefined && newNote.tick < 0)
+        ) {
+          // Do not deform if the width is zero
+          return []
+        }
+        return [
+          {
             id,
-            duration,
-          }
-        })
-        .filter(isNotNull),
+            ...newNote,
+          },
+        ]
+      }),
     )
   }
 
@@ -496,7 +369,7 @@ export const duplicateSelection =
 
     // select the created notes
     const addedNotes = selectedTrack.addEvents(notes)
-    const s = cloneDeep(selection)
+    const s = Selection.clone(selection)
     s.from.tick += deltaTick
     s.to.tick += deltaTick
     pianoRollStore.selection = s

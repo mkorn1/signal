@@ -2,13 +2,14 @@ import { clamp, cloneDeep } from "lodash"
 import { action, autorun, computed, makeObservable, observable } from "mobx"
 import { Layout } from "../Constants"
 import { BAR_WIDTH } from "../components/inputs/ScrollBar"
-import { IRect } from "../geometry"
-import { filterEventsOverlapScroll } from "../helpers/filterEvents"
+import { Range } from "../entities/geometry/Range"
+import { Rect } from "../entities/geometry/Rect"
+import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
+import { ArrangeCoordTransform } from "../entities/transform/ArrangeCoordTransform"
+import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
+import { isEventOverlapRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
-import { ArrangeSelection } from "../selection/ArrangeSelection"
 import { isNoteEvent } from "../track"
-import { NoteCoordTransform } from "../transform"
-import { ArrangeCoordTransform } from "../transform/ArrangeCoordTransform"
 import RootStore from "./RootStore"
 import { RulerStore } from "./RulerStore"
 
@@ -104,7 +105,7 @@ export default class ArrangeViewStore {
     const { canvasWidth, contentWidth } = this
     const maxOffset = Math.max(0, contentWidth - canvasWidth)
     const scrollLeft = Math.floor(Math.min(maxOffset, Math.max(0, x)))
-    this.scrollLeftTicks = this.transform.getTicks(scrollLeft)
+    this.scrollLeftTicks = this.transform.getTick(scrollLeft)
   }
 
   setScrollTop(value: number) {
@@ -119,13 +120,13 @@ export default class ArrangeViewStore {
   }
 
   scaleAroundPointX(scaleXDelta: number, pixelX: number) {
-    const pixelXInTicks0 = this.transform.getTicks(this.scrollLeft + pixelX)
+    const pixelXInTicks0 = this.transform.getTick(this.scrollLeft + pixelX)
     this.scaleX = clamp(
       this.scaleX * (1 + scaleXDelta),
       this.SCALE_X_MIN,
       this.SCALE_X_MAX,
     )
-    const pixelXInTicks1 = this.transform.getTicks(this.scrollLeft + pixelX)
+    const pixelXInTicks1 = this.transform.getTick(this.scrollLeft + pixelX)
     const scrollInTicks = pixelXInTicks1 - pixelXInTicks0
     this.scrollLeftTicks = Math.max(this.scrollLeftTicks - scrollInTicks, 0)
   }
@@ -137,16 +138,14 @@ export default class ArrangeViewStore {
 
   get contentWidth(): number {
     const { scrollLeft, transform, canvasWidth } = this
-    const startTick = scrollLeft / transform.pixelsPerTick
-    const widthTick = transform.getTicks(canvasWidth)
+    const startTick = transform.getTick(scrollLeft)
+    const widthTick = transform.getTick(canvasWidth)
     const endTick = startTick + widthTick
-    return (
-      Math.max(this.rootStore.song.endOfSong, endTick) * transform.pixelsPerTick
-    )
+    return transform.getX(Math.max(this.rootStore.song.endOfSong, endTick))
   }
 
   get contentHeight(): number {
-    return this.trackHeight * this.rootStore.song.tracks.length
+    return this.trackTransform.getY(this.rootStore.song.tracks.length)
   }
 
   get transform(): NoteCoordTransform {
@@ -159,7 +158,7 @@ export default class ArrangeViewStore {
 
   get trackTransform(): ArrangeCoordTransform {
     const { transform, trackHeight } = this
-    return new ArrangeCoordTransform(transform.pixelsPerTick, trackHeight)
+    return new ArrangeCoordTransform(transform, trackHeight)
   }
 
   get trackHeight(): number {
@@ -171,21 +170,28 @@ export default class ArrangeViewStore {
     )
   }
 
-  get notes(): IRect[] {
-    const { transform, trackHeight } = this
+  get notes(): Rect[] {
+    const { transform, trackTransform, scrollLeft, canvasWidth, scaleY } = this
 
     return this.rootStore.song.tracks
       .map((t, i) =>
-        filterEventsOverlapScroll(
-          t.events,
-          transform.pixelsPerTick,
-          this.scrollLeft,
-          this.canvasWidth,
-        )
+        t.events
+          .filter(
+            isEventOverlapRange(
+              Range.fromLength(
+                transform.getTick(scrollLeft),
+                transform.getTick(canvasWidth),
+              ),
+            ),
+          )
           .filter(isNoteEvent)
           .map((e) => {
             const rect = transform.getRect(e)
-            return { ...rect, height: this.scaleY, y: trackHeight * i + rect.y }
+            return {
+              ...rect,
+              height: scaleY,
+              y: trackTransform.getY(i) + rect.y,
+            }
           }),
       )
       .flat()
@@ -195,7 +201,7 @@ export default class ArrangeViewStore {
     return this.transform.getX(this.rootStore.player.position)
   }
 
-  get selectionRect(): IRect | null {
+  get selectionRect(): Rect | null {
     const { selection, trackTransform } = this
     if (selection === null) {
       return null

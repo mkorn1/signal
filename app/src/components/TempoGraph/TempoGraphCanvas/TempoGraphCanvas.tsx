@@ -2,7 +2,7 @@ import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { CSSProperties, FC, useCallback, useMemo } from "react"
 import { changeTempo } from "../../../actions"
-import { IPoint } from "../../../geometry"
+import { Point } from "../../../entities/geometry/Point"
 import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../../../helpers/bpm"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { useStores } from "../../../hooks/useStores"
@@ -49,7 +49,7 @@ export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
     )
 
     const findEvent = useCallback(
-      (local: IPoint) =>
+      (local: Point) =>
         items.find(
           (n) => local.x >= n.bounds.x && local.x < n.bounds.x + n.bounds.width,
         ),
@@ -58,6 +58,10 @@ export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
 
     const pencilMouseDown = useCallback(
       (e: React.MouseEvent) => {
+        if (e.button !== 0) {
+          return
+        }
+
         handlePencilMouseDown(rootStore)(
           e.nativeEvent,
           getLocal(e.nativeEvent),
@@ -68,19 +72,23 @@ export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
     )
 
     const selectionMouseDown = useCallback(
-      (ev: React.MouseEvent) => {
-        const local = getLocal(ev.nativeEvent)
+      (e: React.MouseEvent) => {
+        if (e.button !== 0) {
+          return
+        }
+
+        const local = getLocal(e.nativeEvent)
         const hitEventId = tempoEditorStore.hitTest(local)
 
         if (hitEventId !== undefined) {
           handleSelectionDragEvents(rootStore)(
-            ev.nativeEvent,
+            e.nativeEvent,
             hitEventId,
             local,
             transform,
           )
         } else {
-          handleCreateSelectionDrag(rootStore)(ev.nativeEvent, local, transform)
+          handleCreateSelectionDrag(rootStore)(e.nativeEvent, local, transform)
         }
       },
       [rootStore, transform, scrollLeft],

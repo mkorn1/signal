@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import { ControllerEvent, ProgramChangeEvent } from "midifile-ts"
 import { FC } from "react"
+import { TickTransform } from "../../entities/transform/TickTransform"
 import { controllerTypeString as CCNames } from "../../helpers/noteNumberString"
 import { TrackEventRequired } from "../../track"
 
@@ -22,7 +23,7 @@ function displayControlName(e: DisplayEvent): string {
 
 interface ControlMarkProps {
   group: DisplayEvent[]
-  pixelsPerTick: number
+  transform: TickTransform
   onDoubleClick: () => void
 }
 
@@ -44,13 +45,13 @@ const Container = styled.div`
 
 export const ControlMark: FC<ControlMarkProps> = ({
   group,
-  pixelsPerTick,
+  transform,
   onDoubleClick,
 }) => {
   const event = group[0]
   return (
     <Container
-      style={{ left: event.tick * pixelsPerTick }}
+      style={{ left: transform.getX(event.tick) }}
       onDoubleClick={onDoubleClick}
     >
       {displayControlName(event)}

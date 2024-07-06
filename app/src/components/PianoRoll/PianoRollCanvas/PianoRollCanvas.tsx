@@ -1,3 +1,4 @@
+import { useTheme } from "@emotion/react"
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import {
@@ -11,7 +12,6 @@ import {
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { useContextMenu } from "../../../hooks/useContextMenu"
 import { useStores } from "../../../hooks/useStores"
-import { useTheme } from "../../../hooks/useTheme"
 import { Beats } from "../../GLNodes/Beats"
 import { Cursor } from "../../GLNodes/Cursor"
 import { Selection } from "../../GLNodes/Selection"

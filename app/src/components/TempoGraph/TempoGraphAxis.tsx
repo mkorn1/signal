@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import range from "lodash/range"
 import { FC } from "react"
-import { TempoCoordTransform } from "../../transform"
+import { TempoCoordTransform } from "../../entities/transform/TempoCoordTransform"
 
 const Container = styled.div`
   position: absolute;

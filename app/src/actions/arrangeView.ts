@@ -3,16 +3,14 @@ import {
   ArrangeNotesClipboardData,
   isArrangeNotesClipboardData,
 } from "../clipboard/clipboardTypes"
+import { Range } from "../entities/geometry/Range"
+import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
+import { ArrangePoint } from "../entities/transform/ArrangePoint"
 import { isNotUndefined } from "../helpers/array"
-import {
-  ArrangeSelection,
-  arrangeSelectionFromPoints,
-  movedSelection,
-} from "../selection/ArrangeSelection"
+import { isEventInRange } from "../helpers/filterEvents"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import Track from "../track"
-import { ArrangePoint } from "../transform/ArrangePoint"
 import { pushHistory } from "./history"
 import { transposeNotes } from "./song"
 
@@ -39,7 +37,7 @@ export const arrangeResizeSelection =
   (start: ArrangePoint, end: ArrangePoint) => {
     // 選択範囲作成時 (確定前) のドラッグ中
     // Drag during selection (before finalization)
-    arrangeViewStore.selection = arrangeSelectionFromPoints(
+    arrangeViewStore.selection = ArrangeSelection.fromPoints(
       start,
       end,
       quantizer,
@@ -80,21 +78,12 @@ export const arrangeMoveSelection =
     }
 
     // clamp
-    point = {
-      tick: Math.max(0, point.tick),
-      trackIndex: Math.max(
-        0,
-        Math.min(
-          tracks.length - (selection.toTrackIndex - selection.fromTrackIndex),
-          point.trackIndex,
-        ),
-      ),
-    }
+    point = ArrangePoint.clamp(
+      point,
+      tracks.length - (selection.toTrackIndex - selection.fromTrackIndex),
+    )
 
-    const delta: ArrangePoint = {
-      tick: point.tick - selection.fromTick,
-      trackIndex: point.trackIndex - selection.fromTrackIndex,
-    }
+    const delta = ArrangePoint.sub(point, ArrangeSelection.start(selection))
 
     arrangeMoveSelectionBy(rootStore)(delta)
   }
@@ -112,7 +101,7 @@ export const arrangeMoveSelectionBy =
 
     // 選択範囲を移動
     // Move selection range
-    const selection = movedSelection(s.selection, delta)
+    const selection = ArrangeSelection.moved(s.selection, delta)
 
     s.selection = selection
 
@@ -251,7 +240,7 @@ function getEventsInSelection(tracks: Track[], selection: ArrangeSelection) {
   ) {
     const track = tracks[trackIndex]
     const events = track.events.filter(
-      (e) => e.tick >= selection.fromTick && e.tick < selection.toTick,
+      isEventInRange(Range.create(selection.fromTick, selection.toTick)),
     )
     ids[trackIndex] = events.map((e) => e.id)
   }

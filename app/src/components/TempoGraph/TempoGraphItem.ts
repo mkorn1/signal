@@ -1,7 +1,7 @@
-import { IRect } from "../../geometry"
+import { Rect } from "../../entities/geometry/Rect"
 
 export interface TempoGraphItem {
   id: number
-  bounds: IRect
+  bounds: Rect
   microsecondsPerBeat: number
 }

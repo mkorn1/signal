@@ -9,11 +9,10 @@ import {
   transaction,
 } from "mobx"
 import { createModelSchema, list, object, primitive } from "serializr"
+import { Measure } from "../entities/measure/Measure"
 import { isNotUndefined } from "../helpers/array"
-import { Measure } from "../measure/Measure"
-import { getMeasuresFromConductorTrack } from "../measure/MeasureList"
 import { collectAllEvents } from "../player/collectAllEvents"
-import Track from "../track"
+import Track, { isTimeSignatureEvent } from "../track"
 
 const END_MARGIN = 480 * 30
 const DEFAULT_TIME_BASE = 480
@@ -35,6 +34,7 @@ export default class Song {
       insertTrack: action,
       conductorTrack: computed,
       measures: computed,
+      timeSignatures: computed,
       endOfSong: computed,
       allEvents: computed({ keepAlive: true }),
       tracks: observable.shallow,
@@ -80,11 +80,19 @@ export default class Song {
   }
 
   get measures(): Measure[] {
-    const conductorTrack = this.conductorTrack
+    const { timeSignatures, timebase } = this
+    return Measure.fromTimeSignatures(timeSignatures, timebase)
+  }
+
+  get timeSignatures() {
+    const { conductorTrack } = this
     if (conductorTrack === undefined) {
       return []
     }
-    return getMeasuresFromConductorTrack(conductorTrack, this.timebase)
+    return conductorTrack.events
+      .filter(isTimeSignatureEvent)
+      .slice()
+      .sort((a, b) => a.tick - b.tick)
   }
 
   get endOfSong(): number {

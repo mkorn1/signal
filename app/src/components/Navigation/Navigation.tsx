@@ -101,11 +101,27 @@ export const IconStyle: CSSProperties = {
 }
 
 export const Navigation: FC = observer(() => {
-  const {
-    rootViewStore,
-    authStore: { authUser: user },
-    router,
-  } = useStores()
+  const { rootViewStore, router } = useStores()
+
+  const onClickPianoRollTab = useCallback(() => {
+    router.path = "/track"
+  }, [router])
+
+  const onClickArrangeTab = useCallback(() => {
+    router.path = "/arrange"
+  }, [router])
+
+  const onClickTempoTab = useCallback(() => {
+    router.path = "/tempo"
+  }, [router])
+
+  const onClickSettings = useCallback(() => {
+    rootViewStore.openSettingDialog = true
+  }, [rootViewStore])
+
+  const onClickHelp = useCallback(() => {
+    rootViewStore.openHelp = true
+  }, [rootViewStore])
 
   return (
     <Container>
@@ -121,7 +137,7 @@ export const Navigation: FC = observer(() => {
       >
         <Tab
           className={router.path === "/track" ? "active" : undefined}
-          onMouseDown={useCallback(() => (router.path = "/track"), [])}
+          onMouseDown={onClickPianoRollTab}
         >
           <PianoIcon style={IconStyle} viewBox="0 0 128 128" />
           <TabTitle>
@@ -140,7 +156,7 @@ export const Navigation: FC = observer(() => {
       >
         <Tab
           className={router.path === "/arrange" ? "active" : undefined}
-          onMouseDown={useCallback(() => (router.path = "/arrange"), [])}
+          onMouseDown={onClickArrangeTab}
         >
           <ArrangeIcon style={IconStyle} viewBox="0 0 128 128" />
           <TabTitle>
@@ -159,7 +175,7 @@ export const Navigation: FC = observer(() => {
       >
         <Tab
           className={router.path === "/tempo" ? "active" : undefined}
-          onMouseDown={useCallback(() => (router.path = "/tempo"), [])}
+          onMouseDown={onClickTempoTab}
         >
           <TempoIcon style={IconStyle} viewBox="0 0 128 128" />
           <TabTitle>
@@ -172,19 +188,14 @@ export const Navigation: FC = observer(() => {
 
       {!isRunningInElectron() && (
         <>
-          <Tab
-            onClick={useCallback(
-              () => (rootViewStore.openSettingDialog = true),
-              [],
-            )}
-          >
+          <Tab onClick={onClickSettings}>
             <Settings style={IconStyle} />
             <TabTitle>
               <Localized name="settings" />
             </TabTitle>
           </Tab>
 
-          <Tab onClick={useCallback(() => (rootViewStore.openHelp = true), [])}>
+          <Tab onClick={onClickHelp}>
             <Help style={IconStyle} />
             <TabTitle>
               <Localized name="help" />

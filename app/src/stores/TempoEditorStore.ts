@@ -1,14 +1,11 @@
 import { autorun, computed, makeObservable, observable } from "mobx"
 import { Layout } from "../Constants"
-import { DisplayEvent } from "../components/PianoRoll/ControlMark"
 import { transformEvents } from "../components/TempoGraph/transformEvents"
-import { IPoint, containsPoint } from "../geometry"
+import { Point } from "../entities/geometry/Point"
+import { Rect } from "../entities/geometry/Rect"
+import { TempoSelection } from "../entities/selection/TempoSelection"
+import { TempoCoordTransform } from "../entities/transform/TempoCoordTransform"
 import Quantizer from "../quantizer"
-import {
-  TempoSelection,
-  getTempoSelectionBounds,
-} from "../selection/TempoSelection"
-import { TempoCoordTransform } from "../transform"
 import { PianoRollMouseMode } from "./PianoRollStore"
 import RootStore from "./RootStore"
 import { RulerStore } from "./RulerStore"
@@ -77,27 +74,18 @@ export default class TempoEditorStore {
 
   get items() {
     const { transform, canvasWidth, scrollLeft } = this
-
-    const sourceEvents =
-      this.rootStore.song.conductorTrack !== undefined
-        ? this.rootStore.song.conductorTrack.events
-        : []
-
-    const events = sourceEvents.filter(
-      (e) => (e as any).subtype === "setTempo",
-    ) as DisplayEvent[]
-
+    const events = this.rootStore.song.conductorTrack?.events ?? []
     return transformEvents(events, transform, canvasWidth + scrollLeft)
   }
 
   get contentWidth() {
     const { scrollLeft, transform, canvasWidth } = this
     const trackEndTick = this.rootStore.song.endOfSong
-    const startTick = scrollLeft / transform.pixelsPerTick
-    const widthTick = transform.getTicks(canvasWidth)
+    const startTick = transform.getTick(scrollLeft)
+    const widthTick = transform.getTick(canvasWidth)
     const endTick = startTick + widthTick
 
-    return Math.max(trackEndTick, endTick) * transform.pixelsPerTick
+    return transform.getX(Math.max(trackEndTick, endTick))
   }
 
   get quantizer(): Quantizer {
@@ -117,16 +105,16 @@ export default class TempoEditorStore {
   get selectionRect() {
     const { selection, transform } = this
     return selection != null
-      ? getTempoSelectionBounds(selection, transform)
+      ? TempoSelection.getBounds(selection, transform)
       : null
   }
 
-  hitTest(point: IPoint): number | undefined {
-    return this.controlPoints.find((r) => containsPoint(r, point))?.id
+  hitTest(point: Point): number | undefined {
+    return this.controlPoints.find((r) => Rect.containsPoint(r, point))?.id
   }
 }
 
-export const pointToCircleRect = (p: IPoint, radius: number) => ({
+export const pointToCircleRect = (p: Point, radius: number) => ({
   x: p.x - radius,
   y: p.y - radius,
   width: radius * 2,

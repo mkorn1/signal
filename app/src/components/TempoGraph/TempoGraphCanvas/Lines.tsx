@@ -1,12 +1,12 @@
+import { useTheme } from "@emotion/react"
 import { Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { range } from "lodash"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { IRect } from "../../../geometry"
+import { Rect } from "../../../entities/geometry/Rect"
 import { colorToVec4 } from "../../../gl/color"
 import { useStores } from "../../../hooks/useStores"
-import { useTheme } from "../../../hooks/useTheme"
 
 export const Lines: FC<{ width: number; zIndex: number }> = observer(
   ({ width, zIndex }) => {
@@ -15,7 +15,7 @@ export const Lines: FC<{ width: number; zIndex: number }> = observer(
     } = useStores()
     const theme = useTheme()
 
-    const hline = (y: number): IRect => ({
+    const hline = (y: number): Rect => ({
       x: 0,
       y,
       width,

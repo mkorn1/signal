@@ -6,7 +6,7 @@ import {
   uniformVec4,
   VertexArray,
 } from "@ryohey/webgl-react"
-import { IRect } from "../../../../geometry"
+import { Rect } from "../../../../entities/geometry/Rect"
 
 export interface INoteData {
   velocity: number
@@ -15,7 +15,7 @@ export interface INoteData {
 
 export class NoteBuffer
   implements
-    InstancedBuffer<(IRect & INoteData)[], "position" | "bounds" | "state">
+    InstancedBuffer<(Rect & INoteData)[], "position" | "bounds" | "state">
 {
   private _instanceCount: number = 0
   private boundsBuffer = new Float32Array(0)
@@ -30,7 +30,7 @@ export class NoteBuffer
     )
   }
 
-  update(rects: (IRect & INoteData)[]) {
+  update(rects: (Rect & INoteData)[]) {
     if (
       this.boundsBuffer.length < rects.length * 4 ||
       this.stateBuffer.length < rects.length * 2

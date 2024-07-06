@@ -34,7 +34,7 @@ const PaneLayout: FC<SplitPaneProps & { isShow: boolean; pane: ReactNode }> = ({
 }
 
 export const PianoRollEditor: FC = observer(() => {
-  const { pianoRollStore, rootViewStore } = useStores()
+  const { pianoRollStore } = useStores()
   const { showTrackList, showEventList } = pianoRollStore
 
   return (

@@ -1,9 +1,9 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
+import { Scale } from "../../entities/scale/Scale"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
-import { Scale, ScaleName, scaleValues } from "../../scale/Scale"
 import {
   Dialog,
   DialogActions,
@@ -13,6 +13,7 @@ import {
 import { Button } from "../ui/Button"
 import { Label } from "../ui/Label"
 import { Select } from "../ui/Select"
+import { ScaleName } from "./ScaleName"
 
 export interface KeySignatureDialogProps {
   open: boolean
@@ -99,7 +100,7 @@ export const KeySignatureDialog: FC<KeySignatureDialogProps> = observer(
                   }
                 }}
               >
-                {scaleValues.map((name, i) => (
+                {Scale.values.map((name, i) => (
                   <option key={i} value={name}>
                     <ScaleName scale={name} />
                   </option>

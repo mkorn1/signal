@@ -1,11 +1,11 @@
 import { GLNode, useProjectionMatrix } from "@ryohey/webgl-react"
 import { vec4 } from "gl-matrix"
 import { FC } from "react"
-import { IRect } from "../../../geometry"
+import { Rect } from "../../../entities/geometry/Rect"
 import { IVelocityData, VelocityBuffer, VelocityShader } from "./VelocityShader"
 
 export interface VelocityItemsProps {
-  rects: (IRect & IVelocityData)[]
+  rects: (Rect & IVelocityData)[]
   strokeColor: vec4
   activeColor: vec4
   selectedColor: vec4

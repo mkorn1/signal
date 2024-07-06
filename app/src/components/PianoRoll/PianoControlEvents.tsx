@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
 import { Layout } from "../../Constants"
+import { TickTransform } from "../../entities/transform/TickTransform"
 import { TrackEvent } from "../../track"
 import { ControlMark, DisplayEvent } from "./ControlMark"
 
@@ -56,7 +57,7 @@ export interface PianoControlEventsProps {
   width: number
   events: TrackEvent[]
   scrollLeft: number
-  pixelsPerTick: number
+  transform: TickTransform
   onDoubleClickMark: (group: DisplayEvent[]) => void
 }
 
@@ -77,7 +78,7 @@ const PianoControlEvents: FC<PianoControlEventsProps> = ({
   width,
   events,
   scrollLeft,
-  pixelsPerTick,
+  transform,
   onDoubleClickMark,
 }) => {
   const eventGroups = groupControlEvents(
@@ -93,7 +94,7 @@ const PianoControlEvents: FC<PianoControlEventsProps> = ({
             <ControlMark
               key={i}
               group={g}
-              pixelsPerTick={pixelsPerTick}
+              transform={transform}
               onDoubleClick={() => onDoubleClickMark(g)}
             />
           ))}

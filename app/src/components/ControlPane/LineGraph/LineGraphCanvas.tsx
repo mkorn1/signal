@@ -1,10 +1,11 @@
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { CSSProperties, FC, useMemo } from "react"
-import { IPoint, IRect } from "../../../geometry"
+import { Point } from "../../../entities/geometry/Point"
+import { Rect } from "../../../entities/geometry/Rect"
+import { ControlCoordTransform } from "../../../entities/transform/ControlCoordTransform"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { useStores } from "../../../hooks/useStores"
-import { ControlCoordTransform } from "../../../transform/ControlCoordTransform"
 import { Beats } from "../../GLNodes/Beats"
 import { Cursor } from "../../GLNodes/Cursor"
 import { Selection } from "../../GLNodes/Selection"
@@ -18,8 +19,8 @@ export interface LineGraphCanvasProps {
   width: number
   height: number
   maxValue: number
-  items: (IPoint & IDValue)[]
-  controlPoints: (IRect & IDValue)[]
+  items: (Point & IDValue)[]
+  controlPoints: (Rect & IDValue)[]
   style?: CSSProperties
   onMouseDown: React.MouseEventHandler<Element>
   onContextMenu: React.MouseEventHandler<Element>
@@ -50,14 +51,8 @@ export const LineGraphCanvas: FC<LineGraphCanvasProps> = observer(
     } = rootStore.controlStore
 
     const controlTransform = useMemo(
-      () =>
-        new ControlCoordTransform(
-          transform.pixelsPerTick,
-          maxValue,
-          height,
-          lineWidth,
-        ),
-      [transform.pixelsPerTick, maxValue, height],
+      () => new ControlCoordTransform(transform, maxValue, height, lineWidth),
+      [transform.horizontalId, maxValue, height],
     )
 
     const selectionRect =

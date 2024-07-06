@@ -1,11 +1,12 @@
+import { useTheme } from "@emotion/react"
 import Color from "color"
 import { vec4 } from "gl-matrix"
 import { observer } from "mobx-react-lite"
 import { FC, useMemo } from "react"
+import { Range } from "../../../entities/geometry/Range"
 import { colorToVec4 } from "../../../gl/color"
-import { filterEventsOverlapScroll } from "../../../helpers/filterEvents"
+import { isEventOverlapRange } from "../../../helpers/filterEvents"
 import { useStores } from "../../../hooks/useStores"
-import { useTheme } from "../../../hooks/useTheme"
 import { isNoteEvent } from "../../../track"
 import { trackColorToVec4 } from "../../../track/TrackColor"
 import { NoteCircles } from "./NoteCircles"
@@ -22,13 +23,17 @@ export const GhostNotes: FC<{ zIndex: number; trackId: number }> = observer(
 
     const windowedEvents = useMemo(
       () =>
-        filterEventsOverlapScroll(
-          track.events.filter(isNoteEvent),
-          transform.pixelsPerTick,
-          scrollLeft,
-          canvasWidth,
-        ),
-      [scrollLeft, canvasWidth, transform.pixelsPerTick, track.events],
+        track.events
+          .filter(isNoteEvent)
+          .filter(
+            isEventOverlapRange(
+              Range.fromLength(
+                transform.getTick(scrollLeft),
+                transform.getTick(canvasWidth),
+              ),
+            ),
+          ),
+      [scrollLeft, canvasWidth, transform.horizontalId, track.events],
     )
 
     const notes = useMemo(

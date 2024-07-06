@@ -5,8 +5,6 @@ import {
   moveSelectionBy,
   removeEvent,
   removeNoteFromSelection,
-  resizeNoteLeft,
-  resizeNoteRight,
   resizeSelection,
   selectNote,
   startNote,
@@ -14,12 +12,15 @@ import {
   stopNote,
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
-import { IPoint, pointAdd } from "../../../geometry"
+import { Point } from "../../../entities/geometry/Point"
+import { Range } from "../../../entities/geometry/Range"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import RootStore from "../../../stores/RootStore"
 import { NoteEvent, isNoteEvent } from "../../../track"
 import { MouseGesture } from "./NoteMouseHandler"
+
+const MIN_DURATION = 10
 
 export const getPencilActionForMouseDown =
   (rootStore: RootStore) =>
@@ -101,7 +102,7 @@ const mousePositionToCursor = (position: MousePositionType) => {
 }
 
 const getPositionType = (
-  local: IPoint,
+  local: Point,
   item: PianoNoteItem,
   isDrum: boolean,
 ): MousePositionType => {
@@ -150,8 +151,13 @@ const dragNoteEdgeAction =
   (rootStore) =>
   (e) => {
     const {
-      player,
-      pianoRollStore: { selectedTrack, transform, isQuantizeEnabled },
+      pianoRollStore,
+      pianoRollStore: {
+        selectedTrack,
+        transform,
+        isQuantizeEnabled,
+        quantizer,
+      },
     } = rootStore
 
     if (selectedTrack === undefined || selectedTrack.channel === undefined) {
@@ -166,22 +172,47 @@ const dragNoteEdgeAction =
     const { channel } = selectedTrack
     startNote(rootStore)({ ...note, channel })
 
-    const local = rootStore.pianoRollStore.getLocal(e)
-    const startTick = transform.getTicks(local.x)
+    const local = pianoRollStore.getLocal(e)
+    const startTick = transform.getTick(local.x)
+    const quantize = !e.shiftKey && isQuantizeEnabled
+    const minDuration = quantize ? quantizer.unit : MIN_DURATION
+
+    let isChanged = false
 
     observeDrag2(e, {
       onMouseMove: (e, delta) => {
-        const tick = startTick + transform.getTicks(delta.x)
-        const quantize = !e.shiftKey && isQuantizeEnabled
-
-        switch (edge) {
-          case "left":
-            resizeNoteLeft(rootStore)(item.id, tick, quantize)
-            break
-          case "right":
-            resizeNoteRight(rootStore)(item.id, tick, quantize)
-            break
+        let tick = startTick + transform.getTick(delta.x)
+        if (quantize) {
+          tick = quantizer.round(tick)
         }
+        const note = selectedTrack.getEventById(item.id)
+        if (note == undefined || !isNoteEvent(note)) {
+          return
+        }
+        const range = Range.create(note.tick, note.tick + note.duration)
+
+        const newRange = (() => {
+          switch (edge) {
+            case "left":
+              return Range.resizeStart(range, tick, minDuration)
+            case "right":
+              return Range.resizeEnd(range, tick, minDuration)
+          }
+        })()
+
+        if (!Range.equals(range, newRange)) {
+          if (!isChanged) {
+            pushHistory(rootStore)()
+            isChanged = true
+          }
+          const { start: newTick, length: newDuration } = Range.toSpan(newRange)
+          pianoRollStore.lastNoteDuration = newDuration
+          selectedTrack.updateEvent(note.id, {
+            tick: newTick,
+            duration: newDuration,
+          })
+        }
+
         e.stopPropagation()
       },
       onMouseUp: () => {
@@ -216,7 +247,7 @@ const startDragNote =
 
     observeDrag2(e, {
       onMouseMove: (_e, delta) => {
-        const tick = quantizer.round(note.tick + transform.getTicks(delta.x))
+        const tick = quantizer.round(note.tick + transform.getTick(delta.x))
         const noteNumber = Math.round(
           note.noteNumber + transform.getDeltaNoteNumber(delta.y),
         )
@@ -282,7 +313,7 @@ const removeNoteAction: MouseGesture = (rootStore) => (e) => {
 
   observeDrag2(e, {
     onMouseMove: (_e, delta) => {
-      const local = pointAdd(startPos, delta)
+      const local = Point.add(startPos, delta)
       const items = rootStore.pianoRollStore.getNotes(local)
       if (items.length > 0) {
         removeEvent(rootStore)(items[0].id)
@@ -303,7 +334,7 @@ const selectNoteAction: MouseGesture = (rootStore) => (e) => {
 
   observeDrag2(e, {
     onMouseMove: (_e, delta) => {
-      const offsetPos = pointAdd(startPos, delta)
+      const offsetPos = Point.add(startPos, delta)
       const end = transform.getNotePoint(offsetPos)
       resizeSelection(rootStore)(start, end)
     },
