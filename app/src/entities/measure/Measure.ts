@@ -42,17 +42,6 @@ export namespace Measure {
     }
   }
 
-  function getMeasureAt(measures: Measure[], tick: number): Measure {
-    let lastMeasure = defaultValue
-    for (const m of measures) {
-      if (m.tick > tick) {
-        break
-      }
-      lastMeasure = m
-    }
-    return lastMeasure
-  }
-
   export function fromTimeSignatures(
     events: TimeSignature[],
     timebase: number,
@@ -130,24 +119,33 @@ export namespace Measure {
     tick: number,
     ticksPerBeat: number,
   ): Beat => {
-    return calculateMBT(getMeasureAt(measures, tick), tick, ticksPerBeat)
+    return calculateMBT(
+      getLastSorted(measures, tick) ?? defaultValue,
+      tick,
+      ticksPerBeat,
+    )
   }
 
-  function getMeasureStart(
+  export function getMeasureStart(
     measures: Measure[],
     tick: number,
     timebase: number,
   ) {
-    const e = getMeasureAt(measures, tick)
+    const e = getLastSorted(measures, tick) ?? defaultValue
+
+    // calculate the nearest measure beginning
     const ticksPerMeasure = ((timebase * 4) / e.denominator) * e.numerator
-    const measuresFromLastMeasure = (tick - e.tick) / ticksPerMeasure
-    const fixedMeasures = Math.floor(measuresFromLastMeasure)
-    const beginMeasureTick = e.tick + ticksPerMeasure * fixedMeasures
+    const numberOfMeasures = Math.floor((tick - e.tick) / ticksPerMeasure)
+    const beginMeasureTick = e.tick + ticksPerMeasure * numberOfMeasures
+
     const ticksPerBeat = (timebase * 4) / e.denominator
+
     return {
       tick: beginMeasureTick,
       duration: ticksPerMeasure,
       ticksPerBeat,
+      eventTick: e.tick,
+      numerator: e.numerator,
     }
   }
 
@@ -195,4 +193,18 @@ function defaultMBTFormatter(mbt: Beat): string {
     mbt.tick,
     3,
   )}`
+}
+
+function getLastSorted<T extends { tick: number }>(
+  events: T[],
+  tick: number,
+): T | null {
+  let lastMeasure: T | null = null
+  for (const m of events) {
+    if (m.tick > tick) {
+      break
+    }
+    lastMeasure = m
+  }
+  return lastMeasure
 }

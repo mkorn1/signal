@@ -1,5 +1,6 @@
 import { AnyChannelEvent, AnyEvent, SetTempoEvent } from "midifile-ts"
 import { ValueEventType } from "../entities/event/ValueEventType"
+import { Measure } from "../entities/measure/Measure"
 import { closedRange } from "../helpers/array"
 import { filterEventsWithRange } from "../helpers/filterEvents"
 import {
@@ -9,7 +10,6 @@ import {
   volumeMidiEvent,
 } from "../midi/MidiEvent"
 import Quantizer from "../quantizer"
-import { getMeasureStart } from "../song/selector"
 import RootStore from "../stores/RootStore"
 import Track, {
   NoteEvent,
@@ -344,15 +344,14 @@ export const toogleAllGhostTracks =
 export const addTimeSignature =
   ({ song, pushHistory }: RootStore) =>
   (tick: number, numerator: number, denominator: number) => {
-    const measureStart = getMeasureStart(song, tick)
-
-    const timeSignatureTick = measureStart?.tick ?? 0
+    const measureStart = Measure.getMeasureStart(
+      song.measures,
+      tick,
+      song.timebase,
+    )
 
     // prevent duplication
-    if (
-      measureStart !== null &&
-      measureStart.timeSignature.tick === measureStart.tick
-    ) {
+    if (measureStart.eventTick === measureStart.tick) {
       return
     }
 
@@ -360,7 +359,7 @@ export const addTimeSignature =
 
     song.conductorTrack?.addEvent({
       ...timeSignatureMidiEvent(0, numerator, denominator),
-      tick: timeSignatureTick,
+      tick: measureStart.tick,
     })
   }
 
