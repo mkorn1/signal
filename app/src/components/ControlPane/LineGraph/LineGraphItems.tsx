@@ -1,3 +1,4 @@
+import { useTheme } from "@emotion/react"
 import { BorderedCircles, Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { partition } from "lodash"
@@ -6,7 +7,6 @@ import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
 import { colorToVec4 } from "../../../gl/color"
 import { joinObjects } from "../../../helpers/array"
-import { useTheme } from "../../../hooks/useTheme"
 
 export interface LineGraphItemsProps {
   width: number

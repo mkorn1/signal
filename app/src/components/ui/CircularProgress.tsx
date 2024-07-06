@@ -1,6 +1,6 @@
+import { useTheme } from "@emotion/react"
 import NinetyRingWithBg from "@ryohey/react-svg-spinners/dist/NinetyRingWithBg"
 import { FC } from "react"
-import { useTheme } from "../../hooks/useTheme"
 
 export interface CircularProgressProps {
   size?: string | number
