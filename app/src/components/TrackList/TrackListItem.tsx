@@ -1,5 +1,4 @@
 import styled from "@emotion/styled"
-import Color from "color"
 import Headset from "mdi-react/HeadphonesIcon"
 import Layers from "mdi-react/LayersIcon"
 import VolumeUp from "mdi-react/VolumeHighIcon"
@@ -7,8 +6,6 @@ import VolumeOff from "mdi-react/VolumeOffIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
 import {
-  addTrack,
-  removeTrack,
   selectTrack,
   toggleMuteTrack,
   toggleSoloTrack,
@@ -19,7 +16,6 @@ import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
 import { categoryEmojis, getCategoryIndex } from "../../midi/GM"
 import { trackColorToCSSColor } from "../../track/TrackColor"
-import { ColorPicker } from "../ColorPicker/ColorPicker"
 import { IconButton } from "../ui/IconButton"
 import { TrackInstrumentName } from "./InstrumentName"
 import { TrackDialog } from "./TrackDialog"
@@ -131,7 +127,6 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ trackId }) => {
   const channel = track.channel
   const { onContextMenu, menuProps } = useContextMenu()
   const [isDialogOpened, setDialogOpened] = useState(false)
-  const [isColorPickerOpened, setColorPickerOpened] = useState(false)
 
   const onDoubleClickIcon = useCallback(() => {
     if (track.isConductorTrack) {
@@ -157,10 +152,6 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ trackId }) => {
     },
     [trackId],
   )
-  const onClickDelete = useCallback(
-    () => removeTrack(rootStore)(trackId),
-    [trackId],
-  )
   const onClickGhostTrack: React.MouseEventHandler<HTMLButtonElement> =
     useCallback(
       (e) => {
@@ -173,28 +164,13 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ trackId }) => {
       },
       [trackId],
     )
-  const onClickAddTrack = useCallback(() => addTrack(rootStore)(), [trackId])
   const onSelectTrack = useCallback(() => {
     router.pushTrack()
     selectTrack(rootStore)(trackId)
   }, [trackId])
-  const openDialog = useCallback(() => setDialogOpened(true), [])
-  const closeDialog = useCallback(() => setDialogOpened(false), [])
-  const changeTrackColor = useCallback(() => setColorPickerOpened(true), [])
-
-  const onPickColor = (color: string | null) => {
-    if (color === null) {
-      track.setColor(null)
-      return
-    }
-    const obj = Color(color)
-    track.setColor({
-      red: Math.floor(obj.red()),
-      green: Math.floor(obj.green()),
-      blue: Math.floor(obj.blue()),
-      alpha: 0xff,
-    })
-  }
+  const onClickChannel = useCallback(() => {
+    setDialogOpened(true)
+  }, [])
 
   const emoji = track.isRhythmTrack
     ? "🥁"
@@ -240,27 +216,18 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ trackId }) => {
               <Layers />
             </ControlButton>
             {channel !== undefined && (
-              <ChannelName onClick={openDialog}>CH {channel + 1}</ChannelName>
+              <ChannelName onClick={onClickChannel}>
+                CH {channel + 1}
+              </ChannelName>
             )}
           </Controls>
         </div>
       </Container>
-      <TrackListContextMenu
-        onClickDelete={onClickDelete}
-        onClickAdd={onClickAddTrack}
-        onClickProperty={openDialog}
-        onClickChangeTrackColor={changeTrackColor}
-        {...menuProps}
-      />
+      <TrackListContextMenu {...menuProps} trackId={trackId} />
       <TrackDialog
         trackId={trackId}
         open={isDialogOpened}
-        onClose={closeDialog}
-      />
-      <ColorPicker
-        open={isColorPickerOpened}
-        onSelect={onPickColor}
-        onClose={() => setColorPickerOpened(false)}
+        onClose={() => setDialogOpened(false)}
       />
     </>
   )
