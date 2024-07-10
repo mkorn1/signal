@@ -18,8 +18,8 @@ export interface RulerContextMenuProps extends ContextMenuProps {
   tick: number
 }
 
-export const RulerContextMenu: FC<RulerContextMenuProps> = (
-  observer(({ rulerStore, tick, ...props }) => {
+export const RulerContextMenu: FC<RulerContextMenuProps> = observer(
+  ({ rulerStore, tick, ...props }) => {
     const { handleClose } = props
     const rootStore = useStores()
     const { song, player } = rootStore
@@ -85,5 +85,5 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = (
         />
       </>
     )
-  }),
+  },
 )
