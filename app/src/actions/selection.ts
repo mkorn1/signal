@@ -369,10 +369,7 @@ export const duplicateSelection =
 
     // select the created notes
     const addedNotes = selectedTrack.addEvents(notes)
-    const s = Selection.clone(selection)
-    s.from.tick += deltaTick
-    s.to.tick += deltaTick
-    pianoRollStore.selection = s
+    pianoRollStore.selection = Selection.moved(selection, deltaTick, 0)
     pianoRollStore.selectedNoteIds = addedNotes.map((n) => n.id)
   }
 
@@ -424,7 +421,6 @@ const sortedNotes = (notes: NoteEvent[]): NoteEvent[] =>
 const selectNeighborNote = (rootStore: RootStore) => (deltaIndex: number) => {
   const {
     pianoRollStore: { selectedTrack, selectedNoteIds },
-    player,
     song,
   } = rootStore
 
