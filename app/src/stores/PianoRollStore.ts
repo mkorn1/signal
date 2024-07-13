@@ -164,7 +164,7 @@ export default class PianoRollStore {
     const startTick = transform.getTick(scrollLeft)
     const widthTick = transform.getTick(canvasWidth)
     const endTick = startTick + widthTick
-    return transform.getTick(Math.max(trackEndTick, endTick))
+    return transform.getX(Math.max(trackEndTick, endTick))
   }
 
   get contentHeight(): number {
