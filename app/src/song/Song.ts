@@ -71,6 +71,11 @@ export default class Song {
     })
   }
 
+  moveTrack(from: number, to: number) {
+    const [track] = this.tracks.splice(from, 1)
+    this.tracks.splice(to, 0, track)
+  }
+
   get conductorTrack(): Track | undefined {
     return this.tracks.find((t) => t.isConductorTrack)
   }
