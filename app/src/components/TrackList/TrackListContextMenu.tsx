@@ -10,26 +10,26 @@ import { MenuItem } from "../ui/Menu"
 import { TrackDialog } from "./TrackDialog"
 
 export interface TrackListContextMenuProps extends ContextMenuProps {
-  trackId: number
+  trackIndex: number
 }
 
 export const TrackListContextMenu: FC<TrackListContextMenuProps> = observer(
-  ({ trackId, ...props }) => {
+  ({ trackIndex, ...props }) => {
     const rootStore = useStores()
     const { handleClose } = props
     const [isDialogOpened, setDialogOpened] = useState(false)
     const [isColorPickerOpened, setColorPickerOpened] = useState(false)
 
-    const onClickAdd = useCallback(() => addTrack(rootStore)(), [trackId])
+    const onClickAdd = useCallback(() => addTrack(rootStore)(), [trackIndex])
     const onClickDelete = useCallback(
-      () => removeTrack(rootStore)(trackId),
-      [trackId],
+      () => removeTrack(rootStore)(trackIndex),
+      [trackIndex],
     )
     const onClickProperty = () => setDialogOpened(true)
     const onClickChangeTrackColor = () => setColorPickerOpened(true)
 
     const onPickColor = (color: string | null) => {
-      const track = rootStore.song.tracks[trackId]
+      const track = rootStore.song.tracks[trackIndex]
       if (color === null) {
         track.setColor(null)
         return
@@ -84,7 +84,7 @@ export const TrackListContextMenu: FC<TrackListContextMenuProps> = observer(
           </MenuItem>
         </ContextMenu>
         <TrackDialog
-          trackId={trackId}
+          trackIndex={trackIndex}
           open={isDialogOpened}
           onClose={() => setDialogOpened(false)}
         />

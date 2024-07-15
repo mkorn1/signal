@@ -23,11 +23,13 @@ export const TrackList: FC = observer(() => {
         items={song.tracks
           .map((t, i) => (t.isConductorTrack ? null : i))
           .filter(isNotNull)}
-        getItemId={(trackId) => trackId}
+        getItemId={(trackIndex) => trackIndex}
         onItemMoved={(from, to) => {
           song.moveTrack(from, to)
         }}
-        render={(trackId) => <TrackListItem key={trackId} trackId={trackId} />}
+        render={(trackIndex) => (
+          <TrackListItem key={trackIndex} trackIndex={trackIndex} />
+        )}
       ></DraggableList>
       <AddTrackButton />
     </List>

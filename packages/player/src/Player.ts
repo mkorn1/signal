@@ -122,7 +122,7 @@ export class Player {
   private allNotesOffEvents(): DistributiveOmit<PlayerEvent, "tick">[] {
     return range(0, this.numberOfChannels).map((ch) => ({
       ...controllerMidiEvent(0, ch, MIDIControlEvents.ALL_NOTES_OFF, 0),
-      trackId: -1, // do not mute
+      trackIndex: -1, // do not mute
     }))
   }
 
@@ -176,9 +176,9 @@ export class Player {
     event: SendableEvent,
     delayTime: number = 0,
     timestampNow: number = performance.now(),
-    trackId?: number,
+    trackIndex?: number,
   ) {
-    this.output.sendEvent(event, delayTime, timestampNow, trackId)
+    this.output.sendEvent(event, delayTime, timestampNow, trackIndex)
   }
 
   private syncPosition = throttle(() => {
@@ -215,7 +215,7 @@ export class Player {
     events.forEach(({ event: e, timestamp: time }) => {
       if (e.type === "channel") {
         const delayTime = (time - timestamp) / 1000
-        this.sendEvent(e, delayTime, timestamp, e.trackId)
+        this.sendEvent(e, delayTime, timestamp, e.trackIndex)
       } else {
         this.applyPlayerEvent(e)
       }

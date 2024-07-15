@@ -100,7 +100,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
             player.position = arrangeViewStore.quantizer.round(startPos.tick)
           }
 
-          arrangeViewStore.selectedTrackId = Math.floor(startPos.trackIndex)
+          arrangeViewStore.selectedTrackIndex = Math.floor(startPos.trackIndex)
 
           observeDrag({
             onMouseMove: (e) => {

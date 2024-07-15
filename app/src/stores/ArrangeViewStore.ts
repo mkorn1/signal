@@ -28,14 +28,14 @@ export default class ArrangeViewStore {
   SCALE_Y_MIN = 0.5
   SCALE_Y_MAX = 4
   selection: ArrangeSelection | null = null
-  selectedEventIds: { [key: number]: number[] } = {} // { trackId: [eventId] }
+  selectedEventIds: { [key: number]: number[] } = {} // { trackIndex: [eventId] }
   autoScroll = true
   quantize = 1
   scrollLeftTicks = 0
   scrollTop = 0
   canvasWidth = 0
   canvasHeight = 0
-  selectedTrackId = 0
+  selectedTrackIndex = 0
   openTransposeDialog = false
 
   constructor(readonly rootStore: RootStore) {
@@ -53,7 +53,7 @@ export default class ArrangeViewStore {
       scrollTop: observable,
       canvasWidth: observable,
       canvasHeight: observable,
-      selectedTrackId: observable,
+      selectedTrackIndex: observable,
       openTransposeDialog: observable,
       scrollLeft: computed,
       transform: computed,

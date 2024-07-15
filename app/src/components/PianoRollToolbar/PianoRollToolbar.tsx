@@ -30,7 +30,7 @@ export const PianoRollToolbar: FC = observer(() => {
     autoScroll,
     isQuantizeEnabled,
     selectedTrack,
-    selectedTrackId,
+    selectedTrackIndex,
   } = pianoRollStore
 
   const onClickAutoScroll = useCallback(
@@ -66,8 +66,8 @@ export const PianoRollToolbar: FC = observer(() => {
       <InstrumentButton />
       <InstrumentBrowser />
 
-      <VolumeSlider trackId={selectedTrackId} />
-      <PanSlider trackId={selectedTrackId} />
+      <VolumeSlider trackIndex={selectedTrackIndex} />
+      <PanSlider trackIndex={selectedTrackIndex} />
 
       <FlexibleSpacer />
 

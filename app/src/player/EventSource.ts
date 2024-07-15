@@ -44,7 +44,7 @@ function beatToEvents(beat: Beat): PlayerEvent[] {
     {
       ...noteOnMidiEvent(0, 9, noteNumber, velocity),
       tick: beat.tick,
-      trackId: METRONOME_TRACK_ID,
+      trackIndex: METRONOME_TRACK_ID,
     },
   ]
 }

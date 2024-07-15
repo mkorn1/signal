@@ -3,7 +3,7 @@ import { DistributiveOmit } from "./types.js"
 
 export type PlayerEventOf<T> = DistributiveOmit<T, "deltaTime"> & {
   tick: number
-  trackId: number
+  trackIndex: number
 }
 
 export type PlayerEvent = PlayerEventOf<AnyEvent>

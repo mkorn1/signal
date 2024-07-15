@@ -52,7 +52,7 @@ export default class PianoRollStore {
   autoScroll = true
   quantize = 8
   isQuantizeEnabled = true
-  selectedTrackId: number = 1
+  selectedTrackIndex: number = 1
   selection: Selection | null = null
   selectedNoteIds: number[] = []
   lastNoteDuration: number | null = null
@@ -83,7 +83,7 @@ export default class PianoRollStore {
       autoScroll: observable,
       quantize: observable,
       isQuantizeEnabled: observable,
-      selectedTrackId: observable,
+      selectedTrackIndex: observable,
       selection: observable.shallow,
       selectedNoteIds: observable,
       lastNoteDuration: observable,
@@ -105,7 +105,7 @@ export default class PianoRollStore {
       windowedEvents: computed,
       allNotes: computed,
       notes: computed,
-      ghostTrackIds: computed,
+      ghostTrackIndices: computed,
       selectionBounds: computed,
       currentVolume: computed,
       currentPan: computed,
@@ -140,7 +140,7 @@ export default class PianoRollStore {
     })
 
     // reset selection when change track
-    observe(this, "selectedTrackId", () => {
+    observe(this, "selectedTrackIndex", () => {
       this.selection = null
       this.selectedNoteIds = []
     })
@@ -241,7 +241,7 @@ export default class PianoRollStore {
   }
 
   get selectedTrack(): Track | undefined {
-    return this.rootStore.song.tracks[this.selectedTrackId]
+    return this.rootStore.song.tracks[this.selectedTrackIndex]
   }
 
   get transform(): NoteCoordTransform {
@@ -301,14 +301,14 @@ export default class PianoRollStore {
     )
   }
 
-  get ghostTrackIds(): number[] {
+  get ghostTrackIndices(): number[] {
     const song = this.rootStore.song
-    const { notGhostTracks, selectedTrackId } = this
+    const { notGhostTracks, selectedTrackIndex } = this
     return song.tracks
       .map((_, id) => id)
       .filter(
         (track, id) =>
-          id !== selectedTrackId &&
+          id !== selectedTrackIndex &&
           !notGhostTracks.has(id) &&
           track != undefined,
       )

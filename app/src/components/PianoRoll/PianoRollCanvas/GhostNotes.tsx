@@ -12,14 +12,14 @@ import { trackColorToVec4 } from "../../../track/TrackColor"
 import { NoteCircles } from "./NoteCircles"
 import { NoteRectangles } from "./NoteRectangles"
 
-export const GhostNotes: FC<{ zIndex: number; trackId: number }> = observer(
-  ({ zIndex, trackId }) => {
+export const GhostNotes: FC<{ zIndex: number; trackIndex: number }> = observer(
+  ({ zIndex, trackIndex }) => {
     const {
       song,
       pianoRollStore: { transform, scrollLeft, canvasWidth },
     } = useStores()
     const theme = useTheme()
-    const track = song.tracks[trackId]
+    const track = song.tracks[trackIndex]
 
     const windowedEvents = useMemo(
       () =>

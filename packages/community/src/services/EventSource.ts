@@ -34,22 +34,22 @@ export class EventSource implements IEventSource {
   }
 
   getEvents(startTick: number, endTick: number): PlayerEvent[] {
-    return this.songProvider.song.tracks.flatMap((track, trackId) =>
+    return this.songProvider.song.tracks.flatMap((track, trackIndex) =>
       track.events.filter(isEventInRange(startTick, endTick)).map((event) => ({
         ...event,
-        trackId,
+        trackIndex,
       })),
     )
   }
 
   getCurrentStateEvents(tick: number): SendableEvent[] {
-    return this.songProvider.song.tracks.flatMap((t, trackId) => {
+    return this.songProvider.song.tracks.flatMap((t, trackIndex) => {
       const statusEvents = getStatusEvents(t.events, tick)
       return statusEvents.map(
         (e) =>
           ({
             ...e,
-            trackId,
+            trackIndex,
           }) as PlayerEventOf<AnyChannelEvent>,
       )
     })

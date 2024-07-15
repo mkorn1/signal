@@ -160,7 +160,7 @@ const InstrumentBrowserWrapper: FC = observer(() => {
   const {
     pianoRollStore: {
       selectedTrack: track,
-      selectedTrackId: trackId,
+      selectedTrackIndex: trackIndex,
       instrumentBrowserSetting,
       openInstrumentBrowser,
     },
@@ -179,7 +179,7 @@ const InstrumentBrowserWrapper: FC = observer(() => {
 
   const close = () => (pianoRollStore.openInstrumentBrowser = false)
   const setTrackInstrument = (programNumber: number) =>
-    setTrackInstrumentAction(rootStore)(trackId, programNumber)
+    setTrackInstrumentAction(rootStore)(trackIndex, programNumber)
 
   const presets: PresetItem[] = range(0, 128).map((programNumber) => ({
     programNumber,

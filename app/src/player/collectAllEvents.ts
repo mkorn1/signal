@@ -6,14 +6,18 @@ import Track, { TrackEvent } from "../track"
 export const convertTrackEvents = (
   events: TrackEvent[],
   channel: number | undefined,
-  trackId: number,
+  trackIndex: number,
 ) =>
   events
     .filter((e) => !(e.isRecording === true))
     .flatMap((e) => deassembleNote(e))
     .map(
       (e) =>
-        ({ ...e, channel: channel, trackId }) as PlayerEventOf<AnyChannelEvent>,
+        ({
+          ...e,
+          channel: channel,
+          trackIndex,
+        }) as PlayerEventOf<AnyChannelEvent>,
     )
 
 export const collectAllEvents = (tracks: Track[]): PlayerEvent[] =>

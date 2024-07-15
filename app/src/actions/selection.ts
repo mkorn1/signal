@@ -66,7 +66,7 @@ export const transposeSelection =
   (rootStore: RootStore) => (deltaPitch: number) => {
     const {
       pianoRollStore,
-      pianoRollStore: { selectedTrackId, selection, selectedNoteIds },
+      pianoRollStore: { selectedTrackIndex, selection, selectedNoteIds },
       pushHistory,
     } = rootStore
 
@@ -78,7 +78,7 @@ export const transposeSelection =
     }
 
     transposeNotes(rootStore)(deltaPitch, {
-      [selectedTrackId]: selectedNoteIds,
+      [selectedTrackIndex]: selectedNoteIds,
     })
   }
 

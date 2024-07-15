@@ -15,18 +15,18 @@ import { TextField } from "../ui/TextField"
 import { TrackName } from "./TrackName"
 
 export interface TrackDialogProps {
-  trackId: number
+  trackIndex: number
   open: boolean
   onClose: () => void
 }
 
 export const TrackDialog: FC<TrackDialogProps> = ({
-  trackId,
+  trackIndex,
   open,
   onClose,
 }) => {
   const { song } = useStores()
-  const track = song.tracks[trackId]
+  const track = song.tracks[trackIndex]
 
   const [name, setName] = useState(track.name)
   const [channel, setChannel] = useState(track.channel)
@@ -34,7 +34,7 @@ export const TrackDialog: FC<TrackDialogProps> = ({
   useEffect(() => {
     setName(track.name)
     setChannel(track.channel)
-  }, [trackId])
+  }, [trackIndex])
 
   return (
     <Dialog open={open} onOpenChange={onClose} style={{ minWidth: "20rem" }}>

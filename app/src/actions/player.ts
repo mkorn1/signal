@@ -58,8 +58,8 @@ export const fastForwardOneBar =
 export const nextTrack =
   ({ pianoRollStore, song }: RootStore) =>
   () => {
-    pianoRollStore.selectedTrackId = Math.min(
-      pianoRollStore.selectedTrackId + 1,
+    pianoRollStore.selectedTrackIndex = Math.min(
+      pianoRollStore.selectedTrackIndex + 1,
       song.tracks.length - 1,
     )
   }
@@ -67,39 +67,39 @@ export const nextTrack =
 export const previousTrack =
   ({ pianoRollStore }: RootStore) =>
   () => {
-    pianoRollStore.selectedTrackId = Math.max(
-      pianoRollStore.selectedTrackId - 1,
+    pianoRollStore.selectedTrackIndex = Math.max(
+      pianoRollStore.selectedTrackIndex - 1,
       1,
     )
   }
 
 export const toggleSolo =
-  ({ pianoRollStore: { selectedTrackId }, trackMute }: RootStore) =>
+  ({ pianoRollStore: { selectedTrackIndex }, trackMute }: RootStore) =>
   () => {
-    if (trackMute.isSolo(selectedTrackId)) {
-      trackMute.unsolo(selectedTrackId)
+    if (trackMute.isSolo(selectedTrackIndex)) {
+      trackMute.unsolo(selectedTrackIndex)
     } else {
-      trackMute.solo(selectedTrackId)
+      trackMute.solo(selectedTrackIndex)
     }
   }
 
 export const toggleMute =
-  ({ pianoRollStore: { selectedTrackId }, trackMute }: RootStore) =>
+  ({ pianoRollStore: { selectedTrackIndex }, trackMute }: RootStore) =>
   () => {
-    if (trackMute.isMuted(selectedTrackId)) {
-      trackMute.unmute(selectedTrackId)
+    if (trackMute.isMuted(selectedTrackIndex)) {
+      trackMute.unmute(selectedTrackIndex)
     } else {
-      trackMute.mute(selectedTrackId)
+      trackMute.mute(selectedTrackIndex)
     }
   }
 
 export const toggleGhost =
-  ({ pianoRollStore: { selectedTrackId }, pianoRollStore }: RootStore) =>
+  ({ pianoRollStore: { selectedTrackIndex }, pianoRollStore }: RootStore) =>
   () => {
-    if (pianoRollStore.notGhostTracks.has(selectedTrackId)) {
-      pianoRollStore.notGhostTracks.delete(selectedTrackId)
+    if (pianoRollStore.notGhostTracks.has(selectedTrackIndex)) {
+      pianoRollStore.notGhostTracks.delete(selectedTrackIndex)
     } else {
-      pianoRollStore.notGhostTracks.add(selectedTrackId)
+      pianoRollStore.notGhostTracks.add(selectedTrackIndex)
     }
   }
 

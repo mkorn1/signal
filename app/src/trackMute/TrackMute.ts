@@ -44,39 +44,39 @@ export default class TrackMute implements ITrackMute {
     this.solos = {}
   }
 
-  private _setMute(trackId: number, isMute: boolean) {
+  private _setMute(trackIndex: number, isMute: boolean) {
     if (this.isSoloMode()) {
       return
     }
-    this.mutes = updated(this.mutes, trackId, isMute)
+    this.mutes = updated(this.mutes, trackIndex, isMute)
   }
 
-  private _getMute(trackId: number) {
-    return this.mutes[trackId] || false
+  private _getMute(trackIndex: number) {
+    return this.mutes[trackIndex] || false
   }
 
-  private _setSolo(trackId: number, isSolo: boolean) {
-    this.solos = updated(this.solos, trackId, isSolo)
+  private _setSolo(trackIndex: number, isSolo: boolean) {
+    this.solos = updated(this.solos, trackIndex, isSolo)
   }
 
-  private _getSolo(trackId: number) {
-    return this.solos[trackId] || false
+  private _getSolo(trackIndex: number) {
+    return this.solos[trackIndex] || false
   }
 
-  mute(trackId: number) {
-    this._setMute(trackId, true)
+  mute(trackIndex: number) {
+    this._setMute(trackIndex, true)
   }
 
-  unmute(trackId: number) {
-    this._setMute(trackId, false)
+  unmute(trackIndex: number) {
+    this._setMute(trackIndex, false)
   }
 
-  solo(trackId: number) {
-    this._setSolo(trackId, true)
+  solo(trackIndex: number) {
+    this._setSolo(trackIndex, true)
   }
 
-  unsolo(trackId: number) {
-    this._setSolo(trackId, false)
+  unsolo(trackIndex: number) {
+    this._setSolo(trackIndex, false)
   }
 
   isSoloMode(): boolean {
@@ -85,22 +85,22 @@ export default class TrackMute implements ITrackMute {
     return Object.values(this.solos).some((s) => s)
   }
 
-  shouldPlayTrack(trackId: number) {
+  shouldPlayTrack(trackIndex: number) {
     if (this.isSoloMode()) {
-      return this._getSolo(trackId)
+      return this._getSolo(trackIndex)
     } else {
-      return !this._getMute(trackId)
+      return !this._getMute(trackIndex)
     }
   }
 
   // 表示用のメソッド
   // Method for display
 
-  isSolo(trackId: number) {
-    return this.isSoloMode() && this.solos[trackId]
+  isSolo(trackIndex: number) {
+    return this.isSoloMode() && this.solos[trackIndex]
   }
 
-  isMuted(trackId: number) {
-    return !this.shouldPlayTrack(trackId)
+  isMuted(trackIndex: number) {
+    return !this.shouldPlayTrack(trackIndex)
   }
 }

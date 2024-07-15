@@ -280,9 +280,9 @@ export const setTrackName =
 
 export const setTrackVolume =
   ({ song, player, pushHistory }: RootStore) =>
-  (trackId: number, volume: number) => {
+  (trackIndex: number, volume: number) => {
     pushHistory()
-    const track = song.tracks[trackId]
+    const track = song.tracks[trackIndex]
     track.setVolume(volume, player.position)
 
     if (track.channel !== undefined) {
@@ -292,9 +292,9 @@ export const setTrackVolume =
 
 export const setTrackPan =
   ({ song, player, pushHistory }: RootStore) =>
-  (trackId: number, pan: number) => {
+  (trackIndex: number, pan: number) => {
     pushHistory()
-    const track = song.tracks[trackId]
+    const track = song.tracks[trackIndex]
     track.setPan(pan, player.position)
 
     if (track.channel !== undefined) {
@@ -304,9 +304,9 @@ export const setTrackPan =
 
 export const setTrackInstrument =
   ({ song, player, pushHistory }: RootStore) =>
-  (trackId: number, programNumber: number) => {
+  (trackIndex: number, programNumber: number) => {
     pushHistory()
-    const track = song.tracks[trackId]
+    const track = song.tracks[trackIndex]
     track.setProgramNumber(programNumber)
 
     // 即座に反映する
@@ -318,12 +318,12 @@ export const setTrackInstrument =
 
 export const toogleGhostTrack =
   ({ pianoRollStore, pushHistory }: RootStore) =>
-  (trackId: number) => {
+  (trackIndex: number) => {
     pushHistory()
-    if (pianoRollStore.notGhostTracks.has(trackId)) {
-      pianoRollStore.notGhostTracks.delete(trackId)
+    if (pianoRollStore.notGhostTracks.has(trackIndex)) {
+      pianoRollStore.notGhostTracks.delete(trackIndex)
     } else {
-      pianoRollStore.notGhostTracks.add(trackId)
+      pianoRollStore.notGhostTracks.add(trackIndex)
     }
   }
 

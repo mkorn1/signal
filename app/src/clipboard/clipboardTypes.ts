@@ -13,13 +13,13 @@ export const isPianoNotesClipboardData = (
 export interface ArrangeNotesClipboardData {
   type: "arrange_notes"
   notes: { [key: number]: TrackEvent[] }
-  selectedTrackId: number
+  selectedTrackIndex: number
 }
 
 export const isArrangeNotesClipboardData = (
   x: any,
 ): x is ArrangeNotesClipboardData =>
-  x.type === "arrange_notes" && "notes" in x && "selectedTrackId" in x
+  x.type === "arrange_notes" && "notes" in x && "selectedTrackIndex" in x
 
 export interface ControlEventsClipboardData {
   type: "control_events"

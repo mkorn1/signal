@@ -26,13 +26,13 @@ export class GroupOutput implements SynthOutput {
     this.outputs.filter((o) => o.isEnabled).forEach((o) => o.synth.activate())
   }
 
-  private getOutputs(trackId: number | undefined): SynthOutput[] {
-    if (trackId === METRONOME_TRACK_ID) {
+  private getOutputs(trackIndex: number | undefined): SynthOutput[] {
+    if (trackIndex === METRONOME_TRACK_ID) {
       return this.isMetronomeEnabled ? [this.metronomeOutput] : []
     } else if (
-      trackId !== undefined &&
+      trackIndex !== undefined &&
       this.trackMute !== null &&
-      !this.trackMute.shouldPlayTrack(trackId)
+      !this.trackMute.shouldPlayTrack(trackIndex)
     ) {
       return []
     } else {
@@ -44,10 +44,10 @@ export class GroupOutput implements SynthOutput {
     event: SendableEvent,
     delayTime: number,
     timestampNow: number,
-    trackId?: number,
+    trackIndex?: number,
   ): void {
-    this.getOutputs(trackId).forEach((synth) =>
-      synth.sendEvent(event, delayTime, timestampNow, trackId),
+    this.getOutputs(trackIndex).forEach((synth) =>
+      synth.sendEvent(event, delayTime, timestampNow, trackIndex),
     )
   }
 }

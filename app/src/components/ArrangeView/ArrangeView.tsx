@@ -88,7 +88,7 @@ export const ArrangeView: FC = observer(() => {
       scrollLeft,
       scrollTop,
       scrollBy,
-      selectedTrackId,
+      selectedTrackIndex,
     },
     player,
     router,
@@ -213,9 +213,9 @@ export const ArrangeView: FC = observer(() => {
       [arrangeViewStore, player, rootStore],
     )
 
-  const openTrack = (trackId: number) => {
+  const openTrack = (trackIndex: number) => {
     router.pushTrack()
-    selectTrack(rootStore)(trackId)
+    selectTrack(rootStore)(trackIndex)
   }
 
   return (
@@ -231,11 +231,11 @@ export const ArrangeView: FC = observer(() => {
             <TrackHeader
               style={{ height: trackHeight }}
               key={i}
-              isSelected={i === selectedTrackId}
-              onClick={() => (arrangeViewStore.selectedTrackId = i)}
+              isSelected={i === selectedTrackIndex}
+              onClick={() => (arrangeViewStore.selectedTrackIndex = i)}
               onDoubleClick={() => openTrack(i)}
               onContextMenu={(e) => {
-                arrangeViewStore.selectedTrackId = i
+                arrangeViewStore.selectedTrackIndex = i
                 onTrackContextMenu(e)
               }}
             >
