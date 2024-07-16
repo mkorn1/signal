@@ -15,6 +15,7 @@ import {
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
 import { categoryEmojis, getCategoryIndex } from "../../midi/GM"
+import Track from "../../track/Track"
 import { trackColorToCSSColor } from "../../track/TrackColor"
 import { IconButton } from "../ui/IconButton"
 import { TrackInstrumentName } from "./InstrumentName"
@@ -23,7 +24,7 @@ import { TrackListContextMenu } from "./TrackListContextMenu"
 import { TrackName } from "./TrackName"
 
 export type TrackListItemProps = {
-  trackIndex: number
+  track: Track
 }
 
 const Container = styled.div<{ selected: boolean }>`
@@ -113,127 +114,122 @@ const ControlButton = styled(IconButton)`
   margin-right: 0.25rem;
 `
 
-export const TrackListItem: FC<TrackListItemProps> = observer(
-  ({ trackIndex }) => {
-    const rootStore = useStores()
-    const { song, pianoRollStore, rootViewStore, trackMute, router } = rootStore
-    const track = song.tracks[trackIndex]
+export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
+  const rootStore = useStores()
+  const { song, pianoRollStore, rootViewStore, trackMute, router } = rootStore
+  const trackIndex = song.tracks.indexOf(track)
 
-    const selected =
-      !rootViewStore.isArrangeViewSelected &&
-      trackIndex === pianoRollStore.selectedTrackIndex
-    const mute = trackMute.isMuted(trackIndex)
-    const solo = trackMute.isSolo(trackIndex)
-    const ghostTrack = !pianoRollStore.notGhostTracks.has(trackIndex)
-    const channel = track.channel
-    const { onContextMenu, menuProps } = useContextMenu()
-    const [isDialogOpened, setDialogOpened] = useState(false)
+  const selected =
+    !rootViewStore.isArrangeViewSelected &&
+    track.id === pianoRollStore.selectedTrackId
+  const mute = trackMute.isMuted(trackIndex)
+  const solo = trackMute.isSolo(trackIndex)
+  const ghostTrack = !pianoRollStore.notGhostTracks.has(trackIndex)
+  const channel = track.channel
+  const { onContextMenu, menuProps } = useContextMenu()
+  const [isDialogOpened, setDialogOpened] = useState(false)
 
-    const onDoubleClickIcon = useCallback(() => {
-      if (track.isConductorTrack) {
-        return
-      }
-      pianoRollStore.openInstrumentBrowser = true
-      pianoRollStore.instrumentBrowserSetting = {
-        programNumber: track.programNumber ?? 0,
-        isRhythmTrack: track.isRhythmTrack,
-      }
-    }, [])
-    const onClickMute: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+  const onDoubleClickIcon = useCallback(() => {
+    if (track.isConductorTrack) {
+      return
+    }
+    pianoRollStore.openInstrumentBrowser = true
+    pianoRollStore.instrumentBrowserSetting = {
+      programNumber: track.programNumber ?? 0,
+      isRhythmTrack: track.isRhythmTrack,
+    }
+  }, [])
+  const onClickMute: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+    (e) => {
+      e.stopPropagation()
+      toggleMuteTrack(rootStore)(trackIndex)
+    },
+    [trackIndex],
+  )
+  const onClickSolo: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+    (e) => {
+      e.stopPropagation()
+      toggleSoloTrack(rootStore)(trackIndex)
+    },
+    [trackIndex],
+  )
+  const onClickGhostTrack: React.MouseEventHandler<HTMLButtonElement> =
+    useCallback(
       (e) => {
         e.stopPropagation()
-        toggleMuteTrack(rootStore)(trackIndex)
+        if (e.nativeEvent.altKey) {
+          toogleAllGhostTracks(rootStore)()
+        } else {
+          toogleGhostTrack(rootStore)(trackIndex)
+        }
       },
       [trackIndex],
     )
-    const onClickSolo: React.MouseEventHandler<HTMLButtonElement> = useCallback(
-      (e) => {
-        e.stopPropagation()
-        toggleSoloTrack(rootStore)(trackIndex)
-      },
-      [trackIndex],
-    )
-    const onClickGhostTrack: React.MouseEventHandler<HTMLButtonElement> =
-      useCallback(
-        (e) => {
-          e.stopPropagation()
-          if (e.nativeEvent.altKey) {
-            toogleAllGhostTracks(rootStore)()
-          } else {
-            toogleGhostTrack(rootStore)(trackIndex)
-          }
-        },
-        [trackIndex],
-      )
-    const onSelectTrack = useCallback(() => {
-      router.pushTrack()
-      selectTrack(rootStore)(trackIndex)
-    }, [trackIndex])
-    const onClickChannel = useCallback(() => {
-      setDialogOpened(true)
-    }, [])
+  const onSelectTrack = useCallback(() => {
+    router.pushTrack()
+    selectTrack(rootStore)(trackIndex)
+  }, [trackIndex])
+  const onClickChannel = useCallback(() => {
+    setDialogOpened(true)
+  }, [])
 
-    const emoji = track.isRhythmTrack
-      ? "🥁"
-      : categoryEmojis[getCategoryIndex(track.programNumber ?? 0)]
+  const emoji = track.isRhythmTrack
+    ? "🥁"
+    : categoryEmojis[getCategoryIndex(track.programNumber ?? 0)]
 
-    const color =
-      track.color !== undefined
-        ? trackColorToCSSColor(track.color)
-        : "transparent"
+  const color =
+    track.color !== undefined
+      ? trackColorToCSSColor(track.color)
+      : "transparent"
 
-    return (
-      <>
-        <Container
+  return (
+    <>
+      <Container
+        selected={selected}
+        onMouseDown={onSelectTrack}
+        onContextMenu={onContextMenu}
+        tabIndex={-1}
+      >
+        <Icon
           selected={selected}
-          onMouseDown={onSelectTrack}
-          onContextMenu={onContextMenu}
-          tabIndex={-1}
+          color={color}
+          onDoubleClick={onDoubleClickIcon}
         >
-          <Icon
-            selected={selected}
-            color={color}
-            onDoubleClick={onDoubleClickIcon}
-          >
-            <IconInner selected={selected}>{emoji}</IconInner>
-          </Icon>
-          <div>
-            <Label>
-              <Name selected={selected}>
-                <TrackName track={track} />
-              </Name>
-              <Instrument>
-                <TrackInstrumentName track={track} />
-              </Instrument>
-            </Label>
-            <Controls>
-              <ControlButton active={solo} onMouseDown={onClickSolo}>
-                <Headset />
-              </ControlButton>
-              <ControlButton active={mute} onMouseDown={onClickMute}>
-                {mute ? <VolumeOff /> : <VolumeUp />}
-              </ControlButton>
-              <ControlButton
-                active={ghostTrack}
-                onMouseDown={onClickGhostTrack}
-              >
-                <Layers />
-              </ControlButton>
-              {channel !== undefined && (
-                <ChannelName onClick={onClickChannel}>
-                  CH {channel + 1}
-                </ChannelName>
-              )}
-            </Controls>
-          </div>
-        </Container>
-        <TrackListContextMenu {...menuProps} trackIndex={trackIndex} />
-        <TrackDialog
-          trackIndex={trackIndex}
-          open={isDialogOpened}
-          onClose={() => setDialogOpened(false)}
-        />
-      </>
-    )
-  },
-)
+          <IconInner selected={selected}>{emoji}</IconInner>
+        </Icon>
+        <div>
+          <Label>
+            <Name selected={selected}>
+              <TrackName track={track} />
+            </Name>
+            <Instrument>
+              <TrackInstrumentName track={track} />
+            </Instrument>
+          </Label>
+          <Controls>
+            <ControlButton active={solo} onMouseDown={onClickSolo}>
+              <Headset />
+            </ControlButton>
+            <ControlButton active={mute} onMouseDown={onClickMute}>
+              {mute ? <VolumeOff /> : <VolumeUp />}
+            </ControlButton>
+            <ControlButton active={ghostTrack} onMouseDown={onClickGhostTrack}>
+              <Layers />
+            </ControlButton>
+            {channel !== undefined && (
+              <ChannelName onClick={onClickChannel}>
+                CH {channel + 1}
+              </ChannelName>
+            )}
+          </Controls>
+        </div>
+      </Container>
+      <TrackListContextMenu {...menuProps} trackIndex={trackIndex} />
+      <TrackDialog
+        trackIndex={trackIndex}
+        open={isDialogOpened}
+        onClose={() => setDialogOpened(false)}
+      />
+    </>
+  )
+})

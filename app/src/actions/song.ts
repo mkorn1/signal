@@ -26,7 +26,8 @@ export const setSong = (rootStore: RootStore) => (song: Song) => {
   pianoRollStore.showTrackList = true
   pianoRollStore.selection = null
   pianoRollStore.selectedNoteIds = []
-  pianoRollStore.selectedTrackIndex = Math.min(song.tracks.length - 1, 1)
+  pianoRollStore.selectedTrackId =
+    song.tracks.find((t) => !t.isConductorTrack)?.id ?? 0
 
   arrangeViewStore.selection = null
   arrangeViewStore.selectedEventIds = []

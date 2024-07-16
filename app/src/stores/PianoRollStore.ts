@@ -52,7 +52,7 @@ export default class PianoRollStore {
   autoScroll = true
   quantize = 8
   isQuantizeEnabled = true
-  selectedTrackIndex: number = 1
+  selectedTrackId: number = 1
   selection: Selection | null = null
   selectedNoteIds: number[] = []
   lastNoteDuration: number | null = null
@@ -83,7 +83,7 @@ export default class PianoRollStore {
       autoScroll: observable,
       quantize: observable,
       isQuantizeEnabled: observable,
-      selectedTrackIndex: observable,
+      selectedTrackId: observable,
       selection: observable.shallow,
       selectedNoteIds: observable,
       lastNoteDuration: observable,
@@ -105,6 +105,7 @@ export default class PianoRollStore {
       windowedEvents: computed,
       allNotes: computed,
       notes: computed,
+      selectedTrackIndex: computed,
       ghostTrackIndices: computed,
       selectionBounds: computed,
       currentVolume: computed,
@@ -240,8 +241,18 @@ export default class PianoRollStore {
     this.mouseMode === "pencil" ? "selection" : "pencil"
   }
 
+  get selectedTrackIndex(): number {
+    return this.rootStore.song.tracks.findIndex(
+      (t) => t.id === this.selectedTrackId,
+    )
+  }
+
+  set selectedTrackIndex(index: number) {
+    this.selectedTrackId = this.rootStore.song.tracks[index]?.id
+  }
+
   get selectedTrack(): Track | undefined {
-    return this.rootStore.song.tracks[this.selectedTrackIndex]
+    return this.rootStore.song.getTrackById(this.selectedTrackId)
   }
 
   get transform(): NoteCoordTransform {
