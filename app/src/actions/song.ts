@@ -102,7 +102,7 @@ export const duplicateTrack =
     if (trackIndex === 0) {
       throw new Error("Don't remove conductor track")
     }
-    const track = song.getTrack(trackIndex)
+    const track = song.tracks[trackIndex]
     if (track === undefined) {
       throw new Error("No track found")
     }
@@ -123,7 +123,7 @@ export const transposeNotes =
     for (const trackIndexStr in selectedEventIds) {
       const trackIndex = parseInt(trackIndexStr)
       const eventIds = selectedEventIds[trackIndex]
-      const track = song.getTrack(trackIndex)
+      const track = song.tracks[trackIndex]
       if (track === undefined) {
         continue
       }

@@ -83,8 +83,8 @@ export default class Song {
     return this.tracks.find((t) => t.isConductorTrack)
   }
 
-  getTrack(id: number): Track | undefined {
-    return this.tracks[id]
+  getTrackById(id: number): Track | undefined {
+    return this.tracks.find((t) => t.id === id)
   }
 
   get measures(): Measure[] {
