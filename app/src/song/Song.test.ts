@@ -2,6 +2,7 @@ import * as fs from "fs"
 import * as path from "path"
 import { deserialize, serialize } from "serializr"
 import { songFromMidi } from "../midi/midiConversion"
+import { emptyTrack } from "../track/TrackFactory"
 import Song from "./Song"
 import { emptySong } from "./SongFactory"
 
@@ -35,5 +36,18 @@ describe("Song", () => {
     const s = deserialize(Song, x)
     expect(s.filepath).toBe("abc")
     expect(s.tracks.length).toBe(song.tracks.length)
+  })
+
+  it("should assign id to track", () => {
+    const song = emptySong()
+    song.addTrack(emptyTrack(0))
+    song.addTrack(emptyTrack(2))
+    song.addTrack(emptyTrack(4))
+    expect(song.tracks[0].id).toBe(0)
+    expect(song.tracks[1].id).toBe(1)
+    expect(song.tracks[2].id).toBe(2)
+    song.removeTrack(1)
+    song.addTrack(emptyTrack(8))
+    expect(song.tracks[2].id).toBe(3)
   })
 })

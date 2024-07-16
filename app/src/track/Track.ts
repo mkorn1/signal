@@ -34,6 +34,7 @@ import { TrackEvent, TrackEventOf } from "./TrackEvent"
 import { validateMidiEvent } from "./validate"
 
 export default class Track {
+  id: number = -1
   events: TrackEvent[] = []
   channel: number | undefined = undefined
 
@@ -57,6 +58,7 @@ export default class Track {
       isConductorTrack: computed,
       isRhythmTrack: computed,
       color: computed,
+      id: observable,
       events: observable.shallow,
       channel: observable,
     })
@@ -343,6 +345,7 @@ export default class Track {
 }
 
 createModelSchema(Track, {
+  id: primitive(),
   events: list(pojo),
   lastEventId: primitive(),
   channel: primitive(),

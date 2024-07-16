@@ -27,6 +27,8 @@ export default class Song {
   cloudSongDataId: string | null = null
   isSaved = true
 
+  private lastTrackId = 0
+
   constructor() {
     makeObservable(this, {
       addTrack: action,
@@ -58,6 +60,7 @@ export default class Song {
     if (t.channel === undefined && this.tracks.length > 0) {
       t.channel = t.channel || this.tracks.length - 1
     }
+    t.id = this.lastTrackId++
     this.tracks.splice(index, 0, t)
   }
 
@@ -116,4 +119,5 @@ createModelSchema(Song, {
   tracks: list(object(Track)),
   filepath: primitive(),
   timebase: primitive(),
+  lastTrackId: primitive(),
 })
