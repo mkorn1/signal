@@ -33,7 +33,7 @@ export type PianoNoteItem = Rect & {
 
 export type SerializedPianoRollStore = Pick<
   PianoRollStore,
-  "selection" | "selectedNoteIds"
+  "selection" | "selectedNoteIds" | "selectedTrackId"
 >
 
 export default class PianoRollStore {
@@ -151,12 +151,14 @@ export default class PianoRollStore {
     return {
       selection: this.selection ? Selection.clone(this.selection) : null,
       selectedNoteIds: cloneDeep(this.selectedNoteIds),
+      selectedTrackId: this.selectedTrackId,
     }
   }
 
   restore(serialized: SerializedPianoRollStore) {
     this.selection = serialized.selection
     this.selectedNoteIds = serialized.selectedNoteIds
+    this.selectedTrackId = serialized.selectedTrackId
   }
 
   get contentWidth(): number {

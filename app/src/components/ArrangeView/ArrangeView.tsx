@@ -213,9 +213,9 @@ export const ArrangeView: FC = observer(() => {
       [arrangeViewStore, player, rootStore],
     )
 
-  const openTrack = (trackIndex: number) => {
+  const openTrack = (trackId: number) => {
     router.pushTrack()
-    selectTrack(rootStore)(trackIndex)
+    selectTrack(rootStore)(trackId)
   }
 
   return (
@@ -233,7 +233,7 @@ export const ArrangeView: FC = observer(() => {
               key={i}
               isSelected={i === selectedTrackIndex}
               onClick={() => (arrangeViewStore.selectedTrackIndex = i)}
-              onDoubleClick={() => openTrack(i)}
+              onDoubleClick={() => openTrack(t.id)}
               onContextMenu={(e) => {
                 arrangeViewStore.selectedTrackIndex = i
                 onTrackContextMenu(e)

@@ -86,8 +86,8 @@ export const removeTrack =
 
 export const selectTrack =
   ({ pianoRollStore }: RootStore) =>
-  (trackIndex: number) => {
-    pianoRollStore.selectedTrackIndex = trackIndex
+  (trackId: number) => {
+    pianoRollStore.selectedTrackId = trackId
   }
 
 export const insertTrack =

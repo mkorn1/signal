@@ -167,8 +167,8 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
     )
   const onSelectTrack = useCallback(() => {
     router.pushTrack()
-    selectTrack(rootStore)(trackIndex)
-  }, [trackIndex])
+    selectTrack(rootStore)(track.id)
+  }, [track.id])
   const onClickChannel = useCallback(() => {
     setDialogOpened(true)
   }, [])

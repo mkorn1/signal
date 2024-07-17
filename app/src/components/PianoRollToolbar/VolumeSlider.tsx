@@ -24,18 +24,18 @@ const VolumeIcon = styled(VolumeUp)`
 `
 
 export interface VolumeSliderProps {
-  trackIndex: number
+  trackId: number
 }
 
-const _VolumeSlider: FC<VolumeSliderProps> = observer(({ trackIndex }) => {
+const _VolumeSlider: FC<VolumeSliderProps> = observer(({ trackId }) => {
   const rootStore = useStores()
   const {
     pianoRollStore: { currentVolume },
   } = rootStore
   const volume = currentVolume ?? 100
   const onChange = useCallback(
-    (value: number) => setTrackVolume(rootStore)(trackIndex, value),
-    [rootStore, trackIndex],
+    (value: number) => setTrackVolume(rootStore)(trackId, value),
+    [rootStore, trackId],
   )
   return (
     <Container>

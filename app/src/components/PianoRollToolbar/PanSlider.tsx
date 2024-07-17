@@ -23,19 +23,19 @@ const Label = styled.div`
 `
 
 export interface PanSliderProps {
-  trackIndex: number
+  trackId: number
 }
 
 const PAN_CENTER = 64
 
-const _PanSlider: FC<PanSliderProps> = observer(({ trackIndex }) => {
+const _PanSlider: FC<PanSliderProps> = observer(({ trackId }) => {
   const rootStore = useStores()
   const {
     pianoRollStore: { currentPan },
   } = rootStore
   const onChange = useCallback(
-    (value: number) => setTrackPan(rootStore)(trackIndex, value),
-    [rootStore, trackIndex],
+    (value: number) => setTrackPan(rootStore)(trackId, value),
+    [rootStore, trackId],
   )
   const pan = currentPan ?? PAN_CENTER
 
