@@ -318,12 +318,12 @@ export const setTrackInstrument =
 
 export const toogleGhostTrack =
   ({ pianoRollStore, pushHistory }: RootStore) =>
-  (trackIndex: number) => {
+  (trackId: number) => {
     pushHistory()
-    if (pianoRollStore.notGhostTracks.has(trackIndex)) {
-      pianoRollStore.notGhostTracks.delete(trackIndex)
+    if (pianoRollStore.notGhostTrackIds.has(trackId)) {
+      pianoRollStore.notGhostTrackIds.delete(trackId)
     } else {
-      pianoRollStore.notGhostTracks.add(trackIndex)
+      pianoRollStore.notGhostTrackIds.add(trackId)
     }
   }
 
@@ -332,12 +332,12 @@ export const toogleAllGhostTracks =
   () => {
     pushHistory()
     if (
-      pianoRollStore.notGhostTracks.size > Math.floor(song.tracks.length / 2)
+      pianoRollStore.notGhostTrackIds.size > Math.floor(song.tracks.length / 2)
     ) {
-      pianoRollStore.notGhostTracks = new Set()
+      pianoRollStore.notGhostTrackIds = new Set()
     } else {
-      for (let i = 0; i < song.tracks.length; ++i) {
-        pianoRollStore.notGhostTracks.add(i)
+      for (const track of song.tracks) {
+        pianoRollStore.notGhostTrackIds.add(track.id)
       }
     }
   }

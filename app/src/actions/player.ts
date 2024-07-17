@@ -94,12 +94,12 @@ export const toggleMute =
   }
 
 export const toggleGhost =
-  ({ pianoRollStore: { selectedTrackIndex }, pianoRollStore }: RootStore) =>
+  ({ pianoRollStore: { selectedTrackId }, pianoRollStore }: RootStore) =>
   () => {
-    if (pianoRollStore.notGhostTracks.has(selectedTrackIndex)) {
-      pianoRollStore.notGhostTracks.delete(selectedTrackIndex)
+    if (pianoRollStore.notGhostTrackIds.has(selectedTrackId)) {
+      pianoRollStore.notGhostTrackIds.delete(selectedTrackId)
     } else {
-      pianoRollStore.notGhostTracks.add(selectedTrackIndex)
+      pianoRollStore.notGhostTrackIds.add(selectedTrackId)
     }
   }
 

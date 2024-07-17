@@ -124,7 +124,7 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
     track.id === pianoRollStore.selectedTrackId
   const mute = trackMute.isMuted(trackIndex)
   const solo = trackMute.isSolo(trackIndex)
-  const ghostTrack = !pianoRollStore.notGhostTracks.has(trackIndex)
+  const ghostTrack = !pianoRollStore.notGhostTrackIds.has(track.id)
   const channel = track.channel
   const { onContextMenu, menuProps } = useContextMenu()
   const [isDialogOpened, setDialogOpened] = useState(false)
@@ -160,10 +160,10 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
         if (e.nativeEvent.altKey) {
           toogleAllGhostTracks(rootStore)()
         } else {
-          toogleGhostTrack(rootStore)(trackIndex)
+          toogleGhostTrack(rootStore)(track.id)
         }
       },
-      [trackIndex],
+      [track.id],
     )
   const onSelectTrack = useCallback(() => {
     router.pushTrack()

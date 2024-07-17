@@ -22,7 +22,7 @@ export const setSong = (rootStore: RootStore) => (song: Song) => {
   trackMute.reset()
 
   pianoRollStore.setScrollLeftInPixels(0)
-  pianoRollStore.notGhostTracks = new Set()
+  pianoRollStore.notGhostTrackIds = new Set()
   pianoRollStore.showTrackList = true
   pianoRollStore.selection = null
   pianoRollStore.selectedNoteIds = []

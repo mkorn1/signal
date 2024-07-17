@@ -61,7 +61,7 @@ export default class PianoRollStore {
     isRhythmTrack: false,
     programNumber: 0,
   }
-  notGhostTracks: Set<number> = new Set()
+  notGhostTrackIds: Set<number> = new Set()
   canvasWidth: number = 0
   canvasHeight: number = 0
   showTrackList = false
@@ -89,7 +89,7 @@ export default class PianoRollStore {
       lastNoteDuration: observable,
       openInstrumentBrowser: observable,
       instrumentBrowserSetting: observable,
-      notGhostTracks: observable,
+      notGhostTrackIds: observable,
       canvasWidth: observable,
       canvasHeight: observable,
       showTrackList: observable,
@@ -106,7 +106,7 @@ export default class PianoRollStore {
       allNotes: computed,
       notes: computed,
       selectedTrackIndex: computed,
-      ghostTrackIndices: computed,
+      ghostTrackIds: computed,
       selectionBounds: computed,
       currentVolume: computed,
       currentPan: computed,
@@ -141,7 +141,7 @@ export default class PianoRollStore {
     })
 
     // reset selection when change track
-    observe(this, "selectedTrackIndex", () => {
+    observe(this, "selectedTrackId", () => {
       this.selection = null
       this.selectedNoteIds = []
     })
@@ -312,17 +312,15 @@ export default class PianoRollStore {
     )
   }
 
-  get ghostTrackIndices(): number[] {
+  get ghostTrackIds(): number[] {
     const song = this.rootStore.song
-    const { notGhostTracks, selectedTrackIndex } = this
+    const { notGhostTrackIds, selectedTrackId } = this
     return song.tracks
-      .map((_, id) => id)
       .filter(
-        (track, id) =>
-          id !== selectedTrackIndex &&
-          !notGhostTracks.has(id) &&
-          track != undefined,
+        (track) =>
+          track.id !== selectedTrackId && !notGhostTrackIds.has(track.id),
       )
+      .map((track) => track.id)
   }
 
   // hit test notes in canvas coordinates
