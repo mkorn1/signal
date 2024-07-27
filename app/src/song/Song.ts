@@ -1,13 +1,5 @@
 import { PlayerEvent } from "@signal-app/player"
-import pullAt from "lodash/pullAt"
-import {
-  action,
-  computed,
-  makeObservable,
-  observable,
-  reaction,
-  transaction,
-} from "mobx"
+import { action, computed, makeObservable, observable, reaction } from "mobx"
 import { createModelSchema, list, object, primitive } from "serializr"
 import { Measure } from "../entities/measure/Measure"
 import { isNotUndefined } from "../helpers/array"
@@ -73,9 +65,7 @@ export default class Song {
   }
 
   removeTrack(id: TrackId) {
-    transaction(() => {
-      pullAt(this.tracks, id)
-    })
+    this.tracks = this.tracks.filter((t) => t.id !== id)
   }
 
   moveTrack(from: number, to: number) {
