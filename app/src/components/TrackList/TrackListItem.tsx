@@ -4,7 +4,7 @@ import Layers from "mdi-react/LayersIcon"
 import VolumeUp from "mdi-react/VolumeHighIcon"
 import VolumeOff from "mdi-react/VolumeOffIcon"
 import { observer } from "mobx-react-lite"
-import { FC, useCallback, useState } from "react"
+import { FC, MouseEventHandler, useCallback, useState } from "react"
 import {
   selectTrack,
   toggleMuteTrack,
@@ -17,7 +17,6 @@ import { useStores } from "../../hooks/useStores"
 import { categoryEmojis, getCategoryIndex } from "../../midi/GM"
 import Track from "../../track/Track"
 import { trackColorToCSSColor } from "../../track/TrackColor"
-import { IconButton } from "../ui/IconButton"
 import { TrackInstrumentName } from "./InstrumentName"
 import { TrackDialog } from "./TrackDialog"
 import { TrackListContextMenu } from "./TrackListContextMenu"
@@ -108,10 +107,26 @@ const IconInner = styled.div<{ selected: boolean }>`
   opacity: ${({ selected }) => (selected ? 1 : 0.5)};
 `
 
-const ControlButton = styled(IconButton)`
+const ControlButton = styled.div<{ active?: boolean }>`
   width: 1.9rem;
   height: 1.9rem;
   margin-right: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: ${({ theme, active }) =>
+    active ? theme.textColor : theme.secondaryTextColor};
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ theme }) => theme.highlightColor};
+  }
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
 `
 
 export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
@@ -138,32 +153,31 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
       isRhythmTrack: track.isRhythmTrack,
     }
   }, [])
-  const onClickMute: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+  const onClickMute: MouseEventHandler = useCallback(
     (e) => {
       e.stopPropagation()
       toggleMuteTrack(rootStore)(track.id)
     },
     [track.id],
   )
-  const onClickSolo: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+  const onClickSolo: MouseEventHandler = useCallback(
     (e) => {
       e.stopPropagation()
       toggleSoloTrack(rootStore)(track.id)
     },
     [track.id],
   )
-  const onClickGhostTrack: React.MouseEventHandler<HTMLButtonElement> =
-    useCallback(
-      (e) => {
-        e.stopPropagation()
-        if (e.nativeEvent.altKey) {
-          toogleAllGhostTracks(rootStore)()
-        } else {
-          toogleGhostTrack(rootStore)(track.id)
-        }
-      },
-      [track.id],
-    )
+  const onClickGhostTrack: MouseEventHandler = useCallback(
+    (e) => {
+      e.stopPropagation()
+      if (e.nativeEvent.altKey) {
+        toogleAllGhostTracks(rootStore)()
+      } else {
+        toogleGhostTrack(rootStore)(track.id)
+      }
+    },
+    [track.id],
+  )
   const onSelectTrack = useCallback(() => {
     router.pushTrack()
     selectTrack(rootStore)(track.id)
@@ -206,13 +220,25 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
             </Instrument>
           </Label>
           <Controls>
-            <ControlButton active={solo} onMouseDown={onClickSolo}>
+            <ControlButton
+              active={solo}
+              onMouseDown={onClickSolo}
+              tabIndex={-1}
+            >
               <Headset />
             </ControlButton>
-            <ControlButton active={mute} onMouseDown={onClickMute}>
+            <ControlButton
+              active={mute}
+              onMouseDown={onClickMute}
+              tabIndex={-1}
+            >
               {mute ? <VolumeOff /> : <VolumeUp />}
             </ControlButton>
-            <ControlButton active={ghostTrack} onMouseDown={onClickGhostTrack}>
+            <ControlButton
+              active={ghostTrack}
+              onMouseDown={onClickGhostTrack}
+              tabIndex={-1}
+            >
               <Layers />
             </ControlButton>
             {channel !== undefined && (

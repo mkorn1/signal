@@ -32,7 +32,13 @@ const SortableItem = <ID extends string | number>(
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      tabIndex={-1}
+    >
       {props.children}
     </div>
   )
