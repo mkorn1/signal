@@ -22,8 +22,8 @@ export const TrackList: FC = observer(() => {
         items={song.tracks.filter((t) => !t.isConductorTrack)}
         getItemId={(track) => track.id}
         onItemMoved={(id, overId) => {
-          const track = song.getTrackById(id)
-          const overTrack = song.getTrackById(overId)
+          const track = song.getTrack(id)
+          const overTrack = song.getTrack(overId)
           if (track === undefined || overTrack === undefined) {
             return
           }

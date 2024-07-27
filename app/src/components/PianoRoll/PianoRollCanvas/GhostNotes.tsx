@@ -19,7 +19,7 @@ export const GhostNotes: FC<{ zIndex: number; trackId: TrackId }> = observer(
       pianoRollStore: { transform, scrollLeft, canvasWidth },
     } = useStores()
     const theme = useTheme()
-    const track = song.getTrackById(trackId)
+    const track = song.getTrack(trackId)
 
     if (track === undefined) {
       return <></>

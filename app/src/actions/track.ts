@@ -283,7 +283,7 @@ export const setTrackVolume =
   ({ song, player, pushHistory }: RootStore) =>
   (trackId: TrackId, volume: number) => {
     pushHistory()
-    const track = song.getTrackById(trackId)
+    const track = song.getTrack(trackId)
     if (track === undefined) {
       return
     }
@@ -299,7 +299,7 @@ export const setTrackPan =
   ({ song, player, pushHistory }: RootStore) =>
   (trackId: TrackId, pan: number) => {
     pushHistory()
-    const track = song.getTrackById(trackId)
+    const track = song.getTrack(trackId)
     if (track === undefined) {
       return
     }

@@ -259,7 +259,7 @@ export default class PianoRollStore {
   }
 
   get selectedTrack(): Track | undefined {
-    return this.rootStore.song.getTrackById(this.selectedTrackId)
+    return this.rootStore.song.getTrack(this.selectedTrackId)
   }
 
   get transform(): NoteCoordTransform {
