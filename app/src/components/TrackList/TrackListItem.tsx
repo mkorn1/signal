@@ -224,9 +224,9 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
           </Controls>
         </div>
       </Container>
-      <TrackListContextMenu {...menuProps} trackIndex={trackIndex} />
+      <TrackListContextMenu {...menuProps} track={track} />
       <TrackDialog
-        trackIndex={trackIndex}
+        track={track}
         open={isDialogOpened}
         onClose={() => setDialogOpened(false)}
       />

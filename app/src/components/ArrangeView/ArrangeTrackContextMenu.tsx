@@ -12,7 +12,7 @@ export const ArrangeTrackContextMenu: FC<ContextMenuProps> = observer(
     const rootStore = useStores()
     const {
       song: { tracks },
-      arrangeViewStore: { selectedTrackIndex },
+      arrangeViewStore: { selectedTrackIndex, selectedTrackId },
     } = rootStore
 
     return (
@@ -30,7 +30,7 @@ export const ArrangeTrackContextMenu: FC<ContextMenuProps> = observer(
           <MenuItem
             onClick={(e) => {
               e.stopPropagation()
-              removeTrack(rootStore)(selectedTrackIndex)
+              removeTrack(rootStore)(selectedTrackId)
               handleClose()
             }}
           >
@@ -41,7 +41,7 @@ export const ArrangeTrackContextMenu: FC<ContextMenuProps> = observer(
           <MenuItem
             onClick={(e) => {
               e.stopPropagation()
-              duplicateTrack(rootStore)(selectedTrackIndex)
+              duplicateTrack(rootStore)(selectedTrackId)
               handleClose()
             }}
           >

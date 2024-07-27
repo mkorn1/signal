@@ -68,7 +68,7 @@ export const addTrack =
 
 export const removeTrack =
   ({ song, pianoRollStore, pushHistory }: RootStore) =>
-  (trackIndex: number) => {
+  (trackId: TrackId) => {
     if (song.tracks.filter((t) => !t.isConductorTrack).length <= 1) {
       // conductor track を除き、最後のトラックの場合
       // トラックがなくなるとエラーが出るので削除できなくする
@@ -77,7 +77,8 @@ export const removeTrack =
       return
     }
     pushHistory()
-    song.removeTrack(song.tracks[trackIndex].id)
+    const trackIndex = song.tracks.findIndex((t) => t.id === trackId)
+    song.removeTrack(trackId)
     pianoRollStore.selectedTrackIndex = Math.min(
       trackIndex,
       song.tracks.length - 1,
@@ -99,14 +100,12 @@ export const insertTrack =
 
 export const duplicateTrack =
   ({ song, pushHistory }: RootStore) =>
-  (trackIndex: number) => {
-    if (trackIndex === 0) {
-      throw new Error("Don't remove conductor track")
-    }
-    const track = song.tracks[trackIndex]
+  (trackId: TrackId) => {
+    const track = song.getTrack(trackId)
     if (track === undefined) {
       throw new Error("No track found")
     }
+    const trackIndex = song.tracks.findIndex((t) => t.id === trackId)
     const newTrack = track.clone()
     newTrack.channel = undefined
     pushHistory()

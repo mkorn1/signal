@@ -313,9 +313,13 @@ export const setTrackPan =
 
 export const setTrackInstrument =
   ({ song, player, pushHistory }: RootStore) =>
-  (trackIndex: number, programNumber: number) => {
+  (trackId: TrackId, programNumber: number) => {
     pushHistory()
-    const track = song.tracks[trackIndex]
+    const track = song.getTrack(trackId)
+    if (track === undefined) {
+      return
+    }
+
     track.setProgramNumber(programNumber)
 
     // 即座に反映する

@@ -9,7 +9,7 @@ import { ArrangeCoordTransform } from "../entities/transform/ArrangeCoordTransfo
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { isEventOverlapRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
-import { isNoteEvent } from "../track"
+import { isNoteEvent, TrackId } from "../track"
 import RootStore from "./RootStore"
 import { RulerStore } from "./RulerStore"
 
@@ -65,6 +65,7 @@ export default class ArrangeViewStore {
       contentWidth: computed,
       contentHeight: computed,
       quantizer: computed,
+      selectedTrackId: computed,
       setScrollLeftInPixels: action,
       setScrollTop: action,
     })
@@ -220,5 +221,9 @@ export default class ArrangeViewStore {
 
   get quantizer(): Quantizer {
     return new Quantizer(this.rootStore, this.quantize, true)
+  }
+
+  get selectedTrackId(): TrackId {
+    return this.rootStore.song.tracks[this.selectedTrackIndex].id
   }
 }

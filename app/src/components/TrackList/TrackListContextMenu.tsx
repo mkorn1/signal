@@ -4,32 +4,32 @@ import { FC, useCallback, useState } from "react"
 import { addTrack, removeTrack } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
+import Track from "../../track/Track"
 import { ColorPicker } from "../ColorPicker/ColorPicker"
 import { ContextMenu, ContextMenuProps } from "../ContextMenu/ContextMenu"
 import { MenuItem } from "../ui/Menu"
 import { TrackDialog } from "./TrackDialog"
 
 export interface TrackListContextMenuProps extends ContextMenuProps {
-  trackIndex: number
+  track: Track
 }
 
 export const TrackListContextMenu: FC<TrackListContextMenuProps> = observer(
-  ({ trackIndex, ...props }) => {
+  ({ track, ...props }) => {
     const rootStore = useStores()
     const { handleClose } = props
     const [isDialogOpened, setDialogOpened] = useState(false)
     const [isColorPickerOpened, setColorPickerOpened] = useState(false)
 
-    const onClickAdd = useCallback(() => addTrack(rootStore)(), [trackIndex])
+    const onClickAdd = useCallback(() => addTrack(rootStore)(), [])
     const onClickDelete = useCallback(
-      () => removeTrack(rootStore)(trackIndex),
-      [trackIndex],
+      () => removeTrack(rootStore)(track.id),
+      [track.id],
     )
     const onClickProperty = () => setDialogOpened(true)
     const onClickChangeTrackColor = () => setColorPickerOpened(true)
 
     const onPickColor = (color: string | null) => {
-      const track = rootStore.song.tracks[trackIndex]
       if (color === null) {
         track.setColor(null)
         return
@@ -84,7 +84,7 @@ export const TrackListContextMenu: FC<TrackListContextMenuProps> = observer(
           </MenuItem>
         </ContextMenu>
         <TrackDialog
-          trackIndex={trackIndex}
+          track={track}
           open={isDialogOpened}
           onClose={() => setDialogOpened(false)}
         />
