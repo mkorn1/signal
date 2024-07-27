@@ -67,7 +67,7 @@ export const addTrack =
   }
 
 export const removeTrack =
-  ({ song, pianoRollStore, pushHistory }: RootStore) =>
+  ({ song, pianoRollStore, arrangeViewStore, pushHistory }: RootStore) =>
   (trackId: TrackId) => {
     if (song.tracks.filter((t) => !t.isConductorTrack).length <= 1) {
       // conductor track を除き、最後のトラックの場合
@@ -77,10 +77,15 @@ export const removeTrack =
       return
     }
     pushHistory()
-    const trackIndex = song.tracks.findIndex((t) => t.id === trackId)
+    const pianoRollSelectedTrackIndex = pianoRollStore.selectedTrackIndex
+    const arrangeViewSelectedTrackIndex = arrangeViewStore.selectedTrackIndex
     song.removeTrack(trackId)
     pianoRollStore.selectedTrackIndex = Math.min(
-      trackIndex,
+      pianoRollSelectedTrackIndex,
+      song.tracks.length - 1,
+    )
+    arrangeViewStore.selectedTrackIndex = Math.min(
+      arrangeViewSelectedTrackIndex,
       song.tracks.length - 1,
     )
   }
