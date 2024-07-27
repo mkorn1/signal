@@ -9,6 +9,6 @@ export interface SynthOutput {
     event: SendableEvent,
     delayTime: number,
     timestampNow: number,
-    trackIndex?: number,
+    trackId?: number,
   ): void
 }

@@ -15,8 +15,8 @@ export const convertTrackEvents = (
       (e) =>
         ({
           ...e,
-          channel: channel,
-          trackIndex: trackId,
+          channel,
+          trackId,
         }) as PlayerEventOf<AnyChannelEvent>,
     )
 
