@@ -72,7 +72,7 @@ export default class Song {
     this.insertTrack(t, this.tracks.length)
   }
 
-  removeTrack(id: number) {
+  removeTrack(id: TrackId) {
     transaction(() => {
       pullAt(this.tracks, id)
     })

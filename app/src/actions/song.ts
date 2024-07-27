@@ -77,7 +77,7 @@ export const removeTrack =
       return
     }
     pushHistory()
-    song.removeTrack(trackIndex)
+    song.removeTrack(song.tracks[trackIndex].id)
     pianoRollStore.selectedTrackIndex = Math.min(
       trackIndex,
       song.tracks.length - 1,

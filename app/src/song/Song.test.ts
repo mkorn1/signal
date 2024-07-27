@@ -46,7 +46,7 @@ describe("Song", () => {
     expect(song.tracks[0].id).toBe(0)
     expect(song.tracks[1].id).toBe(1)
     expect(song.tracks[2].id).toBe(2)
-    song.removeTrack(1)
+    song.removeTrack(song.tracks[1].id)
     song.addTrack(emptyTrack(8))
     expect(song.tracks[2].id).toBe(3)
   })
