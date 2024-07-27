@@ -19,7 +19,12 @@ import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { isNotUndefined } from "../helpers/array"
 import { isEventOverlapRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
-import Track, { TrackEvent, isNoteEvent } from "../track"
+import Track, {
+  TrackEvent,
+  TrackId,
+  UNASSIGNED_TRACK_ID,
+  isNoteEvent,
+} from "../track"
 import RootStore from "./RootStore"
 import { RulerStore } from "./RulerStore"
 
@@ -52,7 +57,7 @@ export default class PianoRollStore {
   autoScroll = true
   quantize = 8
   isQuantizeEnabled = true
-  selectedTrackId: number = 1
+  selectedTrackId: TrackId = UNASSIGNED_TRACK_ID
   selection: Selection | null = null
   selectedNoteIds: number[] = []
   lastNoteDuration: number | null = null
@@ -61,7 +66,7 @@ export default class PianoRollStore {
     isRhythmTrack: false,
     programNumber: 0,
   }
-  notGhostTrackIds: Set<number> = new Set()
+  notGhostTrackIds: Set<TrackId> = new Set()
   canvasWidth: number = 0
   canvasHeight: number = 0
   showTrackList = false
@@ -314,7 +319,7 @@ export default class PianoRollStore {
     )
   }
 
-  get ghostTrackIds(): number[] {
+  get ghostTrackIds(): TrackId[] {
     const song = this.rootStore.song
     const { notGhostTrackIds, selectedTrackId } = this
     return song.tracks

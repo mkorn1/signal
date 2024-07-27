@@ -16,6 +16,7 @@ import Track, {
   NoteEvent,
   TrackEvent,
   TrackEventOf,
+  TrackId,
   isNoteEvent,
 } from "../track"
 import { stopNote } from "./player"
@@ -280,7 +281,7 @@ export const setTrackName =
 
 export const setTrackVolume =
   ({ song, player, pushHistory }: RootStore) =>
-  (trackId: number, volume: number) => {
+  (trackId: TrackId, volume: number) => {
     pushHistory()
     const track = song.getTrackById(trackId)
     if (track === undefined) {
@@ -296,7 +297,7 @@ export const setTrackVolume =
 
 export const setTrackPan =
   ({ song, player, pushHistory }: RootStore) =>
-  (trackId: number, pan: number) => {
+  (trackId: TrackId, pan: number) => {
     pushHistory()
     const track = song.getTrackById(trackId)
     if (track === undefined) {
@@ -326,7 +327,7 @@ export const setTrackInstrument =
 
 export const toogleGhostTrack =
   ({ pianoRollStore, pushHistory }: RootStore) =>
-  (trackId: number) => {
+  (trackId: TrackId) => {
     pushHistory()
     if (pianoRollStore.notGhostTrackIds.has(trackId)) {
       pianoRollStore.notGhostTrackIds.delete(trackId)

@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite"
 import React, { FC, useCallback } from "react"
 import { setTrackVolume } from "../../actions"
 import { useStores } from "../../hooks/useStores"
+import { TrackId } from "../../track"
 import { Slider } from "../ui/Slider"
 
 const Container = styled.div`
@@ -24,7 +25,7 @@ const VolumeIcon = styled(VolumeUp)`
 `
 
 export interface VolumeSliderProps {
-  trackId: number
+  trackId: TrackId
 }
 
 const _VolumeSlider: FC<VolumeSliderProps> = observer(({ trackId }) => {

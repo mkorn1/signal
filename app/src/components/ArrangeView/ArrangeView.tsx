@@ -18,6 +18,7 @@ import { observeDrag } from "../../helpers/observeDrag"
 import { isTouchPadEvent } from "../../helpers/touchpad"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
+import { TrackId } from "../../track"
 import CanvasPianoRuler from "../PianoRoll/CanvasPianoRuler"
 import { TrackName } from "../TrackList/TrackName"
 import {
@@ -213,7 +214,7 @@ export const ArrangeView: FC = observer(() => {
       [arrangeViewStore, player, rootStore],
     )
 
-  const openTrack = (trackId: number) => {
+  const openTrack = (trackId: TrackId) => {
     router.pushTrack()
     selectTrack(rootStore)(trackId)
   }

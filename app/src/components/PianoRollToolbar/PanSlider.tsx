@@ -4,6 +4,7 @@ import React, { FC, useCallback } from "react"
 import { setTrackPan } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
+import { TrackId } from "../../track"
 import { Slider } from "../ui/Slider"
 
 const Container = styled.div`
@@ -23,7 +24,7 @@ const Label = styled.div`
 `
 
 export interface PanSliderProps {
-  trackId: number
+  trackId: TrackId
 }
 
 const PAN_CENTER = 64

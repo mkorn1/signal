@@ -35,7 +35,7 @@ import { TrackEvent, TrackEventOf } from "./TrackEvent"
 import { validateMidiEvent } from "./validate"
 
 export type TrackId = Branded<number, "TrackId">
-const UNASSIGNED_TRACK_ID = -1 as TrackId
+export const UNASSIGNED_TRACK_ID = -1 as TrackId
 
 export default class Track {
   id: TrackId = UNASSIGNED_TRACK_ID

@@ -7,12 +7,12 @@ import { Range } from "../../../entities/geometry/Range"
 import { colorToVec4 } from "../../../gl/color"
 import { isEventOverlapRange } from "../../../helpers/filterEvents"
 import { useStores } from "../../../hooks/useStores"
-import { isNoteEvent } from "../../../track"
+import { isNoteEvent, TrackId } from "../../../track"
 import { trackColorToVec4 } from "../../../track/TrackColor"
 import { NoteCircles } from "./NoteCircles"
 import { NoteRectangles } from "./NoteRectangles"
 
-export const GhostNotes: FC<{ zIndex: number; trackId: number }> = observer(
+export const GhostNotes: FC<{ zIndex: number; trackId: TrackId }> = observer(
   ({ zIndex, trackId }) => {
     const {
       song,

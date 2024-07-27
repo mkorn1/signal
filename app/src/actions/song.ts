@@ -3,7 +3,7 @@ import { isNotNull } from "../helpers/array"
 import { downloadSongAsMidi } from "../midi/midiConversion"
 import Song, { emptySong } from "../song"
 import RootStore from "../stores/RootStore"
-import { emptyTrack, isNoteEvent } from "../track"
+import { emptyTrack, isNoteEvent, TrackId, UNASSIGNED_TRACK_ID } from "../track"
 import { songFromFile } from "./file"
 
 const openSongFile = async (input: HTMLInputElement): Promise<Song | null> => {
@@ -27,7 +27,7 @@ export const setSong = (rootStore: RootStore) => (song: Song) => {
   pianoRollStore.selection = null
   pianoRollStore.selectedNoteIds = []
   pianoRollStore.selectedTrackId =
-    song.tracks.find((t) => !t.isConductorTrack)?.id ?? 0
+    song.tracks.find((t) => !t.isConductorTrack)?.id ?? UNASSIGNED_TRACK_ID
 
   arrangeViewStore.selection = null
   arrangeViewStore.selectedEventIds = []
@@ -86,7 +86,7 @@ export const removeTrack =
 
 export const selectTrack =
   ({ pianoRollStore }: RootStore) =>
-  (trackId: number) => {
+  (trackId: TrackId) => {
     pianoRollStore.selectedTrackId = trackId
   }
 
