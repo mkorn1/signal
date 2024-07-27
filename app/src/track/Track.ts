@@ -16,6 +16,7 @@ import {
   setTempoMidiEvent,
   trackNameMidiEvent,
 } from "../midi/MidiEvent"
+import { Branded } from "../types"
 import { isControllerEventWithType, isNoteEvent } from "./identify"
 import {
   getLast,
@@ -33,8 +34,11 @@ import { TrackColor } from "./TrackColor"
 import { TrackEvent, TrackEventOf } from "./TrackEvent"
 import { validateMidiEvent } from "./validate"
 
+export type TrackId = Branded<number, "TrackId">
+const UNASSIGNED_TRACK_ID = -1 as TrackId
+
 export default class Track {
-  id: number = -1
+  id: TrackId = UNASSIGNED_TRACK_ID
   events: TrackEvent[] = []
   channel: number | undefined = undefined
 

@@ -12,7 +12,7 @@ import { createModelSchema, list, object, primitive } from "serializr"
 import { Measure } from "../entities/measure/Measure"
 import { isNotUndefined } from "../helpers/array"
 import { collectAllEvents } from "../player/collectAllEvents"
-import Track, { isTimeSignatureEvent } from "../track"
+import Track, { isTimeSignatureEvent, TrackId } from "../track"
 
 const END_MARGIN = 480 * 30
 const DEFAULT_TIME_BASE = 480
@@ -55,12 +55,16 @@ export default class Song {
     )
   }
 
+  private generateTrackId(): TrackId {
+    return this.lastTrackId++ as TrackId
+  }
+
   insertTrack(t: Track, index: number) {
     // 最初のトラックは Conductor Track なので channel を設定しない
     if (t.channel === undefined && this.tracks.length > 0) {
       t.channel = t.channel || this.tracks.length - 1
     }
-    t.id = this.lastTrackId++
+    t.id = this.generateTrackId()
     this.tracks.splice(index, 0, t)
   }
 
