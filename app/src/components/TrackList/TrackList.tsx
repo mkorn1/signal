@@ -2,6 +2,7 @@ import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { useStores } from "../../hooks/useStores"
+import { DraggableList } from "../ControlSettingDialog/DraggableList"
 import { AddTrackButton } from "./AddTrackButton"
 import { TrackListItem } from "./TrackListItem"
 
@@ -17,9 +18,21 @@ export const TrackList: FC = observer(() => {
 
   return (
     <List>
-      {song.tracks.map(
-        (t, i) => !t.isConductorTrack && <TrackListItem key={i} trackId={i} />,
-      )}
+      <DraggableList
+        items={song.tracks.filter((t) => !t.isConductorTrack)}
+        getItemId={(track) => track.id}
+        onItemMoved={(id, overId) => {
+          const track = song.getTrack(id)
+          const overTrack = song.getTrack(overId)
+          if (track === undefined || overTrack === undefined) {
+            return
+          }
+          const fromIndex = song.tracks.indexOf(track)
+          const toIndex = song.tracks.indexOf(overTrack)
+          song.moveTrack(fromIndex, toIndex)
+        }}
+        render={(track) => <TrackListItem key={track.id} track={track} />}
+      ></DraggableList>
       <AddTrackButton />
     </List>
   )

@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import {
   arrangeCopySelection,
@@ -16,7 +17,7 @@ import {
 } from "../ContextMenu/ContextMenu"
 import { MenuDivider, MenuItem } from "../ui/Menu"
 
-export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
+export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
   const { handleClose } = props
   const rootStore = useStores()
   const { arrangeViewStore } = rootStore
@@ -115,4 +116,4 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = (props) => {
       </MenuItem>
     </ContextMenu>
   )
-}
+})

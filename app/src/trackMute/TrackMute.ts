@@ -1,4 +1,5 @@
 import { makeObservable, observable } from "mobx"
+import { TrackId } from "../track/Track"
 import { ITrackMute } from "./ITrackMute"
 
 function updated<T>(obj: T, key: keyof T, value: any) {
@@ -44,38 +45,38 @@ export default class TrackMute implements ITrackMute {
     this.solos = {}
   }
 
-  private _setMute(trackId: number, isMute: boolean) {
+  private _setMute(trackId: TrackId, isMute: boolean) {
     if (this.isSoloMode()) {
       return
     }
     this.mutes = updated(this.mutes, trackId, isMute)
   }
 
-  private _getMute(trackId: number) {
+  private _getMute(trackId: TrackId) {
     return this.mutes[trackId] || false
   }
 
-  private _setSolo(trackId: number, isSolo: boolean) {
+  private _setSolo(trackId: TrackId, isSolo: boolean) {
     this.solos = updated(this.solos, trackId, isSolo)
   }
 
-  private _getSolo(trackId: number) {
+  private _getSolo(trackId: TrackId) {
     return this.solos[trackId] || false
   }
 
-  mute(trackId: number) {
+  mute(trackId: TrackId) {
     this._setMute(trackId, true)
   }
 
-  unmute(trackId: number) {
+  unmute(trackId: TrackId) {
     this._setMute(trackId, false)
   }
 
-  solo(trackId: number) {
+  solo(trackId: TrackId) {
     this._setSolo(trackId, true)
   }
 
-  unsolo(trackId: number) {
+  unsolo(trackId: TrackId) {
     this._setSolo(trackId, false)
   }
 
@@ -85,7 +86,7 @@ export default class TrackMute implements ITrackMute {
     return Object.values(this.solos).some((s) => s)
   }
 
-  shouldPlayTrack(trackId: number) {
+  shouldPlayTrack(trackId: TrackId) {
     if (this.isSoloMode()) {
       return this._getSolo(trackId)
     } else {
@@ -96,11 +97,11 @@ export default class TrackMute implements ITrackMute {
   // 表示用のメソッド
   // Method for display
 
-  isSolo(trackId: number) {
+  isSolo(trackId: TrackId) {
     return this.isSoloMode() && this.solos[trackId]
   }
 
-  isMuted(trackId: number) {
+  isMuted(trackId: TrackId) {
     return !this.shouldPlayTrack(trackId)
   }
 }

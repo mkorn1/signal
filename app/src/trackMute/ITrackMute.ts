@@ -1,3 +1,5 @@
+import { TrackId } from "../track/Track"
+
 export interface ITrackMute {
-  shouldPlayTrack(trackId: number): boolean
+  shouldPlayTrack(trackId: TrackId): boolean
 }

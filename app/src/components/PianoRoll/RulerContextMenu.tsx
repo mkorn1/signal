@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite"
-import React, { FC, useCallback, useState } from "react"
+import { FC, useCallback, useState } from "react"
 import { addTimeSignature, setLoopBegin, setLoopEnd } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { envString } from "../../localize/envString"
@@ -18,8 +18,8 @@ export interface RulerContextMenuProps extends ContextMenuProps {
   tick: number
 }
 
-export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
-  observer(({ rulerStore, tick, ...props }) => {
+export const RulerContextMenu: FC<RulerContextMenuProps> = observer(
+  ({ rulerStore, tick, ...props }) => {
     const { handleClose } = props
     const rootStore = useStores()
     const { song, player } = rootStore
@@ -85,5 +85,5 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = React.memo(
         />
       </>
     )
-  }),
+  },
 )

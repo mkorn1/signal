@@ -1,18 +1,10 @@
 import { PlayerEvent } from "@signal-app/player"
-import pullAt from "lodash/pullAt"
-import {
-  action,
-  computed,
-  makeObservable,
-  observable,
-  reaction,
-  transaction,
-} from "mobx"
+import { action, computed, makeObservable, observable, reaction } from "mobx"
 import { createModelSchema, list, object, primitive } from "serializr"
 import { Measure } from "../entities/measure/Measure"
 import { isNotUndefined } from "../helpers/array"
 import { collectAllEvents } from "../player/collectAllEvents"
-import Track, { isTimeSignatureEvent } from "../track"
+import Track, { isTimeSignatureEvent, TrackId } from "../track"
 
 const END_MARGIN = 480 * 30
 const DEFAULT_TIME_BASE = 480
@@ -26,6 +18,8 @@ export default class Song {
   cloudSongId: string | null = null
   cloudSongDataId: string | null = null
   isSaved = true
+
+  private lastTrackId = 0
 
   constructor() {
     makeObservable(this, {
@@ -53,11 +47,16 @@ export default class Song {
     )
   }
 
+  private generateTrackId(): TrackId {
+    return this.lastTrackId++ as TrackId
+  }
+
   insertTrack(t: Track, index: number) {
     // 最初のトラックは Conductor Track なので channel を設定しない
     if (t.channel === undefined && this.tracks.length > 0) {
       t.channel = t.channel || this.tracks.length - 1
     }
+    t.id = this.generateTrackId()
     this.tracks.splice(index, 0, t)
   }
 
@@ -65,18 +64,21 @@ export default class Song {
     this.insertTrack(t, this.tracks.length)
   }
 
-  removeTrack(id: number) {
-    transaction(() => {
-      pullAt(this.tracks, id)
-    })
+  removeTrack(id: TrackId) {
+    this.tracks = this.tracks.filter((t) => t.id !== id)
+  }
+
+  moveTrack(from: number, to: number) {
+    const [track] = this.tracks.splice(from, 1)
+    this.tracks.splice(to, 0, track)
   }
 
   get conductorTrack(): Track | undefined {
     return this.tracks.find((t) => t.isConductorTrack)
   }
 
-  getTrack(id: number): Track | undefined {
-    return this.tracks[id]
+  getTrack(id: TrackId): Track | undefined {
+    return this.tracks.find((t) => t.id === id)
   }
 
   get measures(): Measure[] {
@@ -111,4 +113,5 @@ createModelSchema(Song, {
   tracks: list(object(Track)),
   filepath: primitive(),
   timebase: primitive(),
+  lastTrackId: primitive(),
 })

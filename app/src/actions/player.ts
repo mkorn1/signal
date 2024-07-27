@@ -58,8 +58,8 @@ export const fastForwardOneBar =
 export const nextTrack =
   ({ pianoRollStore, song }: RootStore) =>
   () => {
-    pianoRollStore.selectedTrackId = Math.min(
-      pianoRollStore.selectedTrackId + 1,
+    pianoRollStore.selectedTrackIndex = Math.min(
+      pianoRollStore.selectedTrackIndex + 1,
       song.tracks.length - 1,
     )
   }
@@ -67,8 +67,8 @@ export const nextTrack =
 export const previousTrack =
   ({ pianoRollStore }: RootStore) =>
   () => {
-    pianoRollStore.selectedTrackId = Math.max(
-      pianoRollStore.selectedTrackId - 1,
+    pianoRollStore.selectedTrackIndex = Math.max(
+      pianoRollStore.selectedTrackIndex - 1,
       1,
     )
   }
@@ -96,10 +96,10 @@ export const toggleMute =
 export const toggleGhost =
   ({ pianoRollStore: { selectedTrackId }, pianoRollStore }: RootStore) =>
   () => {
-    if (pianoRollStore.notGhostTracks.has(selectedTrackId)) {
-      pianoRollStore.notGhostTracks.delete(selectedTrackId)
+    if (pianoRollStore.notGhostTrackIds.has(selectedTrackId)) {
+      pianoRollStore.notGhostTrackIds.delete(selectedTrackId)
     } else {
-      pianoRollStore.notGhostTracks.add(selectedTrackId)
+      pianoRollStore.notGhostTrackIds.add(selectedTrackId)
     }
   }
 

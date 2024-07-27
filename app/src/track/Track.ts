@@ -16,6 +16,7 @@ import {
   setTempoMidiEvent,
   trackNameMidiEvent,
 } from "../midi/MidiEvent"
+import { Branded } from "../types"
 import { isControllerEventWithType, isNoteEvent } from "./identify"
 import {
   getLast,
@@ -33,7 +34,11 @@ import { TrackColor } from "./TrackColor"
 import { TrackEvent, TrackEventOf } from "./TrackEvent"
 import { validateMidiEvent } from "./validate"
 
+export type TrackId = Branded<number, "TrackId">
+export const UNASSIGNED_TRACK_ID = -1 as TrackId
+
 export default class Track {
+  id: TrackId = UNASSIGNED_TRACK_ID
   events: TrackEvent[] = []
   channel: number | undefined = undefined
 
@@ -57,6 +62,7 @@ export default class Track {
       isConductorTrack: computed,
       isRhythmTrack: computed,
       color: computed,
+      id: observable,
       events: observable.shallow,
       channel: observable,
     })
@@ -343,6 +349,7 @@ export default class Track {
 }
 
 createModelSchema(Track, {
+  id: primitive(),
   events: list(pojo),
   lastEventId: primitive(),
   channel: primitive(),

@@ -1,6 +1,7 @@
 import { SendableEvent, SynthOutput } from "@signal-app/player"
 import { makeObservable, observable } from "mobx"
 import { METRONOME_TRACK_ID } from "../player/EventSource"
+import { TrackId } from "../track"
 import { ITrackMute } from "../trackMute/ITrackMute"
 
 export interface SynthEntry {
@@ -26,7 +27,7 @@ export class GroupOutput implements SynthOutput {
     this.outputs.filter((o) => o.isEnabled).forEach((o) => o.synth.activate())
   }
 
-  private getOutputs(trackId: number | undefined): SynthOutput[] {
+  private getOutputs(trackId: TrackId | undefined): SynthOutput[] {
     if (trackId === METRONOME_TRACK_ID) {
       return this.isMetronomeEnabled ? [this.metronomeOutput] : []
     } else if (
@@ -44,7 +45,7 @@ export class GroupOutput implements SynthOutput {
     event: SendableEvent,
     delayTime: number,
     timestampNow: number,
-    trackId?: number,
+    trackId?: TrackId,
   ): void {
     this.getOutputs(trackId).forEach((synth) =>
       synth.sendEvent(event, delayTime, timestampNow, trackId),

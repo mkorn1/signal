@@ -4,10 +4,11 @@ import { Range } from "../entities/geometry/Range"
 import { isEventInRange } from "../helpers/filterEvents"
 import { noteOnMidiEvent } from "../midi/MidiEvent"
 import { SongProvider } from "../song/SongProvider"
+import { TrackId } from "../track"
 import { getStatusEvents } from "../track/selector"
 import { convertTrackEvents } from "./collectAllEvents"
 
-export const METRONOME_TRACK_ID = 99999
+export const METRONOME_TRACK_ID = 99999 as TrackId
 
 export class EventSource implements IEventSource {
   constructor(private readonly songStore: SongProvider) {}
@@ -30,9 +31,9 @@ export class EventSource implements IEventSource {
   }
 
   getCurrentStateEvents(tick: number): SendableEvent[] {
-    return this.songStore.song.tracks.flatMap((t, i) => {
+    return this.songStore.song.tracks.flatMap((t) => {
       const statusEvents = getStatusEvents(t.events, tick)
-      return convertTrackEvents(statusEvents, t.channel, i)
+      return convertTrackEvents(statusEvents, t.channel, t.id)
     })
   }
 }

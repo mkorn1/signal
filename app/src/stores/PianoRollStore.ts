@@ -19,7 +19,12 @@ import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { isNotUndefined } from "../helpers/array"
 import { isEventOverlapRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
-import Track, { TrackEvent, isNoteEvent } from "../track"
+import Track, {
+  TrackEvent,
+  TrackId,
+  UNASSIGNED_TRACK_ID,
+  isNoteEvent,
+} from "../track"
 import RootStore from "./RootStore"
 import { RulerStore } from "./RulerStore"
 
@@ -33,7 +38,7 @@ export type PianoNoteItem = Rect & {
 
 export type SerializedPianoRollStore = Pick<
   PianoRollStore,
-  "selection" | "selectedNoteIds"
+  "selection" | "selectedNoteIds" | "selectedTrackId"
 >
 
 export default class PianoRollStore {
@@ -52,7 +57,7 @@ export default class PianoRollStore {
   autoScroll = true
   quantize = 8
   isQuantizeEnabled = true
-  selectedTrackId: number = 1
+  selectedTrackId: TrackId = UNASSIGNED_TRACK_ID
   selection: Selection | null = null
   selectedNoteIds: number[] = []
   lastNoteDuration: number | null = null
@@ -61,7 +66,7 @@ export default class PianoRollStore {
     isRhythmTrack: false,
     programNumber: 0,
   }
-  notGhostTracks: Set<number> = new Set()
+  notGhostTrackIds: Set<TrackId> = new Set()
   canvasWidth: number = 0
   canvasHeight: number = 0
   showTrackList = false
@@ -89,7 +94,7 @@ export default class PianoRollStore {
       lastNoteDuration: observable,
       openInstrumentBrowser: observable,
       instrumentBrowserSetting: observable,
-      notGhostTracks: observable,
+      notGhostTrackIds: observable,
       canvasWidth: observable,
       canvasHeight: observable,
       showTrackList: observable,
@@ -105,6 +110,7 @@ export default class PianoRollStore {
       windowedEvents: computed,
       allNotes: computed,
       notes: computed,
+      selectedTrackIndex: computed,
       ghostTrackIds: computed,
       selectionBounds: computed,
       currentVolume: computed,
@@ -150,12 +156,14 @@ export default class PianoRollStore {
     return {
       selection: this.selection ? Selection.clone(this.selection) : null,
       selectedNoteIds: cloneDeep(this.selectedNoteIds),
+      selectedTrackId: this.selectedTrackId,
     }
   }
 
   restore(serialized: SerializedPianoRollStore) {
     this.selection = serialized.selection
     this.selectedNoteIds = serialized.selectedNoteIds
+    this.selectedTrackId = serialized.selectedTrackId
   }
 
   get contentWidth(): number {
@@ -240,8 +248,18 @@ export default class PianoRollStore {
     this.mouseMode === "pencil" ? "selection" : "pencil"
   }
 
+  get selectedTrackIndex(): number {
+    return this.rootStore.song.tracks.findIndex(
+      (t) => t.id === this.selectedTrackId,
+    )
+  }
+
+  set selectedTrackIndex(index: number) {
+    this.selectedTrackId = this.rootStore.song.tracks[index]?.id
+  }
+
   get selectedTrack(): Track | undefined {
-    return this.rootStore.song.tracks[this.selectedTrackId]
+    return this.rootStore.song.getTrack(this.selectedTrackId)
   }
 
   get transform(): NoteCoordTransform {
@@ -301,17 +319,15 @@ export default class PianoRollStore {
     )
   }
 
-  get ghostTrackIds(): number[] {
+  get ghostTrackIds(): TrackId[] {
     const song = this.rootStore.song
-    const { notGhostTracks, selectedTrackId } = this
+    const { notGhostTrackIds, selectedTrackId } = this
     return song.tracks
-      .map((_, id) => id)
       .filter(
-        (track, id) =>
-          id !== selectedTrackId &&
-          !notGhostTracks.has(id) &&
-          track != undefined,
+        (track) =>
+          track.id !== selectedTrackId && !notGhostTrackIds.has(track.id),
       )
+      .map((track) => track.id)
   }
 
   // hit test notes in canvas coordinates

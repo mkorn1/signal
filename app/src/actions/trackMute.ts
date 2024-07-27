@@ -1,12 +1,9 @@
 import RootStore from "../stores/RootStore"
+import { TrackId } from "../track"
 
-export const toggleMuteTrack = (rootStore: RootStore) => (trackId: number) => {
-  const {
-    song: { tracks },
-    trackMute,
-    player,
-  } = rootStore
-  const channel = tracks[trackId].channel
+export const toggleMuteTrack = (rootStore: RootStore) => (trackId: TrackId) => {
+  const { song, trackMute, player } = rootStore
+  const channel = song.getTrack(trackId)?.channel
   if (channel === undefined) {
     return
   }
@@ -19,13 +16,9 @@ export const toggleMuteTrack = (rootStore: RootStore) => (trackId: number) => {
   }
 }
 
-export const toggleSoloTrack = (rootStore: RootStore) => (trackId: number) => {
-  const {
-    song: { tracks },
-    trackMute,
-    player,
-  } = rootStore
-  const channel = tracks[trackId].channel
+export const toggleSoloTrack = (rootStore: RootStore) => (trackId: TrackId) => {
+  const { song, trackMute, player } = rootStore
+  const channel = song.getTrack(trackId)?.channel
   if (channel === undefined) {
     return
   }

@@ -18,6 +18,7 @@ import { observeDrag } from "../../helpers/observeDrag"
 import { isTouchPadEvent } from "../../helpers/touchpad"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
+import { TrackId } from "../../track"
 import CanvasPianoRuler from "../PianoRoll/CanvasPianoRuler"
 import { TrackName } from "../TrackList/TrackName"
 import {
@@ -88,7 +89,7 @@ export const ArrangeView: FC = observer(() => {
       scrollLeft,
       scrollTop,
       scrollBy,
-      selectedTrackId,
+      selectedTrackIndex,
     },
     player,
     router,
@@ -213,7 +214,7 @@ export const ArrangeView: FC = observer(() => {
       [arrangeViewStore, player, rootStore],
     )
 
-  const openTrack = (trackId: number) => {
+  const openTrack = (trackId: TrackId) => {
     router.pushTrack()
     selectTrack(rootStore)(trackId)
   }
@@ -231,11 +232,11 @@ export const ArrangeView: FC = observer(() => {
             <TrackHeader
               style={{ height: trackHeight }}
               key={i}
-              isSelected={i === selectedTrackId}
-              onClick={() => (arrangeViewStore.selectedTrackId = i)}
-              onDoubleClick={() => openTrack(i)}
+              isSelected={i === selectedTrackIndex}
+              onClick={() => (arrangeViewStore.selectedTrackIndex = i)}
+              onDoubleClick={() => openTrack(t.id)}
               onContextMenu={(e) => {
-                arrangeViewStore.selectedTrackId = i
+                arrangeViewStore.selectedTrackIndex = i
                 onTrackContextMenu(e)
               }}
             >

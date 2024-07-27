@@ -1,7 +1,7 @@
 import { range } from "lodash"
 import { FC, useEffect, useState } from "react"
-import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
+import Track from "../../track"
 import {
   Dialog,
   DialogActions,
@@ -15,26 +15,19 @@ import { TextField } from "../ui/TextField"
 import { TrackName } from "./TrackName"
 
 export interface TrackDialogProps {
-  trackId: number
+  track: Track
   open: boolean
   onClose: () => void
 }
 
-export const TrackDialog: FC<TrackDialogProps> = ({
-  trackId,
-  open,
-  onClose,
-}) => {
-  const { song } = useStores()
-  const track = song.tracks[trackId]
-
+export const TrackDialog: FC<TrackDialogProps> = ({ track, open, onClose }) => {
   const [name, setName] = useState(track.name)
   const [channel, setChannel] = useState(track.channel)
 
   useEffect(() => {
     setName(track.name)
     setChannel(track.channel)
-  }, [trackId])
+  }, [track])
 
   return (
     <Dialog open={open} onOpenChange={onClose} style={{ minWidth: "20rem" }}>

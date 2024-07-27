@@ -109,11 +109,11 @@ export const arrangeMoveSelectionBy =
     // Move notes
 
     const updates = []
-    for (const [trackIndex, selectedEventIds] of Object.entries(
+    for (const [trackIndexStr, selectedEventIds] of Object.entries(
       s.selectedEventIds,
     )) {
-      const trackId = parseInt(trackIndex, 10)
-      const track = tracks[trackId]
+      const trackIndex = parseInt(trackIndexStr, 10)
+      const track = tracks[trackIndex]
       const events = selectedEventIds
         .map((id) => track.getEventById(id))
         .filter(isNotUndefined)
@@ -127,8 +127,8 @@ export const arrangeMoveSelectionBy =
         )
       } else {
         updates.push({
-          sourceTrackId: trackId,
-          destinationTrackId: trackId + delta.trackIndex,
+          sourceTrackIndex: trackIndex,
+          destinationTrackIndex: trackIndex + delta.trackIndex,
           events: events.map((e) => ({
             ...e,
             tick: e.tick + delta.tick,
@@ -139,9 +139,9 @@ export const arrangeMoveSelectionBy =
     if (delta.trackIndex !== 0) {
       const ids: { [key: number]: number[] } = {}
       for (const u of updates) {
-        tracks[u.sourceTrackId].removeEvents(u.events.map((e) => e.id))
-        const events = tracks[u.destinationTrackId].addEvents(u.events)
-        ids[u.destinationTrackId] = events.map((e) => e.id)
+        tracks[u.sourceTrackIndex].removeEvents(u.events.map((e) => e.id))
+        const events = tracks[u.destinationTrackIndex].addEvents(u.events)
+        ids[u.destinationTrackIndex] = events.map((e) => e.id)
       }
       s.selectedEventIds = ids
     }
@@ -158,8 +158,8 @@ export const arrangeCopySelection =
     }
     // 選択されたノートをコピー
     // Copy selected note
-    const notes = mapValues(selectedEventIds, (ids, trackId) => {
-      const track = tracks[parseInt(trackId, 10)]
+    const notes = mapValues(selectedEventIds, (ids, trackIndex) => {
+      const track = tracks[parseInt(trackIndex, 10)]
       return ids
         .map((id) => track.getEventById(id))
         .filter(isNotUndefined)
@@ -171,7 +171,7 @@ export const arrangeCopySelection =
     const data: ArrangeNotesClipboardData = {
       type: "arrange_notes",
       notes,
-      selectedTrackId: selection.fromTrackIndex,
+      selectedTrackIndex: selection.fromTrackIndex,
     }
     clipboard.writeText(JSON.stringify(data))
   }
@@ -180,7 +180,7 @@ export const arrangePasteSelection =
   ({
     song: { tracks },
     player,
-    arrangeViewStore: { selectedTrackId },
+    arrangeViewStore: { selectedTrackIndex },
     pushHistory,
   }: RootStore) =>
   () => {
@@ -197,21 +197,21 @@ export const arrangePasteSelection =
 
     pushHistory()
 
-    for (const trackId in obj.notes) {
-      const notes = obj.notes[trackId].map((note) => ({
+    for (const trackIndex in obj.notes) {
+      const notes = obj.notes[trackIndex].map((note) => ({
         ...note,
         tick: note.tick + player.position,
       }))
 
-      const isRulerSelected = selectedTrackId < 0
+      const isRulerSelected = selectedTrackIndex < 0
       const trackNumberOffset = isRulerSelected
         ? 0
-        : -obj.selectedTrackId + selectedTrackId
+        : -obj.selectedTrackIndex + selectedTrackIndex
 
-      const destTrackId = parseInt(trackId) + trackNumberOffset
+      const destTrackIndex = parseInt(trackIndex) + trackNumberOffset
 
-      if (destTrackId < tracks.length) {
-        tracks[destTrackId].addEvents(notes)
+      if (destTrackIndex < tracks.length) {
+        tracks[destTrackIndex].addEvents(notes)
       }
     }
   }
@@ -223,14 +223,14 @@ export const arrangeDeleteSelection =
 
     // 選択範囲と選択されたノートを削除
     // Remove selected notes and selected notes
-    for (const trackId in s.selectedEventIds) {
-      tracks[trackId].removeEvents(s.selectedEventIds[trackId])
+    for (const trackIndex in s.selectedEventIds) {
+      tracks[trackIndex].removeEvents(s.selectedEventIds[trackIndex])
     }
     s.selection = null
     s.selectedEventIds = []
   }
 
-// returns { trackId: [eventId] }
+// returns { trackIndex: [eventId] }
 function getEventsInSelection(tracks: Track[], selection: ArrangeSelection) {
   const ids: { [key: number]: number[] } = {}
   for (
@@ -273,9 +273,9 @@ export const arrangeDuplicateSelection =
     const deltaTick = selection.toTick - selection.fromTick
     const addedEventIds: { [key: number]: number[] } = {}
 
-    for (const [trackIndex, eventIds] of Object.entries(selectedEventIds)) {
-      const trackId = parseInt(trackIndex, 10)
-      const track = tracks[trackId]
+    for (const [trackIndexStr, eventIds] of Object.entries(selectedEventIds)) {
+      const trackIndex = parseInt(trackIndexStr, 10)
+      const track = tracks[trackIndex]
       const events = eventIds
         .map((id) => track.getEventById(id))
         .filter(isNotUndefined)
@@ -287,7 +287,7 @@ export const arrangeDuplicateSelection =
         })),
       )
 
-      addedEventIds[trackId] = newEvent.map((e) => e.id)
+      addedEventIds[trackIndex] = newEvent.map((e) => e.id)
     }
 
     arrangeViewStore.selection = {

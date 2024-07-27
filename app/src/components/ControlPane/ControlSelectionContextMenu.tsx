@@ -1,4 +1,5 @@
-import React, { FC, useCallback } from "react"
+import { observer } from "mobx-react-lite"
+import { FC, useCallback } from "react"
 import {
   copyControlSelection,
   deleteControlSelection,
@@ -15,7 +16,7 @@ import {
 } from "../ContextMenu/ContextMenu"
 import { MenuItem } from "../ui/Menu"
 
-export const ControlSelectionContextMenu: FC<ContextMenuProps> = React.memo(
+export const ControlSelectionContextMenu: FC<ContextMenuProps> = observer(
   (props) => {
     const { handleClose } = props
     const rootStore = useStores()

@@ -16,6 +16,7 @@ import Track, {
   NoteEvent,
   TrackEvent,
   TrackEventOf,
+  TrackId,
   isNoteEvent,
 } from "../track"
 import { stopNote } from "./player"
@@ -280,9 +281,13 @@ export const setTrackName =
 
 export const setTrackVolume =
   ({ song, player, pushHistory }: RootStore) =>
-  (trackId: number, volume: number) => {
+  (trackId: TrackId, volume: number) => {
     pushHistory()
-    const track = song.tracks[trackId]
+    const track = song.getTrack(trackId)
+    if (track === undefined) {
+      return
+    }
+
     track.setVolume(volume, player.position)
 
     if (track.channel !== undefined) {
@@ -292,9 +297,13 @@ export const setTrackVolume =
 
 export const setTrackPan =
   ({ song, player, pushHistory }: RootStore) =>
-  (trackId: number, pan: number) => {
+  (trackId: TrackId, pan: number) => {
     pushHistory()
-    const track = song.tracks[trackId]
+    const track = song.getTrack(trackId)
+    if (track === undefined) {
+      return
+    }
+
     track.setPan(pan, player.position)
 
     if (track.channel !== undefined) {
@@ -304,9 +313,13 @@ export const setTrackPan =
 
 export const setTrackInstrument =
   ({ song, player, pushHistory }: RootStore) =>
-  (trackId: number, programNumber: number) => {
+  (trackId: TrackId, programNumber: number) => {
     pushHistory()
-    const track = song.tracks[trackId]
+    const track = song.getTrack(trackId)
+    if (track === undefined) {
+      return
+    }
+
     track.setProgramNumber(programNumber)
 
     // 即座に反映する
@@ -318,12 +331,12 @@ export const setTrackInstrument =
 
 export const toogleGhostTrack =
   ({ pianoRollStore, pushHistory }: RootStore) =>
-  (trackId: number) => {
+  (trackId: TrackId) => {
     pushHistory()
-    if (pianoRollStore.notGhostTracks.has(trackId)) {
-      pianoRollStore.notGhostTracks.delete(trackId)
+    if (pianoRollStore.notGhostTrackIds.has(trackId)) {
+      pianoRollStore.notGhostTrackIds.delete(trackId)
     } else {
-      pianoRollStore.notGhostTracks.add(trackId)
+      pianoRollStore.notGhostTrackIds.add(trackId)
     }
   }
 
@@ -332,12 +345,12 @@ export const toogleAllGhostTracks =
   () => {
     pushHistory()
     if (
-      pianoRollStore.notGhostTracks.size > Math.floor(song.tracks.length / 2)
+      pianoRollStore.notGhostTrackIds.size > Math.floor(song.tracks.length / 2)
     ) {
-      pianoRollStore.notGhostTracks = new Set()
+      pianoRollStore.notGhostTrackIds = new Set()
     } else {
-      for (let i = 0; i < song.tracks.length; ++i) {
-        pianoRollStore.notGhostTracks.add(i)
+      for (const track of song.tracks) {
+        pianoRollStore.notGhostTrackIds.add(track.id)
       }
     }
   }
