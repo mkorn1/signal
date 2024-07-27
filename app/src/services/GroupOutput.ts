@@ -1,6 +1,7 @@
 import { SendableEvent, SynthOutput } from "@signal-app/player"
 import { makeObservable, observable } from "mobx"
 import { METRONOME_TRACK_ID } from "../player/EventSource"
+import { TrackId } from "../track"
 import { ITrackMute } from "../trackMute/ITrackMute"
 
 export interface SynthEntry {
@@ -26,13 +27,13 @@ export class GroupOutput implements SynthOutput {
     this.outputs.filter((o) => o.isEnabled).forEach((o) => o.synth.activate())
   }
 
-  private getOutputs(trackIndex: number | undefined): SynthOutput[] {
-    if (trackIndex === METRONOME_TRACK_ID) {
+  private getOutputs(trackId: TrackId | undefined): SynthOutput[] {
+    if (trackId === METRONOME_TRACK_ID) {
       return this.isMetronomeEnabled ? [this.metronomeOutput] : []
     } else if (
-      trackIndex !== undefined &&
+      trackId !== undefined &&
       this.trackMute !== null &&
-      !this.trackMute.shouldPlayTrack(trackIndex)
+      !this.trackMute.shouldPlayTrack(trackId)
     ) {
       return []
     } else {
@@ -44,10 +45,10 @@ export class GroupOutput implements SynthOutput {
     event: SendableEvent,
     delayTime: number,
     timestampNow: number,
-    trackIndex?: number,
+    trackId?: TrackId,
   ): void {
-    this.getOutputs(trackIndex).forEach((synth) =>
-      synth.sendEvent(event, delayTime, timestampNow, trackIndex),
+    this.getOutputs(trackId).forEach((synth) =>
+      synth.sendEvent(event, delayTime, timestampNow, trackId),
     )
   }
 }

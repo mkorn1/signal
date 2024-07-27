@@ -116,14 +116,13 @@ const ControlButton = styled(IconButton)`
 
 export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
   const rootStore = useStores()
-  const { song, pianoRollStore, rootViewStore, trackMute, router } = rootStore
-  const trackIndex = song.tracks.indexOf(track)
+  const { pianoRollStore, rootViewStore, trackMute, router } = rootStore
 
   const selected =
     !rootViewStore.isArrangeViewSelected &&
     track.id === pianoRollStore.selectedTrackId
-  const mute = trackMute.isMuted(trackIndex)
-  const solo = trackMute.isSolo(trackIndex)
+  const mute = trackMute.isMuted(track.id)
+  const solo = trackMute.isSolo(track.id)
   const ghostTrack = !pianoRollStore.notGhostTrackIds.has(track.id)
   const channel = track.channel
   const { onContextMenu, menuProps } = useContextMenu()
@@ -142,16 +141,16 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
   const onClickMute: React.MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
       e.stopPropagation()
-      toggleMuteTrack(rootStore)(trackIndex)
+      toggleMuteTrack(rootStore)(track.id)
     },
-    [trackIndex],
+    [track.id],
   )
   const onClickSolo: React.MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
       e.stopPropagation()
-      toggleSoloTrack(rootStore)(trackIndex)
+      toggleSoloTrack(rootStore)(track.id)
     },
-    [trackIndex],
+    [track.id],
   )
   const onClickGhostTrack: React.MouseEventHandler<HTMLButtonElement> =
     useCallback(

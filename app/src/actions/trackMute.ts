@@ -1,42 +1,33 @@
 import RootStore from "../stores/RootStore"
+import { TrackId } from "../track"
 
-export const toggleMuteTrack =
-  (rootStore: RootStore) => (trackIndex: number) => {
-    const {
-      song: { tracks },
-      trackMute,
-      player,
-    } = rootStore
-    const channel = tracks[trackIndex].channel
-    if (channel === undefined) {
-      return
-    }
-
-    if (trackMute.isMuted(trackIndex)) {
-      trackMute.unmute(trackIndex)
-    } else {
-      trackMute.mute(trackIndex)
-      player.allSoundsOffChannel(channel)
-    }
+export const toggleMuteTrack = (rootStore: RootStore) => (trackId: TrackId) => {
+  const { song, trackMute, player } = rootStore
+  const channel = song.getTrack(trackId)?.channel
+  if (channel === undefined) {
+    return
   }
 
-export const toggleSoloTrack =
-  (rootStore: RootStore) => (trackIndex: number) => {
-    const {
-      song: { tracks },
-      trackMute,
-      player,
-    } = rootStore
-    const channel = tracks[trackIndex].channel
-    if (channel === undefined) {
-      return
-    }
-
-    if (trackMute.isSolo(trackIndex)) {
-      trackMute.unsolo(trackIndex)
-      player.allSoundsOffChannel(channel)
-    } else {
-      trackMute.solo(trackIndex)
-      player.allSoundsOffExclude(channel)
-    }
+  if (trackMute.isMuted(trackId)) {
+    trackMute.unmute(trackId)
+  } else {
+    trackMute.mute(trackId)
+    player.allSoundsOffChannel(channel)
   }
+}
+
+export const toggleSoloTrack = (rootStore: RootStore) => (trackId: TrackId) => {
+  const { song, trackMute, player } = rootStore
+  const channel = song.getTrack(trackId)?.channel
+  if (channel === undefined) {
+    return
+  }
+
+  if (trackMute.isSolo(trackId)) {
+    trackMute.unsolo(trackId)
+    player.allSoundsOffChannel(channel)
+  } else {
+    trackMute.solo(trackId)
+    player.allSoundsOffExclude(channel)
+  }
+}

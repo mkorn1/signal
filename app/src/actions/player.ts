@@ -74,22 +74,22 @@ export const previousTrack =
   }
 
 export const toggleSolo =
-  ({ pianoRollStore: { selectedTrackIndex }, trackMute }: RootStore) =>
+  ({ pianoRollStore: { selectedTrackId }, trackMute }: RootStore) =>
   () => {
-    if (trackMute.isSolo(selectedTrackIndex)) {
-      trackMute.unsolo(selectedTrackIndex)
+    if (trackMute.isSolo(selectedTrackId)) {
+      trackMute.unsolo(selectedTrackId)
     } else {
-      trackMute.solo(selectedTrackIndex)
+      trackMute.solo(selectedTrackId)
     }
   }
 
 export const toggleMute =
-  ({ pianoRollStore: { selectedTrackIndex }, trackMute }: RootStore) =>
+  ({ pianoRollStore: { selectedTrackId }, trackMute }: RootStore) =>
   () => {
-    if (trackMute.isMuted(selectedTrackIndex)) {
-      trackMute.unmute(selectedTrackIndex)
+    if (trackMute.isMuted(selectedTrackId)) {
+      trackMute.unmute(selectedTrackId)
     } else {
-      trackMute.mute(selectedTrackIndex)
+      trackMute.mute(selectedTrackId)
     }
   }
 

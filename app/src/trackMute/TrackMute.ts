@@ -1,4 +1,5 @@
 import { makeObservable, observable } from "mobx"
+import { TrackId } from "../track/Track"
 import { ITrackMute } from "./ITrackMute"
 
 function updated<T>(obj: T, key: keyof T, value: any) {
@@ -44,39 +45,39 @@ export default class TrackMute implements ITrackMute {
     this.solos = {}
   }
 
-  private _setMute(trackIndex: number, isMute: boolean) {
+  private _setMute(trackId: TrackId, isMute: boolean) {
     if (this.isSoloMode()) {
       return
     }
-    this.mutes = updated(this.mutes, trackIndex, isMute)
+    this.mutes = updated(this.mutes, trackId, isMute)
   }
 
-  private _getMute(trackIndex: number) {
-    return this.mutes[trackIndex] || false
+  private _getMute(trackId: TrackId) {
+    return this.mutes[trackId] || false
   }
 
-  private _setSolo(trackIndex: number, isSolo: boolean) {
-    this.solos = updated(this.solos, trackIndex, isSolo)
+  private _setSolo(trackId: TrackId, isSolo: boolean) {
+    this.solos = updated(this.solos, trackId, isSolo)
   }
 
-  private _getSolo(trackIndex: number) {
-    return this.solos[trackIndex] || false
+  private _getSolo(trackId: TrackId) {
+    return this.solos[trackId] || false
   }
 
-  mute(trackIndex: number) {
-    this._setMute(trackIndex, true)
+  mute(trackId: TrackId) {
+    this._setMute(trackId, true)
   }
 
-  unmute(trackIndex: number) {
-    this._setMute(trackIndex, false)
+  unmute(trackId: TrackId) {
+    this._setMute(trackId, false)
   }
 
-  solo(trackIndex: number) {
-    this._setSolo(trackIndex, true)
+  solo(trackId: TrackId) {
+    this._setSolo(trackId, true)
   }
 
-  unsolo(trackIndex: number) {
-    this._setSolo(trackIndex, false)
+  unsolo(trackId: TrackId) {
+    this._setSolo(trackId, false)
   }
 
   isSoloMode(): boolean {
@@ -85,22 +86,22 @@ export default class TrackMute implements ITrackMute {
     return Object.values(this.solos).some((s) => s)
   }
 
-  shouldPlayTrack(trackIndex: number) {
+  shouldPlayTrack(trackId: TrackId) {
     if (this.isSoloMode()) {
-      return this._getSolo(trackIndex)
+      return this._getSolo(trackId)
     } else {
-      return !this._getMute(trackIndex)
+      return !this._getMute(trackId)
     }
   }
 
   // 表示用のメソッド
   // Method for display
 
-  isSolo(trackIndex: number) {
-    return this.isSoloMode() && this.solos[trackIndex]
+  isSolo(trackId: TrackId) {
+    return this.isSoloMode() && this.solos[trackId]
   }
 
-  isMuted(trackIndex: number) {
-    return !this.shouldPlayTrack(trackIndex)
+  isMuted(trackId: TrackId) {
+    return !this.shouldPlayTrack(trackId)
   }
 }
