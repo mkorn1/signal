@@ -20,10 +20,6 @@ export class NoteCoordTransform implements TickTransform {
     return (this.maxNoteNumber - noteNumber) * this.pixelsPerKey
   }
 
-  getDeltaY(deltaNoteNumber: number) {
-    return -deltaNoteNumber * this.pixelsPerKey
-  }
-
   // ticks
 
   getTick(pixels: number) {
@@ -49,7 +45,7 @@ export class NoteCoordTransform implements TickTransform {
   //
 
   getMaxY() {
-    return (this.maxNoteNumber + 1) * this.pixelsPerKey
+    return this.numberOfKeys * this.pixelsPerKey
   }
 
   getRect(note: NoteEvent) {
