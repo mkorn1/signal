@@ -40,10 +40,7 @@ export function getEventController<T extends TrackEvent>(
             value: {
               type: "number",
               value: e.value,
-              update: flow(
-                createParseClampedInt(0, 127),
-                optional((value) => ({ value })),
-              ),
+              update: intConverter(0, 127, (value) => ({ value })),
             },
           }
         case "note":
@@ -52,18 +49,12 @@ export function getEventController<T extends TrackEvent>(
             value: {
               type: "number",
               value: e.velocity,
-              update: flow(
-                createParseClampedInt(0, 127),
-                optional((velocity) => ({ velocity })),
-              ),
+              update: intConverter(0, 127, (velocity) => ({ velocity })),
             },
             gate: {
               type: "number",
               value: e.duration,
-              update: flow(
-                createParseClampedInt(0, Infinity),
-                optional((duration) => ({ duration })),
-              ),
+              update: intConverter(0, Infinity, (duration) => ({ duration })),
             },
           }
         case "programChange":
@@ -72,10 +63,7 @@ export function getEventController<T extends TrackEvent>(
             value: {
               type: "number",
               value: e.value,
-              update: flow(
-                createParseClampedInt(0, 127),
-                optional((value) => ({ value })),
-              ),
+              update: intConverter(0, 127, (value) => ({ value })),
             },
           }
         case "pitchBend":
@@ -84,10 +72,7 @@ export function getEventController<T extends TrackEvent>(
             value: {
               type: "number",
               value: e.value,
-              update: flow(
-                createParseClampedInt(0, 16384),
-                optional((value) => ({ value })),
-              ),
+              update: intConverter(0, 16384, (value) => ({ value })),
             },
           }
         default:
@@ -110,10 +95,7 @@ export function getEventController<T extends TrackEvent>(
             value: {
               type: "number",
               value: e.value,
-              update: flow(
-                createParseClampedInt(0, 127),
-                optional((channel) => ({ channel })),
-              ),
+              update: intConverter(0, 127, (channel) => ({ channel })),
             },
           }
         default:
@@ -125,13 +107,15 @@ export function getEventController<T extends TrackEvent>(
   }
 }
 
-const createParseClampedInt = (min: number, max: number) => (value: string) => {
-  const num = parseInt(value)
-  if (Number.isNaN(num)) {
+const nanToNull = (value: number) => {
+  if (Number.isNaN(value)) {
     return null
   }
-  return clamp(num, min, max)
+  return value
 }
+
+const createClamp = (min: number, max: number) => (value: number) =>
+  clamp(value, min, max)
 
 const optional =
   <T, S>(fn: (value: T) => S) =>
@@ -141,3 +125,9 @@ const optional =
     }
     return fn(value)
   }
+
+const intConverter = <T>(
+  minValue: number,
+  maxValue: number,
+  fn: (value: number) => T,
+) => flow(parseInt, createClamp(minValue, maxValue), nanToNull, optional(fn))
