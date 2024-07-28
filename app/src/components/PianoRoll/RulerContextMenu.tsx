@@ -80,7 +80,7 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = observer(
           open={isOpenTimeSignatureDialog}
           onClose={closeOpenTimeSignatureDialog}
           onClickOK={({ numerator, denominator }) => {
-            addTimeSignature(rootStore)(player.position, numerator, denominator)
+            addTimeSignature(rootStore)(tick, numerator, denominator)
           }}
         />
       </>
