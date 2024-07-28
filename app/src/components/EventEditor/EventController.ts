@@ -1,20 +1,16 @@
+import { clamp, flow } from "lodash"
+import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../../helpers/bpm"
 import { controllerTypeString } from "../../helpers/noteNumberString"
 import { TrackEvent } from "../../track"
 
-export type EventInputProp =
-  | {
-      type: "number"
-      value: number
-      minValue: number
-      maxValue: number
-    }
-  | {
-      type: "text"
-      value: string
-    }
+export interface EventInputProp {
+  type: "text" | "number"
+  value: string
+}
 
 export type EventValueUpdator = {
-  update: (value: number | string) => any
+  // null means no update
+  update: (value: string) => any | null
 }
 
 // Abstraction Layer for manipulating TrackEvent on EventList
@@ -36,50 +32,40 @@ export function getEventController<T extends TrackEvent>(
               controllerTypeString(e.controllerType) ?? `CC${e.controllerType}`,
             value: {
               type: "number",
-              value: e.value,
-              minValue: 0,
-              maxValue: 127,
-              update: (value) => ({ value }),
+              value: e.value.toFixed(0),
+              update: intConverter(0, 127, (value) => ({ value })),
             },
           }
         case "note":
           return {
-            name: e.subtype,
+            name: "Note",
             value: {
               type: "number",
-              value: e.velocity,
-              minValue: 0,
-              maxValue: 127,
-              update: (velocity) => ({ velocity }),
+              value: e.velocity.toFixed(0),
+              update: intConverter(0, 127, (velocity) => ({ velocity })),
             },
             gate: {
               type: "number",
-              value: e.duration,
-              minValue: 0,
-              maxValue: Infinity,
-              update: (duration) => ({ duration }),
+              value: e.duration.toFixed(0),
+              update: intConverter(0, Infinity, (duration) => ({ duration })),
             },
           }
         case "programChange":
           return {
-            name: e.subtype,
+            name: "Program Change",
             value: {
               type: "number",
-              value: e.value,
-              minValue: 0,
-              maxValue: 127,
-              update: (value) => ({ value }),
+              value: e.value.toFixed(0),
+              update: intConverter(0, 127, (value) => ({ value })),
             },
           }
         case "pitchBend":
           return {
-            name: e.subtype,
+            name: "Pitch Bend",
             value: {
               type: "number",
-              value: e.value,
-              minValue: 0,
-              maxValue: 16384,
-              update: (value) => ({ value }),
+              value: e.value.toFixed(0),
+              update: intConverter(0, 16384, (value) => ({ value })),
             },
           }
         default:
@@ -89,7 +75,7 @@ export function getEventController<T extends TrackEvent>(
       switch (e.subtype) {
         case "trackName":
           return {
-            name: e.subtype,
+            name: "Track Name",
             value: {
               type: "text",
               value: e.text,
@@ -98,13 +84,27 @@ export function getEventController<T extends TrackEvent>(
           }
         case "midiChannelPrefix":
           return {
-            name: e.subtype,
+            name: "MIDI Channel Prefix",
             value: {
               type: "number",
-              value: e.value,
-              minValue: 0,
-              maxValue: 127,
-              update: (channel) => ({ channel }),
+              value: e.value.toFixed(0),
+              update: intConverter(0, 127, (channel) => ({ channel })),
+            },
+          }
+        case "setTempo":
+          return {
+            name: "Tempo",
+            value: {
+              type: "number",
+              value: uSecPerBeatToBPM(e.microsecondsPerBeat).toFixed(3),
+              update: flow(
+                parseInt,
+                createClamp(1, 512),
+                bpmToUSecPerBeat,
+                Math.floor,
+                nanToNull,
+                optional((microsecondsPerBeat) => ({ microsecondsPerBeat })),
+              ),
             },
           }
         default:
@@ -115,3 +115,28 @@ export function getEventController<T extends TrackEvent>(
       return { name: e.type }
   }
 }
+
+const nanToNull = (value: number) => {
+  if (Number.isNaN(value)) {
+    return null
+  }
+  return value
+}
+
+const createClamp = (min: number, max: number) => (value: number) =>
+  clamp(value, min, max)
+
+const optional =
+  <T, S>(fn: (value: T) => S) =>
+  (value: T | null) => {
+    if (value === null) {
+      return null
+    }
+    return fn(value)
+  }
+
+const intConverter = <T>(
+  minValue: number,
+  maxValue: number,
+  fn: (value: number) => T,
+) => flow(parseInt, createClamp(minValue, maxValue), nanToNull, optional(fn))

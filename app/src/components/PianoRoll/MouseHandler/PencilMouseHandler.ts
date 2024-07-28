@@ -233,7 +233,6 @@ const dragNoteRightAction = dragNoteEdgeAction("right")
 const startDragNote =
   (rootStore: RootStore) => (e: MouseEvent, note: NoteEvent) => {
     const {
-      player,
       pianoRollStore: { selectedTrack },
     } = rootStore
     const { transform, quantizer } = rootStore.pianoRollStore

@@ -68,8 +68,14 @@ export namespace Selection {
   })
 
   export const clamp = (selection: Selection): Selection => ({
-    from: NotePoint.clamp(selection.from),
-    to: NotePoint.clamp(selection.to),
+    from: clampNotePoint(selection.from),
+    to: clampNotePoint(selection.to),
+  })
+
+  // Unlike NotePoint.clamp, noteNumber may be -1
+  const clampNotePoint = (point: NotePoint): NotePoint => ({
+    tick: Math.max(0, point.tick),
+    noteNumber: Math.min(MaxNoteNumber, Math.max(-1, point.noteNumber)),
   })
 
   export function fromPoints(start: NotePoint, end: NotePoint) {
@@ -84,11 +90,7 @@ export namespace Selection {
     selection.from.noteNumber = Math.ceil(selection.from.noteNumber)
     selection.to.noteNumber = Math.floor(selection.to.noteNumber)
 
-    ++selection.to.noteNumber
-    selection = Selection.clamp(selection)
-    --selection.to.noteNumber
-
-    return selection
+    return Selection.clamp(selection)
   }
 
   // Fix the right end and change the length

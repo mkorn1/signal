@@ -3,8 +3,9 @@ import { DEFAULT_TEMPO } from "@signal-app/player"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { useStores } from "../../hooks/useStores"
+import { NumberInput } from "../inputs/NumberInput"
 
-const TempoInput = styled.input`
+const TempoInput = styled(NumberInput)`
   background: transparent;
   -webkit-appearance: none;
   border: none;
@@ -51,33 +52,20 @@ export const TempoForm: FC = observer(() => {
   const tempo = currentTempo ?? DEFAULT_TEMPO
 
   const changeTempo = (tempo: number) => {
-    const fixedTempo = Math.max(1, Math.min(512, tempo))
-    song.conductorTrack?.setTempo(fixedTempo, player.position)
-    player.currentTempo = fixedTempo
+    song.conductorTrack?.setTempo(tempo, player.position)
+    player.currentTempo = tempo
   }
-
-  const onKeyPressTempo = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault()
-      e.currentTarget.blur()
-    }
-  }
-
-  const onChangeTempo = (e: React.ChangeEvent<HTMLInputElement>) =>
-    changeTempo(parseFloat(e.target.value))
 
   return (
     <TempoWrapper>
       <label htmlFor="tempo-input">BPM</label>
       <TempoInput
-        type="number"
         id="tempo-input"
         min={1}
-        max={1000}
+        max={512}
         value={Math.round(tempo * 100) / 100}
         step={1}
-        onChange={onChangeTempo}
-        onKeyPress={onKeyPressTempo}
+        onChange={changeTempo}
       />
     </TempoWrapper>
   )
