@@ -3,7 +3,7 @@ import React, { FC, useCallback } from "react"
 import { useStores } from "../../hooks/useStores"
 import { TrackEvent } from "../../track"
 import { getEventController } from "./EventController"
-import { Cell, Row, widthForCell } from "./EventList"
+import { Cell, Row } from "./EventList"
 import { EventListInput } from "./EventListInput"
 
 interface EventListItemProps {
@@ -88,7 +88,7 @@ export const EventListItem: FC<EventListItemProps> = React.memo(
         )}
         tabIndex={-1}
       >
-        <Cell style={{ width: widthForCell(0) }}>
+        <Cell>
           <EventListInput
             value={item.tick}
             type="number"
@@ -99,8 +99,6 @@ export const EventListItem: FC<EventListItemProps> = React.memo(
         </Cell>
         <Cell
           style={{
-            width: widthForCell(1),
-            flexGrow: 1,
             whiteSpace: "nowrap",
             textOverflow: "ellipsis",
             overflow: "hidden",
@@ -108,12 +106,12 @@ export const EventListItem: FC<EventListItemProps> = React.memo(
         >
           {controller.name}
         </Cell>
-        <Cell style={{ width: widthForCell(2) }}>
+        <Cell>
           {controller.gate !== undefined && (
             <EventListInput {...controller.gate} onChange={onChangeGate} />
           )}
         </Cell>
-        <Cell style={{ width: widthForCell(3) }}>
+        <Cell>
           {controller.value !== undefined && (
             <EventListInput {...controller.value} onChange={onChangeValue} />
           )}

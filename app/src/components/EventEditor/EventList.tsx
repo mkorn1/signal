@@ -22,8 +22,9 @@ const Header = styled.div`
 `
 
 export const Row = styled.div`
-  display: flex;
+  display: grid;
   outline: none;
+  grid-template-columns: 5em 1fr 5em 4em;
 
   &:focus {
     background: ${({ theme }) => theme.highlightColor};
@@ -37,9 +38,6 @@ export const Cell = styled.div`
     background: ${({ theme }) => theme.highlightColor};
   }
 `
-
-export const widthForCell = (index: number) =>
-  ["5em", "6em", "4em", "4em"][index]
 
 const EventList: FC = observer(() => {
   const rootStore = useStores()
@@ -62,16 +60,16 @@ const EventList: FC = observer(() => {
     <Container ref={ref}>
       <Header>
         <Row>
-          <Cell style={{ width: widthForCell(0) }}>
+          <Cell>
             <Localized name="tick" />
           </Cell>
-          <Cell style={{ width: widthForCell(1), flexGrow: 1 }}>
+          <Cell>
             <Localized name="event" />
           </Cell>
-          <Cell style={{ width: widthForCell(2) }}>
+          <Cell>
             <Localized name="duration" />
           </Cell>
-          <Cell style={{ width: widthForCell(3) }}>
+          <Cell>
             <Localized name="value" />
           </Cell>
         </Row>
