@@ -45,7 +45,7 @@ export function getEventController<T extends TrackEvent>(
           }
         case "note":
           return {
-            name: e.subtype,
+            name: "Note",
             value: {
               type: "number",
               value: e.velocity,
@@ -59,7 +59,7 @@ export function getEventController<T extends TrackEvent>(
           }
         case "programChange":
           return {
-            name: e.subtype,
+            name: "Program Change",
             value: {
               type: "number",
               value: e.value,
@@ -68,7 +68,7 @@ export function getEventController<T extends TrackEvent>(
           }
         case "pitchBend":
           return {
-            name: e.subtype,
+            name: "Pitch Bend",
             value: {
               type: "number",
               value: e.value,
@@ -82,7 +82,7 @@ export function getEventController<T extends TrackEvent>(
       switch (e.subtype) {
         case "trackName":
           return {
-            name: e.subtype,
+            name: "Track Name",
             value: {
               type: "text",
               value: e.text,
@@ -91,7 +91,7 @@ export function getEventController<T extends TrackEvent>(
           }
         case "midiChannelPrefix":
           return {
-            name: e.subtype,
+            name: "MIDI Channel Prefix",
             value: {
               type: "number",
               value: e.value,
