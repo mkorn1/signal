@@ -118,6 +118,7 @@ const ControlButton = styled.div<{ active?: boolean }>`
   color: ${({ theme, active }) =>
     active ? theme.textColor : theme.secondaryTextColor};
   cursor: pointer;
+  outline: none;
 
   &:hover {
     background: ${({ theme }) => theme.highlightColor};
