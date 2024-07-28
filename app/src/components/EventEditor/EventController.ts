@@ -3,17 +3,10 @@ import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../../helpers/bpm"
 import { controllerTypeString } from "../../helpers/noteNumberString"
 import { TrackEvent } from "../../track"
 
-interface NumberEventInputProp {
-  type: "number"
-  value: number
-}
-
-interface TextEventInputProp {
-  type: "text"
+export interface EventInputProp {
+  type: "text" | "number"
   value: string
 }
-
-export type EventInputProp = NumberEventInputProp | TextEventInputProp
 
 export type EventValueUpdator = {
   // null means no update
@@ -39,7 +32,7 @@ export function getEventController<T extends TrackEvent>(
               controllerTypeString(e.controllerType) ?? `CC${e.controllerType}`,
             value: {
               type: "number",
-              value: e.value,
+              value: e.value.toFixed(0),
               update: intConverter(0, 127, (value) => ({ value })),
             },
           }
@@ -48,12 +41,12 @@ export function getEventController<T extends TrackEvent>(
             name: "Note",
             value: {
               type: "number",
-              value: e.velocity,
+              value: e.velocity.toFixed(0),
               update: intConverter(0, 127, (velocity) => ({ velocity })),
             },
             gate: {
               type: "number",
-              value: e.duration,
+              value: e.duration.toFixed(0),
               update: intConverter(0, Infinity, (duration) => ({ duration })),
             },
           }
@@ -62,7 +55,7 @@ export function getEventController<T extends TrackEvent>(
             name: "Program Change",
             value: {
               type: "number",
-              value: e.value,
+              value: e.value.toFixed(0),
               update: intConverter(0, 127, (value) => ({ value })),
             },
           }
@@ -71,7 +64,7 @@ export function getEventController<T extends TrackEvent>(
             name: "Pitch Bend",
             value: {
               type: "number",
-              value: e.value,
+              value: e.value.toFixed(0),
               update: intConverter(0, 16384, (value) => ({ value })),
             },
           }
@@ -94,8 +87,24 @@ export function getEventController<T extends TrackEvent>(
             name: "MIDI Channel Prefix",
             value: {
               type: "number",
-              value: e.value,
+              value: e.value.toFixed(0),
               update: intConverter(0, 127, (channel) => ({ channel })),
+            },
+          }
+        case "setTempo":
+          return {
+            name: "Tempo",
+            value: {
+              type: "number",
+              value: uSecPerBeatToBPM(e.microsecondsPerBeat).toFixed(3),
+              update: flow(
+                parseInt,
+                createClamp(1, 512),
+                bpmToUSecPerBeat,
+                Math.floor,
+                nanToNull,
+                optional((microsecondsPerBeat) => ({ microsecondsPerBeat })),
+              ),
             },
           }
         default:

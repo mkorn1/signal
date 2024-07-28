@@ -69,10 +69,10 @@ export const EventListInput: FC<EventListInputProps> = ({
   return (
     <StyledInput
       type={type}
-      value={isFocus ? inputValue : value?.toString()}
+      value={isFocus ? inputValue : value}
       onFocus={useCallback(() => {
         setFocus(true)
-        setInputValue(value?.toString() ?? "")
+        setInputValue(value)
       }, [value])}
       onBlur={useCallback(() => {
         setFocus(false)

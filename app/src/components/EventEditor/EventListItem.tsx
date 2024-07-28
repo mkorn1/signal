@@ -92,7 +92,7 @@ export const EventListItem: FC<EventListItemProps> = React.memo(
       >
         <Cell>
           <EventListInput
-            value={item.tick}
+            value={item.tick.toFixed(0)}
             type="number"
             onChange={onChangeTick}
           />
