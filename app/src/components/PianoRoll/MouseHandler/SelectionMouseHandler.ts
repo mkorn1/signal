@@ -1,7 +1,7 @@
 import {
   cloneSelection,
   fixSelection,
-  moveSelection,
+  moveSelectionBy,
   resizeSelection,
   startSelection,
   updateSelectedNotes,
@@ -119,7 +119,7 @@ const moveSelectionAction =
   (selectionBounds: Rect): MouseGesture =>
   (rootStore) =>
   (e) => {
-    const { transform } = rootStore.pianoRollStore
+    const { transform, quantizer } = rootStore.pianoRollStore
 
     const isCopy = e.ctrlKey
 
@@ -128,22 +128,27 @@ const moveSelectionAction =
     }
 
     let isChanged = false
+    let prevTick = 0
+    let prevNoteNumber = 0
 
     observeDrag2(e, {
       onMouseMove: (_e, delta) => {
-        const position = Point.add(selectionBounds, delta)
-        const tick = transform.getTick(position.x)
-        const noteNumber = transform.getNoteNumberFractional(position.y)
+        const tick = quantizer.round(transform.getTick(delta.x))
+        const noteNumber = Math.round(transform.getDeltaNoteNumber(delta.y))
+        if (tick !== prevTick || noteNumber !== prevNoteNumber) {
+          if (!isChanged) {
+            isChanged = true
+            pushHistory(rootStore)()
+          }
 
-        if ((tick !== 0 || noteNumber !== 0) && !isChanged) {
-          isChanged = true
-          pushHistory(rootStore)()
+          moveSelectionBy(rootStore)({
+            tick: tick - prevTick,
+            noteNumber: noteNumber - prevNoteNumber,
+          })
+
+          prevTick = tick
+          prevNoteNumber = noteNumber
         }
-
-        moveSelection(rootStore)({
-          tick,
-          noteNumber,
-        })
       },
     })
   }

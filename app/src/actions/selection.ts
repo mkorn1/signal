@@ -82,42 +82,6 @@ export const transposeSelection =
     })
   }
 
-export const moveSelection = (rootStore: RootStore) => (point: NotePoint) => {
-  const {
-    pianoRollStore: { selectedTrack, selection, quantizer },
-  } = rootStore
-
-  if (selectedTrack === undefined || selection === null) {
-    return
-  }
-
-  // ノートと選択範囲を移動
-  // Move notes and selection
-  const quantized = NotePoint.clamp({
-    tick: quantizer.round(point.tick),
-    noteNumber: Math.round(point.noteNumber),
-  })
-
-  const dt = quantized.tick - selection.from.tick
-  const dn = quantized.noteNumber - selection.from.noteNumber
-
-  const to = {
-    tick: selection.to.tick + dt,
-    noteNumber: selection.to.noteNumber + dn,
-  }
-
-  const clampedTo = NotePoint.clamp(to)
-  const limit = {
-    tick: to.tick - clampedTo.tick,
-    noteNumber: to.noteNumber - clampedTo.noteNumber,
-  }
-
-  moveSelectionBy(rootStore)({
-    tick: dt - limit.tick,
-    noteNumber: dn - limit.noteNumber,
-  })
-}
-
 export const moveSelectionBy =
   ({
     pianoRollStore,
@@ -133,8 +97,17 @@ export const moveSelectionBy =
     }
 
     if (selection !== null) {
-      const s = Selection.moved(selection, delta.tick, delta.noteNumber)
-      pianoRollStore.selection = s
+      const movedSelection = Selection.moved(
+        selection,
+        delta.tick,
+        delta.noteNumber,
+      )
+      const clampedSelection = Selection.clamp(movedSelection)
+      if (!Selection.equals(movedSelection, clampedSelection)) {
+        // Do not move the selection range or notes when it tries to go out of the screen
+        return
+      }
+      pianoRollStore.selection = clampedSelection
     }
 
     selectedTrack.updateEvents(
