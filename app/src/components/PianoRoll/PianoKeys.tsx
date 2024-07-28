@@ -3,9 +3,10 @@ import Color from "color"
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useState } from "react"
 import { Layout } from "../../Constants"
+import { Point } from "../../entities/geometry/Point"
 import { KeySignature } from "../../entities/scale/KeySignature"
 import { noteNameWithOctString } from "../../helpers/noteNumberString"
-import { observeDrag } from "../../helpers/observeDrag"
+import { observeDrag2 } from "../../helpers/observeDrag"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
 import { noteOffMidiEvent, noteOnMidiEvent } from "../../midi/MidiEvent"
@@ -269,12 +270,9 @@ export const PianoKeys: FC = observer(() => {
 
       setTouchingKeys([prevNoteNumber])
 
-      observeDrag({
-        onMouseMove(e) {
-          const pos = {
-            x: e.offsetX,
-            y: e.offsetY,
-          }
+      observeDrag2(e.nativeEvent, {
+        onMouseMove(_e, delta) {
+          const pos = Point.add(startPosition, delta)
           const noteNumber = posToNoteNumber(pos.x, pos.y)
           if (noteNumber !== prevNoteNumber) {
             player.sendEvent(noteOffMidiEvent(0, channel, prevNoteNumber, 0))
