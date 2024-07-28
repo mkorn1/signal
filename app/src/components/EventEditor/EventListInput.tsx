@@ -1,13 +1,10 @@
 import styled from "@emotion/styled"
-import { clamp } from "lodash"
 import { FC, useCallback, useState } from "react"
 import { EventInputProp } from "./EventController"
 
 type EventListInputProps = EventInputProp & {
   type: "number" | "text"
-  onChange: (value: number | string) => void
-  minValue?: number
-  maxValue?: number
+  onChange: (value: string) => void
 }
 
 export const StyledInput = styled.input`
@@ -33,25 +30,13 @@ export const StyledInput = styled.input`
 export const EventListInput: FC<EventListInputProps> = ({
   value,
   type,
-  minValue,
-  maxValue,
   onChange,
 }) => {
   const [isFocus, setFocus] = useState(false)
   const [inputValue, setInputValue] = useState("")
 
   const sendChange = useCallback(() => {
-    switch (type) {
-      case "number":
-        const num = parseInt(inputValue)
-        if (!Number.isNaN(num)) {
-          onChange(clamp(num, minValue ?? 0, maxValue ?? Infinity))
-        }
-        break
-      case "text":
-        onChange(inputValue)
-        break
-    }
+    onChange(inputValue)
   }, [inputValue])
 
   const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = useCallback(

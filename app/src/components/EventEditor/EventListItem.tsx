@@ -8,7 +8,6 @@ import { EventListInput } from "./EventListInput"
 
 interface EventListItemProps {
   item: TrackEvent
-  isSelected: boolean
   style?: React.CSSProperties
   onClick: (e: React.MouseEvent, ev: TrackEvent) => void
 }
@@ -18,12 +17,11 @@ const equalEventListItemProps = (
   b: EventListItemProps,
 ) =>
   isEqual(a.item, b.item) &&
-  a.isSelected === b.isSelected &&
   isEqual(a.style, b.style) &&
   a.onClick === b.onClick
 
 export const EventListItem: FC<EventListItemProps> = React.memo(
-  ({ item, isSelected, style, onClick }) => {
+  ({ item, style, onClick }) => {
     const rootStore = useStores()
     const {
       pianoRollStore: { selectedTrack },
@@ -39,33 +37,37 @@ export const EventListItem: FC<EventListItemProps> = React.memo(
     )
 
     const onChangeTick = useCallback(
-      (value: number | string) => {
-        if (typeof value === "string") {
-          return
+      (input: string) => {
+        const value = parseInt(input)
+        if (!isNaN(value)) {
+          selectedTrack?.updateEvent(item.id, { tick: Math.max(0, value) })
         }
-        selectedTrack?.updateEvent(item.id, { tick: value })
       },
       [rootStore, item],
     )
 
     const onChangeGate = useCallback(
-      (value: number | string) => {
+      (value: string) => {
         if (controller.gate === undefined) {
           return
         }
         const obj = controller.gate.update(value)
-        selectedTrack?.updateEvent(item.id, obj)
+        if (obj !== null) {
+          selectedTrack?.updateEvent(item.id, obj)
+        }
       },
       [rootStore, item],
     )
 
     const onChangeValue = useCallback(
-      (value: number | string) => {
+      (value: string) => {
         if (controller.value === undefined) {
           return
         }
         const obj = controller.value.update(value)
-        selectedTrack?.updateEvent(item.id, obj)
+        if (obj !== null) {
+          selectedTrack?.updateEvent(item.id, obj)
+        }
       },
       [rootStore, item],
     )
@@ -92,8 +94,6 @@ export const EventListItem: FC<EventListItemProps> = React.memo(
           <EventListInput
             value={item.tick}
             type="number"
-            minValue={0}
-            maxValue={Infinity}
             onChange={onChangeTick}
           />
         </Cell>

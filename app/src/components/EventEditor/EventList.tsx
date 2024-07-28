@@ -24,7 +24,7 @@ const Header = styled.div`
 export const Row = styled.div`
   display: grid;
   outline: none;
-  grid-template-columns: 5em 1fr 5em 4em;
+  grid-template-columns: 5em 1fr 5em 5em;
 
   &:focus {
     background: ${({ theme }) => theme.highlightColor};
@@ -101,13 +101,7 @@ const ItemRenderer = ({ index, style, data }: ListChildComponentProps) => {
   }, [])
 
   return (
-    <EventListItem
-      style={style}
-      item={e}
-      key={e.id}
-      isSelected={selectedEventIds.includes(e.id)}
-      onClick={onClickRow}
-    />
+    <EventListItem style={style} item={e} key={e.id} onClick={onClickRow} />
   )
 }
 

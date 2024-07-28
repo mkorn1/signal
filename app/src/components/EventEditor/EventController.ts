@@ -1,20 +1,23 @@
+import { clamp, flow } from "lodash"
+import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../../helpers/bpm"
 import { controllerTypeString } from "../../helpers/noteNumberString"
 import { TrackEvent } from "../../track"
 
-export type EventInputProp =
-  | {
-      type: "number"
-      value: number
-      minValue: number
-      maxValue: number
-    }
-  | {
-      type: "text"
-      value: string
-    }
+interface NumberEventInputProp {
+  type: "number"
+  value: number
+}
+
+interface TextEventInputProp {
+  type: "text"
+  value: string
+}
+
+export type EventInputProp = NumberEventInputProp | TextEventInputProp
 
 export type EventValueUpdator = {
-  update: (value: number | string) => any
+  // null means no update
+  update: (value: string) => any | null
 }
 
 // Abstraction Layer for manipulating TrackEvent on EventList
@@ -37,9 +40,10 @@ export function getEventController<T extends TrackEvent>(
             value: {
               type: "number",
               value: e.value,
-              minValue: 0,
-              maxValue: 127,
-              update: (value) => ({ value }),
+              update: flow(
+                createParseClampedInt(0, 127),
+                optional((value) => ({ value })),
+              ),
             },
           }
         case "note":
@@ -48,16 +52,18 @@ export function getEventController<T extends TrackEvent>(
             value: {
               type: "number",
               value: e.velocity,
-              minValue: 0,
-              maxValue: 127,
-              update: (velocity) => ({ velocity }),
+              update: flow(
+                createParseClampedInt(0, 127),
+                optional((velocity) => ({ velocity })),
+              ),
             },
             gate: {
               type: "number",
               value: e.duration,
-              minValue: 0,
-              maxValue: Infinity,
-              update: (duration) => ({ duration }),
+              update: flow(
+                createParseClampedInt(0, Infinity),
+                optional((duration) => ({ duration })),
+              ),
             },
           }
         case "programChange":
@@ -66,9 +72,10 @@ export function getEventController<T extends TrackEvent>(
             value: {
               type: "number",
               value: e.value,
-              minValue: 0,
-              maxValue: 127,
-              update: (value) => ({ value }),
+              update: flow(
+                createParseClampedInt(0, 127),
+                optional((value) => ({ value })),
+              ),
             },
           }
         case "pitchBend":
@@ -77,9 +84,10 @@ export function getEventController<T extends TrackEvent>(
             value: {
               type: "number",
               value: e.value,
-              minValue: 0,
-              maxValue: 16384,
-              update: (value) => ({ value }),
+              update: flow(
+                createParseClampedInt(0, 16384),
+                optional((value) => ({ value })),
+              ),
             },
           }
         default:
@@ -102,9 +110,10 @@ export function getEventController<T extends TrackEvent>(
             value: {
               type: "number",
               value: e.value,
-              minValue: 0,
-              maxValue: 127,
-              update: (channel) => ({ channel }),
+              update: flow(
+                createParseClampedInt(0, 127),
+                optional((channel) => ({ channel })),
+              ),
             },
           }
         default:
@@ -115,3 +124,20 @@ export function getEventController<T extends TrackEvent>(
       return { name: e.type }
   }
 }
+
+const createParseClampedInt = (min: number, max: number) => (value: string) => {
+  const num = parseInt(value)
+  if (Number.isNaN(num)) {
+    return null
+  }
+  return clamp(num, min, max)
+}
+
+const optional =
+  <T, S>(fn: (value: T) => S) =>
+  (value: T | null) => {
+    if (value === null) {
+      return null
+    }
+    return fn(value)
+  }
