@@ -8,6 +8,7 @@
     "dev": "concurrently \"npm run build -- --watch\" \"nodemon\"",
     "start": "npm run build && electron .",
     "build": "rollup -c --bundleConfigAsCjs",
+    "package": "npm run build && electron-forge package",
     "package:darwin": "npm run build && electron-forge package --platform=darwin",
     "bump": "node ./scripts/bumpBuildVersion.js",
     "make": "npm run bump && npm run build && electron-forge make",
