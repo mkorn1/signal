@@ -166,7 +166,7 @@ app.on("activate", () => {
   }
 })
 
-if (!isMas) {
+if (process.platform === "darwin" && !isMas) {
   const additionalData = { filePath: getArgument() }
   type AdditionalData = typeof additionalData
   const gotTheLock = app.requestSingleInstanceLock(additionalData)
