@@ -27,7 +27,7 @@ export const DropZone: FC<PropsWithChildren<{}>> = observer(({ children }) => {
     async (e: React.DragEvent) => {
       e.preventDefault()
       const file = e.dataTransfer.files[0]
-      if (file.type !== "audio/midi") {
+      if (file.type !== "audio/midi" && file.type !== "audio/mid") {
         return
       }
       if (song.isSaved || confirm(localized["confirm-open"])) {
