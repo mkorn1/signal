@@ -23,7 +23,10 @@ export const signInWithBrowser = async (): Promise<FirebaseCredential> => {
         sandbox: false,
       },
     })
+    window.menuBarVisible = false
     window.loadURL(url)
+
+    let isResolved = false
 
     window.webContents.on("will-navigate", (event, url) => {
       log.info("will-navigate", url)
@@ -43,7 +46,14 @@ export const signInWithBrowser = async (): Promise<FirebaseCredential> => {
 
         log.info("electron:event:open-url", "ID Token is received")
 
+        isResolved = true
         resolve(JSON.parse(credential))
+      }
+    })
+
+    window.on("closed", () => {
+      if (!isResolved) {
+        reject(new Error("Window is closed"))
       }
     })
   })
