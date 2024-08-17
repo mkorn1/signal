@@ -104,9 +104,6 @@ export default class ArrangeViewStore {
     const maxOffset = Math.max(0, contentWidth - canvasWidth)
     const scrollLeft = Math.floor(Math.min(maxOffset, Math.max(0, x)))
     this.scrollLeftTicks = this.transform.getTick(scrollLeft)
-    if (this.playheadInScrollZone) {
-      this.autoScroll = false
-    }
   }
 
   setScrollTop(value: number) {

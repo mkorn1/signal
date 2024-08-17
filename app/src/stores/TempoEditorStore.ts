@@ -64,10 +64,6 @@ export default class TempoEditorStore {
   }
 
   setScrollLeft(x: number) {
-    const nextPlayheadPos = this.playheadScreenOffset(x)
-    if (this.playheadInScrollZone(nextPlayheadPos)) {
-      this.autoScroll = false
-    }
     this.scrollLeft = x
   }
 

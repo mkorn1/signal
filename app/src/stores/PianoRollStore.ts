@@ -189,9 +189,6 @@ export default class PianoRollStore {
     const maxX = contentWidth - canvasWidth
     const scrollLeft = clamp(x, 0, maxX)
     this.scrollLeftTicks = this.transform.getTick(scrollLeft)
-    if (this.playheadInScrollZone) {
-      this.autoScroll = false
-    }
   }
 
   setScrollTopInPixels(y: number) {
