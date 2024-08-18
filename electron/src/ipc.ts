@@ -1,4 +1,5 @@
 import { BrowserWindow } from "electron"
+import { FirebaseCredential } from "./FirebaseCredential"
 
 export type IpcEvent =
   | { name: "onNewFile" }
@@ -19,22 +20,6 @@ export type IpcEvent =
   | {
       name: "onBrowserSignInCompleted"
       params: { credential: FirebaseCredential }
-    }
-
-export type FirebaseCredential =
-  | {
-      providerId: "google.com"
-      idToken: string
-      accessToken: string
-    }
-  | {
-      providerId: "github.com"
-      accessToken: string
-    }
-  | {
-      providerId: "apple.com"
-      idToken: string
-      accessToken: string
     }
 
 export type ParamsForEvent<T extends IpcEvent["name"]> =
