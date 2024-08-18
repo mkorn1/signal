@@ -1,6 +1,6 @@
 import { BrowserWindow, app } from "electron"
 import log from "electron-log"
-import { FirebaseCredential } from "./ipc"
+import { FirebaseCredential } from "./FirebaseCredential"
 import { authCallbackUrl } from "./scheme"
 
 const authURL = (redirectUri: string) => {
