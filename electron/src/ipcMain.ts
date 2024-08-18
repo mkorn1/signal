@@ -4,7 +4,7 @@ import { readFile, readdir, writeFile } from "fs/promises"
 import { isAbsolute, join } from "path"
 import { getArgument } from "./arguments"
 import { signInWithBrowser } from "./auth"
-import { FirebaseCredential } from "./ipc"
+import { FirebaseCredential } from "./FirebaseCredential"
 
 interface Callbacks {
   onReady: () => void
