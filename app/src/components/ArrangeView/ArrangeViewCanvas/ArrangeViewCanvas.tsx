@@ -55,10 +55,10 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
       [scrollLeft, scrollTop],
     )
 
-    const setScrollLeft = useCallback(
-      (v: number) => arrangeViewStore.setScrollLeftInPixels(v),
-      [],
-    )
+    const setScrollLeft = useCallback((v: number) => {
+      arrangeViewStore.setScrollLeftInPixels(v)
+      arrangeViewStore.autoScroll = false
+    }, [])
     const setScrollTop = useCallback(
       (v: number) => arrangeViewStore.setScrollTop(v),
       [],

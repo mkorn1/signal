@@ -123,7 +123,13 @@ const PianoRollWrapper: FC = observer(() => {
       <HorizontalScaleScrollBar
         scrollOffset={scrollLeft}
         contentLength={contentWidth}
-        onScroll={useCallback((v: any) => s.setScrollLeftInPixels(v), [s])}
+        onScroll={useCallback(
+          (v: any) => {
+            s.setScrollLeftInPixels(v)
+            s.autoScroll = false
+          },
+          [s],
+        )}
         onClickScaleUp={onClickScaleUpHorizontal}
         onClickScaleDown={onClickScaleDownHorizontal}
         onClickScaleReset={onClickScaleResetHorizontal}

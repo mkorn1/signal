@@ -1,12 +1,5 @@
 import { clamp, cloneDeep, maxBy, minBy } from "lodash"
-import {
-  action,
-  autorun,
-  computed,
-  makeObservable,
-  observable,
-  observe,
-} from "mobx"
+import { action, computed, makeObservable, observable, observe } from "mobx"
 import { Layout } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
 import { Point } from "../entities/geometry/Point"
@@ -27,6 +20,7 @@ import Track, {
 } from "../track"
 import RootStore from "./RootStore"
 import { RulerStore } from "./RulerStore"
+import { TickScrollStore } from "./TickScrollStore"
 
 export type PianoRollMouseMode = "pencil" | "selection"
 
@@ -43,11 +37,10 @@ export type SerializedPianoRollStore = Pick<
 
 export default class PianoRollStore {
   readonly rulerStore: RulerStore
+  private readonly tickScrollStore: TickScrollStore
 
   scrollLeftTicks = 0
   scrollTopKeys = 70 // 中央くらいの音程にスクロールしておく
-  SCALE_X_MIN = 0.15
-  SCALE_X_MAX = 15
   SCALE_Y_MIN = 0.5
   SCALE_Y_MAX = 4
   notesCursor = "auto"
@@ -77,6 +70,7 @@ export default class PianoRollStore {
 
   constructor(readonly rootStore: RootStore) {
     this.rulerStore = new RulerStore(this)
+    this.tickScrollStore = new TickScrollStore(this, 0.15, 15)
 
     makeObservable(this, {
       scrollLeftTicks: observable,
@@ -132,18 +126,7 @@ export default class PianoRollStore {
   }
 
   setUpAutorun() {
-    autorun(() => {
-      const { isPlaying, position } = this.rootStore.player
-      const { autoScroll, scrollLeftTicks, transform, canvasWidth } = this
-
-      // keep scroll position to cursor
-      if (autoScroll && isPlaying) {
-        const screenX = transform.getX(position - scrollLeftTicks)
-        if (screenX > canvasWidth * 0.7 || screenX < 0) {
-          this.scrollLeftTicks = position
-        }
-      }
-    })
+    this.tickScrollStore.setUpAutoScroll()
 
     // reset selection when change track
     observe(this, "selectedTrackId", () => {
@@ -167,12 +150,7 @@ export default class PianoRollStore {
   }
 
   get contentWidth(): number {
-    const { scrollLeft, transform, canvasWidth } = this
-    const trackEndTick = this.rootStore.song.endOfSong
-    const startTick = transform.getTick(scrollLeft)
-    const widthTick = transform.getTick(canvasWidth)
-    const endTick = startTick + widthTick
-    return transform.getX(Math.max(trackEndTick, endTick))
+    return this.tickScrollStore.contentWidth
   }
 
   get contentHeight(): number {
@@ -181,7 +159,7 @@ export default class PianoRollStore {
   }
 
   get scrollLeft(): number {
-    return Math.round(this.transform.getX(this.scrollLeftTicks))
+    return this.tickScrollStore.scrollLeft
   }
 
   get scrollTop(): number {
@@ -189,10 +167,7 @@ export default class PianoRollStore {
   }
 
   setScrollLeftInPixels(x: number) {
-    const { canvasWidth, contentWidth } = this
-    const maxX = contentWidth - canvasWidth
-    const scrollLeft = clamp(x, 0, maxX)
-    this.scrollLeftTicks = this.transform.getTick(scrollLeft)
+    this.tickScrollStore.setScrollLeftInPixels(x)
   }
 
   setScrollTopInPixels(y: number) {
@@ -203,7 +178,7 @@ export default class PianoRollStore {
   }
 
   setScrollLeftInTicks(tick: number) {
-    this.setScrollLeftInPixels(this.transform.getX(tick))
+    this.tickScrollStore.setScrollLeftInTicks(tick)
   }
 
   setScrollTopInKeys(keys: number) {
@@ -216,15 +191,7 @@ export default class PianoRollStore {
   }
 
   scaleAroundPointX(scaleXDelta: number, pixelX: number) {
-    const pixelXInTicks0 = this.transform.getTick(this.scrollLeft + pixelX)
-    this.scaleX = clamp(
-      this.scaleX * (1 + scaleXDelta),
-      this.SCALE_X_MIN,
-      this.SCALE_X_MAX,
-    )
-    const pixelXInTicks1 = this.transform.getTick(this.scrollLeft + pixelX)
-    const scrollInTicks = pixelXInTicks1 - pixelXInTicks0
-    this.setScrollLeftInTicks(this.scrollLeftTicks - scrollInTicks)
+    this.tickScrollStore.scaleAroundPointX(scaleXDelta, pixelX)
   }
 
   scaleAroundPointY(scaleYDelta: number, pixelY: number) {
