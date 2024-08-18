@@ -44,6 +44,7 @@ const api: ElectronAPI = {
   onBrowserSignInCompleted: register("onBrowserSignInCompleted"),
   // tell to main process that the renderer process is ready
   ready: invoke("ready"),
+  showMessageBox: invoke("showMessageBox"),
   showOpenDialog: invoke("showOpenDialog"),
   showOpenDirectoryDialog: invoke("showOpenDirectoryDialog"),
   showSaveDialog: invoke("showSaveDialog"),

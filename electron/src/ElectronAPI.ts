@@ -23,6 +23,12 @@ export type ElectronAPI = {
   ) => Unsubscribe
   // tell to main process that the renderer process is ready
   ready: () => void
+  // returns the index of the button clicked
+  showMessageBox: (options: {
+    message: string
+    buttons: string[]
+    type?: "none" | "info" | "error" | "question" | "warning"
+  }) => Promise<number>
   showOpenDialog: () => Promise<{
     path: string
     content: ArrayBuffer
