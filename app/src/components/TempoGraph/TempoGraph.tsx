@@ -27,7 +27,7 @@ export const TempoGraph: FC = observer(() => {
   const size = useComponentSize(ref)
 
   const setScrollLeft = useCallback((x: number) => {
-    tempoEditorStore.setScrollLeft(x)
+    tempoEditorStore.setScrollLeftInPixels(x)
     tempoEditorStore.autoScroll = false
   }, [])
   const theme = useTheme()
