@@ -3,8 +3,10 @@ import { createContext, useContext, useState } from "react"
 import { themes, ThemeType } from "./Theme"
 
 const SetThemeContext = createContext<{
+  themeType: ThemeType
   setThemeType: (themeType: ThemeType) => void
 }>({
+  themeType: "dark",
   setThemeType: () => {},
 })
 
@@ -12,7 +14,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [themeType, setThemeType] = useState<ThemeType>("dark")
 
   return (
-    <SetThemeContext.Provider value={{ setThemeType }}>
+    <SetThemeContext.Provider value={{ themeType, setThemeType }}>
       <EmotionThemeProvider theme={themes[themeType]}>
         {children}
       </EmotionThemeProvider>
