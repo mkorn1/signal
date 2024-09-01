@@ -18,7 +18,7 @@ export interface QuantizePopupProps {
 
 const Container = styled.div`
   background: ${({ theme }) => theme.secondaryBackgroundColor};
-  border: 1px solid ${({ theme }) => theme.backgroundColor};
+  border: 1px solid ${({ theme }) => theme.popupBorderColor};
   box-shadow: 0 1rem 3rem ${({ theme }) => theme.shadowColor};
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;

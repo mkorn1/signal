@@ -69,8 +69,8 @@ export const Lines: FC<{ zIndex: number }> = observer(({ zIndex }) => {
         width: canvasWidth,
         height: canvasHeight,
       }}
-      color={colorToVec4(Color(theme.dividerColor).alpha(0.1))}
-      highlightedColor={colorToVec4(Color(theme.dividerColor).alpha(0.6))}
+      color={colorToVec4(Color(theme.editorSecondaryGridColor))}
+      highlightedColor={colorToVec4(Color(theme.editorGridColor))}
       laneColors={laneColors}
       height={scaleY * Layout.keyHeight}
       zIndex={zIndex}

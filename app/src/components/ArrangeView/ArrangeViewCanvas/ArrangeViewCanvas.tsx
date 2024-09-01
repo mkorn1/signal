@@ -1,3 +1,4 @@
+import { useTheme } from "@emotion/react"
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
@@ -30,6 +31,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
   ({ width, onContextMenu }) => {
     const rootStore = useStores()
     const { arrangeViewStore, player } = rootStore
+    const theme = useTheme()
     const {
       scrollLeft,
       scrollTop,
@@ -164,6 +166,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
         height={height}
         onMouseDown={onMouseDown}
         onContextMenu={useCallback((e: any) => e.preventDefault(), [])}
+        style={{ backgroundColor: theme.editorBackgroundColor }}
       >
         <Transform matrix={scrollYMatrix}>
           <Lines width={width} zIndex={0} />

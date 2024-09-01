@@ -147,7 +147,14 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
     )
 
     return (
-      <GLCanvas width={width} height={height} onMouseDown={onMouseDown}>
+      <GLCanvas
+        width={width}
+        height={height}
+        style={{
+          backgroundColor: theme.editorBackgroundColor,
+        }}
+        onMouseDown={onMouseDown}
+      >
         <Transform matrix={scrollXMatrix}>
           <VelocityItems
             rects={items}

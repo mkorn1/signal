@@ -24,7 +24,7 @@ const Content = styled.div`
   background: ${({ theme }) => theme.secondaryBackgroundColor};
   border-radius: 0.5rem;
   box-shadow: 0 1rem 3rem ${({ theme }) => theme.shadowColor};
-  border: 1px solid ${({ theme }) => theme.backgroundColor};
+  border: 1px solid ${({ theme }) => theme.popupBorderColor};
   padding: 0.5rem 0;
 `
 

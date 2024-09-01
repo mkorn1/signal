@@ -29,8 +29,8 @@ export const Beats: FC<{
   const lines = nonHighlightedBeats.map((b) => vline(b.x))
   const highlightedLines = highlightedBeats.map((b) => vline(b.x))
 
-  const color = colorToVec4(Color(theme.dividerColor).alpha(0.2))
-  const highlightedColor = colorToVec4(Color(theme.dividerColor).alpha(0.5))
+  const color = colorToVec4(Color(theme.editorSecondaryGridColor))
+  const highlightedColor = colorToVec4(Color(theme.editorGridColor))
 
   return (
     <>

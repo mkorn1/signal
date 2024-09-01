@@ -144,7 +144,7 @@ function drawTimeSignatures(
       flagHeight,
       textHeight,
     )
-    ctx.fillStyle = theme.textColor
+    ctx.fillStyle = e.isSelected ? theme.onSurfaceColor : theme.textColor
     ctx.fillText(text, x + textPadding, height - textPadding)
   })
 }
