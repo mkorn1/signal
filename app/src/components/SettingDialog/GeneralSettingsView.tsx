@@ -7,6 +7,7 @@ import {
   useCurrentLanguage,
 } from "../../localize/useLocalization"
 import { DialogContent, DialogTitle } from "../Dialog/Dialog"
+import { Label } from "../ui/Label"
 import { Select } from "../ui/Select"
 
 interface LanguageItem {
@@ -24,16 +25,20 @@ const LanguageSelect: FC = observer(() => {
     { label: "Chinese (Traditional)", language: "zh-Hant" },
   ]
   return (
-    <Select
-      value={settingStore.language ?? language}
-      onChange={(e) => (settingStore.language = e.target.value as Language)}
-    >
-      {items.map((item) => (
-        <option key={item.language} value={item.language}>
-          {item.label}
-        </option>
-      ))}
-    </Select>
+    <Label>
+      <Localized name="language" />
+      <Select
+        value={settingStore.language ?? language}
+        onChange={(e) => (settingStore.language = e.target.value as Language)}
+        style={{ marginTop: "0.5rem" }}
+      >
+        {items.map((item) => (
+          <option key={item.language} value={item.language}>
+            {item.label}
+          </option>
+        ))}
+      </Select>
+    </Label>
   )
 })
 
