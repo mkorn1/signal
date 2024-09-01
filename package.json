@@ -18,7 +18,8 @@
     "package:electron:darwin": "npm run build:electron && npm run package:darwin --prefix electron",
     "package:electron": "npm run build:electron && npm run package --prefix electron",
     "make:electron": "npm run build:electron && npm run make:mas --prefix electron",
-    "make:darwin": "npm run build:electron && npm run make:darwin --prefix electron"
+    "make:darwin": "npm run build:electron && npm run make:darwin --prefix electron",
+    "make:win": "npm run build:electron && npm run make:win --prefix electron"
   },
   "repository": {
     "type": "git",

@@ -99,5 +99,13 @@ module.exports = {
         identity: process.env.APPLE_INSTALLER_CERTIFICATE_NAME,
       },
     },
+    {
+      name: "@electron-forge/maker-appx",
+      config: {
+        publisher: process.env.WINDOWS_PUBLISHER,
+        devCert: process.env.WINDOWS_CERTIFICATE_NAME,
+        certPass: process.env.WINDOWS_CERTIFICATE_PASSWORD,
+      },
+    },
   ],
 }
