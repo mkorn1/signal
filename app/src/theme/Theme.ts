@@ -1,4 +1,5 @@
 export interface Theme {
+  isLightContent: boolean // if true, text color is light and background color is dark
   font: string
   canvasFont: string
   themeColor: string
@@ -29,6 +30,7 @@ export interface Theme {
 }
 
 const darkTheme: Theme = {
+  isLightContent: true,
   font: "Inter, -apple-system, BlinkMacSystemFont, Avenir, Lato",
   canvasFont: "Arial",
   themeColor: "hsl(230, 70%, 55%)",
@@ -59,6 +61,7 @@ const darkTheme: Theme = {
 }
 
 const lightTheme: Theme = {
+  isLightContent: false,
   font: "Inter, -apple-system, BlinkMacSystemFont, Avenir, Lato",
   canvasFont: "Arial",
   themeColor: "hsl(230, 70%, 55%)",
@@ -79,7 +82,7 @@ const lightTheme: Theme = {
   pianoWhiteKeyLaneColor: "#ffffff",
   pianoBlackKeyLaneColor: "hsl(228, 10%, 96%)",
   pianoHighlightedLaneColor: "hsl(230, 23%, 20%)",
-  ghostNoteColor: "#bbbbbb",
+  ghostNoteColor: "hsl(223, 12%, 80%)",
   recordColor: "#ee6a6a",
   shadowColor: "rgba(0, 0, 0, 0.1)",
   highlightColor: "#f5f5fa",

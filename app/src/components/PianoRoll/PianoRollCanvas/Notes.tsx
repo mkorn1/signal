@@ -2,7 +2,7 @@ import { useTheme } from "@emotion/react"
 import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { colorToVec4 } from "../../../gl/color"
+import { colorToVec4, enhanceContrast } from "../../../gl/color"
 import { useStores } from "../../../hooks/useStores"
 import { trackColorToCSSColor } from "../../../track/TrackColor"
 import { NoteCircles } from "./NoteCircles"
@@ -23,7 +23,9 @@ export const Notes: FC<{ zIndex: number }> = observer(({ zIndex }) => {
       ? trackColorToCSSColor(selectedTrack.color)
       : theme.themeColor,
   )
-  const borderColor = colorToVec4(baseColor.lighten(0.3))
+  const borderColor = colorToVec4(
+    enhanceContrast(baseColor, theme.isLightContent, 0.3),
+  )
   const selectedColor = colorToVec4(baseColor.lighten(0.7))
   const backgroundColor = colorToVec4(Color(theme.backgroundColor))
   const baseColorVec4 = colorToVec4(baseColor)

@@ -9,7 +9,7 @@ export interface SelectBoxProps<T> {
 
 const Select = styled.div`
   overflow: auto;
-  background-color: #00000024;
+  background-color: ${({ theme }) => theme.darkBackgroundColor};
   border: 1px solid ${({ theme }) => theme.dividerColor};
   max-height: 22rem;
   flex-grow: 1;
