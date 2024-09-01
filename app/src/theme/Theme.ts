@@ -28,7 +28,7 @@ export interface Theme {
   yellowColor: string
 }
 
-export const defaultTheme: Theme = {
+const darkTheme: Theme = {
   font: "Inter, -apple-system, BlinkMacSystemFont, Avenir, Lato",
   canvasFont: "Arial",
   themeColor: "hsl(230, 70%, 55%)",
@@ -57,3 +57,41 @@ export const defaultTheme: Theme = {
   redColor: "#DE5267",
   yellowColor: "#DEB126",
 }
+
+const lightTheme: Theme = {
+  font: "Inter, -apple-system, BlinkMacSystemFont, Avenir, Lato",
+  canvasFont: "Arial",
+  themeColor: "hsl(230, 70%, 55%)",
+  onSurfaceColor: "#ffffff",
+  textColor: "#000000",
+  secondaryTextColor: "hsl(223, 12%, 40%)",
+  tertiaryTextColor: "#7a7f8b",
+  dividerColor: "hsl(223, 12%, 80%)",
+  popupBorderColor: "#e0e0e0",
+  darkBackgroundColor: "hsl(228, 20%, 95%)",
+  backgroundColor: "#ffffff",
+  secondaryBackgroundColor: "hsl(227, 20%, 95%)",
+  editorBackgroundColor: "#ffffff",
+  editorGridColor: "hsl(223, 12%, 90%)",
+  editorSecondaryGridColor: "hsl(223, 12%, 95%)",
+  pianoKeyBlack: "#272a36",
+  pianoKeyWhite: "#fbfcff",
+  pianoWhiteKeyLaneColor: "#ffffff",
+  pianoBlackKeyLaneColor: "hsl(228, 10%, 96%)",
+  pianoHighlightedLaneColor: "hsl(230, 23%, 20%)",
+  ghostNoteColor: "#bbbbbb",
+  recordColor: "#ee6a6a",
+  shadowColor: "rgba(0, 0, 0, 0.1)",
+  highlightColor: "#f5f5fa",
+  greenColor: "#56DE83",
+  redColor: "#DE8287",
+  yellowColor: "#DEBE56",
+}
+
+export const themes = {
+  dark: darkTheme,
+  light: lightTheme,
+} as const
+
+export const themeNames = Object.keys(themes) as (keyof typeof themes)[]
+export type ThemeType = (typeof themeNames)[number]
