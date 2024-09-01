@@ -37,7 +37,7 @@ const darkTheme: Theme = {
   secondaryTextColor: "hsl(223, 12%, 60%)",
   tertiaryTextColor: "#5a6173",
   dividerColor: "hsl(224, 12%, 24%)",
-  popupBorderColor: "#000000",
+  popupBorderColor: "hsl(228, 10%, 13%)",
   darkBackgroundColor: "hsl(228, 10%, 13%)",
   backgroundColor: "hsl(228, 10%, 16%)",
   secondaryBackgroundColor: "hsl(227, 10%, 22%)",
