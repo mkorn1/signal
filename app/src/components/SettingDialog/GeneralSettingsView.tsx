@@ -9,7 +9,6 @@ import {
 } from "../../localize/useLocalization"
 import { themes, ThemeType } from "../../theme/Theme"
 import { ThemeName } from "../../theme/ThemeName"
-import { useSetTheme } from "../../theme/ThemeProvider"
 import { DialogContent, DialogTitle } from "../Dialog/Dialog"
 import { Label } from "../ui/Label"
 import { Select } from "../ui/Select"
@@ -47,13 +46,14 @@ const LanguageSelect: FC = observer(() => {
 })
 
 const ThemeSelect: FC = observer(() => {
-  const { themeType, setThemeType } = useSetTheme()
+  const { themeStore } = useStores()
+  const { themeType } = themeStore
   return (
     <Label>
       <Localized name="theme" />
       <Select
         value={themeType}
-        onChange={(e) => setThemeType(e.target.value as ThemeType)}
+        onChange={(e) => (themeStore.themeType = e.target.value as ThemeType)}
         style={{ marginTop: "0.5rem" }}
       >
         {Object.keys(themes).map((themeType) => (
