@@ -105,6 +105,7 @@ module.exports = {
         publisher: process.env.WINDOWS_PUBLISHER,
         devCert: process.env.WINDOWS_CERTIFICATE_NAME,
         certPass: process.env.WINDOWS_CERTIFICATE_PASSWORD,
+        assets: "./appx_assets",
       },
     },
   ],
