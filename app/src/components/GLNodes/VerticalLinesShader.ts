@@ -2,13 +2,11 @@ import {
   InstancedBuffer,
   rectToTriangles,
   Shader,
-  UniformDef,
   uniformFloat,
   uniformMat4,
   uniformVec4,
   VertexArray,
 } from "@ryohey/webgl-react"
-import { vec2 } from "gl-matrix"
 
 export class VerticalLinesBuffer
   implements InstancedBuffer<number[], "position" | "x">
@@ -72,9 +70,3 @@ export const VerticalLinesShader = (gl: WebGL2RenderingContext) =>
       lineWidth: uniformFloat(),
     },
   )
-
-const uniformVec2 = (): UniformDef<vec2> => ({
-  initialValue: vec2.create(),
-  isEqual: (a, b) => vec2.equals(a, b),
-  upload: (gl, location, value) => gl.uniform2fv(location, value),
-})
