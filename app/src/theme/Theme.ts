@@ -52,7 +52,7 @@ const darkTheme: Theme = {
   pianoWhiteKeyLaneColor: "hsl(228, 10%, 16%)",
   pianoBlackKeyLaneColor: "hsl(228, 10%, 13%)",
   pianoHighlightedLaneColor: "hsl(230, 23%, 20%)",
-  pianoLaneEdgeColor: "hsl(228, 10%, 21%)",
+  pianoLaneEdgeColor: "hsl(228, 10%, 18%)",
   ghostNoteColor: "#444444",
   recordColor: "#dd3c3c",
   shadowColor: "rgba(0, 0, 0, 0.1)",
