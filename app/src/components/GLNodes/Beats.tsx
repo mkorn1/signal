@@ -1,11 +1,10 @@
 import { useTheme } from "@emotion/react"
-import { Rectangles } from "@ryohey/webgl-react"
 import Color from "color"
 import { partition } from "lodash"
-import { FC } from "react"
+import { FC, useMemo } from "react"
 import { BeatWithX } from "../../entities/beat/BeatWithX"
-import { Rect } from "../../entities/geometry/Rect"
 import { colorToVec4 } from "../../gl/color"
+import { VerticalLines } from "./VerticalLines"
 
 export const Beats: FC<{
   height: number
@@ -14,30 +13,37 @@ export const Beats: FC<{
 }> = ({ height, beats, zIndex }) => {
   const theme = useTheme()
 
-  const vline = (x: number): Rect => ({
-    x,
-    y: 0,
-    width: 1,
-    height,
-  })
-
   const [highlightedBeats, nonHighlightedBeats] = partition(
     beats,
     (b) => b.beat === 0,
   )
 
-  const lines = nonHighlightedBeats.map((b) => vline(b.x))
-  const highlightedLines = highlightedBeats.map((b) => vline(b.x))
+  const lines = nonHighlightedBeats.map((b) => b.x)
+  const highlightedLines = highlightedBeats.map((b) => b.x)
 
-  const color = colorToVec4(Color(theme.dividerColor).alpha(0.2))
-  const highlightedColor = colorToVec4(Color(theme.dividerColor).alpha(0.5))
+  const color = useMemo(
+    () => colorToVec4(Color(theme.editorSecondaryGridColor)),
+    [theme],
+  )
+  const highlightedColor = useMemo(
+    () => colorToVec4(Color(theme.editorGridColor)),
+    [theme],
+  )
 
   return (
     <>
-      <Rectangles rects={lines} color={color} zIndex={zIndex} />
-      <Rectangles
-        rects={highlightedLines}
+      <VerticalLines
+        xArray={lines}
+        color={color}
+        height={height}
+        lineWidth={1}
+        zIndex={zIndex}
+      />
+      <VerticalLines
+        xArray={highlightedLines}
         color={highlightedColor}
+        height={height}
+        lineWidth={1}
         zIndex={zIndex + 0.1}
       />
     </>

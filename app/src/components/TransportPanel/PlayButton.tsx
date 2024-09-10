@@ -7,6 +7,7 @@ import { Tooltip } from "../ui/Tooltip"
 import { CircleButton } from "./CircleButton"
 
 export const StyledButton = styled(CircleButton)`
+  color: ${({ theme }) => theme.onSurfaceColor};
   background: ${({ theme }) => theme.themeColor};
 
   &:hover {

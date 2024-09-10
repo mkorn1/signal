@@ -1,4 +1,3 @@
-import { ThemeProvider } from "@emotion/react"
 import {
   DialogProvider,
   ProgressProvider,
@@ -11,7 +10,7 @@ import { ActionDialog } from "../../components/Dialog/ActionDialog"
 import { isRunningInElectron } from "../../helpers/platform"
 import { StoreContext } from "../../hooks/useStores"
 import RootStore from "../../stores/RootStore"
-import { defaultTheme } from "../../theme/Theme"
+import { ThemeProvider } from "../../theme/ThemeProvider"
 import { ProgressDialog } from "../Dialog/ProgressDialog"
 import { PromptDialog } from "../Dialog/PromptDialog"
 import { GlobalKeyboardShortcut } from "../KeyboardShortcut/GlobalKeyboardShortcut"
@@ -27,7 +26,7 @@ export function App() {
   return (
     <React.StrictMode>
       <StoreContext.Provider value={rootStore}>
-        <ThemeProvider theme={defaultTheme}>
+        <ThemeProvider>
           <HelmetProvider>
             <ToastProvider component={Toast}>
               <PromptProvider component={PromptDialog}>

@@ -43,4 +43,10 @@ export const StyledFirebaseAuth = styled(FirebaseAuthUI)`
     display: flex;
     justify-content: center;
   }
+
+  button[data-provider-id="github.com"] > span.firebaseui-idp-icon-wrapper {
+    background: black;
+    border-radius: 999px;
+    padding: 2px;
+  }
 `

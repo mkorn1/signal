@@ -5,7 +5,8 @@ const _ToolbarButton = styled.button<{ selected?: boolean }>`
   -webkit-appearance: none;
   min-width: auto;
   padding: 0 0.8rem;
-  color: inherit;
+  color: ${({ theme, selected }) =>
+    selected ? theme.onSurfaceColor : theme.textColor};
   border: none;
   background: ${({ theme, selected }) =>
     selected ? theme.themeColor : theme.darkBackgroundColor};

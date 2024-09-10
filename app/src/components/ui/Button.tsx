@@ -25,6 +25,7 @@ export const Button = styled.button`
 
 export const PrimaryButton = styled(Button)`
   background: ${({ theme }) => theme.themeColor};
+  color: ${({ theme }) => theme.onSurfaceColor};
 
   &:hover {
     background: ${({ theme }) => Color(theme.themeColor).darken(0.1).hex()};

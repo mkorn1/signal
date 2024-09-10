@@ -26,8 +26,8 @@ const RouteContent: FC<{ route: SettingRoute }> = ({ route }) => {
   }
 }
 const Content = styled.div`
-  min-width: 20rem;
-  min-height: 20rem;
+  flex-grow: 1;
+  min-height: 24rem;
 `
 
 export const SettingDialog: FC = observer(() => {
@@ -42,7 +42,7 @@ export const SettingDialog: FC = observer(() => {
   )
 
   return (
-    <Dialog open={open} onOpenChange={onClose} style={{ minWidth: "20rem" }}>
+    <Dialog open={open} onOpenChange={onClose} style={{ minWidth: "32rem" }}>
       <DialogTitle>
         <Localized name="settings" />
       </DialogTitle>

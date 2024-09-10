@@ -6,7 +6,7 @@ import { FC, useCallback, useMemo } from "react"
 import { changeNotesVelocity, updateVelocitiesInRange } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
-import { colorToVec4 } from "../../../gl/color"
+import { colorToVec4, enhanceContrast } from "../../../gl/color"
 import { matrixFromTranslation } from "../../../helpers/matrix"
 import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
@@ -133,21 +133,25 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
       [scrollLeft],
     )
 
-    const strokeColor = useMemo(
-      () => colorToVec4(Color(theme.themeColor).lighten(0.3)),
-      [theme],
+    const baseColor = Color(theme.themeColor)
+    const strokeColor = colorToVec4(
+      enhanceContrast(baseColor, theme.isLightContent, 0.3),
     )
-    const activeColor = useMemo(
-      () => colorToVec4(Color(theme.themeColor)),
-      [theme],
-    )
+    const activeColor = useMemo(() => colorToVec4(baseColor), [theme])
     const selectedColor = useMemo(
-      () => colorToVec4(Color(theme.themeColor).lighten(0.7)),
+      () => colorToVec4(baseColor.lighten(0.7)),
       [theme],
     )
 
     return (
-      <GLCanvas width={width} height={height} onMouseDown={onMouseDown}>
+      <GLCanvas
+        width={width}
+        height={height}
+        style={{
+          backgroundColor: theme.editorBackgroundColor,
+        }}
+        onMouseDown={onMouseDown}
+      >
         <Transform matrix={scrollXMatrix}>
           <VelocityItems
             rects={items}

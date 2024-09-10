@@ -61,6 +61,16 @@ export const Lines: FC<{ zIndex: number }> = observer(({ zIndex }) => {
     return Float32Array.from(laneColors.flat())
   }, [theme, keySignature])
 
+  const color = useMemo(
+    () => colorToVec4(Color(theme.pianoLaneEdgeColor)),
+    [theme],
+  )
+
+  const hightlightedColor = useMemo(
+    () => colorToVec4(Color(theme.editorGridColor)),
+    [theme],
+  )
+
   return (
     <HorizontalGrid
       rect={{
@@ -69,8 +79,8 @@ export const Lines: FC<{ zIndex: number }> = observer(({ zIndex }) => {
         width: canvasWidth,
         height: canvasHeight,
       }}
-      color={colorToVec4(Color(theme.dividerColor).alpha(0.1))}
-      highlightedColor={colorToVec4(Color(theme.dividerColor).alpha(0.6))}
+      color={color}
+      highlightedColor={hightlightedColor}
       laneColors={laneColors}
       height={scaleY * Layout.keyHeight}
       zIndex={zIndex}
