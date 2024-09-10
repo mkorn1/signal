@@ -3,6 +3,7 @@ import {
   PianoNotesClipboardData,
   isPianoNotesClipboardData,
 } from "../clipboard/clipboardTypes"
+import { MaxNoteNumber } from "../Constants"
 import { Rect } from "../entities/geometry/Rect"
 import { Selection } from "../entities/selection/Selection"
 import { NotePoint } from "../entities/transform/NotePoint"
@@ -96,6 +97,29 @@ export const moveSelectionBy =
       return
     }
 
+    const movedNotes = selectedNoteIds
+      .map((id) => {
+        const n = selectedTrack.getEventById(id)
+        if (n == undefined || !isNoteEvent(n)) {
+          return null
+        }
+        return {
+          id,
+          tick: n.tick + delta.tick,
+          noteNumber: n.noteNumber + delta.noteNumber,
+        }
+      })
+      .filter(isNotNull)
+
+    if (
+      movedNotes.some(
+        (n) => n.tick < 0 || n.noteNumber < 0 || n.noteNumber > MaxNoteNumber,
+      )
+    ) {
+      // Do not move the note when it tries to go out of the screen
+      return
+    }
+
     if (selection !== null) {
       const movedSelection = Selection.moved(
         selection,
@@ -110,24 +134,7 @@ export const moveSelectionBy =
       pianoRollStore.selection = clampedSelection
     }
 
-    selectedTrack.updateEvents(
-      selectedNoteIds
-        .map((id) => {
-          const n = selectedTrack.getEventById(id)
-          if (n == undefined || !isNoteEvent(n)) {
-            return null
-          }
-          const pos = NotePoint.clamp({
-            tick: n.tick + delta.tick,
-            noteNumber: n.noteNumber + delta.noteNumber,
-          })
-          return {
-            id,
-            ...pos,
-          }
-        })
-        .filter(isNotNull),
-    )
+    selectedTrack.updateEvents(movedNotes)
   }
 
 export const updateSelectedNotes =
@@ -284,7 +291,6 @@ export const pasteSelection =
     if (selectedTrack === undefined) {
       return
     }
-    // 現在位置にコピーしたノートをペースト
     // Paste notes copied to the current position
     const text = clipboard.readText()
     if (!text || text.length === 0) {
