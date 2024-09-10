@@ -1,3 +1,4 @@
+import { max } from "lodash"
 import { AnyEvent } from "midifile-ts"
 import { DistributiveOmit } from "../types.js"
 
@@ -13,5 +14,5 @@ export interface Track {
 }
 
 export function getEndOfTrack(events: TrackEvent[]) {
-  return Math.max(...events.map((event) => event.tick)) || 0
+  return max(events.map((event) => event.tick)) ?? 0
 }
