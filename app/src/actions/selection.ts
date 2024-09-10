@@ -305,7 +305,7 @@ export const pasteSelection =
 
     const notes = obj.notes.map((note) => ({
       ...note,
-      tick: note.tick + player.position,
+      tick: Math.max(0, note.tick + player.position),
     }))
     selectedTrack.addEvents(notes)
   }

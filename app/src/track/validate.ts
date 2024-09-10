@@ -12,4 +12,7 @@ export const validateMidiEvent = (e: TrackEvent) => {
       }
     }
   })
+  if (e.tick < 0) {
+    console.warn("minus tick is not allowed in MIDI", e)
+  }
 }
