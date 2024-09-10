@@ -1,4 +1,4 @@
-import { min } from "lodash"
+import { max, min } from "lodash"
 import {
   PianoNotesClipboardData,
   isPianoNotesClipboardData,
@@ -330,8 +330,8 @@ export const duplicateSelection =
       .filter(isNoteEvent)
 
     if (deltaTick === 0) {
-      const left = Math.min(...selectedNotes.map((n) => n.tick))
-      const right = Math.max(...selectedNotes.map((n) => n.tick + n.duration))
+      const left = min(selectedNotes.map((n) => n.tick)) ?? 0
+      const right = max(selectedNotes.map((n) => n.tick + n.duration)) ?? 0
       deltaTick = right - left
     }
 
