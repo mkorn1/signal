@@ -189,63 +189,36 @@ const dragSelectionEdgeAction =
         }
 
         const quantize = !e2.shiftKey && isQuantizeEnabled
-        const minLength = quantize ? quantizer.unit : MIN_LENGTH
+        const minLength = quantize ? quantizer.unit * 2 : MIN_LENGTH
         const local = rootStore.pianoRollStore.getLocal(e2)
         const notePoint = NotePoint.add(
           pianoRollStore.transform.getNotePoint(local),
           offset,
         )
 
-        // TODO: pushHistory の処理を追加
-        // TODO: 画面外に出ないようにする処理、選択範囲の最小長を保持する処理を追加
-
-        pianoRollStore.updateDraggable(draggable, () => {
-          if (quantize) {
-            return {
+        const newPosition = quantize
+          ? {
               tick: quantizer.round(notePoint.tick),
               noteNumber: notePoint.noteNumber,
             }
-          }
-          return notePoint
-        })
+          : notePoint
 
-        // const local = pianoRollStore.getLocal(e2)
-        // const tick = pianoRollStore.transform.getTick(local.x)
-        // const fromTick = quantizer.round(tick)
-        // const newSelection = (() => {
-        //   switch (edge) {
-        //     case "left":
-        //       return Selection.resizeLeft(selection, fromTick, minLength)
-        //     case "right":
-        //       return Selection.resizeRight(selection, fromTick, minLength)
-        //   }
-        // })()
+        if (
+          !pianoRollStore.validateDraggablePosition(
+            draggable,
+            newPosition,
+            minLength,
+          )
+        ) {
+          return
+        }
 
-        // if (!Selection.equals(newSelection, selection)) {
-        //   if (!isChanged) {
-        //     isChanged = true
-        //     pushHistory()
-        //   }
-        //   pianoRollStore.selection = newSelection
+        if (!isChanged) {
+          isChanged = true
+          pushHistory()
+        }
 
-        //   switch (edge) {
-        //     case "left": {
-        //       const delta = newSelection.from.tick - selection.from.tick
-        //       updateSelectedNotes(rootStore)((note) => ({
-        //         duration: note.duration - delta,
-        //         tick: note.tick + delta,
-        //       }))
-        //       break
-        //     }
-        //     case "right": {
-        //       const delta = newSelection.to.tick - selection.to.tick
-        //       updateSelectedNotes(rootStore)((note) => ({
-        //         duration: note.duration + delta,
-        //       }))
-        //       break
-        //     }
-        //   }
-        // }
+        pianoRollStore.updateDraggable(draggable, () => newPosition)
       },
     })
   }

@@ -1,6 +1,6 @@
 import { clamp, cloneDeep, maxBy, minBy } from "lodash"
 import { action, computed, makeObservable, observable, observe } from "mobx"
-import { Layout } from "../Constants"
+import { Layout, MaxNoteNumber } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
 import { Point } from "../entities/geometry/Point"
 import { Range } from "../entities/geometry/Range"
@@ -505,6 +505,62 @@ export default class PianoRollStore {
           }
         }
         break
+    }
+  }
+
+  validateDraggablePosition(
+    draggable: PianoRollDraggable,
+    position: NotePoint,
+    minLength: number = 0,
+  ): boolean {
+    switch (draggable.type) {
+      case "note":
+        const { selectedTrack } = this
+        if (selectedTrack === undefined) {
+          return false
+        }
+        const note = selectedTrack.getEventById(draggable.noteId)
+        if (note === undefined || !isNoteEvent(note)) {
+          return false
+        }
+        switch (draggable.position) {
+          case "center":
+            return (
+              position.tick >= 0 &&
+              position.noteNumber >= 0 &&
+              position.noteNumber <= MaxNoteNumber
+            )
+          case "left":
+            return (
+              position.tick >= 0 &&
+              position.tick <= note.tick + note.duration - minLength
+            )
+          case "right":
+            return position.tick >= 0 && position.tick >= note.tick + minLength
+        }
+      case "selection":
+        const { selection } = this
+        if (selection === null) {
+          return false
+        }
+        switch (draggable.position) {
+          case "center":
+            return (
+              position.tick >= 0 &&
+              position.noteNumber >= 0 &&
+              position.noteNumber <= MaxNoteNumber
+            )
+          case "left":
+            return (
+              position.tick >= 0 &&
+              position.tick <= selection.to.tick - minLength
+            )
+          case "right":
+            return (
+              position.tick >= 0 &&
+              position.tick >= selection.from.tick + minLength
+            )
+        }
     }
   }
 }
