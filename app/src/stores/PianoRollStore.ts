@@ -9,6 +9,7 @@ import { Measure } from "../entities/measure/Measure"
 import { KeySignature } from "../entities/scale/KeySignature"
 import { Selection } from "../entities/selection/Selection"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
+import { NotePoint } from "../entities/transform/NotePoint"
 import { isNotUndefined } from "../helpers/array"
 import { isEventOverlapRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
@@ -29,6 +30,17 @@ export type PianoNoteItem = Rect & {
   velocity: number
   isSelected: boolean
 }
+
+export type PianoRollDraggable =
+  | {
+      type: "selection"
+      position: "center" | "left" | "right"
+    }
+  | {
+      type: "note"
+      position: "center" | "left" | "right"
+      noteId: number
+    }
 
 export type SerializedPianoRollStore = Pick<
   PianoRollStore,
@@ -384,5 +396,115 @@ export default class PianoRollStore {
     return this.mouseMode === "pencil"
       ? `url("./cursor-pencil.svg") 0 20, pointer`
       : "auto"
+  }
+
+  getDraggablePosition(draggable: PianoRollDraggable): NotePoint | null {
+    switch (draggable.type) {
+      case "note":
+        const { selectedTrack } = this
+        if (selectedTrack === undefined) {
+          return null
+        }
+        const note = selectedTrack.getEventById(draggable.noteId)
+        if (note === undefined || !isNoteEvent(note)) {
+          return null
+        }
+        switch (draggable.position) {
+          case "center":
+            return note
+          case "left":
+            return note
+          case "right":
+            return {
+              tick: note.tick + note.duration,
+              noteNumber: note.noteNumber,
+            }
+        }
+      case "selection":
+        const { selection } = this
+        if (selection === null) {
+          return null
+        }
+        switch (draggable.position) {
+          case "center":
+            return selection.from
+          case "left":
+            return selection.from
+          case "right":
+            return selection.to
+        }
+    }
+  }
+
+  updateDraggable(
+    draggable: PianoRollDraggable,
+    update: (position: NotePoint) => NotePoint,
+  ) {
+    switch (draggable.type) {
+      case "note":
+        const { selectedTrack } = this
+        if (selectedTrack === undefined) {
+          return
+        }
+        const note = selectedTrack.getEventById(draggable.noteId)
+        if (note === undefined || !isNoteEvent(note)) {
+          return
+        }
+        switch (draggable.position) {
+          case "center": {
+            const position = update(note)
+            selectedTrack.updateEvent(note.id, position)
+            break
+          }
+          case "left": {
+            const position = update(note)
+            selectedTrack.updateEvent(note.id, {
+              tick: position.tick,
+              duration: note.duration + note.tick - position.tick,
+            })
+            break
+          }
+          case "right": {
+            const position = update({
+              tick: note.tick + note.duration,
+              noteNumber: note.noteNumber,
+            })
+            selectedTrack.updateEvent(note.id, {
+              duration: position.tick - note.tick,
+            })
+            break
+          }
+        }
+        break
+      case "selection":
+        const { selection } = this
+        if (selection === null) {
+          return
+        }
+        switch (draggable.position) {
+          case "center": {
+            const position = update(selection.from)
+            this.selection = Selection.moved(
+              selection,
+              position.tick,
+              position.noteNumber,
+            )
+            break
+          }
+          case "left": {
+            const newSelection = Selection.clone(selection)
+            newSelection.from.tick = update(selection.from).tick
+            this.selection = newSelection
+            break
+          }
+          case "right": {
+            const newSelection = Selection.clone(selection)
+            newSelection.to.tick = update(selection.to).tick
+            this.selection = newSelection
+            break
+          }
+        }
+        break
+    }
   }
 }
