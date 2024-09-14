@@ -149,7 +149,7 @@ export default class PianoRollStore {
 
   serialize(): SerializedPianoRollStore {
     return {
-      selection: this.selection ? Selection.clone(this.selection) : null,
+      selection: this.selection ? { ...this.selection } : null,
       selectedNoteIds: cloneDeep(this.selectedNoteIds),
       selectedTrackId: this.selectedTrackId,
     }
@@ -494,18 +494,20 @@ export default class PianoRollStore {
             if (position.tick === undefined) {
               return
             }
-            const newSelection = Selection.clone(selection)
-            newSelection.fromTick = position.tick
-            this.selection = newSelection
+            this.selection = {
+              ...selection,
+              fromTick: position.tick,
+            }
             break
           }
           case "right": {
             if (position.tick === undefined) {
               return
             }
-            const newSelection = Selection.clone(selection)
-            newSelection.toTick = position.tick
-            this.selection = newSelection
+            this.selection = {
+              ...selection,
+              toTick: position.tick,
+            }
             break
           }
         }

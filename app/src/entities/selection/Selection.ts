@@ -1,5 +1,4 @@
 import { clamp } from "lodash"
-import cloneDeep from "lodash/cloneDeep"
 import { MaxNoteNumber } from "../../Constants"
 import { Rect } from "../geometry/Rect"
 import { NoteCoordTransform } from "../transform/NoteCoordTransform"
@@ -28,8 +27,6 @@ export namespace Selection {
       height: bottom - top,
     }
   }
-
-  export const clone = (selection: Selection): Selection => cloneDeep(selection)
 
   export const moved = (
     selection: Selection,
