@@ -13,11 +13,11 @@ import {
 } from "../../../actions"
 import { pushHistory } from "../../../actions/history"
 import { Point } from "../../../entities/geometry/Point"
-import { Range } from "../../../entities/geometry/Range"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import RootStore from "../../../stores/RootStore"
 import { NoteEvent, isNoteEvent } from "../../../track"
+import { moveDraggableAction } from "./moveDraggableAction"
 import { MouseGesture } from "./NoteMouseHandler"
 
 const MIN_DURATION = 10
@@ -152,12 +152,7 @@ const dragNoteEdgeAction =
   (e) => {
     const {
       pianoRollStore,
-      pianoRollStore: {
-        selectedTrack,
-        transform,
-        isQuantizeEnabled,
-        quantizer,
-      },
+      pianoRollStore: { selectedTrack, transform, selectedNoteIds, quantizer },
     } = rootStore
 
     if (selectedTrack === undefined || selectedTrack.channel === undefined) {
@@ -172,58 +167,34 @@ const dragNoteEdgeAction =
     const { channel } = selectedTrack
     startNote(rootStore)({ ...note, channel })
 
-    const local = pianoRollStore.getLocal(e)
-    const startTick = transform.getTick(local.x)
-    const quantize = !e.shiftKey && isQuantizeEnabled
-    const minDuration = quantize ? quantizer.unit : MIN_DURATION
-
-    let isChanged = false
-
-    observeDrag2(e, {
-      onMouseMove: (e, delta) => {
-        let tick = startTick + transform.getTick(delta.x)
-        if (quantize) {
-          tick = quantizer.round(tick)
-        }
-        const note = selectedTrack.getEventById(item.id)
-        if (note == undefined || !isNoteEvent(note)) {
-          return
-        }
-        const range = Range.create(note.tick, note.tick + note.duration)
-
-        const newRange = (() => {
-          switch (edge) {
-            case "left":
-              return Range.resizeStart(range, tick, minDuration)
-            case "right":
-              return Range.resizeEnd(range, tick, minDuration)
+    moveDraggableAction(
+      { type: "note", position: edge, noteId: item.id },
+      selectedNoteIds.map((noteId) => ({
+        type: "note",
+        position: edge,
+        noteId,
+      })),
+      {
+        onChange(_e, changes) {
+          // save last note duration
+          if (changes.has("tick")) {
+            const newNote = selectedTrack.getEventById(item.id)
+            if (newNote == undefined || !isNoteEvent(newNote)) {
+              return
+            }
+            pianoRollStore.lastNoteDuration = newNote.duration
           }
-        })()
-
-        if (!Range.equals(range, newRange)) {
-          if (!isChanged) {
-            pushHistory(rootStore)()
-            isChanged = true
+        },
+        onMouseUp() {
+          stopNote(rootStore)({ ...note, channel })
+        },
+        onClick(e) {
+          if (!e.shiftKey) {
+            selectNote(rootStore)(item.id)
           }
-          const { start: newTick, length: newDuration } = Range.toSpan(newRange)
-          pianoRollStore.lastNoteDuration = newDuration
-          selectedTrack.updateEvent(note.id, {
-            tick: newTick,
-            duration: newDuration,
-          })
-        }
-
-        e.stopPropagation()
+        },
       },
-      onMouseUp: () => {
-        stopNote(rootStore)({ ...note, channel })
-      },
-      onClick: (e) => {
-        if (!e.shiftKey) {
-          selectNote(rootStore)(item.id)
-        }
-      },
-    })
+    )(rootStore)(e)
   }
 
 const dragNoteLeftAction = dragNoteEdgeAction("left")

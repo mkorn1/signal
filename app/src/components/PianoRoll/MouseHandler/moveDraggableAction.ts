@@ -7,10 +7,17 @@ import { PianoRollDraggable } from "../../../stores/PianoRollStore"
 import { MouseGesture } from "./NoteMouseHandler"
 import { MIN_LENGTH } from "./SelectionMouseHandler"
 
+export interface MoveDraggableCallback {
+  onChange?: (e: MouseEvent, changes: Set<keyof NotePoint>) => void
+  onMouseUp?: (e: MouseEvent) => void
+  onClick?: (e: MouseEvent) => void
+}
+
 export const moveDraggableAction =
   (
     draggable: PianoRollDraggable,
     subDraggables: PianoRollDraggable[] = [],
+    callback: MoveDraggableCallback = {},
   ): MouseGesture =>
   (rootStore) =>
   (e) => {
@@ -38,12 +45,6 @@ export const moveDraggableAction =
 
     observeDrag({
       onMouseMove: (e2) => {
-        const { selection } = pianoRollStore
-
-        if (selection === null) {
-          return
-        }
-
         const quantize = !e2.shiftKey && isQuantizeEnabled
         const minLength = quantize ? quantizer.unit : MIN_LENGTH
         const local = rootStore.pianoRollStore.getLocal(e2)
@@ -120,6 +121,14 @@ export const moveDraggableAction =
             pickValidProps(subDraggablePosition),
           )
         })
+
+        callback?.onChange?.(e2, validProps)
+      },
+      onMouseUp: (e2) => {
+        callback?.onMouseUp?.(e2)
+      },
+      onClick: (e2) => {
+        callback?.onClick?.(e2)
       },
     })
   }
