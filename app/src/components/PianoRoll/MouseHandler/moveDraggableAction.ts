@@ -1,5 +1,8 @@
+import { pick } from "lodash"
 import { NotePoint } from "../../../entities/transform/NotePoint"
+import { isNotNull } from "../../../helpers/array"
 import { observeDrag } from "../../../helpers/observeDrag"
+import { intersection } from "../../../helpers/set"
 import { PianoRollDraggable } from "../../../stores/PianoRollStore"
 import { MouseGesture } from "./NoteMouseHandler"
 import { MIN_LENGTH } from "./SelectionMouseHandler"
@@ -56,13 +59,13 @@ export const moveDraggableAction =
             }
           : notePoint
 
-        if (
-          !pianoRollStore.validateDraggablePosition(
-            draggable,
-            newPosition,
-            minLength,
-          )
-        ) {
+        const validProps = pianoRollStore.validateDraggablePosition(
+          draggable,
+          newPosition,
+          minLength,
+        )
+
+        if (validProps.size === 0) {
           return
         }
 
@@ -78,18 +81,20 @@ export const moveDraggableAction =
           return NotePoint.add(subDraggablePosition, delta)
         })
 
-        const someSubDraggablePositionInvalid = newSubDraggablePositions.some(
-          (subDraggablePosition, i) =>
+        const subValidProps = newSubDraggablePositions
+          .map((subDraggablePosition, i) =>
             subDraggablePosition !== null
-              ? !pianoRollStore.validateDraggablePosition(
+              ? pianoRollStore.validateDraggablePosition(
                   subDraggables[i],
                   subDraggablePosition,
                   minLength,
                 )
               : null,
-        )
+          )
+          .filter(isNotNull)
+          .reduce(intersection, validProps)
 
-        if (someSubDraggablePositionInvalid) {
+        if (subValidProps.size === 0) {
           return
         }
 
@@ -98,7 +103,10 @@ export const moveDraggableAction =
           pushHistory()
         }
 
-        pianoRollStore.updateDraggable(draggable, newPosition)
+        const pickValidProps = (notePoint: NotePoint) =>
+          pick(notePoint, Array.from(validProps.values()))
+
+        pianoRollStore.updateDraggable(draggable, pickValidProps(newPosition))
 
         subDraggables.forEach((subDraggable, i) => {
           const subDraggablePosition = newSubDraggablePositions[i]
@@ -107,7 +115,10 @@ export const moveDraggableAction =
             return
           }
 
-          pianoRollStore.updateDraggable(subDraggable, subDraggablePosition)
+          pianoRollStore.updateDraggable(
+            subDraggable,
+            pickValidProps(subDraggablePosition),
+          )
         })
       },
     })

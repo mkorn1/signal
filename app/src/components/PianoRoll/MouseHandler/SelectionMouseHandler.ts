@@ -1,11 +1,9 @@
 import {
   cloneSelection,
   fixSelection,
-  moveSelectionBy,
   resizeSelection,
   startSelection,
 } from "../../../actions"
-import { pushHistory } from "../../../actions/history"
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
 import { observeDrag2 } from "../../../helpers/observeDrag"
@@ -30,7 +28,7 @@ export const getSelectionActionForMouseDown =
         const type = positionType(selectionBounds, local)
         switch (type) {
           case "center":
-            return moveSelectionAction(selectionBounds)
+            return moveSelectionAction(selectedNoteIds)
           case "right":
             return dragSelectionRightEdgeAction(selectedNoteIds)
           case "left":
@@ -115,41 +113,23 @@ const createSelectionAction: MouseGesture = (rootStore) => (e) => {
 }
 
 const moveSelectionAction =
-  (selectionBounds: Rect): MouseGesture =>
+  (selectedNoteIds: number[]): MouseGesture =>
   (rootStore) =>
   (e) => {
-    const { transform, quantizer } = rootStore.pianoRollStore
-
     const isCopy = e.ctrlKey
 
     if (isCopy) {
       cloneSelection(rootStore)()
     }
 
-    let isChanged = false
-    let prevTick = 0
-    let prevNoteNumber = 0
-
-    observeDrag2(e, {
-      onMouseMove: (_e, delta) => {
-        const tick = quantizer.round(transform.getTick(delta.x))
-        const noteNumber = Math.round(transform.getDeltaNoteNumber(delta.y))
-        if (tick !== prevTick || noteNumber !== prevNoteNumber) {
-          if (!isChanged) {
-            isChanged = true
-            pushHistory(rootStore)()
-          }
-
-          moveSelectionBy(rootStore)({
-            tick: tick - prevTick,
-            noteNumber: noteNumber - prevNoteNumber,
-          })
-
-          prevTick = tick
-          prevNoteNumber = noteNumber
-        }
-      },
-    })
+    return moveDraggableAction(
+      { type: "selection", position: "center" },
+      selectedNoteIds.map((noteId) => ({
+        type: "note",
+        position: "center",
+        noteId,
+      })),
+    )(rootStore)(e)
   }
 
 const dragSelectionLeftEdgeAction = (selectedNoteIds: number[]) =>

@@ -436,7 +436,7 @@ export default class PianoRollStore {
     }
   }
 
-  updateDraggable(draggable: PianoRollDraggable, position: NotePoint) {
+  updateDraggable(draggable: PianoRollDraggable, position: Partial<NotePoint>) {
     switch (draggable.type) {
       case "note":
         const { selectedTrack } = this
@@ -453,6 +453,9 @@ export default class PianoRollStore {
             break
           }
           case "left": {
+            if (position.tick === undefined) {
+              return
+            }
             selectedTrack.updateEvent(note.id, {
               tick: position.tick,
               duration: note.duration + note.tick - position.tick,
@@ -460,6 +463,9 @@ export default class PianoRollStore {
             break
           }
           case "right": {
+            if (position.tick === undefined) {
+              return
+            }
             selectedTrack.updateEvent(note.id, {
               duration: position.tick - note.tick,
             })
@@ -474,20 +480,27 @@ export default class PianoRollStore {
         }
         switch (draggable.position) {
           case "center": {
-            this.selection = Selection.moved(
-              selection,
-              position.tick,
-              position.noteNumber,
-            )
+            const defaultedPosition = { ...selection.from, ...position }
+            const delta = NotePoint.sub(defaultedPosition, selection.from)
+            this.selection = {
+              from: defaultedPosition,
+              to: NotePoint.add(selection.to, delta),
+            }
             break
           }
           case "left": {
+            if (position.tick === undefined) {
+              return
+            }
             const newSelection = Selection.clone(selection)
             newSelection.from.tick = position.tick
             this.selection = newSelection
             break
           }
           case "right": {
+            if (position.tick === undefined) {
+              return
+            }
             const newSelection = Selection.clone(selection)
             newSelection.to.tick = position.tick
             this.selection = newSelection
@@ -498,59 +511,88 @@ export default class PianoRollStore {
     }
   }
 
+  // returns Set of valid properties
   validateDraggablePosition(
     draggable: PianoRollDraggable,
     position: NotePoint,
     minLength: number = 0,
-  ): boolean {
+  ): Set<keyof NotePoint> {
     switch (draggable.type) {
       case "note":
         const { selectedTrack } = this
         if (selectedTrack === undefined) {
-          return false
+          return validNotePointSet({})
         }
         const note = selectedTrack.getEventById(draggable.noteId)
         if (note === undefined || !isNoteEvent(note)) {
-          return false
+          return validNotePointSet({})
         }
         switch (draggable.position) {
           case "center":
-            return (
-              position.tick >= 0 &&
-              position.noteNumber >= 0 &&
-              position.noteNumber <= MaxNoteNumber
-            )
+            return validNotePointSet({
+              tick: position.tick >= 0,
+              noteNumber:
+                position.noteNumber >= 0 &&
+                position.noteNumber <= MaxNoteNumber,
+            })
           case "left":
-            return (
-              position.tick >= 0 &&
-              position.tick <= note.tick + note.duration - minLength
-            )
+            return validNotePointSet({
+              tick:
+                position.tick >= 0 &&
+                position.tick <= note.tick + note.duration - minLength,
+            })
           case "right":
-            return position.tick >= 0 && position.tick >= note.tick + minLength
+            return validNotePointSet({
+              tick:
+                position.tick >= 0 && position.tick >= note.tick + minLength,
+            })
         }
       case "selection":
         const { selection } = this
         if (selection === null) {
-          return false
+          return validNotePointSet({})
         }
         switch (draggable.position) {
           case "center":
-            return (
-              position.tick >= 0 &&
-              position.noteNumber >= 0 &&
-              position.noteNumber <= MaxNoteNumber
-            )
+            const height = selection.from.noteNumber - selection.to.noteNumber
+            return validNotePointSet({
+              tick: position.tick >= 0,
+              noteNumber:
+                position.noteNumber >= 0 &&
+                position.noteNumber <= MaxNoteNumber &&
+                position.noteNumber - height >= -1 &&
+                position.noteNumber - height <= MaxNoteNumber,
+            })
           case "left":
-            return (
-              position.tick >= 0 &&
-              position.tick <= selection.to.tick - minLength
-            )
+            return validNotePointSet({
+              tick:
+                position.tick >= 0 &&
+                position.tick <= selection.to.tick - minLength,
+            })
           case "right":
-            return (
-              position.tick >= 0 &&
-              position.tick >= selection.from.tick + minLength
-            )
+            return validNotePointSet({
+              tick:
+                position.tick >= 0 &&
+                position.tick >= selection.from.tick + minLength,
+            })
         }
     }
   }
+}
+
+function validNotePointSet({
+  tick = false,
+  noteNumber = false,
+}: {
+  tick?: boolean
+  noteNumber?: boolean
+}): Set<keyof NotePoint> {
+  const set = new Set<keyof NotePoint>()
+  if (tick) {
+    set.add("tick")
+  }
+  if (noteNumber) {
+    set.add("noteNumber")
+  }
+  return set
 }
