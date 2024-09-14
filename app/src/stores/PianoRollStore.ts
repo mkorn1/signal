@@ -515,72 +515,77 @@ export default class PianoRollStore {
     }
   }
 
+  getDraggableArea(
+    draggable: PianoRollDraggable,
+    minLength: number = 0,
+  ): { tickRange?: Range; noteNumberRange?: Range } | null {
+    switch (draggable.type) {
+      case "note":
+        const { selectedTrack } = this
+        if (selectedTrack === undefined) {
+          return null
+        }
+        const note = selectedTrack.getEventById(draggable.noteId)
+        if (note === undefined || !isNoteEvent(note)) {
+          return null
+        }
+        switch (draggable.position) {
+          case "center":
+            return {
+              tickRange: Range.create(0, Infinity),
+              noteNumberRange: Range.create(0, MaxNoteNumber + 1),
+            }
+          case "left":
+            return {
+              tickRange: Range.create(0, note.tick + note.duration - minLength),
+            }
+          case "right":
+            return {
+              tickRange: Range.create(note.tick + minLength, Infinity),
+            }
+        }
+      case "selection":
+        const { selection } = this
+        if (selection === null) {
+          return null
+        }
+        switch (draggable.position) {
+          case "center":
+            const height = selection.fromNoteNumber - selection.toNoteNumber
+            return {
+              tickRange: Range.create(0, Infinity),
+              noteNumberRange: Range.create(height - 1, MaxNoteNumber + 1),
+            }
+          case "left":
+            return {
+              tickRange: Range.create(0, selection.toTick - minLength),
+            }
+          case "right":
+            return {
+              tickRange: Range.create(selection.fromTick + minLength, Infinity),
+            }
+        }
+    }
+  }
+
   // returns Set of valid properties
   validateDraggablePosition(
     draggable: PianoRollDraggable,
     position: NotePoint,
     minLength: number = 0,
   ): Set<keyof NotePoint> {
-    switch (draggable.type) {
-      case "note":
-        const { selectedTrack } = this
-        if (selectedTrack === undefined) {
-          return validNotePointSet({})
-        }
-        const note = selectedTrack.getEventById(draggable.noteId)
-        if (note === undefined || !isNoteEvent(note)) {
-          return validNotePointSet({})
-        }
-        switch (draggable.position) {
-          case "center":
-            return validNotePointSet({
-              tick: position.tick >= 0,
-              noteNumber:
-                position.noteNumber >= 0 &&
-                position.noteNumber <= MaxNoteNumber,
-            })
-          case "left":
-            return validNotePointSet({
-              tick:
-                position.tick >= 0 &&
-                position.tick <= note.tick + note.duration - minLength,
-            })
-          case "right":
-            return validNotePointSet({
-              tick:
-                position.tick >= 0 && position.tick >= note.tick + minLength,
-            })
-        }
-      case "selection":
-        const { selection } = this
-        if (selection === null) {
-          return validNotePointSet({})
-        }
-        switch (draggable.position) {
-          case "center":
-            const height = selection.fromNoteNumber - selection.toNoteNumber
-            return validNotePointSet({
-              tick: position.tick >= 0,
-              noteNumber:
-                position.noteNumber >= 0 &&
-                position.noteNumber <= MaxNoteNumber &&
-                position.noteNumber - height >= -1 &&
-                position.noteNumber - height <= MaxNoteNumber,
-            })
-          case "left":
-            return validNotePointSet({
-              tick:
-                position.tick >= 0 &&
-                position.tick <= selection.toTick - minLength,
-            })
-          case "right":
-            return validNotePointSet({
-              tick:
-                position.tick >= 0 &&
-                position.tick >= selection.fromTick + minLength,
-            })
-        }
+    const range = this.getDraggableArea(draggable, minLength)
+    if (range === null) {
+      return validNotePointSet({})
     }
+    return validNotePointSet({
+      tick:
+        range.tickRange !== undefined &&
+        Range.contains(range.tickRange, position.tick),
+      noteNumber:
+        range.noteNumberRange !== undefined &&
+        Range.contains(range.noteNumberRange, position.noteNumber),
+    })
   }
 }
 
