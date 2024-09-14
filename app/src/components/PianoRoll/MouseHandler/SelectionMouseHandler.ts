@@ -22,7 +22,7 @@ export const getSelectionActionForMouseDown =
       return null
     }
 
-    const { selectionBounds } = rootStore.pianoRollStore
+    const { selectionBounds, selectedNoteIds } = rootStore.pianoRollStore
     const local = rootStore.pianoRollStore.getLocal(e)
 
     if (e.button === 0) {
@@ -32,9 +32,9 @@ export const getSelectionActionForMouseDown =
           case "center":
             return moveSelectionAction(selectionBounds)
           case "right":
-            return dragSelectionRightEdgeAction
+            return dragSelectionRightEdgeAction(selectedNoteIds)
           case "left":
-            return dragSelectionLeftEdgeAction
+            return dragSelectionLeftEdgeAction(selectedNoteIds)
           case "outside":
             return createSelectionAction
         }
@@ -152,12 +152,28 @@ const moveSelectionAction =
     })
   }
 
-const dragSelectionLeftEdgeAction = moveDraggableAction({
-  type: "selection",
-  position: "left",
-})
+const dragSelectionLeftEdgeAction = (selectedNoteIds: number[]) =>
+  moveDraggableAction(
+    {
+      type: "selection",
+      position: "left",
+    },
+    selectedNoteIds.map((noteId) => ({
+      type: "note",
+      position: "left",
+      noteId,
+    })),
+  )
 
-const dragSelectionRightEdgeAction = moveDraggableAction({
-  type: "selection",
-  position: "right",
-})
+const dragSelectionRightEdgeAction = (selectedNoteIds: number[]) =>
+  moveDraggableAction(
+    {
+      type: "selection",
+      position: "right",
+    },
+    selectedNoteIds.map((noteId) => ({
+      type: "note",
+      position: "right",
+      noteId,
+    })),
+  )

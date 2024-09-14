@@ -5,7 +5,10 @@ import { MouseGesture } from "./NoteMouseHandler"
 import { MIN_LENGTH } from "./SelectionMouseHandler"
 
 export const moveDraggableAction =
-  (draggable: PianoRollDraggable): MouseGesture =>
+  (
+    draggable: PianoRollDraggable,
+    subDraggables: PianoRollDraggable[] = [],
+  ): MouseGesture =>
   (rootStore) =>
   (e) => {
     const {
@@ -26,6 +29,10 @@ export const moveDraggableAction =
     const notePoint = pianoRollStore.transform.getNotePoint(local)
     const offset = NotePoint.sub(draggablePosition, notePoint)
 
+    const subDraggablePositions = subDraggables.map((subDraggable) =>
+      pianoRollStore.getDraggablePosition(subDraggable),
+    )
+
     observeDrag({
       onMouseMove: (e2) => {
         const { selection } = pianoRollStore
@@ -35,7 +42,7 @@ export const moveDraggableAction =
         }
 
         const quantize = !e2.shiftKey && isQuantizeEnabled
-        const minLength = quantize ? quantizer.unit * 2 : MIN_LENGTH
+        const minLength = quantize ? quantizer.unit : MIN_LENGTH
         const local = rootStore.pianoRollStore.getLocal(e2)
         const notePoint = NotePoint.add(
           pianoRollStore.transform.getNotePoint(local),
@@ -65,6 +72,30 @@ export const moveDraggableAction =
         }
 
         pianoRollStore.updateDraggable(draggable, () => newPosition)
+
+        const delta = NotePoint.sub(newPosition, draggablePosition)
+
+        subDraggables.forEach((subDraggable, i) => {
+          const subDraggablePosition = subDraggablePositions[i]
+
+          if (subDraggablePosition === null) {
+            return
+          }
+
+          const newPosition = NotePoint.add(subDraggablePosition, delta)
+
+          if (
+            !pianoRollStore.validateDraggablePosition(
+              subDraggable,
+              newPosition,
+              minLength,
+            )
+          ) {
+            return
+          }
+
+          pianoRollStore.updateDraggable(subDraggable, () => newPosition)
+        })
       },
     })
   }
