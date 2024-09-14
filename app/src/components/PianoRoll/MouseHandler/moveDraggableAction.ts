@@ -60,6 +60,13 @@ export const moveDraggableAction =
             }
           : notePoint
 
+        if (
+          newPosition.tick === draggablePosition.tick &&
+          newPosition.noteNumber === draggablePosition.noteNumber
+        ) {
+          return
+        }
+
         const validProps = pianoRollStore.validateDraggablePosition(
           draggable,
           newPosition,
