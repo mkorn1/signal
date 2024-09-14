@@ -8,13 +8,12 @@ import {
 import { pushHistory } from "../../../actions/history"
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
-import { NotePoint } from "../../../entities/transform/NotePoint"
-import { observeDrag, observeDrag2 } from "../../../helpers/observeDrag"
-import { PianoRollDraggable } from "../../../stores/PianoRollStore"
+import { observeDrag2 } from "../../../helpers/observeDrag"
 import RootStore from "../../../stores/RootStore"
+import { moveDraggableAction } from "./moveDraggableAction"
 import { MouseGesture } from "./NoteMouseHandler"
 
-const MIN_LENGTH = 10
+export const MIN_LENGTH = 10
 
 export const getSelectionActionForMouseDown =
   (rootStore: RootStore) =>
@@ -153,75 +152,12 @@ const moveSelectionAction =
     })
   }
 
-const dragSelectionEdgeAction =
-  (edge: "left" | "right"): MouseGesture =>
-  (rootStore) =>
-  (e) => {
-    const {
-      pianoRollStore,
-      pianoRollStore: { isQuantizeEnabled, quantizer },
-      pushHistory,
-    } = rootStore
+const dragSelectionLeftEdgeAction = moveDraggableAction({
+  type: "selection",
+  position: "left",
+})
 
-    let isChanged = false
-
-    const draggable: PianoRollDraggable = {
-      type: "selection",
-      position: edge,
-    }
-
-    const draggablePosition = pianoRollStore.getDraggablePosition(draggable)
-
-    if (draggablePosition === null) {
-      return
-    }
-
-    const local = rootStore.pianoRollStore.getLocal(e)
-    const notePoint = pianoRollStore.transform.getNotePoint(local)
-    const offset = NotePoint.sub(draggablePosition, notePoint)
-
-    observeDrag({
-      onMouseMove: (e2) => {
-        const { selection } = pianoRollStore
-
-        if (selection === null) {
-          return
-        }
-
-        const quantize = !e2.shiftKey && isQuantizeEnabled
-        const minLength = quantize ? quantizer.unit * 2 : MIN_LENGTH
-        const local = rootStore.pianoRollStore.getLocal(e2)
-        const notePoint = NotePoint.add(
-          pianoRollStore.transform.getNotePoint(local),
-          offset,
-        )
-
-        const newPosition = quantize
-          ? {
-              tick: quantizer.round(notePoint.tick),
-              noteNumber: notePoint.noteNumber,
-            }
-          : notePoint
-
-        if (
-          !pianoRollStore.validateDraggablePosition(
-            draggable,
-            newPosition,
-            minLength,
-          )
-        ) {
-          return
-        }
-
-        if (!isChanged) {
-          isChanged = true
-          pushHistory()
-        }
-
-        pianoRollStore.updateDraggable(draggable, () => newPosition)
-      },
-    })
-  }
-
-const dragSelectionLeftEdgeAction = dragSelectionEdgeAction("left")
-const dragSelectionRightEdgeAction = dragSelectionEdgeAction("right")
+const dragSelectionRightEdgeAction = moveDraggableAction({
+  type: "selection",
+  position: "right",
+})
