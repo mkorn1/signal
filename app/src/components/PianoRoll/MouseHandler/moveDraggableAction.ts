@@ -66,35 +66,48 @@ export const moveDraggableAction =
           return
         }
 
+        const delta = NotePoint.sub(newPosition, draggablePosition)
+
+        const newSubDraggablePositions = subDraggables.map((_, i) => {
+          const subDraggablePosition = subDraggablePositions[i]
+
+          if (subDraggablePosition === null) {
+            return null
+          }
+
+          return NotePoint.add(subDraggablePosition, delta)
+        })
+
+        const someSubDraggablePositionInvalid = newSubDraggablePositions.some(
+          (subDraggablePosition, i) =>
+            subDraggablePosition !== null
+              ? !pianoRollStore.validateDraggablePosition(
+                  subDraggables[i],
+                  subDraggablePosition,
+                  minLength,
+                )
+              : null,
+        )
+
+        if (someSubDraggablePositionInvalid) {
+          return
+        }
+
         if (!isChanged) {
           isChanged = true
           pushHistory()
         }
 
-        pianoRollStore.updateDraggable(draggable, () => newPosition)
-
-        const delta = NotePoint.sub(newPosition, draggablePosition)
+        pianoRollStore.updateDraggable(draggable, newPosition)
 
         subDraggables.forEach((subDraggable, i) => {
-          const subDraggablePosition = subDraggablePositions[i]
+          const subDraggablePosition = newSubDraggablePositions[i]
 
-          if (subDraggablePosition === null) {
+          if (subDraggablePosition === null || subDraggablePosition === null) {
             return
           }
 
-          const newPosition = NotePoint.add(subDraggablePosition, delta)
-
-          if (
-            !pianoRollStore.validateDraggablePosition(
-              subDraggable,
-              newPosition,
-              minLength,
-            )
-          ) {
-            return
-          }
-
-          pianoRollStore.updateDraggable(subDraggable, () => newPosition)
+          pianoRollStore.updateDraggable(subDraggable, subDraggablePosition)
         })
       },
     })

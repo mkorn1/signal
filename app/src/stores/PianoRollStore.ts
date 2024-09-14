@@ -436,10 +436,7 @@ export default class PianoRollStore {
     }
   }
 
-  updateDraggable(
-    draggable: PianoRollDraggable,
-    update: (position: NotePoint) => NotePoint,
-  ) {
+  updateDraggable(draggable: PianoRollDraggable, position: NotePoint) {
     switch (draggable.type) {
       case "note":
         const { selectedTrack } = this
@@ -452,12 +449,10 @@ export default class PianoRollStore {
         }
         switch (draggable.position) {
           case "center": {
-            const position = update(note)
             selectedTrack.updateEvent(note.id, position)
             break
           }
           case "left": {
-            const position = update(note)
             selectedTrack.updateEvent(note.id, {
               tick: position.tick,
               duration: note.duration + note.tick - position.tick,
@@ -465,10 +460,6 @@ export default class PianoRollStore {
             break
           }
           case "right": {
-            const position = update({
-              tick: note.tick + note.duration,
-              noteNumber: note.noteNumber,
-            })
             selectedTrack.updateEvent(note.id, {
               duration: position.tick - note.tick,
             })
@@ -483,7 +474,6 @@ export default class PianoRollStore {
         }
         switch (draggable.position) {
           case "center": {
-            const position = update(selection.from)
             this.selection = Selection.moved(
               selection,
               position.tick,
@@ -493,13 +483,13 @@ export default class PianoRollStore {
           }
           case "left": {
             const newSelection = Selection.clone(selection)
-            newSelection.from.tick = update(selection.from).tick
+            newSelection.from.tick = position.tick
             this.selection = newSelection
             break
           }
           case "right": {
             const newSelection = Selection.clone(selection)
-            newSelection.to.tick = update(selection.to).tick
+            newSelection.to.tick = position.tick
             this.selection = newSelection
             break
           }
