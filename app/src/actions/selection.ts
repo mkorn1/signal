@@ -16,10 +16,10 @@ import { transposeNotes } from "./song"
 
 function eventsInSelection(events: TrackEvent[], selection: Selection) {
   const selectionRect = {
-    x: selection.from.tick,
-    width: selection.to.tick - selection.from.tick,
-    y: selection.to.noteNumber,
-    height: selection.from.noteNumber - selection.to.noteNumber,
+    x: selection.fromTick,
+    width: selection.toTick - selection.fromTick,
+    y: selection.toNoteNumber,
+    height: selection.fromNoteNumber - selection.toNoteNumber,
   }
   return events.filter(isNoteEvent).filter((b) =>
     Rect.intersects(
@@ -101,12 +101,7 @@ export const startSelection =
       pianoRollStore.selectedNoteIds = []
     }
 
-    // 選択範囲の右上を pos にする
-    // Set the upper right corner of the selection to POS
-    pianoRollStore.selection = {
-      from: point,
-      to: point,
-    }
+    pianoRollStore.selection = Selection.fromPoints(point, point)
   }
 
 export const resetSelection =
@@ -153,7 +148,7 @@ export const copySelection =
       .filter(isNoteEvent)
 
     const startTick =
-      selection?.from.tick ?? min(selectedNotes.map((note) => note.tick))!
+      selection?.fromTick ?? min(selectedNotes.map((note) => note.tick))!
 
     // 選択されたノートをコピー
     // Copy selected note
@@ -236,7 +231,7 @@ export const duplicateSelection =
     pushHistory()
 
     // move to the end of selection
-    let deltaTick = selection.to.tick - selection.from.tick
+    let deltaTick = selection.toTick - selection.fromTick
 
     const selectedNotes = selectedNoteIds
       .map((id) => selectedTrack.getEventById(id))

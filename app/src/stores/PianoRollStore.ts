@@ -427,11 +427,11 @@ export default class PianoRollStore {
         }
         switch (draggable.position) {
           case "center":
-            return selection.from
+            return Selection.getFrom(selection)
           case "left":
-            return selection.from
+            return Selection.getFrom(selection)
           case "right":
-            return selection.to
+            return Selection.getTo(selection)
         }
     }
   }
@@ -480,12 +480,14 @@ export default class PianoRollStore {
         }
         switch (draggable.position) {
           case "center": {
-            const defaultedPosition = { ...selection.from, ...position }
-            const delta = NotePoint.sub(defaultedPosition, selection.from)
-            this.selection = {
-              from: defaultedPosition,
-              to: NotePoint.add(selection.to, delta),
-            }
+            const from = Selection.getFrom(selection)
+            const defaultedPosition = { ...from, ...position }
+            const delta = NotePoint.sub(defaultedPosition, from)
+            this.selection = Selection.moved(
+              selection,
+              delta.tick,
+              delta.noteNumber,
+            )
             break
           }
           case "left": {
@@ -493,7 +495,7 @@ export default class PianoRollStore {
               return
             }
             const newSelection = Selection.clone(selection)
-            newSelection.from.tick = position.tick
+            newSelection.fromTick = position.tick
             this.selection = newSelection
             break
           }
@@ -502,7 +504,7 @@ export default class PianoRollStore {
               return
             }
             const newSelection = Selection.clone(selection)
-            newSelection.to.tick = position.tick
+            newSelection.toTick = position.tick
             this.selection = newSelection
             break
           }
@@ -554,7 +556,7 @@ export default class PianoRollStore {
         }
         switch (draggable.position) {
           case "center":
-            const height = selection.from.noteNumber - selection.to.noteNumber
+            const height = selection.fromNoteNumber - selection.toNoteNumber
             return validNotePointSet({
               tick: position.tick >= 0,
               noteNumber:
@@ -567,13 +569,13 @@ export default class PianoRollStore {
             return validNotePointSet({
               tick:
                 position.tick >= 0 &&
-                position.tick <= selection.to.tick - minLength,
+                position.tick <= selection.toTick - minLength,
             })
           case "right":
             return validNotePointSet({
               tick:
                 position.tick >= 0 &&
-                position.tick >= selection.from.tick + minLength,
+                position.tick >= selection.fromTick + minLength,
             })
         }
     }

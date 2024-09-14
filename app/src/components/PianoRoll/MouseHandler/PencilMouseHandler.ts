@@ -128,7 +128,7 @@ const dragNoteEdgeAction =
   (e) => {
     const {
       pianoRollStore,
-      pianoRollStore: { selectedTrack, transform, selectedNoteIds, quantizer },
+      pianoRollStore: { selectedTrack, selectedNoteIds },
     } = rootStore
 
     if (selectedTrack === undefined || selectedTrack.channel === undefined) {
