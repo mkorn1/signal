@@ -18,8 +18,6 @@ import { isNoteEvent } from "../../../track"
 import { moveDraggableAction } from "./moveDraggableAction"
 import { MouseGesture } from "./NoteMouseHandler"
 
-const MIN_DURATION = 10
-
 export const getPencilActionForMouseDown =
   (rootStore: RootStore) =>
   (e: MouseEvent): MouseGesture | null => {

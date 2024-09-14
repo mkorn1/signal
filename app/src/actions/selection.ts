@@ -3,11 +3,10 @@ import {
   PianoNotesClipboardData,
   isPianoNotesClipboardData,
 } from "../clipboard/clipboardTypes"
-import { MaxNoteNumber } from "../Constants"
 import { Rect } from "../entities/geometry/Rect"
 import { Selection } from "../entities/selection/Selection"
 import { NotePoint } from "../entities/transform/NotePoint"
-import { isNotNull, isNotUndefined } from "../helpers/array"
+import { isNotUndefined } from "../helpers/array"
 import { tickToMillisec } from "../helpers/bpm"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
@@ -81,97 +80,6 @@ export const transposeSelection =
     transposeNotes(rootStore)(deltaPitch, {
       [selectedTrackIndex]: selectedNoteIds,
     })
-  }
-
-export const moveSelectionBy =
-  ({
-    pianoRollStore,
-    pianoRollStore: { selectedTrack, selection, selectedNoteIds },
-  }: RootStore) =>
-  (delta: NotePoint) => {
-    if (delta.tick === 0 && delta.noteNumber === 0) {
-      return
-    }
-
-    if (selectedTrack === undefined) {
-      return
-    }
-
-    const movedNotes = selectedNoteIds
-      .map((id) => {
-        const n = selectedTrack.getEventById(id)
-        if (n == undefined || !isNoteEvent(n)) {
-          return null
-        }
-        return {
-          id,
-          tick: n.tick + delta.tick,
-          noteNumber: n.noteNumber + delta.noteNumber,
-        }
-      })
-      .filter(isNotNull)
-
-    if (
-      movedNotes.some(
-        (n) => n.tick < 0 || n.noteNumber < 0 || n.noteNumber > MaxNoteNumber,
-      )
-    ) {
-      // Do not move the note when it tries to go out of the screen
-      return
-    }
-
-    if (selection !== null) {
-      const movedSelection = Selection.moved(
-        selection,
-        delta.tick,
-        delta.noteNumber,
-      )
-      const clampedSelection = Selection.clamp(movedSelection)
-      if (!Selection.equals(movedSelection, clampedSelection)) {
-        // Do not move the selection range or notes when it tries to go out of the screen
-        return
-      }
-      pianoRollStore.selection = clampedSelection
-    }
-
-    selectedTrack.updateEvents(movedNotes)
-  }
-
-export const updateSelectedNotes =
-  (rootStore: RootStore) =>
-  (update: (note: NoteEvent) => Partial<NoteEvent>) => {
-    const {
-      pianoRollStore: { selectedTrack, selectedNoteIds },
-    } = rootStore
-
-    if (selectedTrack === undefined) {
-      return
-    }
-
-    selectedTrack.updateEvents(
-      selectedNoteIds.flatMap((id) => {
-        const event = selectedTrack.getEventById(id)
-        if (event == undefined || !isNoteEvent(event)) {
-          return []
-        }
-        const newNote = update(event)
-        if (
-          ("duration" in newNote &&
-            newNote.duration !== undefined &&
-            newNote.duration <= 0) ||
-          ("tick" in newNote && newNote.tick !== undefined && newNote.tick < 0)
-        ) {
-          // Do not deform if the width is zero
-          return []
-        }
-        return [
-          {
-            id,
-            ...newNote,
-          },
-        ]
-      }),
-    )
   }
 
 export const startSelection =
