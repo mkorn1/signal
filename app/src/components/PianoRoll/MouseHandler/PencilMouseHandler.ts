@@ -154,17 +154,17 @@ const dragNoteEdgeAction =
           noteId,
         })),
       {
-        onChange(_e, changes) {
+        onChange(_e, { oldPosition, newPosition }) {
           const newNote = selectedTrack.getEventById(noteId)
           if (newNote == undefined || !isNoteEvent(newNote)) {
             return
           }
           // save last note duration
-          if (changes.has("tick")) {
+          if (oldPosition.tick !== newPosition.tick) {
             pianoRollStore.lastNoteDuration = newNote.duration
           }
           if (
-            changes.has("noteNumber") &&
+            oldPosition.noteNumber !== newPosition.noteNumber &&
             newNote.noteNumber !== playingNoteNumber
           ) {
             stopNote(rootStore)({ noteNumber: playingNoteNumber, channel })

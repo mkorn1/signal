@@ -42,6 +42,11 @@ export type PianoRollDraggable =
       noteId: number
     }
 
+export type DraggableArea = {
+  tickRange?: Range
+  noteNumberRange?: Range
+}
+
 export type SerializedPianoRollStore = Pick<
   PianoRollStore,
   "selection" | "selectedNoteIds" | "selectedTrackId"
@@ -518,7 +523,7 @@ export default class PianoRollStore {
   getDraggableArea(
     draggable: PianoRollDraggable,
     minLength: number = 0,
-  ): { tickRange?: Range; noteNumberRange?: Range } | null {
+  ): DraggableArea | null {
     switch (draggable.type) {
       case "note":
         const { selectedTrack } = this
@@ -538,10 +543,12 @@ export default class PianoRollStore {
           case "left":
             return {
               tickRange: Range.create(0, note.tick + note.duration - minLength),
+              noteNumberRange: Range.point(note.noteNumber), // allow to move only vertically
             }
           case "right":
             return {
               tickRange: Range.create(note.tick + minLength, Infinity),
+              noteNumberRange: Range.point(note.noteNumber), // allow to move only vertically
             }
         }
       case "selection":
@@ -559,49 +566,14 @@ export default class PianoRollStore {
           case "left":
             return {
               tickRange: Range.create(0, selection.toTick - minLength),
+              noteNumberRange: Range.point(selection.fromNoteNumber), // allow to move only vertically
             }
           case "right":
             return {
               tickRange: Range.create(selection.fromTick + minLength, Infinity),
+              noteNumberRange: Range.point(selection.fromNoteNumber), // allow to move only vertically
             }
         }
     }
   }
-
-  // returns Set of valid properties
-  validateDraggablePosition(
-    draggable: PianoRollDraggable,
-    position: NotePoint,
-    minLength: number = 0,
-  ): Set<keyof NotePoint> {
-    const range = this.getDraggableArea(draggable, minLength)
-    if (range === null) {
-      return validNotePointSet({})
-    }
-    return validNotePointSet({
-      tick:
-        range.tickRange !== undefined &&
-        Range.contains(range.tickRange, position.tick),
-      noteNumber:
-        range.noteNumberRange !== undefined &&
-        Range.contains(range.noteNumberRange, position.noteNumber),
-    })
-  }
-}
-
-function validNotePointSet({
-  tick = false,
-  noteNumber = false,
-}: {
-  tick?: boolean
-  noteNumber?: boolean
-}): Set<keyof NotePoint> {
-  const set = new Set<keyof NotePoint>()
-  if (tick) {
-    set.add("tick")
-  }
-  if (noteNumber) {
-    set.add("noteNumber")
-  }
-  return set
 }
