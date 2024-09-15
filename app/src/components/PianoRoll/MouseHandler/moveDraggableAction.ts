@@ -40,14 +40,12 @@ export const moveDraggableAction =
     subDraggables: PianoRollDraggable[] = [],
     callback: MoveDraggableCallback = {},
   ): MouseGesture =>
-  (rootStore) =>
+  ({
+    pianoRollStore,
+    pianoRollStore: { isQuantizeEnabled, transform, quantizer },
+    pushHistory,
+  }) =>
   (e) => {
-    const {
-      pianoRollStore,
-      pianoRollStore: { isQuantizeEnabled, quantizer },
-      pushHistory,
-    } = rootStore
-
     const draggablePosition = pianoRollStore.getDraggablePosition(draggable)
 
     if (draggablePosition === null) {
@@ -56,8 +54,8 @@ export const moveDraggableAction =
 
     let isChanged = false
 
-    const startPos = rootStore.pianoRollStore.getLocal(e)
-    const notePoint = pianoRollStore.transform.getNotePoint(startPos)
+    const startPos = pianoRollStore.getLocal(e)
+    const notePoint = transform.getNotePoint(startPos)
     const offset = NotePoint.sub(draggablePosition, notePoint)
 
     const subDraggablePositions = subDraggables.map((subDraggable) =>
@@ -78,8 +76,7 @@ export const moveDraggableAction =
           return
         }
 
-        const currentPosition =
-          rootStore.pianoRollStore.getDraggablePosition(draggable)
+        const currentPosition = pianoRollStore.getDraggablePosition(draggable)
 
         if (currentPosition === null) {
           return
@@ -87,10 +84,7 @@ export const moveDraggableAction =
 
         const newPosition = (() => {
           const local = Point.add(startPos, d)
-          const notePoint = NotePoint.add(
-            pianoRollStore.transform.getNotePoint(local),
-            offset,
-          )
+          const notePoint = NotePoint.add(transform.getNotePoint(local), offset)
           const position = quantize
             ? {
                 tick: quantizer.round(notePoint.tick),
