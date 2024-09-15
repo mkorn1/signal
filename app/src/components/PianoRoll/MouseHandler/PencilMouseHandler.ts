@@ -185,6 +185,7 @@ const dragNoteEdgeAction =
           }
         },
       },
+      "moveAlways",
     )(rootStore)(e)
   }
 

@@ -39,6 +39,9 @@ export const moveDraggableAction =
     draggable: PianoRollDraggable,
     subDraggables: PianoRollDraggable[] = [],
     callback: MoveDraggableCallback = {},
+    behavior:
+      | "moveAlways"
+      | "moveIfSubDraggableMoved" = "moveIfSubDraggableMoved",
   ): MouseGesture =>
   (rootStore) =>
   (e) => {
@@ -132,17 +135,21 @@ export const moveDraggableAction =
           },
         )
 
-        const noSubDraggableMoved = zip(
-          currentSubDraggablePositions,
-          newSubDraggablePositions,
-        ).every(([subDraggablePosition, newSubDraggablePosition]) =>
-          subDraggablePosition && newSubDraggablePosition
-            ? NotePoint.equals(subDraggablePosition, newSubDraggablePosition)
-            : true,
-        )
-
-        if (subDraggablePositions.length > 0 && noSubDraggableMoved) {
-          return
+        if (
+          behavior === "moveIfSubDraggableMoved" &&
+          subDraggablePositions.length > 0
+        ) {
+          const noSubDraggableMoved = zip(
+            currentSubDraggablePositions,
+            newSubDraggablePositions,
+          ).every(([subDraggablePosition, newSubDraggablePosition]) =>
+            subDraggablePosition && newSubDraggablePosition
+              ? NotePoint.equals(subDraggablePosition, newSubDraggablePosition)
+              : true,
+          )
+          if (noSubDraggableMoved) {
+            return
+          }
         }
 
         if (!isChanged) {
