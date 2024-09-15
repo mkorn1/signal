@@ -1,13 +1,14 @@
-import cloneDeep from "lodash/cloneDeep"
+import { clamp } from "lodash"
 import { MaxNoteNumber } from "../../Constants"
-import { Range } from "../geometry/Range"
 import { Rect } from "../geometry/Rect"
 import { NoteCoordTransform } from "../transform/NoteCoordTransform"
 import { NotePoint } from "../transform/NotePoint"
 
 export interface Selection {
-  from: NotePoint
-  to: NotePoint
+  fromTick: number
+  fromNoteNumber: number
+  toTick: number
+  toNoteNumber: number
 }
 
 export namespace Selection {
@@ -15,10 +16,10 @@ export namespace Selection {
     selection: Selection,
     transform: NoteCoordTransform,
   ): Rect => {
-    const left = transform.getX(selection.from.tick)
-    const right = transform.getX(selection.to.tick)
-    const top = transform.getY(selection.from.noteNumber)
-    const bottom = transform.getY(selection.to.noteNumber)
+    const left = transform.getX(selection.fromTick)
+    const right = transform.getX(selection.toTick)
+    const top = transform.getY(selection.fromNoteNumber)
+    const bottom = transform.getY(selection.toNoteNumber)
     return {
       x: left,
       y: top,
@@ -27,104 +28,42 @@ export namespace Selection {
     }
   }
 
-  export const clone = (selection: Selection): Selection => cloneDeep(selection)
-
   export const moved = (
     selection: Selection,
     dt: number,
     dn: number,
   ): Selection => {
-    const s = clone(selection)
-
-    s.from.tick += dt
-    s.to.tick += dt
-    s.from.noteNumber += dn
-    s.to.noteNumber += dn
-
-    return s
+    return {
+      fromTick: selection.fromTick + dt,
+      fromNoteNumber: selection.fromNoteNumber + dn,
+      toTick: selection.toTick + dt,
+      toNoteNumber: selection.toNoteNumber + dn,
+    }
   }
-
-  // to Make the lower right
-  export const regularized = (
-    fromTick: number,
-    fromNoteNumber: number,
-    toTick: number,
-    toNoteNumber: number,
-  ): Selection => ({
-    from: {
-      tick: Math.max(0, Math.min(fromTick, toTick)),
-      noteNumber: Math.min(
-        MaxNoteNumber,
-        Math.max(fromNoteNumber, toNoteNumber),
-      ),
-    },
-    to: {
-      tick: Math.max(fromTick, toTick),
-      noteNumber: Math.min(
-        MaxNoteNumber,
-        Math.min(fromNoteNumber, toNoteNumber),
-      ),
-    },
-  })
-
-  export const clamp = (selection: Selection): Selection => ({
-    from: clampNotePoint(selection.from),
-    to: clampNotePoint(selection.to),
-  })
-
-  // Unlike NotePoint.clamp, noteNumber may be -1
-  const clampNotePoint = (point: NotePoint): NotePoint => ({
-    tick: Math.max(0, point.tick),
-    noteNumber: Math.min(MaxNoteNumber, Math.max(-1, point.noteNumber)),
-  })
 
   export function fromPoints(start: NotePoint, end: NotePoint) {
-    let selection = Selection.regularized(
-      start.tick,
-      start.noteNumber,
-      end.tick,
-      end.noteNumber,
-    )
+    const leftTick = Math.min(start.tick, end.tick)
+    const rightTick = Math.max(start.tick, end.tick)
 
     // integer containing the original coordinates.
-    selection.from.noteNumber = Math.ceil(selection.from.noteNumber)
-    selection.to.noteNumber = Math.floor(selection.to.noteNumber)
-
-    return Selection.clamp(selection)
-  }
-
-  // Fix the right end and change the length
-  export function resizeLeft(
-    selection: Selection,
-    tick: number,
-    minLength: number,
-  ) {
-    const range = Range.create(selection.from.tick, selection.to.tick)
-    const [newFromTick, newToTick] = Range.resizeStart(range, tick, minLength)
-    return Selection.regularized(
-      newFromTick,
-      selection.from.noteNumber,
-      newToTick,
-      selection.to.noteNumber,
+    const topNoteNumber = Math.ceil(Math.max(start.noteNumber, end.noteNumber))
+    const bottomNoteNumber = Math.floor(
+      Math.min(start.noteNumber, end.noteNumber),
     )
+
+    return {
+      fromTick: Math.max(0, leftTick),
+      fromNoteNumber: clamp(topNoteNumber, -1, MaxNoteNumber),
+      toTick: Math.max(0, rightTick),
+      toNoteNumber: clamp(bottomNoteNumber, -1, MaxNoteNumber),
+    }
   }
 
-  export function resizeRight(
-    selection: Selection,
-    tick: number,
-    minLength: number,
-  ) {
-    const range = Range.create(selection.from.tick, selection.to.tick)
-    const [newFromTick, newToTick] = Range.resizeEnd(range, tick, minLength)
-    return Selection.regularized(
-      newFromTick,
-      selection.from.noteNumber,
-      newToTick,
-      selection.to.noteNumber,
-    )
+  export function getFrom(selection: Selection): NotePoint {
+    return { tick: selection.fromTick, noteNumber: selection.fromNoteNumber }
   }
 
-  export function equals(a: Selection, b: Selection) {
-    return NotePoint.equals(a.from, b.from) && NotePoint.equals(a.to, b.to)
+  export function getTo(selection: Selection): NotePoint {
+    return { tick: selection.toTick, noteNumber: selection.toNoteNumber }
   }
 }
