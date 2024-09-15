@@ -529,20 +529,38 @@ export default class PianoRollStore {
       return null
     }
     switch (draggable.type) {
-      case "note":
+      case "note": {
         const note = selectedTrack.getEventById(draggable.noteId)
         if (note === undefined || !isNoteEvent(note)) {
           return null
         }
+        const notes = this.selectedNoteIds
+          .map((id) => selectedTrack.getEventById(id))
+          .filter(isNotUndefined)
+          .filter(isNoteEvent)
+        const minTick = min(notes.map((n) => n.tick)) ?? 0
+        const tickLowerBound = note.tick - minTick
         switch (draggable.position) {
-          case "center":
+          case "center": {
+            const maxNoteNumber = max(notes.map((n) => n.noteNumber)) ?? 0
+            const minNoteNumber = min(notes.map((n) => n.noteNumber)) ?? 0
+            const noteNumberLowerBound = note.noteNumber - minNoteNumber
+            const noteNumberUpperBound =
+              MaxNoteNumber - (maxNoteNumber - note.noteNumber)
             return {
-              tickRange: Range.create(0, Infinity),
-              noteNumberRange: Range.create(0, MaxNoteNumber + 1),
+              tickRange: Range.create(tickLowerBound, Infinity),
+              noteNumberRange: Range.create(
+                noteNumberLowerBound,
+                noteNumberUpperBound,
+              ),
             }
+          }
           case "left":
             return {
-              tickRange: Range.create(0, note.tick + note.duration - minLength),
+              tickRange: Range.create(
+                tickLowerBound,
+                note.tick + note.duration - minLength,
+              ),
               noteNumberRange: Range.point(note.noteNumber), // allow to move only vertically
             }
           case "right":
@@ -551,7 +569,8 @@ export default class PianoRollStore {
               noteNumberRange: Range.point(note.noteNumber), // allow to move only vertically
             }
         }
-      case "selection":
+      }
+      case "selection": {
         const { selection } = this
         if (selection === null) {
           return null
@@ -609,6 +628,7 @@ export default class PianoRollStore {
             }
           }
         }
+      }
     }
   }
 }
