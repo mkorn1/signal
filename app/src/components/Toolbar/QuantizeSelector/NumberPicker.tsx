@@ -13,6 +13,7 @@ export interface NumberPickerProps {
 
 const Value = styled.div`
   font-size: 150%;
+  font-family: ${({ theme }) => theme.monoFont};
   background: ${({ theme }) => theme.backgroundColor};
   border: 1px solid ${({ theme }) => theme.dividerColor};
   width: 2em;

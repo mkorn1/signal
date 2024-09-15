@@ -15,7 +15,7 @@ export const StyledNumberInput = styled(NumberInput)`
   box-sizing: border-box;
   color: inherit;
   font-size: 1rem;
-  font-family: inherit;
+  font-family: ${({ theme }) => theme.monoFont};
   outline: none;
 
   &:focus {
