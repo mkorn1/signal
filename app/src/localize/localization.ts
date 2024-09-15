@@ -326,6 +326,10 @@ export default {
     "scale-half-whole-diminished": "Half-whole Diminished",
     "scale-whole-half-diminished": "Whole-half Diminished",
     "scale-whole-tone": "Whole Tone",
+    /* operation */
+    "operation-set": "Set",
+    "operation-add": "Add",
+    "operation-multiply": "Multiply",
   },
   ja: {
     "piano-roll": "ピアノロール",
@@ -650,6 +654,10 @@ export default {
     "scale-half-whole-diminished": "ハーフホールディミニッシュ",
     "scale-whole-half-diminished": "ホールハーフディミニッシュ",
     "scale-whole-tone": "ホールトーン",
+    /* operation */
+    "operation-set": "変更",
+    "operation-add": "加算",
+    "operation-multiply": "乗算",
   },
   "zh-Hans": {
     "piano-roll": "钢琴卷",
@@ -975,6 +983,10 @@ export default {
     "scale-half-whole-diminished": "Half-whole Diminished",
     "scale-whole-half-diminished": "Whole-half Diminished",
     "scale-whole-tone": "Whole Tone",
+    /* operation */
+    "operation-set": "Set",
+    "operation-add": "Add",
+    "operation-multiply": "Multiply",
   },
   "zh-Hant": {
     "piano-roll": "鋼琴卷軸",
@@ -1299,5 +1311,9 @@ export default {
     "scale-half-whole-diminished": "Half-whole Diminished",
     "scale-whole-half-diminished": "Whole-half Diminished",
     "scale-whole-tone": "Whole Tone",
+    /* operation */
+    "operation-set": "Set",
+    "operation-add": "Add",
+    "operation-multiply": "Multiply",
   },
 } as const

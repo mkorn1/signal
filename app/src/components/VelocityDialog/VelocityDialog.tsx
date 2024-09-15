@@ -70,17 +70,17 @@ export const VelocityDialog = observer(() => {
           />
           <Row>
             <RadioButton
-              label="Set"
+              label={<Localized name="operation-set" />}
               isSelected={operationType === "set"}
               onClick={() => setOperationType("set")}
             />
             <RadioButton
-              label="Add"
+              label={<Localized name="operation-add" />}
               isSelected={operationType === "add"}
               onClick={() => setOperationType("add")}
             />
             <RadioButton
-              label="Multiply"
+              label={<Localized name="operation-multiply" />}
               isSelected={operationType === "multiply"}
               onClick={() => setOperationType("multiply")}
             />
