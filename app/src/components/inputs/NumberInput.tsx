@@ -7,6 +7,7 @@ export interface NumberInputProps {
   step?: number
   id?: string
   onChange: (value: number) => void
+  onEnter?: () => void
   style?: React.CSSProperties
   className?: string
 }
@@ -18,6 +19,7 @@ export const NumberInput: FC<NumberInputProps> = ({
   step,
   id,
   onChange,
+  onEnter,
   style,
   className,
 }) => {
@@ -27,6 +29,7 @@ export const NumberInput: FC<NumberInputProps> = ({
     if (e.key === "Enter") {
       e.preventDefault()
       e.currentTarget.blur()
+      onEnter?.()
     }
   }
 

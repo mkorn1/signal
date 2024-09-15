@@ -13,6 +13,7 @@ export default class RootViewStore {
   initializeError: Error | null = null
   openInitializeErrorDialog = false
   openPublishDialog = false
+  openVelocityDialog = false
 
   constructor() {
     makeObservable(this, {
@@ -27,6 +28,7 @@ export default class RootViewStore {
       initializeError: observable,
       openInitializeErrorDialog: observable,
       openPublishDialog: observable,
+      openVelocityDialog: observable,
     })
   }
 }

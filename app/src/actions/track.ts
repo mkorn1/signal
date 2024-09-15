@@ -1,8 +1,9 @@
+import { clamp } from "lodash"
 import { AnyChannelEvent, AnyEvent, SetTempoEvent } from "midifile-ts"
 import { ValueEventType } from "../entities/event/ValueEventType"
 import { Range } from "../entities/geometry/Range"
 import { Measure } from "../entities/measure/Measure"
-import { closedRange } from "../helpers/array"
+import { closedRange, isNotUndefined } from "../helpers/array"
 import { isEventInRange } from "../helpers/filterEvents"
 import {
   panMidiEvent,
@@ -386,3 +387,42 @@ export const updateTimeSignature =
       denominator,
     })
   }
+
+export interface BatchUpdateOperation {
+  type: "set" | "add" | "multiply"
+  value: number
+}
+
+export const batchUpdateSelectedNotesVelocity =
+  ({ pianoRollStore }: RootStore) =>
+  (operation: BatchUpdateOperation) => {
+    const { selectedTrack, selectedNoteIds } = pianoRollStore
+    if (selectedTrack === undefined) {
+      return
+    }
+    const selectedNotes = selectedNoteIds
+      .map((id) => selectedTrack.getEventById(id))
+      .filter(isNotUndefined)
+      .filter(isNoteEvent)
+    selectedTrack.updateEvents(
+      selectedNotes.map((note) => ({
+        id: note.id,
+        velocity: clamp(
+          Math.floor(applyOperation(operation, note.velocity)),
+          0,
+          127,
+        ),
+      })),
+    )
+  }
+
+const applyOperation = (operation: BatchUpdateOperation, value: number) => {
+  switch (operation.type) {
+    case "set":
+      return operation.value
+    case "add":
+      return value + operation.value
+    case "multiply":
+      return value * operation.value
+  }
+}
