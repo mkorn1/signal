@@ -56,7 +56,7 @@ export const getPencilActionForMouseDown =
             }
           }
         } else {
-          if (e.shiftKey || e.ctrlKey) {
+          if (e.shiftKey || e.metaKey) {
             return selectNoteAction
           }
         }

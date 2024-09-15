@@ -116,7 +116,7 @@ const moveSelectionAction =
   (selectedNoteIds: number[]): MouseGesture =>
   (rootStore) =>
   (e) => {
-    const isCopy = e.ctrlKey
+    const isCopy = e.metaKey
 
     if (isCopy) {
       cloneSelection(rootStore)()
