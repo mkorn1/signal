@@ -1,4 +1,3 @@
-import { zip } from "lodash"
 import { Range } from "../../../entities/geometry/Range"
 import { NotePoint } from "../../../entities/transform/NotePoint"
 import { observeDrag } from "../../../helpers/observeDrag"
@@ -39,9 +38,6 @@ export const moveDraggableAction =
     draggable: PianoRollDraggable,
     subDraggables: PianoRollDraggable[] = [],
     callback: MoveDraggableCallback = {},
-    behavior:
-      | "moveAlways"
-      | "moveIfSubDraggableMoved" = "moveIfSubDraggableMoved",
   ): MouseGesture =>
   (rootStore) =>
   (e) => {
@@ -109,10 +105,6 @@ export const moveDraggableAction =
 
         const delta = NotePoint.sub(newPosition, draggablePosition)
 
-        const currentSubDraggablePositions = subDraggables.map((subDraggable) =>
-          pianoRollStore.getDraggablePosition(subDraggable),
-        )
-
         const newSubDraggablePositions = subDraggables.map(
           (subDraggable, i) => {
             const subDraggablePosition = subDraggablePositions[i]
@@ -134,23 +126,6 @@ export const moveDraggableAction =
             return constraintToDraggableArea(position, subDraggableArea)
           },
         )
-
-        if (
-          behavior === "moveIfSubDraggableMoved" &&
-          subDraggablePositions.length > 0
-        ) {
-          const noSubDraggableMoved = zip(
-            currentSubDraggablePositions,
-            newSubDraggablePositions,
-          ).every(([subDraggablePosition, newSubDraggablePosition]) =>
-            subDraggablePosition && newSubDraggablePosition
-              ? NotePoint.equals(subDraggablePosition, newSubDraggablePosition)
-              : true,
-          )
-          if (noSubDraggableMoved) {
-            return
-          }
-        }
 
         if (!isChanged) {
           isChanged = true

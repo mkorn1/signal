@@ -1,4 +1,4 @@
-import { clamp, cloneDeep, maxBy, minBy } from "lodash"
+import { clamp, cloneDeep, max, maxBy, min, minBy } from "lodash"
 import { action, computed, makeObservable, observable, observe } from "mobx"
 import { Layout, MaxNoteNumber } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
@@ -524,12 +524,12 @@ export default class PianoRollStore {
     draggable: PianoRollDraggable,
     minLength: number = 0,
   ): DraggableArea | null {
+    const { selectedTrack } = this
+    if (selectedTrack === undefined) {
+      return null
+    }
     switch (draggable.type) {
       case "note":
-        const { selectedTrack } = this
-        if (selectedTrack === undefined) {
-          return null
-        }
         const note = selectedTrack.getEventById(draggable.noteId)
         if (note === undefined || !isNoteEvent(note)) {
           return null
@@ -556,23 +556,58 @@ export default class PianoRollStore {
         if (selection === null) {
           return null
         }
+        const notes = this.selectedNoteIds
+          .map((id) => selectedTrack.getEventById(id))
+          .filter(isNotUndefined)
+          .filter(isNoteEvent)
+        const minTick = min(notes.map((n) => n.tick)) ?? 0
+        // The length of the note that protrudes from the left end of the selection
+        const tickOffset = selection.fromTick - minTick
         switch (draggable.position) {
           case "center":
             const height = selection.fromNoteNumber - selection.toNoteNumber
             return {
-              tickRange: Range.create(0, Infinity),
+              tickRange: Range.create(tickOffset, Infinity),
               noteNumberRange: Range.create(height - 1, MaxNoteNumber + 1),
             }
-          case "left":
+          case "left": {
+            // Limit the movement of the left end of the selection
+            // - Within the screen range
+            // - Make sure that the longest note is not shorter than minLength
+            // - Do not move up and down
+            // - Do not exceed the right edge
+            // - Make sure the selection is at least minLength
+            const maxDuration = max(notes.map((n) => n.duration)) ?? 0
+            const selectionSmallestLeft = selection.toTick - minLength
+            const noteSmallestLeft =
+              selection.fromTick + (maxDuration - minLength)
             return {
-              tickRange: Range.create(0, selection.toTick - minLength),
+              tickRange: Range.create(
+                tickOffset,
+                Math.min(selectionSmallestLeft, noteSmallestLeft),
+              ),
               noteNumberRange: Range.point(selection.fromNoteNumber), // allow to move only vertically
             }
-          case "right":
+          }
+          case "right": {
+            // Limit the movement of the right end of the selection
+            // - Within the screen range
+            // - Make sure that the longest note is not shorter than minLength
+            // - Do not move up and down
+            // - Do not exceed the left edge
+            // - Make sure the selection is at least minLength
+            const maxDuration = max(notes.map((n) => n.duration)) ?? 0
+            const selectionSmallestRight = selection.fromTick + minLength
+            const noteSmallestRight =
+              selection.toTick - (maxDuration - minLength)
             return {
-              tickRange: Range.create(selection.fromTick + minLength, Infinity),
+              tickRange: Range.create(
+                Math.max(selectionSmallestRight, noteSmallestRight),
+                Infinity,
+              ),
               noteNumberRange: Range.point(selection.fromNoteNumber), // allow to move only vertically
             }
+          }
         }
     }
   }
