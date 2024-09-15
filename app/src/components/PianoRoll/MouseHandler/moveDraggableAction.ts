@@ -1,6 +1,7 @@
+import { Point } from "../../../entities/geometry/Point"
 import { Range } from "../../../entities/geometry/Range"
 import { NotePoint } from "../../../entities/transform/NotePoint"
-import { observeDrag } from "../../../helpers/observeDrag"
+import { observeDrag2 } from "../../../helpers/observeDrag"
 import {
   DraggableArea,
   PianoRollDraggable,
@@ -55,16 +56,16 @@ export const moveDraggableAction =
 
     let isChanged = false
 
-    const local = rootStore.pianoRollStore.getLocal(e)
-    const notePoint = pianoRollStore.transform.getNotePoint(local)
+    const startPos = rootStore.pianoRollStore.getLocal(e)
+    const notePoint = pianoRollStore.transform.getNotePoint(startPos)
     const offset = NotePoint.sub(draggablePosition, notePoint)
 
     const subDraggablePositions = subDraggables.map((subDraggable) =>
       pianoRollStore.getDraggablePosition(subDraggable),
     )
 
-    observeDrag({
-      onMouseMove: (e2) => {
+    observeDrag2(e, {
+      onMouseMove: (e2, d) => {
         const quantize = !e2.shiftKey && isQuantizeEnabled
         const minLength = quantize ? quantizer.unit : MIN_LENGTH
 
@@ -85,7 +86,7 @@ export const moveDraggableAction =
         }
 
         const newPosition = (() => {
-          const local = rootStore.pianoRollStore.getLocal(e2)
+          const local = Point.add(startPos, d)
           const notePoint = NotePoint.add(
             pianoRollStore.transform.getNotePoint(local),
             offset,
