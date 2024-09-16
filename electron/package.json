@@ -16,7 +16,7 @@
     "make:darwin": "npm run make -- --platform=darwin",
     "make:win": "npm run make -- --platform=win32",
     "publish": "electron-forge publish",
-    "generate-icon": "./scripts/icons.sh src/icons/Icon-macOS.png ./icons/icon.icns"
+    "generate-icns": "./scripts/generate-icns.sh src/icons/Icon-macOS.png ./icons/icon.icns"
   },
   "author": "ryohey",
   "devDependencies": {
