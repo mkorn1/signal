@@ -1,4 +1,4 @@
-import { autorun, computed, makeObservable, observable } from "mobx"
+import { computed, makeObservable, observable } from "mobx"
 import { Layout } from "../Constants"
 import { transformEvents } from "../components/TempoGraph/transformEvents"
 import { Point } from "../entities/geometry/Point"
@@ -9,11 +9,13 @@ import Quantizer from "../quantizer"
 import { PianoRollMouseMode } from "./PianoRollStore"
 import RootStore from "./RootStore"
 import { RulerStore } from "./RulerStore"
+import { TickScrollStore } from "./TickScrollStore"
 
 export default class TempoEditorStore {
   readonly rulerStore: RulerStore
+  private readonly tickScrollStore: TickScrollStore
 
-  scrollLeft: number = 0
+  scrollLeftTicks: number = 0
   scaleX: number = 1
   autoScroll: boolean = true
   canvasWidth: number = 0
@@ -26,9 +28,10 @@ export default class TempoEditorStore {
 
   constructor(readonly rootStore: RootStore) {
     this.rulerStore = new RulerStore(this)
+    this.tickScrollStore = new TickScrollStore(this, 0.15, 15)
 
     makeObservable(this, {
-      scrollLeft: observable,
+      scrollLeftTicks: observable,
       scaleX: observable,
       autoScroll: observable,
       canvasWidth: observable,
@@ -38,6 +41,7 @@ export default class TempoEditorStore {
       mouseMode: observable,
       selection: observable,
       selectedEventIds: observable,
+      scrollLeft: computed,
       transform: computed,
       items: computed,
       cursorX: computed,
@@ -48,19 +52,15 @@ export default class TempoEditorStore {
   }
 
   setUpAutorun() {
-    autorun(() => {
-      const { isPlaying, position } = this.rootStore.player
-      const { autoScroll, scrollLeft, transform, canvasWidth } = this
+    this.tickScrollStore.setUpAutoScroll()
+  }
 
-      // keep scroll position to cursor
-      if (autoScroll && isPlaying) {
-        const x = transform.getX(position)
-        const screenX = x - scrollLeft
-        if (screenX > canvasWidth * 0.7 || screenX < 0) {
-          this.scrollLeft = x
-        }
-      }
-    })
+  setScrollLeftInPixels(x: number) {
+    this.tickScrollStore.setScrollLeftInPixels(x)
+  }
+
+  get scrollLeft(): number {
+    return this.tickScrollStore.scrollLeft
   }
 
   get transform() {
@@ -79,13 +79,7 @@ export default class TempoEditorStore {
   }
 
   get contentWidth() {
-    const { scrollLeft, transform, canvasWidth } = this
-    const trackEndTick = this.rootStore.song.endOfSong
-    const startTick = transform.getTick(scrollLeft)
-    const widthTick = transform.getTick(canvasWidth)
-    const endTick = startTick + widthTick
-
-    return transform.getX(Math.max(trackEndTick, endTick))
+    return this.tickScrollStore.contentWidth
   }
 
   get quantizer(): Quantizer {

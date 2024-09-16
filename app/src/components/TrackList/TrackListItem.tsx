@@ -29,6 +29,9 @@ export type TrackListItemProps = {
 const Container = styled.div<{ selected: boolean }>`
   background-color: ${({ theme, selected }) =>
     selected ? theme.highlightColor : "transparent"};
+  border: 1px solid;
+  border-color: ${({ theme, selected }) =>
+    selected ? theme.dividerColor : "transparent"};
   display: flex;
   align-items: center;
   padding: 0.5rem 0.5rem;

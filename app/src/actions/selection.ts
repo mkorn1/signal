@@ -1,4 +1,4 @@
-import { min } from "lodash"
+import { max, min } from "lodash"
 import {
   PianoNotesClipboardData,
   isPianoNotesClipboardData,
@@ -6,7 +6,7 @@ import {
 import { Rect } from "../entities/geometry/Rect"
 import { Selection } from "../entities/selection/Selection"
 import { NotePoint } from "../entities/transform/NotePoint"
-import { isNotNull, isNotUndefined } from "../helpers/array"
+import { isNotUndefined } from "../helpers/array"
 import { tickToMillisec } from "../helpers/bpm"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
@@ -16,10 +16,10 @@ import { transposeNotes } from "./song"
 
 function eventsInSelection(events: TrackEvent[], selection: Selection) {
   const selectionRect = {
-    x: selection.from.tick,
-    width: selection.to.tick - selection.from.tick,
-    y: selection.to.noteNumber,
-    height: selection.from.noteNumber - selection.to.noteNumber,
+    x: selection.fromTick,
+    width: selection.toTick - selection.fromTick,
+    y: selection.toNoteNumber,
+    height: selection.fromNoteNumber - selection.toNoteNumber,
   }
   return events.filter(isNoteEvent).filter((b) =>
     Rect.intersects(
@@ -82,91 +82,6 @@ export const transposeSelection =
     })
   }
 
-export const moveSelectionBy =
-  ({
-    pianoRollStore,
-    pianoRollStore: { selectedTrack, selection, selectedNoteIds },
-  }: RootStore) =>
-  (delta: NotePoint) => {
-    if (delta.tick === 0 && delta.noteNumber === 0) {
-      return
-    }
-
-    if (selectedTrack === undefined) {
-      return
-    }
-
-    if (selection !== null) {
-      const movedSelection = Selection.moved(
-        selection,
-        delta.tick,
-        delta.noteNumber,
-      )
-      const clampedSelection = Selection.clamp(movedSelection)
-      if (!Selection.equals(movedSelection, clampedSelection)) {
-        // Do not move the selection range or notes when it tries to go out of the screen
-        return
-      }
-      pianoRollStore.selection = clampedSelection
-    }
-
-    selectedTrack.updateEvents(
-      selectedNoteIds
-        .map((id) => {
-          const n = selectedTrack.getEventById(id)
-          if (n == undefined || !isNoteEvent(n)) {
-            return null
-          }
-          const pos = NotePoint.clamp({
-            tick: n.tick + delta.tick,
-            noteNumber: n.noteNumber + delta.noteNumber,
-          })
-          return {
-            id,
-            ...pos,
-          }
-        })
-        .filter(isNotNull),
-    )
-  }
-
-export const updateSelectedNotes =
-  (rootStore: RootStore) =>
-  (update: (note: NoteEvent) => Partial<NoteEvent>) => {
-    const {
-      pianoRollStore: { selectedTrack, selectedNoteIds },
-    } = rootStore
-
-    if (selectedTrack === undefined) {
-      return
-    }
-
-    selectedTrack.updateEvents(
-      selectedNoteIds.flatMap((id) => {
-        const event = selectedTrack.getEventById(id)
-        if (event == undefined || !isNoteEvent(event)) {
-          return []
-        }
-        const newNote = update(event)
-        if (
-          ("duration" in newNote &&
-            newNote.duration !== undefined &&
-            newNote.duration <= 0) ||
-          ("tick" in newNote && newNote.tick !== undefined && newNote.tick < 0)
-        ) {
-          // Do not deform if the width is zero
-          return []
-        }
-        return [
-          {
-            id,
-            ...newNote,
-          },
-        ]
-      }),
-    )
-  }
-
 export const startSelection =
   ({
     pianoRollStore,
@@ -186,12 +101,7 @@ export const startSelection =
       pianoRollStore.selectedNoteIds = []
     }
 
-    // 選択範囲の右上を pos にする
-    // Set the upper right corner of the selection to POS
-    pianoRollStore.selection = {
-      from: point,
-      to: point,
-    }
+    pianoRollStore.selection = Selection.fromPoints(point, point)
   }
 
 export const resetSelection =
@@ -238,7 +148,7 @@ export const copySelection =
       .filter(isNoteEvent)
 
     const startTick =
-      selection?.from.tick ?? min(selectedNotes.map((note) => note.tick))!
+      selection?.fromTick ?? min(selectedNotes.map((note) => note.tick))!
 
     // 選択されたノートをコピー
     // Copy selected note
@@ -284,7 +194,6 @@ export const pasteSelection =
     if (selectedTrack === undefined) {
       return
     }
-    // 現在位置にコピーしたノートをペースト
     // Paste notes copied to the current position
     const text = clipboard.readText()
     if (!text || text.length === 0) {
@@ -299,7 +208,7 @@ export const pasteSelection =
 
     const notes = obj.notes.map((note) => ({
       ...note,
-      tick: note.tick + player.position,
+      tick: Math.max(0, note.tick + player.position),
     }))
     selectedTrack.addEvents(notes)
   }
@@ -322,7 +231,7 @@ export const duplicateSelection =
     pushHistory()
 
     // move to the end of selection
-    let deltaTick = selection.to.tick - selection.from.tick
+    let deltaTick = selection.toTick - selection.fromTick
 
     const selectedNotes = selectedNoteIds
       .map((id) => selectedTrack.getEventById(id))
@@ -330,8 +239,8 @@ export const duplicateSelection =
       .filter(isNoteEvent)
 
     if (deltaTick === 0) {
-      const left = Math.min(...selectedNotes.map((n) => n.tick))
-      const right = Math.max(...selectedNotes.map((n) => n.tick + n.duration))
+      const left = min(selectedNotes.map((n) => n.tick)) ?? 0
+      const right = max(selectedNotes.map((n) => n.tick + n.duration)) ?? 0
       deltaTick = right - left
     }
 

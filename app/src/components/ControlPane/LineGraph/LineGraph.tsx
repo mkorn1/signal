@@ -1,3 +1,4 @@
+import { useTheme } from "@emotion/react"
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { observer } from "mobx-react-lite"
 import React, { MouseEventHandler, useCallback, useMemo } from "react"
@@ -49,6 +50,7 @@ const LineGraph = observer(
     axisLabelFormatter = (v) => v.toString(),
   }: LineGraphProps<T>) => {
     const rootStore = useStores()
+    const theme = useTheme()
     const {
       controlStore: { scrollLeft, transform, cursor, mouseMode },
     } = rootStore
@@ -146,7 +148,7 @@ const LineGraph = observer(
           onClick={onClickAxis}
         />
         <LineGraphCanvas
-          style={{ cursor }}
+          style={{ cursor, backgroundColor: theme.editorBackgroundColor }}
           onMouseDown={onMouseDown}
           onContextMenu={onContextMenu}
           width={width}

@@ -81,6 +81,7 @@ const dragScrollAction: MouseGesture =
     observeDrag({
       onMouseMove: (e: MouseEvent) => {
         pianoRollStore.scrollBy(e.movementX, e.movementY)
+        pianoRollStore.autoScroll = false
       },
     })
   }

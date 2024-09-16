@@ -1,5 +1,5 @@
 import { clamp, cloneDeep } from "lodash"
-import { action, autorun, computed, makeObservable, observable } from "mobx"
+import { action, computed, makeObservable, observable } from "mobx"
 import { Layout } from "../Constants"
 import { BAR_WIDTH } from "../components/inputs/ScrollBar"
 import { Range } from "../entities/geometry/Range"
@@ -12,6 +12,7 @@ import Quantizer from "../quantizer"
 import { isNoteEvent, TrackId } from "../track"
 import RootStore from "./RootStore"
 import { RulerStore } from "./RulerStore"
+import { TickScrollStore } from "./TickScrollStore"
 
 export type SerializedArrangeViewStore = Pick<
   ArrangeViewStore,
@@ -20,11 +21,10 @@ export type SerializedArrangeViewStore = Pick<
 
 export default class ArrangeViewStore {
   readonly rulerStore: RulerStore
+  private readonly tickScrollStore: TickScrollStore
 
   scaleX = 1
   scaleY = 1
-  SCALE_X_MIN = 0.15
-  SCALE_X_MAX = 15
   SCALE_Y_MIN = 0.5
   SCALE_Y_MAX = 4
   selection: ArrangeSelection | null = null
@@ -41,6 +41,7 @@ export default class ArrangeViewStore {
   constructor(readonly rootStore: RootStore) {
     this.rootStore = rootStore
     this.rulerStore = new RulerStore(this)
+    this.tickScrollStore = new TickScrollStore(this, 0.15, 15)
 
     makeObservable(this, {
       scaleX: observable,
@@ -71,19 +72,8 @@ export default class ArrangeViewStore {
     })
   }
 
-  // keep scroll position to cursor
   setUpAutorun() {
-    autorun(() => {
-      const { isPlaying, position } = this.rootStore.player
-      const { scrollLeft, transform, canvasWidth } = this
-      if (this.autoScroll && isPlaying) {
-        const x = transform.getX(position)
-        const screenX = x - scrollLeft
-        if (screenX > canvasWidth * 0.7 || screenX < 0) {
-          this.scrollLeftTicks = position
-        }
-      }
-    })
+    this.tickScrollStore.setUpAutoScroll()
   }
 
   serialize(): SerializedArrangeViewStore {
@@ -99,14 +89,11 @@ export default class ArrangeViewStore {
   }
 
   get scrollLeft(): number {
-    return this.trackTransform.getX(this.scrollLeftTicks)
+    return this.tickScrollStore.scrollLeft
   }
 
   setScrollLeftInPixels(x: number) {
-    const { canvasWidth, contentWidth } = this
-    const maxOffset = Math.max(0, contentWidth - canvasWidth)
-    const scrollLeft = Math.floor(Math.min(maxOffset, Math.max(0, x)))
-    this.scrollLeftTicks = this.transform.getTick(scrollLeft)
+    this.tickScrollStore.setScrollLeftInPixels(x)
   }
 
   setScrollTop(value: number) {
@@ -121,15 +108,7 @@ export default class ArrangeViewStore {
   }
 
   scaleAroundPointX(scaleXDelta: number, pixelX: number) {
-    const pixelXInTicks0 = this.transform.getTick(this.scrollLeft + pixelX)
-    this.scaleX = clamp(
-      this.scaleX * (1 + scaleXDelta),
-      this.SCALE_X_MIN,
-      this.SCALE_X_MAX,
-    )
-    const pixelXInTicks1 = this.transform.getTick(this.scrollLeft + pixelX)
-    const scrollInTicks = pixelXInTicks1 - pixelXInTicks0
-    this.scrollLeftTicks = Math.max(this.scrollLeftTicks - scrollInTicks, 0)
+    this.tickScrollStore.scaleAroundPointX(scaleXDelta, pixelX)
   }
 
   setScaleY(scaleY: number) {
@@ -138,11 +117,7 @@ export default class ArrangeViewStore {
   }
 
   get contentWidth(): number {
-    const { scrollLeft, transform, canvasWidth } = this
-    const startTick = transform.getTick(scrollLeft)
-    const widthTick = transform.getTick(canvasWidth)
-    const endTick = startTick + widthTick
-    return transform.getX(Math.max(this.rootStore.song.endOfSong, endTick))
+    return this.tickScrollStore.contentWidth
   }
 
   get contentHeight(): number {

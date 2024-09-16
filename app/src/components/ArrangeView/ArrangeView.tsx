@@ -99,10 +99,10 @@ export const ArrangeView: FC = observer(() => {
   const ref = useRef(null)
   const size = useComponentSize(ref)
 
-  const setScrollLeft = useCallback(
-    (v: number) => arrangeViewStore.setScrollLeftInPixels(v),
-    [],
-  )
+  const setScrollLeft = useCallback((v: number) => {
+    arrangeViewStore.setScrollLeftInPixels(v)
+    arrangeViewStore.autoScroll = false
+  }, [])
   const setScrollTop = useCallback(
     (v: number) => arrangeViewStore.setScrollTop(v),
     [],

@@ -16,7 +16,8 @@ const _ToolbarButtonGroupItem = styled.button<{ selected?: boolean }>`
   -webkit-appearance: none;
   min-width: auto;
   padding: 0 0.5rem;
-  color: inherit;
+  color: ${({ theme, selected }) =>
+    selected ? theme.onSurfaceColor : theme.textColor};
   background: ${({ theme, selected }) =>
     selected ? theme.themeColor : theme.secondaryBackgroundColor};
   text-transform: none;

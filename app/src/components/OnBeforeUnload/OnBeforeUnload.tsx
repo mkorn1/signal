@@ -1,4 +1,3 @@
-import { useDialog } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { useEffect } from "react"
 import { isRunningInElectron } from "../../helpers/platform"
@@ -8,7 +7,6 @@ import { useLocalization } from "../../localize/useLocalization"
 export const OnBeforeUnload = observer(() => {
   const rootStore = useStores()
   const localized = useLocalization()
-  const dialog = useDialog()
 
   useEffect(() => {
     const listener = (e: BeforeUnloadEvent) => {
@@ -17,22 +15,15 @@ export const OnBeforeUnload = observer(() => {
         if (isRunningInElectron()) {
           // do not close the window immediately
           e.returnValue = false
-          dialog
-            .show({
-              title: message,
-              actions: [
-                {
-                  title: localized["close"],
-                  key: true,
-                },
-                {
-                  title: localized["cancel"],
-                  key: false,
-                },
-              ],
+          e.preventDefault()
+          window.electronAPI
+            .showMessageBox({
+              type: "question",
+              message,
+              buttons: [localized["close"], localized["cancel"]],
             })
-            .then((shouldClose) => {
-              if (shouldClose) {
+            .then((button) => {
+              if (button === 0) {
                 window.electronAPI.closeMainWindow()
               }
             })

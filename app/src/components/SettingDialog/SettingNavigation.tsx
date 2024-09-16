@@ -8,7 +8,7 @@ const routes: SettingRoute[] = ["general", "midi", "soundfont"]
 
 const RouteItem = styled(Button)<{ selected: boolean }>`
   display: flex;
-  font-size: 1rem;
+  font-size: 0.875rem;
   align-items: center;
   margin-bottom: 0.5rem;
   background: ${({ theme, selected }) =>
@@ -18,7 +18,7 @@ const RouteItem = styled(Button)<{ selected: boolean }>`
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  min-width: 8em;
+  min-width: 12em;
   margin-right: 2rem;
 `
 

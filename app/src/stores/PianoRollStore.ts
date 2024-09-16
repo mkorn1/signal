@@ -1,13 +1,6 @@
-import { clamp, cloneDeep, maxBy, minBy } from "lodash"
-import {
-  action,
-  autorun,
-  computed,
-  makeObservable,
-  observable,
-  observe,
-} from "mobx"
-import { Layout } from "../Constants"
+import { clamp, cloneDeep, max, maxBy, min, minBy } from "lodash"
+import { action, computed, makeObservable, observable, observe } from "mobx"
+import { Layout, MaxNoteNumber } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
 import { Point } from "../entities/geometry/Point"
 import { Range } from "../entities/geometry/Range"
@@ -16,6 +9,7 @@ import { Measure } from "../entities/measure/Measure"
 import { KeySignature } from "../entities/scale/KeySignature"
 import { Selection } from "../entities/selection/Selection"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
+import { NotePoint } from "../entities/transform/NotePoint"
 import { isNotUndefined } from "../helpers/array"
 import { isEventOverlapRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
@@ -27,6 +21,7 @@ import Track, {
 } from "../track"
 import RootStore from "./RootStore"
 import { RulerStore } from "./RulerStore"
+import { TickScrollStore } from "./TickScrollStore"
 
 export type PianoRollMouseMode = "pencil" | "selection"
 
@@ -36,6 +31,22 @@ export type PianoNoteItem = Rect & {
   isSelected: boolean
 }
 
+export type PianoRollDraggable =
+  | {
+      type: "selection"
+      position: "center" | "left" | "right"
+    }
+  | {
+      type: "note"
+      position: "center" | "left" | "right"
+      noteId: number
+    }
+
+export type DraggableArea = {
+  tickRange?: Range
+  noteNumberRange?: Range
+}
+
 export type SerializedPianoRollStore = Pick<
   PianoRollStore,
   "selection" | "selectedNoteIds" | "selectedTrackId"
@@ -43,11 +54,10 @@ export type SerializedPianoRollStore = Pick<
 
 export default class PianoRollStore {
   readonly rulerStore: RulerStore
+  private readonly tickScrollStore: TickScrollStore
 
   scrollLeftTicks = 0
   scrollTopKeys = 70 // 中央くらいの音程にスクロールしておく
-  SCALE_X_MIN = 0.15
-  SCALE_X_MAX = 15
   SCALE_Y_MIN = 0.5
   SCALE_Y_MAX = 4
   notesCursor = "auto"
@@ -77,6 +87,7 @@ export default class PianoRollStore {
 
   constructor(readonly rootStore: RootStore) {
     this.rulerStore = new RulerStore(this)
+    this.tickScrollStore = new TickScrollStore(this, 0.15, 15)
 
     makeObservable(this, {
       scrollLeftTicks: observable,
@@ -132,18 +143,7 @@ export default class PianoRollStore {
   }
 
   setUpAutorun() {
-    autorun(() => {
-      const { isPlaying, position } = this.rootStore.player
-      const { autoScroll, scrollLeftTicks, transform, canvasWidth } = this
-
-      // keep scroll position to cursor
-      if (autoScroll && isPlaying) {
-        const screenX = transform.getX(position - scrollLeftTicks)
-        if (screenX > canvasWidth * 0.7 || screenX < 0) {
-          this.scrollLeftTicks = position
-        }
-      }
-    })
+    this.tickScrollStore.setUpAutoScroll()
 
     // reset selection when change track
     observe(this, "selectedTrackId", () => {
@@ -154,7 +154,7 @@ export default class PianoRollStore {
 
   serialize(): SerializedPianoRollStore {
     return {
-      selection: this.selection ? Selection.clone(this.selection) : null,
+      selection: this.selection ? { ...this.selection } : null,
       selectedNoteIds: cloneDeep(this.selectedNoteIds),
       selectedTrackId: this.selectedTrackId,
     }
@@ -167,12 +167,7 @@ export default class PianoRollStore {
   }
 
   get contentWidth(): number {
-    const { scrollLeft, transform, canvasWidth } = this
-    const trackEndTick = this.rootStore.song.endOfSong
-    const startTick = transform.getTick(scrollLeft)
-    const widthTick = transform.getTick(canvasWidth)
-    const endTick = startTick + widthTick
-    return transform.getX(Math.max(trackEndTick, endTick))
+    return this.tickScrollStore.contentWidth
   }
 
   get contentHeight(): number {
@@ -181,7 +176,7 @@ export default class PianoRollStore {
   }
 
   get scrollLeft(): number {
-    return Math.round(this.transform.getX(this.scrollLeftTicks))
+    return this.tickScrollStore.scrollLeft
   }
 
   get scrollTop(): number {
@@ -189,10 +184,7 @@ export default class PianoRollStore {
   }
 
   setScrollLeftInPixels(x: number) {
-    const { canvasWidth, contentWidth } = this
-    const maxX = contentWidth - canvasWidth
-    const scrollLeft = clamp(x, 0, maxX)
-    this.scrollLeftTicks = this.transform.getTick(scrollLeft)
+    this.tickScrollStore.setScrollLeftInPixels(x)
   }
 
   setScrollTopInPixels(y: number) {
@@ -203,7 +195,7 @@ export default class PianoRollStore {
   }
 
   setScrollLeftInTicks(tick: number) {
-    this.setScrollLeftInPixels(this.transform.getX(tick))
+    this.tickScrollStore.setScrollLeftInTicks(tick)
   }
 
   setScrollTopInKeys(keys: number) {
@@ -216,15 +208,7 @@ export default class PianoRollStore {
   }
 
   scaleAroundPointX(scaleXDelta: number, pixelX: number) {
-    const pixelXInTicks0 = this.transform.getTick(this.scrollLeft + pixelX)
-    this.scaleX = clamp(
-      this.scaleX * (1 + scaleXDelta),
-      this.SCALE_X_MIN,
-      this.SCALE_X_MAX,
-    )
-    const pixelXInTicks1 = this.transform.getTick(this.scrollLeft + pixelX)
-    const scrollInTicks = pixelXInTicks1 - pixelXInTicks0
-    this.setScrollLeftInTicks(this.scrollLeftTicks - scrollInTicks)
+    this.tickScrollStore.scaleAroundPointX(scaleXDelta, pixelX)
   }
 
   scaleAroundPointY(scaleYDelta: number, pixelY: number) {
@@ -417,5 +401,234 @@ export default class PianoRollStore {
     return this.mouseMode === "pencil"
       ? `url("./cursor-pencil.svg") 0 20, pointer`
       : "auto"
+  }
+
+  getDraggablePosition(draggable: PianoRollDraggable): NotePoint | null {
+    switch (draggable.type) {
+      case "note":
+        const { selectedTrack } = this
+        if (selectedTrack === undefined) {
+          return null
+        }
+        const note = selectedTrack.getEventById(draggable.noteId)
+        if (note === undefined || !isNoteEvent(note)) {
+          return null
+        }
+        switch (draggable.position) {
+          case "center":
+            return note
+          case "left":
+            return note
+          case "right":
+            return {
+              tick: note.tick + note.duration,
+              noteNumber: note.noteNumber,
+            }
+        }
+      case "selection":
+        const { selection } = this
+        if (selection === null) {
+          return null
+        }
+        switch (draggable.position) {
+          case "center":
+            return Selection.getFrom(selection)
+          case "left":
+            return Selection.getFrom(selection)
+          case "right":
+            return Selection.getTo(selection)
+        }
+    }
+  }
+
+  updateDraggable(draggable: PianoRollDraggable, position: Partial<NotePoint>) {
+    switch (draggable.type) {
+      case "note":
+        const { selectedTrack } = this
+        if (selectedTrack === undefined) {
+          return
+        }
+        const note = selectedTrack.getEventById(draggable.noteId)
+        if (note === undefined || !isNoteEvent(note)) {
+          return
+        }
+        switch (draggable.position) {
+          case "center": {
+            selectedTrack.updateEvent(note.id, position)
+            break
+          }
+          case "left": {
+            if (position.tick === undefined) {
+              return
+            }
+            selectedTrack.updateEvent(note.id, {
+              tick: position.tick,
+              duration: note.duration + note.tick - position.tick,
+            })
+            break
+          }
+          case "right": {
+            if (position.tick === undefined) {
+              return
+            }
+            selectedTrack.updateEvent(note.id, {
+              duration: position.tick - note.tick,
+            })
+            break
+          }
+        }
+        break
+      case "selection":
+        const { selection } = this
+        if (selection === null) {
+          return
+        }
+        switch (draggable.position) {
+          case "center": {
+            const from = Selection.getFrom(selection)
+            const defaultedPosition = { ...from, ...position }
+            const delta = NotePoint.sub(defaultedPosition, from)
+            this.selection = Selection.moved(
+              selection,
+              delta.tick,
+              delta.noteNumber,
+            )
+            break
+          }
+          case "left": {
+            if (position.tick === undefined) {
+              return
+            }
+            this.selection = {
+              ...selection,
+              fromTick: position.tick,
+            }
+            break
+          }
+          case "right": {
+            if (position.tick === undefined) {
+              return
+            }
+            this.selection = {
+              ...selection,
+              toTick: position.tick,
+            }
+            break
+          }
+        }
+        break
+    }
+  }
+
+  getDraggableArea(
+    draggable: PianoRollDraggable,
+    minLength: number = 0,
+  ): DraggableArea | null {
+    const { selectedTrack } = this
+    if (selectedTrack === undefined) {
+      return null
+    }
+    switch (draggable.type) {
+      case "note": {
+        const note = selectedTrack.getEventById(draggable.noteId)
+        if (note === undefined || !isNoteEvent(note)) {
+          return null
+        }
+        const notes = this.selectedNoteIds
+          .map((id) => selectedTrack.getEventById(id))
+          .filter(isNotUndefined)
+          .filter(isNoteEvent)
+        const minTick = min(notes.map((n) => n.tick)) ?? 0
+        const tickLowerBound = note.tick - minTick
+        switch (draggable.position) {
+          case "center": {
+            const maxNoteNumber = max(notes.map((n) => n.noteNumber)) ?? 0
+            const minNoteNumber = min(notes.map((n) => n.noteNumber)) ?? 0
+            const noteNumberLowerBound = note.noteNumber - minNoteNumber
+            const noteNumberUpperBound =
+              MaxNoteNumber - (maxNoteNumber - note.noteNumber)
+            return {
+              tickRange: Range.create(tickLowerBound, Infinity),
+              noteNumberRange: Range.create(
+                noteNumberLowerBound,
+                noteNumberUpperBound,
+              ),
+            }
+          }
+          case "left":
+            return {
+              tickRange: Range.create(
+                tickLowerBound,
+                note.tick + note.duration - minLength,
+              ),
+              noteNumberRange: Range.point(note.noteNumber), // allow to move only vertically
+            }
+          case "right":
+            return {
+              tickRange: Range.create(note.tick + minLength, Infinity),
+              noteNumberRange: Range.point(note.noteNumber), // allow to move only vertically
+            }
+        }
+      }
+      case "selection": {
+        const { selection } = this
+        if (selection === null) {
+          return null
+        }
+        const notes = this.selectedNoteIds
+          .map((id) => selectedTrack.getEventById(id))
+          .filter(isNotUndefined)
+          .filter(isNoteEvent)
+        const minTick = min(notes.map((n) => n.tick)) ?? 0
+        // The length of the note that protrudes from the left end of the selection
+        const tickOffset = selection.fromTick - minTick
+        switch (draggable.position) {
+          case "center":
+            const height = selection.fromNoteNumber - selection.toNoteNumber
+            return {
+              tickRange: Range.create(tickOffset, Infinity),
+              noteNumberRange: Range.create(height - 1, MaxNoteNumber + 1),
+            }
+          case "left": {
+            // Limit the movement of the left end of the selection
+            // - Within the screen range
+            // - Make sure that the longest note is not shorter than minLength
+            // - Do not move up and down
+            // - Do not exceed the right edge
+            // - Make sure the selection is at least minLength
+            const maxDuration = max(notes.map((n) => n.duration)) ?? 0
+            const selectionSmallestLeft = selection.toTick - minLength
+            const noteSmallestLeft =
+              selection.fromTick + (maxDuration - minLength)
+            return {
+              tickRange: Range.create(
+                tickOffset,
+                Math.min(selectionSmallestLeft, noteSmallestLeft),
+              ),
+              noteNumberRange: Range.point(selection.fromNoteNumber), // allow to move only vertically
+            }
+          }
+          case "right": {
+            // Limit the movement of the right end of the selection
+            // - Within the screen range
+            // - Make sure that the longest note is not shorter than minLength
+            // - Do not move up and down
+            // - Do not exceed the left edge
+            // - Make sure the selection is at least minLength
+            const maxDuration = max(notes.map((n) => n.duration)) ?? 0
+            const selectionSmallestRight = selection.fromTick + minLength
+            const noteSmallestRight =
+              selection.toTick - (maxDuration - minLength)
+            return {
+              tickRange: Range.create(
+                Math.max(selectionSmallestRight, noteSmallestRight),
+                Infinity,
+              ),
+              noteNumberRange: Range.point(selection.fromNoteNumber), // allow to move only vertically
+            }
+          }
+        }
+      }
+    }
   }
 }

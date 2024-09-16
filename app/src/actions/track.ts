@@ -358,14 +358,14 @@ export const toogleAllGhostTracks =
 export const addTimeSignature =
   ({ song, pushHistory }: RootStore) =>
   (tick: number, numerator: number, denominator: number) => {
-    const measureStart = Measure.getMeasureStart(
+    const measureStartTick = Measure.getMeasureStart(
       song.measures,
       tick,
       song.timebase,
-    )
+    ).tick
 
     // prevent duplication
-    if (measureStart.eventTick === measureStart.tick) {
+    if (song.timeSignatures?.some((e) => e.tick === measureStartTick)) {
       return
     }
 
@@ -373,7 +373,7 @@ export const addTimeSignature =
 
     song.conductorTrack?.addEvent({
       ...timeSignatureMidiEvent(0, numerator, denominator),
-      tick: measureStart.tick,
+      tick: measureStartTick,
     })
   }
 

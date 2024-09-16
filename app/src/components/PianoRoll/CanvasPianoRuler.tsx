@@ -144,7 +144,7 @@ function drawTimeSignatures(
       flagHeight,
       textHeight,
     )
-    ctx.fillStyle = theme.textColor
+    ctx.fillStyle = e.isSelected ? theme.onSurfaceColor : theme.textColor
     ctx.fillText(text, x + textPadding, height - textPadding)
   })
 }
@@ -256,7 +256,7 @@ const PianoRuler: FC<PianoRulerProps> = observer(
         drawTimeSignatures(ctx, height, timeSignatures, transform, theme)
         ctx.restore()
       },
-      [width, transform, scrollLeft, beats, timeSignatures, loop],
+      [width, transform, scrollLeft, beats, timeSignatures, loop, theme],
     )
 
     const closeOpenTimeSignatureDialog = useCallback(() => {

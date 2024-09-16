@@ -63,6 +63,9 @@ function updateMainMenu(isLoggedIn: boolean) {
 }
 
 registerIpcMain({
+  getMainWindow() {
+    return mainWindow
+  },
   onReady() {
     if (openFilePath !== null) {
       onOpenFile(openFilePath)

@@ -33,5 +33,11 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "id": "signal",
+  "lang": "en",
+  "categories": [
+    "music"
+  ],
+  "description": "signal is a user-friendly music sequencer application developed using web technology, designed for seamless, cross-platform use."
 }

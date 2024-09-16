@@ -49,40 +49,61 @@ export const HorizontalGridShader = (gl: WebGL2RenderingContext) =>
       in vec4 vPosition;
 
       out vec4 outColor;
-
-      float line(float inputY, float y, float lineWidth) {
-       return step(y, inputY) * step(inputY, y + lineWidth);
-      }
       
       void main() {
         float screenHeight = height * 128.0;
         float modY = mod(screenHeight - vPosition.y, height * 12.0);
-        float laneHeight = height - 1.0;
+        float lineWidth = 1.0;
 
-        // draw lane colors
-        for (int i = 0; i < 12; i++) {
-          outColor += line(modY, height * float(i) + 1.0, laneHeight) * laneColors[i];
+        if (modY < height - lineWidth) {
+          outColor = laneColors[0];
+        } else if (modY < height) {
+          outColor = color;
+        } else if (modY < height * 2.0 - lineWidth) {
+          outColor = laneColors[1];
+        } else if (modY < height * 2.0) {
+          outColor = color;
+        } else if (modY < height * 3.0 - lineWidth) {
+          outColor = laneColors[2];
+        } else if (modY < height * 3.0) {
+          outColor = color;
+        } else if (modY < height * 4.0 - lineWidth) {
+          outColor = laneColors[3];
+        } else if (modY < height * 4.0) {
+          outColor = color;
+        } else if (modY < height * 5.0 - lineWidth) {
+          outColor = laneColors[4];
+        } else if (modY < height * 5.0) {
+          outColor = color;
+        } else if (modY < height * 6.0 - lineWidth) {
+          outColor = laneColors[5];
+        } else if (modY < height * 6.0) {
+          outColor = color;
+        } else if (modY < height * 7.0 - lineWidth) {
+          outColor = laneColors[6];
+        } else if (modY < height * 7.0) {
+          outColor = color;
+        } else if (modY < height * 8.0 - lineWidth) {
+          outColor = laneColors[7];
+        } else if (modY < height * 8.0) {
+          outColor = color;
+        } else if (modY < height * 9.0 - lineWidth) {
+          outColor = laneColors[8];
+        } else if (modY < height * 9.0) {
+          outColor = color;
+        } else if (modY < height * 10.0 - lineWidth) {
+          outColor = laneColors[9];
+        } else if (modY < height * 10.0) {
+          outColor = color;
+        } else if (modY < height * 11.0 - lineWidth) {
+          outColor = laneColors[10];
+        } else if (modY < height * 11.0) {
+          outColor = color;
+        } else if (modY < height * 12.0 - lineWidth) {
+          outColor = laneColors[11];
+        } else if (modY < height * 12.0) {
+          outColor = highlightedColor;
         }
-
-        // draw lines
-        outColor += (
-          line(modY, height * 1.0, 1.0) +
-          line(modY, height * 2.0, 1.0) +
-          line(modY, height * 3.0, 1.0) +
-          line(modY, height * 4.0, 1.0) +
-          line(modY, height * 6.0, 1.0) +
-          line(modY, height * 7.0, 1.0) +
-          line(modY, height * 8.0, 1.0) +
-          line(modY, height * 9.0, 1.0) +
-          line(modY, height * 10.0, 1.0) +
-          line(modY, height * 11.0, 1.0)
-        ) * color;
-
-        // draw hihglighted lines for key 0 and 5
-        outColor += (
-          line(modY, 0.0, 1.0) +
-          line(modY, height * 5.0, 1.0)
-        ) * highlightedColor;
       }
     `,
     {
