@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:18
 
 WORKDIR /app
 
@@ -14,7 +14,13 @@ RUN npm install
 
 RUN npm run build
 
+# RUN npm install -g http-server
+
 EXPOSE 3000
 
+#RUN chmod u+x ./run.sh
+
 # Start the application
-CMD ["npm", "start"]
+# CMD ["bash", "./run.sh"]
+# CMD ["npm", "start"]
+CMD ["npm", "run", "serve"]
