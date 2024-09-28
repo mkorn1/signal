@@ -47,6 +47,7 @@ export const SignInDialogContent: FC<SignInDialogContentProps> = ({
             signInOptions: [
               GoogleAuthProvider.PROVIDER_ID,
               GithubAuthProvider.PROVIDER_ID,
+              "apple.com",
             ],
             callbacks: {
               signInSuccessWithAuthResult() {
