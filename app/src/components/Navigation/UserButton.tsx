@@ -43,6 +43,10 @@ export const UserButton: FC = observer(() => {
     setOpen(false)
   }
 
+  const onClickUserSettings = () => {
+    rootViewStore.openUserSettingsDialog = true
+  }
+
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
 
@@ -77,6 +81,10 @@ export const UserButton: FC = observer(() => {
     >
       <MenuItem onClick={onClickProfile}>
         <Localized name="profile" />
+      </MenuItem>
+
+      <MenuItem onClick={onClickUserSettings}>
+        <Localized name="user-settings" />
       </MenuItem>
 
       <MenuItem onClick={onClickSignOut}>

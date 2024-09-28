@@ -144,6 +144,10 @@ export default {
     midi: "MIDI",
     "no-files": "No files",
     "restore-defaults": "Restore Defaults",
+    "user-settings": "User Settings",
+    "delete-account": "Delete Account",
+    "delete-account-description":
+      "All songs and accounts stored in the cloud will be deleted. Once deleted, the data cannot be restored. If you really want to execute the deletion, press the Delete button.",
     /* MIDI Instrument Categories */
     Piano: "Piano",
     "Chromatic Percussion": "Chromatic Percussion",
@@ -468,6 +472,10 @@ export default {
     midi: "MIDI",
     "no-files": "ファイルがありません",
     "restore-defaults": "デフォルトに戻す",
+    "user-settings": "ユーザー設定",
+    "delete-account": "アカウント削除",
+    "delete-account-description":
+      "クラウドに保存されたすべての楽曲とアカウントが削除されます。一度削除したデータは復元できません。本当に削除を実行しますか？",
     /* MIDI Instrument Categories */
     Piano: "ピアノ",
     "Chromatic Percussion": "クロマチック",
@@ -793,6 +801,10 @@ export default {
     midi: "MIDI",
     "no-files": "No files",
     "restore-defaults": "Restore Defaults",
+    "user-settings": "User Settings",
+    "delete-account": "Delete Account",
+    "delete-account-description":
+      "All songs and accounts stored in the cloud will be deleted. Once deleted, the data cannot be restored. If you really want to execute the deletion, press the Delete button.",
     /* MIDI Instrument Categories */
     Piano: "钢琴",
     "Chromatic Percussion": "半音打击乐",
@@ -1116,6 +1128,10 @@ export default {
     midi: "MIDI",
     "no-files": "No files",
     "restore-defaults": "Restore Defaults",
+    "user-settings": "User Settings",
+    "delete-account": "Delete Account",
+    "delete-account-description":
+      "All songs and accounts stored in the cloud will be deleted. Once deleted, the data cannot be restored. If you really want to execute the deletion, press the Delete button.",
     /* MIDI Instrument Categories */
     Piano: "鋼琴",
     "Chromatic Percussion": "固定音高敲擊樂器",
