@@ -28,8 +28,11 @@ export class MIDIInput {
 }
 
 export const previewMidiInput =
-  ({ pianoRollStore: { selectedTrack }, player }: RootStore) =>
-  (e: WebMidi.MIDIMessageEvent) => {
+  (rootStore: RootStore) => (e: WebMidi.MIDIMessageEvent) => {
+    const {
+      pianoRollStore: { selectedTrack },
+      player,
+    } = rootStore
     if (selectedTrack === undefined) {
       return
     }
