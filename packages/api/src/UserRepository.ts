@@ -1,4 +1,4 @@
-import { Auth } from "firebase/auth"
+import { Auth, deleteUser } from "firebase/auth"
 import {
   Firestore,
   FirestoreDataConverter,
@@ -62,6 +62,16 @@ class UserRepository implements IUserRepository {
         updatedAt: Timestamp.now(),
       })
     })
+  }
+
+  async delete(): Promise<void> {
+    if (this.auth.currentUser === null) {
+      throw new Error("You must be logged in to delete the current user")
+    }
+    await runTransaction(this.firestore, async (transaction) => {
+      transaction.delete(this.userRef)
+    })
+    deleteUser(this.auth.currentUser)
   }
 
   async getCurrentUser() {
