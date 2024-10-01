@@ -21,6 +21,8 @@ import { TempoEditor } from "../TempoGraph/TempoEditor"
 import { TransportPanel } from "../TransportPanel/TransportPanel"
 import { ArrangeTransposeDialog } from "../TransposeDialog/ArrangeTransposeDialog"
 import { PianoRollTransposeDialog } from "../TransposeDialog/PianoRollTransposeDialog"
+import { DeleteAccountDialog } from "../UserSettingsDialog/DeleteAccountDialog"
+import { UserSettingsDialog } from "../UserSettingsDialog/UserSettingsDialog"
 import { VelocityDialog } from "../VelocityDialog/VelocityDialog"
 import { DropZone } from "./DropZone"
 
@@ -77,5 +79,7 @@ export const RootView: FC = () => (
     <OnBeforeUnload />
     <PublishDialog />
     <VelocityDialog />
+    <UserSettingsDialog />
+    <DeleteAccountDialog />
   </>
 )

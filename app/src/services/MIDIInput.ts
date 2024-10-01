@@ -28,8 +28,12 @@ export class MIDIInput {
 }
 
 export const previewMidiInput =
-  ({ pianoRollStore: { selectedTrack }, player }: RootStore) =>
-  (e: WebMidi.MIDIMessageEvent) => {
+  (rootStore: RootStore) => (e: WebMidi.MIDIMessageEvent) => {
+    const {
+      pianoRollStore,
+      pianoRollStore: { selectedTrack },
+      player,
+    } = rootStore
     if (selectedTrack === undefined) {
       return
     }
@@ -49,4 +53,10 @@ export const previewMidiInput =
     event.channel = channel
 
     player.sendEvent(event)
+
+    if (event.subtype === "noteOn") {
+      pianoRollStore.previewingNoteNumbers.add(event.noteNumber)
+    } else if (event.subtype === "noteOff") {
+      pianoRollStore.previewingNoteNumbers.delete(event.noteNumber)
+    }
   }

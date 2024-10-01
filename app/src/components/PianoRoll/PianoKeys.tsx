@@ -117,7 +117,7 @@ function drawKeys(
   keyHeight: number,
   numberOfKeys: number,
   theme: Theme,
-  touchingKeys: number[],
+  selectedKeys: Set<number>,
   scale: number[],
 ) {
   ctx.save()
@@ -136,7 +136,7 @@ function drawKeys(
   // Draw white keys
   for (const keyNum of whiteKeys) {
     let y = (numberOfKeys - keyNum - 1) * keyHeight
-    const isSelected = touchingKeys.includes(keyNum)
+    const isSelected = selectedKeys.has(keyNum)
     const isInScale = scale.includes(keyNum % 12)
 
     const bordered = keyNum % 12 === 4 || keyNum % 12 === 11
@@ -165,7 +165,7 @@ function drawKeys(
   // Draw black keys
   for (const keyNum of blackKeys) {
     const y = (numberOfKeys - keyNum - 1) * keyHeight
-    const isSelected = touchingKeys.includes(keyNum)
+    const isSelected = selectedKeys.has(keyNum)
     const isInScale = scale.includes(keyNum % 12)
 
     ctx.save()
@@ -211,13 +211,15 @@ export const PianoKeys: FC = observer(() => {
     pianoRollStore: {
       keySignature,
       transform: { numberOfKeys, pixelsPerKey: keyHeight },
+      previewingNoteNumbers,
     },
     player,
   } = useStores()
   const width = Layout.keyWidth
   const blackKeyWidth = Layout.keyWidth * Layout.blackKeyWidthRatio
-  const [touchingKeys, setTouchingKeys] = useState<number[]>([])
+  const [touchingKeys, setTouchingKeys] = useState<Set<number>>(new Set())
   const { onContextMenu, menuProps } = useContextMenu()
+  const selectedKeys = new Set([...touchingKeys, ...previewingNoteNumbers])
 
   const draw = useCallback(
     (ctx: CanvasRenderingContext2D) => {
@@ -230,11 +232,11 @@ export const PianoKeys: FC = observer(() => {
         keyHeight,
         numberOfKeys,
         theme,
-        touchingKeys,
+        selectedKeys,
         scale,
       )
     },
-    [numberOfKeys, theme, touchingKeys, keySignature, keyHeight, blackKeyWidth],
+    [numberOfKeys, theme, selectedKeys, keySignature, keyHeight, blackKeyWidth],
   )
 
   const onMouseDown = useCallback(
@@ -268,7 +270,7 @@ export const PianoKeys: FC = observer(() => {
       let prevNoteNumber = posToNoteNumber(startPosition.x, startPosition.y)
       player.sendEvent(noteOnMidiEvent(0, channel, prevNoteNumber, 127))
 
-      setTouchingKeys([prevNoteNumber])
+      setTouchingKeys(new Set([prevNoteNumber]))
 
       observeDrag2(e.nativeEvent, {
         onMouseMove(_e, delta) {
@@ -278,12 +280,12 @@ export const PianoKeys: FC = observer(() => {
             player.sendEvent(noteOffMidiEvent(0, channel, prevNoteNumber, 0))
             player.sendEvent(noteOnMidiEvent(0, channel, noteNumber, 127))
             prevNoteNumber = noteNumber
-            setTouchingKeys([noteNumber])
+            setTouchingKeys(new Set([noteNumber]))
           }
         },
         onMouseUp(_) {
           player.sendEvent(noteOffMidiEvent(0, channel, prevNoteNumber, 0))
-          setTouchingKeys([])
+          setTouchingKeys(new Set())
         },
       })
     },
