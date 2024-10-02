@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
 import { ArrangeViewKeyboardShortcut } from "../KeyboardShortcut/ArrangeViewKeyboardShortcut"
+import { ArrangeVelocityDialog } from "../VelocityDialog/ArrangeVelocityDialog"
 import { ArrangeToolbar } from "./ArrangeToolbar"
 import { ArrangeView } from "./ArrangeView"
 
@@ -14,10 +15,13 @@ const Container = styled.div`
 
 export const ArrangeEditor: FC = () => {
   return (
-    <Container>
-      <ArrangeViewKeyboardShortcut />
-      <ArrangeToolbar />
-      <ArrangeView />
-    </Container>
+    <>
+      <Container>
+        <ArrangeViewKeyboardShortcut />
+        <ArrangeToolbar />
+        <ArrangeView />
+      </Container>
+      <ArrangeVelocityDialog />
+    </>
   )
 }

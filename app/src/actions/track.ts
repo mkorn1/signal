@@ -393,27 +393,36 @@ export interface BatchUpdateOperation {
   value: number
 }
 
+export const batchUpdateNotesVelocity = (
+  track: Track,
+  noteIds: number[],
+  operation: BatchUpdateOperation,
+) => {
+  const selectedNotes = noteIds
+    .map((id) => track.getEventById(id))
+    .filter(isNotUndefined)
+    .filter(isNoteEvent)
+  track.updateEvents(
+    selectedNotes.map((note) => ({
+      id: note.id,
+      velocity: clamp(
+        Math.floor(applyOperation(operation, note.velocity)),
+        0,
+        127,
+      ),
+    })),
+  )
+}
+
 export const batchUpdateSelectedNotesVelocity =
-  ({ pianoRollStore }: RootStore) =>
+  ({ pianoRollStore, pushHistory }: RootStore) =>
   (operation: BatchUpdateOperation) => {
     const { selectedTrack, selectedNoteIds } = pianoRollStore
     if (selectedTrack === undefined) {
       return
     }
-    const selectedNotes = selectedNoteIds
-      .map((id) => selectedTrack.getEventById(id))
-      .filter(isNotUndefined)
-      .filter(isNoteEvent)
-    selectedTrack.updateEvents(
-      selectedNotes.map((note) => ({
-        id: note.id,
-        velocity: clamp(
-          Math.floor(applyOperation(operation, note.velocity)),
-          0,
-          127,
-        ),
-      })),
-    )
+    pushHistory()
+    batchUpdateNotesVelocity(selectedTrack, selectedNoteIds, operation)
   }
 
 const applyOperation = (operation: BatchUpdateOperation, value: number) => {
