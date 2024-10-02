@@ -9,11 +9,11 @@ import { VelocityDialog } from "./VelocityDialog"
 
 export const PianoRollVelocityDialog = observer(() => {
   const rootStore = useStores()
-  const { rootViewStore, pianoRollStore } = rootStore
+  const { pianoRollStore } = rootStore
 
   const onClose = useCallback(
-    () => (rootViewStore.openVelocityDialog = false),
-    [rootViewStore],
+    () => (pianoRollStore.openVelocityDialog = false),
+    [pianoRollStore],
   )
 
   const onClickOK = useCallback(
@@ -22,14 +22,14 @@ export const PianoRollVelocityDialog = observer(() => {
         type: operationType,
         value,
       })
-      rootViewStore.openVelocityDialog = false
+      pianoRollStore.openVelocityDialog = false
     },
-    [rootViewStore],
+    [pianoRollStore],
   )
 
   return (
     <VelocityDialog
-      open={rootViewStore.openVelocityDialog}
+      open={pianoRollStore.openVelocityDialog}
       value={pianoRollStore.newNoteVelocity}
       onClickOK={onClickOK}
       onClose={onClose}

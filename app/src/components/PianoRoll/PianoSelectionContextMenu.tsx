@@ -71,7 +71,7 @@ export const PianoSelectionContextMenu: FC<ContextMenuProps> = React.memo(
     }, [])
 
     const onClickVelocity = useCallback(() => {
-      rootStore.rootViewStore.openVelocityDialog = true
+      pianoRollStore.openVelocityDialog = true
       handleClose()
     }, [])
 
