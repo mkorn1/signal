@@ -15,7 +15,7 @@ export const StyledInput = styled.input`
   color: inherit;
   -webkit-appearance: none;
   font-size: inherit;
-  font-family: inherit;
+  font-family: ${({ theme }) => theme.monoFont};
   outline: none;
 
   /* Hide spin button on Firefox */

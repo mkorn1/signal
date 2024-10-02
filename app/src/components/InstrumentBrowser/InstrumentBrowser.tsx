@@ -138,7 +138,7 @@ const InstrumentBrowser: FC<InstrumentBrowserProps> = ({
           <Checkbox
             checked={isRhythmTrack}
             onCheckedChange={onChangeRhythmTrack}
-            label=<Localized name="rhythm-track" />
+            label={<Localized name="rhythm-track" />}
           />
         </Footer>
       </DialogContent>

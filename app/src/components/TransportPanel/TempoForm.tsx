@@ -15,7 +15,7 @@ const TempoInput = styled(NumberInput)`
   width: 5em;
   text-align: center;
   outline: none;
-  font-family: "Roboto Mono", monospace;
+  font-family: ${({ theme }) => theme.monoFont};
   font-size: 1rem;
   padding: 0.3rem 0;
 

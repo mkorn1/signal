@@ -1,6 +1,7 @@
 export interface Theme {
   isLightContent: boolean // if true, text color is light and background color is dark
   font: string
+  monoFont: string
   canvasFont: string
   themeColor: string
   onSurfaceColor: string // content color on themeColor
@@ -33,6 +34,7 @@ export interface Theme {
 const darkTheme: Theme = {
   isLightContent: true,
   font: "Inter, -apple-system, BlinkMacSystemFont, Avenir, Lato",
+  monoFont: "Roboto Mono, monospace",
   canvasFont: "Arial",
   themeColor: "hsl(230, 70%, 55%)",
   onSurfaceColor: "#ffffff",
@@ -65,6 +67,7 @@ const darkTheme: Theme = {
 const lightTheme: Theme = {
   isLightContent: false,
   font: "Inter, -apple-system, BlinkMacSystemFont, Avenir, Lato",
+  monoFont: "Roboto Mono, monospace",
   canvasFont: "Arial",
   themeColor: "hsl(230, 70%, 55%)",
   onSurfaceColor: "#ffffff",

@@ -13,6 +13,7 @@ import RootStore from "../stores/RootStore"
 import Track from "../track"
 import { pushHistory } from "./history"
 import { transposeNotes } from "./song"
+import { batchUpdateNotesVelocity, BatchUpdateOperation } from "./track"
 
 export const arrangeResetSelection =
   ({ arrangeViewStore }: RootStore) =>
@@ -298,4 +299,17 @@ export const arrangeDuplicateSelection =
     }
 
     arrangeViewStore.selectedEventIds = addedEventIds
+  }
+
+export const arrangeBatchUpdateSelectedNotesVelocity =
+  ({ arrangeViewStore, song: { tracks }, pushHistory }: RootStore) =>
+  (operation: BatchUpdateOperation) => {
+    const { selectedEventIds } = arrangeViewStore
+    pushHistory()
+
+    for (const [trackIndexStr, eventIds] of Object.entries(selectedEventIds)) {
+      const trackIndex = parseInt(trackIndexStr, 10)
+      const track = tracks[trackIndex]
+      batchUpdateNotesVelocity(track, eventIds, operation)
+    }
   }
