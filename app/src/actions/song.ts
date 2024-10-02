@@ -1,4 +1,4 @@
-import { NotePoint } from "../entities/transform/NotePoint"
+import { NoteNumber } from "../entities/unit/NoteNumber"
 import { isNotNull } from "../helpers/array"
 import { downloadSongAsMidi } from "../midi/midiConversion"
 import Song, { emptySong } from "../song"
@@ -141,7 +141,7 @@ export const transposeNotes =
             }
             return {
               id,
-              noteNumber: NotePoint.clampNoteNumber(n.noteNumber + deltaPitch),
+              noteNumber: NoteNumber.clamp(n.noteNumber + deltaPitch),
             }
           })
           .filter(isNotNull),
