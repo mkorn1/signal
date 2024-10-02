@@ -3,6 +3,7 @@ import { AnyChannelEvent, AnyEvent, SetTempoEvent } from "midifile-ts"
 import { ValueEventType } from "../entities/event/ValueEventType"
 import { Range } from "../entities/geometry/Range"
 import { Measure } from "../entities/measure/Measure"
+import { NoteNumber } from "../entities/unit/NoteNumber"
 import { closedRange, isNotUndefined } from "../helpers/array"
 import { isEventInRange } from "../helpers/filterEvents"
 import {
@@ -234,7 +235,11 @@ export const createNote =
     song,
   }: RootStore) =>
   (tick: number, noteNumber: number) => {
-    if (selectedTrack === undefined || selectedTrack.channel == undefined) {
+    if (
+      selectedTrack === undefined ||
+      selectedTrack.channel == undefined ||
+      !NoteNumber.isValid(noteNumber)
+    ) {
       return
     }
     pushHistory()
