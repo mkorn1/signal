@@ -102,9 +102,18 @@ const PianoRollWrapper: FC = observer(() => {
     [s, transform],
   )
 
+  const onChangeSplitPane = useCallback(() => {
+    s.setScrollTopInPixels(s.scrollTop)
+  }, [s])
+
   return (
     <Parent ref={ref}>
-      <StyledSplitPane split="horizontal" minSize={50} defaultSize={"60%"}>
+      <StyledSplitPane
+        split="horizontal"
+        minSize={50}
+        defaultSize={"60%"}
+        onChange={onChangeSplitPane}
+      >
         <Alpha onWheel={onWheel} ref={alphaRef}>
           <PianoRollStage width={size.width} height={alphaHeight} />
           <VerticalScaleScrollBar
