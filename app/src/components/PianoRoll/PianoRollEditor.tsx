@@ -7,6 +7,7 @@ import EventList from "../EventEditor/EventList"
 import { PianoRollKeyboardShortcut } from "../KeyboardShortcut/PianoRollKeyboardShortcut"
 import { PianoRollToolbar } from "../PianoRollToolbar/PianoRollToolbar"
 import { TrackList } from "../TrackList/TrackList"
+import { PianoRollTransposeDialog } from "../TransposeDialog/PianoRollTransposeDialog"
 import { PianoRollVelocityDialog } from "../VelocityDialog/PianoRollVelocityDialog"
 import PianoRoll from "./PianoRoll"
 import { StyledSplitPane } from "./StyledSplitPane"
@@ -65,6 +66,7 @@ export const PianoRollEditor: FC = observer(() => {
           </PaneLayout>
         </div>
       </ColumnContainer>
+      <PianoRollTransposeDialog />
       <PianoRollVelocityDialog />
     </>
   )
