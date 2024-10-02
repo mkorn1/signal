@@ -23,7 +23,6 @@ import { ArrangeTransposeDialog } from "../TransposeDialog/ArrangeTransposeDialo
 import { PianoRollTransposeDialog } from "../TransposeDialog/PianoRollTransposeDialog"
 import { DeleteAccountDialog } from "../UserSettingsDialog/DeleteAccountDialog"
 import { UserSettingsDialog } from "../UserSettingsDialog/UserSettingsDialog"
-import { VelocityDialog } from "../VelocityDialog/VelocityDialog"
 import { DropZone } from "./DropZone"
 
 const Container = styled.div`
@@ -78,7 +77,6 @@ export const RootView: FC = () => (
     <OnInit />
     <OnBeforeUnload />
     <PublishDialog />
-    <VelocityDialog />
     <UserSettingsDialog />
     <DeleteAccountDialog />
   </>

@@ -1,11 +1,6 @@
 import styled from "@emotion/styled"
-import { observer } from "mobx-react-lite"
-import { useCallback, useEffect, useState } from "react"
-import {
-  BatchUpdateOperation,
-  batchUpdateSelectedNotesVelocity,
-} from "../../actions"
-import { useStores } from "../../hooks/useStores"
+import { FC, useCallback, useEffect, useState } from "react"
+import { BatchUpdateOperation } from "../../actions"
 import { Localized } from "../../localize/useLocalization"
 import {
   Dialog,
@@ -28,32 +23,36 @@ const Row = styled.div`
   gap: 2rem;
 `
 
-export const VelocityDialog = observer(() => {
-  const rootStore = useStores()
-  const { rootViewStore, pianoRollStore } = rootStore
-  const { openVelocityDialog: open } = rootViewStore
+export interface VelocityDialogProps {
+  open: boolean
+  value: number
+  onClickOK: (
+    value: number,
+    operationType: BatchUpdateOperation["type"],
+  ) => void
+  onClose: () => void
+}
+
+export const VelocityDialog: FC<VelocityDialogProps> = ({
+  open,
+  value: initialValue,
+  onClickOK,
+  onClose,
+}) => {
   const [operationType, setOperationType] =
     useState<BatchUpdateOperation["type"]>("set")
-  const [value, setValue] = useState(pianoRollStore.newNoteVelocity)
+  const [value, setValue] = useState(initialValue)
 
   useEffect(() => {
     if (open) {
-      setValue(pianoRollStore.newNoteVelocity)
+      setValue(initialValue)
     }
   }, [open])
 
-  const onClose = useCallback(
-    () => (rootViewStore.openVelocityDialog = false),
-    [rootViewStore],
-  )
-
-  const onClickOK = useCallback(() => {
-    batchUpdateSelectedNotesVelocity(rootStore)({
-      type: operationType,
-      value,
-    })
-    rootViewStore.openVelocityDialog = false
-  }, [rootViewStore, operationType, value])
+  const _onClickOK = useCallback(() => {
+    onClickOK(value, operationType)
+    onClose()
+  }, [value, operationType])
 
   return (
     <Dialog open={open} style={{ minWidth: "20rem" }}>
@@ -66,7 +65,7 @@ export const VelocityDialog = observer(() => {
             value={value}
             onChange={setValue}
             style={{ flexGrow: 1 }}
-            onEnter={onClickOK}
+            onEnter={_onClickOK}
           />
           <Row>
             <RadioButton
@@ -91,10 +90,10 @@ export const VelocityDialog = observer(() => {
         <Button onClick={onClose}>
           <Localized name="cancel" />
         </Button>
-        <Button onClick={onClickOK}>
+        <Button onClick={_onClickOK}>
           <Localized name="ok" />
         </Button>
       </DialogActions>
     </Dialog>
   )
-})
+}
