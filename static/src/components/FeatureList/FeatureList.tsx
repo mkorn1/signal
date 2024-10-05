@@ -1,3 +1,4 @@
+import { styled } from "@kuma-ui/core"
 import { FC } from "react"
 import { Feature } from "./Feature"
 import chartIcon from "./images/iconmonstr-chart-21.svg"
@@ -7,9 +8,15 @@ import soundFontIcon from "./images/soundfont-icon.svg"
 import synthesizerKeyboard from "./images/synthesizer-keyboard-svgrepo-com.svg"
 import wavFile from "./images/wav-file.svg"
 
+const Container = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: 2rem;
+`
+
 export const FeatureList: FC = () => {
   return (
-    <>
+    <Container>
       <Feature
         backgroundColor="#3c2fd740"
         iconBackgroundColor="#3c2fd7"
@@ -55,6 +62,6 @@ export const FeatureList: FC = () => {
         titleKey="feature-pwa"
         descriptionKey="feature-pwa-description"
       />
-    </>
+    </Container>
   )
 }

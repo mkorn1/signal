@@ -7,24 +7,7 @@ const FeatureWrapper = styled.div`
   background: #ffffff0d;
   padding: 2rem;
   border-radius: 1rem;
-  margin-right: 2rem;
-  margin-bottom: 2rem;
   box-shadow: 0 1rem 3rem 0 #0000000e;
-
-  .icon {
-    display: inline-flex;
-    width: 4rem;
-    border-radius: 2rem;
-    height: 4rem;
-    overflow: hidden;
-    background: white;
-    align-items: center;
-    justify-content: center;
-
-    img {
-      width: 2rem;
-    }
-  }
 
   .title {
     font-size: 1.1rem;
@@ -39,6 +22,22 @@ const FeatureWrapper = styled.div`
 
   @media screen and (max-width: 896px) {
     margin-right: 0;
+  }
+`
+
+const Icon = styled.div`
+  display: inline-flex;
+  width: 4rem;
+  border-radius: 2rem;
+  height: 4rem;
+  overflow: hidden;
+  background: white;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0.5rem 3rem 0 #0000000e;
+
+  img {
+    width: 2rem;
   }
 `
 
@@ -61,9 +60,9 @@ export const Feature: FC<FeatureProps> = ({
 }) => {
   return (
     <FeatureWrapper style={{ background: backgroundColor }}>
-      <div className="icon" style={{ background: iconBackgroundColor }}>
+      <Icon style={{ background: iconBackgroundColor }}>
         <img src={iconSrc} style={{ width: iconWidth }} />
-      </div>
+      </Icon>
       <div className="title">
         <Localized name={titleKey} />
       </div>
