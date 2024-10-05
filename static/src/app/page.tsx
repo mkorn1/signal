@@ -230,9 +230,9 @@ export default function Home() {
                 <Localized name="launch" />
               </LaunchButton>
               <Platform>
-                <pre>
-                  <Localized name="platform" />
-                </pre>
+                <Localized name="supported-browsers-label" />
+                <br />
+                <Localized name="supported-browsers-body" />
               </Platform>
             </LaunchWrapper>
             <div style={{ marginTop: "4rem" }}>
