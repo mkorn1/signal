@@ -1,5 +1,6 @@
 import { styled } from "@kuma-ui/core"
 import { Metadata } from "next"
+import { Footer } from "../../components/Footer/Footer"
 import Localized from "../../components/Localized"
 import { Navigation } from "../../components/Navigation/Navigation"
 import { LocaleDate } from "./LocaleDate"
@@ -22,6 +23,11 @@ const Section = styled.section`
   margin: 3rem 0;
 `
 
+const SectionTitle = styled.h2`
+  font-size: 1.25rem;
+  margin-top: 2rem;
+`
+
 const SectionContent = styled.div`
   margin-top: 1rem;
 `
@@ -39,9 +45,9 @@ export default function Page() {
         </p>
 
         <Section>
-          <h2>
+          <SectionTitle>
             <Localized name="privacy-data-title" />
-          </h2>
+          </SectionTitle>
           <SectionContent>
             <p>
               <Localized name="privacy-data-description" />
@@ -50,9 +56,9 @@ export default function Page() {
         </Section>
 
         <Section>
-          <h2>
+          <SectionTitle>
             <Localized name="privacy-analytics-title" />
-          </h2>
+          </SectionTitle>
           <SectionContent>
             <p>
               <Localized name="privacy-analytics-description" />
@@ -65,6 +71,8 @@ export default function Page() {
           <LocaleDate date={new Date("2024/05/03")} />
         </p>
       </Content>
+
+      <Footer />
     </>
   )
 }
