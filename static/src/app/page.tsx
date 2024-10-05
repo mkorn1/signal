@@ -1,6 +1,7 @@
 import { styled } from "@kuma-ui/core"
 import { Metadata } from "next"
 import { FeatureList } from "../components/FeatureList/FeatureList"
+import { Footer } from "../components/Footer/Footer"
 import Localized from "../components/Localized"
 import { Navigation } from "../components/Navigation/Navigation"
 import githubIcon from "./images/github-icon.svg"
@@ -225,6 +226,12 @@ const SupportRow = styled.div`
   }
 `
 
+const CarbonAd = styled.div`
+  position: fixed;
+  right: 0;
+  bottom: 0;
+`
+
 export default function Home() {
   return (
     <>
@@ -283,20 +290,6 @@ export default function Home() {
             </SectionTitle>
             <FeatureList />
           </div>
-
-          <div
-            className="right"
-            dangerouslySetInnerHTML={{
-              __html: `
-                <script
-                  async
-                  type="text/javascript"
-                  src="https://cdn.carbonads.com/carbon.js?serve=CESI52QY&placement=signalvercelapp"
-                  id="_carbonads_js"
-                ></script>
-            `,
-            }}
-          />
         </SectionContent>
       </Features>
 
@@ -345,6 +338,22 @@ export default function Home() {
           </SupportRow>
         </SectionContent>
       </section>
+
+      <Footer />
+
+      <CarbonAd
+        className="right"
+        dangerouslySetInnerHTML={{
+          __html: `
+      <script
+        async
+        type="text/javascript"
+        src="https://cdn.carbonads.com/carbon.js?serve=CESI52QY&placement=signalvercelapp"
+        id="_carbonads_js"
+      ></script>
+  `,
+        }}
+      />
     </>
   )
 }

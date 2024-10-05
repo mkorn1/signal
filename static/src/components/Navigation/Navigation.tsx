@@ -1,5 +1,6 @@
 import { styled } from "@kuma-ui/core"
 import Localized from "../Localized"
+import discordIcon from "./images/discord-icon.svg"
 import githubIcon from "./images/github-icon.svg"
 import logoWhite from "./images/logo-white.svg"
 
@@ -32,12 +33,27 @@ const LogoLink = styled.a`
 const Menu = styled.div`
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
 
   & > a {
     color: white;
     text-decoration: none;
     font-size: 0.9rem;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+`
+
+const IconLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+
+  img {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: white;
   }
 `
 
@@ -49,12 +65,15 @@ export const Navigation = () => {
           <img src={logoWhite.src} />
         </LogoLink>
         <Menu>
-          <a href="/support">
+          <a href="/support" style={{ marginRight: "1rem" }}>
             <Localized name="support" />
           </a>
-          <a href="https://github.com/ryohey/signal/" id="github-link">
+          <IconLink href="https://discord.com/invite/XQxzNdDJse">
+            <img src={discordIcon.src} />
+          </IconLink>
+          <IconLink href="https://github.com/ryohey/signal/" id="github-link">
             <img src={githubIcon.src} />
-          </a>
+          </IconLink>
         </Menu>
       </Content>
     </Header>
