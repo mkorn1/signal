@@ -80,6 +80,11 @@ export const menuTemplate = ({
       ...(isLoggedIn ? [{ label: "Import", click: onClickImport }] : []),
       { label: "Export", submenu: [{ label: "WAV", click: onClickExportWav }] },
       { type: "separator" },
+      {
+        label: "Settings",
+        click: onClickSetting,
+      },
+      { type: "separator" },
       isMac ? { role: "close" } : { role: "quit" },
     ] as MenuItemConstructorOptions[],
   },
