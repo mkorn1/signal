@@ -118,5 +118,14 @@ export const exportSongAsMp3 =
     exportStore.isCanceled = true
   }
 
-export const canExport = (song: Song) =>
+export const exportSong =
+  (rootStore: RootStore) =>
+  () => {
+    const { exportMode } = rootStore.exportStore
+    if (exportMode === "WAV") {
+      exportSongAsWav(rootStore)()
+    } else if (exportMode === "MP3") {
+      exportSongAsMp3(rootStore)()
+    }
+  }
   song.allEvents.some((e) => e.tick >= 120)
