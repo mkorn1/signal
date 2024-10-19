@@ -106,7 +106,7 @@ export const exportSongAsMp3 =
             mp3Data.push(new Uint8Array(mp3buf))
           }
         }
-        const mp3buf = mp3Encoder.flush()
+        const mp3buf = Array.from(mp3Encoder.flush())
         if (mp3buf.length > 0) {
           mp3Data.push(new Uint8Array(mp3buf))
         }
