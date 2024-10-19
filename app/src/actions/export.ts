@@ -96,7 +96,12 @@ export const exportSongAsMp3 =
         for (let i = 0; i < audioBuffer.length; i += 1152) {
           const left = audioBuffer.getChannelData(0).subarray(i, i + 1152)
           const right = audioBuffer.getChannelData(1).subarray(i, i + 1152)
-          const mp3buf = mp3Encoder.encodeBuffer(left, right)
+          const interleaved = new Int16Array(left.length + right.length)
+          for (let j = 0; j < left.length; j++) {
+            interleaved[j * 2] = left[j]
+            interleaved[j * 2 + 1] = right[j]
+          }
+          const mp3buf = mp3Encoder.encodeBuffer(interleaved)
           if (mp3buf.length > 0) {
             mp3Data.push(new Uint8Array(mp3buf))
           }
