@@ -101,7 +101,7 @@ export const exportSongAsMp3 =
             interleaved[j * 2] = left[j]
             interleaved[j * 2 + 1] = right[j]
           }
-          const mp3buf = mp3Encoder.encodeBuffer(interleaved)
+          const mp3buf = Array.from(mp3Encoder.encodeBuffer(interleaved))
           if (mp3buf.length > 0) {
             mp3Data.push(new Uint8Array(mp3buf))
           }
