@@ -250,7 +250,7 @@ export const createNote =
 
     const duration = selectedTrack.isRhythmTrack
       ? song.timebase / 8 // 32th note in the rhythm track
-      : pianoRollStore.lastNoteDuration ?? quantizer.unit
+      : (pianoRollStore.lastNoteDuration ?? quantizer.unit)
 
     const note: Omit<NoteEvent, "id"> = {
       type: "channel",
