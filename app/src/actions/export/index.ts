@@ -13,11 +13,13 @@ export const cancelExport = ({ exportStore }: RootStore) =>
 export const exportSong =
   (rootStore: RootStore) =>
     () => {
-      const { exportMode } = rootStore.exportStore
-      if (exportMode === "WAV") {
-        exportWav(rootStore)()
-      } else if (exportMode === "MP3") {
-        exportMp3(rootStore)()
+      switch (rootStore.exportStore.exportMode) {
+        case "WAV":
+          exportWav(rootStore)();
+          break;
+        case "MP3":
+          exportMp3(rootStore)()
+          break;
       }
     }
 
