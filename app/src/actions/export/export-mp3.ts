@@ -42,22 +42,33 @@ export const exportMp3 =
         )
         const mp3Data: Uint8Array[] = []
 
-        for (let i = 0; i < audioBuffer.length; i += 1152) {
-          const left = audioBuffer.getChannelData(0).subarray(i, i + 1152)
-          const right = audioBuffer.getChannelData(1).subarray(i, i + 1152)
-          const interleaved = new Int16Array(left.length + right.length)
-          for (let j = 0; j < left.length; j++) {
-            interleaved[j * 2] = left[j]
-            interleaved[j * 2 + 1] = right[j]
-          }
-          const mp3buf = Array.from(mp3Encoder.encodeBuffer(interleaved))
+        const [left, right] = [audioBuffer.getChannelData(0), audioBuffer.getChannelData(1)]
+
+        const l = new Int16Array(left.length);
+        const r = new Int16Array(right.length);
+
+        //Convert to required format
+        for (var i = 0; i < left.length; i++) {
+          l[i] = left[i] * 32767.5;
+          r[i] = right[i] * 32767.5;
+        }
+
+        const sampleBlockSize = 1152; //can be anything but make it a multiple of 576 to make encoders life easier
+
+        for (var i = 0; i < l.length; i += sampleBlockSize) {
+          const leftChunk = l.subarray(i, i + sampleBlockSize);
+          const rightChunk = r.subarray(i, i + sampleBlockSize);
+
+          var mp3buf = mp3Encoder.encodeBuffer(leftChunk, rightChunk);
+
           if (mp3buf.length > 0) {
-            mp3Data.push(new Uint8Array(mp3buf))
+            mp3Data.push(mp3buf);
           }
         }
-        const mp3buf = Array.from(mp3Encoder.flush())
+        var mp3buf = mp3Encoder.flush();   //finish writing mp3
+
         if (mp3buf.length > 0) {
-          mp3Data.push(new Uint8Array(mp3buf))
+          mp3Data.push(mp3buf);
         }
 
         const blob = new Blob(mp3Data, { type: "audio/mp3" })
