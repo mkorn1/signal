@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 import CircleIcon from "mdi-react/CircleIcon"
-import { FC } from "react"
+import { FC, ReactNode } from "react"
 
 const Button = styled.div`
   display: inline-flex;
@@ -35,7 +35,7 @@ const RowLabel = styled.span`
 `
 
 export interface RadioButtonProps {
-  label: string
+  label: ReactNode
   isSelected: boolean
   onClick: () => void
 }

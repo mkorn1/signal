@@ -1,8 +1,10 @@
+import { clamp } from "lodash"
 import { AnyChannelEvent, AnyEvent, SetTempoEvent } from "midifile-ts"
 import { ValueEventType } from "../entities/event/ValueEventType"
 import { Range } from "../entities/geometry/Range"
 import { Measure } from "../entities/measure/Measure"
-import { closedRange } from "../helpers/array"
+import { NoteNumber } from "../entities/unit/NoteNumber"
+import { closedRange, isNotUndefined } from "../helpers/array"
 import { isEventInRange } from "../helpers/filterEvents"
 import {
   panMidiEvent,
@@ -233,7 +235,11 @@ export const createNote =
     song,
   }: RootStore) =>
   (tick: number, noteNumber: number) => {
-    if (selectedTrack === undefined || selectedTrack.channel == undefined) {
+    if (
+      selectedTrack === undefined ||
+      selectedTrack.channel == undefined ||
+      !NoteNumber.isValid(noteNumber)
+    ) {
       return
     }
     pushHistory()
@@ -244,7 +250,7 @@ export const createNote =
 
     const duration = selectedTrack.isRhythmTrack
       ? song.timebase / 8 // 32th note in the rhythm track
-      : pianoRollStore.lastNoteDuration ?? quantizer.unit
+      : (pianoRollStore.lastNoteDuration ?? quantizer.unit)
 
     const note: Omit<NoteEvent, "id"> = {
       type: "channel",
@@ -386,3 +392,51 @@ export const updateTimeSignature =
       denominator,
     })
   }
+
+export interface BatchUpdateOperation {
+  type: "set" | "add" | "multiply"
+  value: number
+}
+
+export const batchUpdateNotesVelocity = (
+  track: Track,
+  noteIds: number[],
+  operation: BatchUpdateOperation,
+) => {
+  const selectedNotes = noteIds
+    .map((id) => track.getEventById(id))
+    .filter(isNotUndefined)
+    .filter(isNoteEvent)
+  track.updateEvents(
+    selectedNotes.map((note) => ({
+      id: note.id,
+      velocity: clamp(
+        Math.floor(applyOperation(operation, note.velocity)),
+        0,
+        127,
+      ),
+    })),
+  )
+}
+
+export const batchUpdateSelectedNotesVelocity =
+  ({ pianoRollStore, pushHistory }: RootStore) =>
+  (operation: BatchUpdateOperation) => {
+    const { selectedTrack, selectedNoteIds } = pianoRollStore
+    if (selectedTrack === undefined) {
+      return
+    }
+    pushHistory()
+    batchUpdateNotesVelocity(selectedTrack, selectedNoteIds, operation)
+  }
+
+const applyOperation = (operation: BatchUpdateOperation, value: number) => {
+  switch (operation.type) {
+    case "set":
+      return operation.value
+    case "add":
+      return value + operation.value
+    case "multiply":
+      return value * operation.value
+  }
+}

@@ -13,6 +13,8 @@ export default class RootViewStore {
   initializeError: Error | null = null
   openInitializeErrorDialog = false
   openPublishDialog = false
+  openUserSettingsDialog = false
+  openDeleteAccountDialog = false
 
   constructor() {
     makeObservable(this, {
@@ -27,6 +29,8 @@ export default class RootViewStore {
       initializeError: observable,
       openInitializeErrorDialog: observable,
       openPublishDialog: observable,
+      openUserSettingsDialog: observable,
+      openDeleteAccountDialog: observable,
     })
   }
 }

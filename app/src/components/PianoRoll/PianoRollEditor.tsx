@@ -7,6 +7,8 @@ import EventList from "../EventEditor/EventList"
 import { PianoRollKeyboardShortcut } from "../KeyboardShortcut/PianoRollKeyboardShortcut"
 import { PianoRollToolbar } from "../PianoRollToolbar/PianoRollToolbar"
 import { TrackList } from "../TrackList/TrackList"
+import { PianoRollTransposeDialog } from "../TransposeDialog/PianoRollTransposeDialog"
+import { PianoRollVelocityDialog } from "../VelocityDialog/PianoRollVelocityDialog"
 import PianoRoll from "./PianoRoll"
 import { StyledSplitPane } from "./StyledSplitPane"
 
@@ -38,30 +40,34 @@ export const PianoRollEditor: FC = observer(() => {
   const { showTrackList, showEventList } = pianoRollStore
 
   return (
-    <ColumnContainer>
-      <PianoRollKeyboardShortcut />
-      <PianoRollToolbar />
-      <div style={{ display: "flex", flexGrow: 1, position: "relative" }}>
-        <PaneLayout
-          split="vertical"
-          minSize={280}
-          pane1Style={{ display: "flex" }}
-          pane2Style={{ display: "flex" }}
-          isShow={showTrackList}
-          pane={<TrackList />}
-        >
+    <>
+      <ColumnContainer>
+        <PianoRollKeyboardShortcut />
+        <PianoRollToolbar />
+        <div style={{ display: "flex", flexGrow: 1, position: "relative" }}>
           <PaneLayout
             split="vertical"
-            minSize={240}
+            minSize={280}
             pane1Style={{ display: "flex" }}
             pane2Style={{ display: "flex" }}
-            isShow={showEventList}
-            pane={<EventList />}
+            isShow={showTrackList}
+            pane={<TrackList />}
           >
-            <PianoRoll />
+            <PaneLayout
+              split="vertical"
+              minSize={240}
+              pane1Style={{ display: "flex" }}
+              pane2Style={{ display: "flex" }}
+              isShow={showEventList}
+              pane={<EventList />}
+            >
+              <PianoRoll />
+            </PaneLayout>
           </PaneLayout>
-        </PaneLayout>
-      </div>
-    </ColumnContainer>
+        </div>
+      </ColumnContainer>
+      <PianoRollTransposeDialog />
+      <PianoRollVelocityDialog />
+    </>
   )
 })

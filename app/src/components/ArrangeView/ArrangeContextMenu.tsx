@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite"
-import { FC } from "react"
+import { FC, useCallback } from "react"
 import {
   arrangeCopySelection,
   arrangeDeleteSelection,
@@ -24,6 +24,11 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
   const isNoteSelected = Object.values(arrangeViewStore.selectedEventIds).some(
     (e) => e.length > 0,
   )
+
+  const onClickVelocity = useCallback(() => {
+    arrangeViewStore.openVelocityDialog = true
+    handleClose()
+  }, [arrangeViewStore])
 
   return (
     <ContextMenu {...props}>
@@ -113,6 +118,9 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
       >
         <Localized name="transpose" />
         <HotKey>T</HotKey>
+      </MenuItem>
+      <MenuItem onClick={onClickVelocity} disabled={!isNoteSelected}>
+        <Localized name="velocity" />
       </MenuItem>
     </ContextMenu>
   )

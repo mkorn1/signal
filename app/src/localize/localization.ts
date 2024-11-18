@@ -144,6 +144,10 @@ export default {
     midi: "MIDI",
     "no-files": "No files",
     "restore-defaults": "Restore Defaults",
+    "user-settings": "User Settings",
+    "delete-account": "Delete Account",
+    "delete-account-description":
+      "All songs and accounts stored in the cloud will be deleted. Once deleted, the data cannot be restored. If you really want to execute the deletion, press the Delete button.",
     /* MIDI Instrument Categories */
     Piano: "Piano",
     "Chromatic Percussion": "Chromatic Percussion",
@@ -326,6 +330,10 @@ export default {
     "scale-half-whole-diminished": "Half-whole Diminished",
     "scale-whole-half-diminished": "Whole-half Diminished",
     "scale-whole-tone": "Whole Tone",
+    /* operation */
+    "operation-set": "Set",
+    "operation-add": "Add",
+    "operation-multiply": "Multiply",
   },
   ja: {
     "piano-roll": "ピアノロール",
@@ -468,6 +476,10 @@ export default {
     midi: "MIDI",
     "no-files": "ファイルがありません",
     "restore-defaults": "デフォルトに戻す",
+    "user-settings": "ユーザー設定",
+    "delete-account": "アカウント削除",
+    "delete-account-description":
+      "クラウドに保存されたすべての楽曲とアカウントが削除されます。一度削除したデータは復元できません。本当に削除を実行しますか？",
     /* MIDI Instrument Categories */
     Piano: "ピアノ",
     "Chromatic Percussion": "クロマチック",
@@ -650,6 +662,10 @@ export default {
     "scale-half-whole-diminished": "ハーフホールディミニッシュ",
     "scale-whole-half-diminished": "ホールハーフディミニッシュ",
     "scale-whole-tone": "ホールトーン",
+    /* operation */
+    "operation-set": "変更",
+    "operation-add": "加算",
+    "operation-multiply": "乗算",
   },
   "zh-Hans": {
     "piano-roll": "钢琴卷",
@@ -793,6 +809,10 @@ export default {
     midi: "MIDI",
     "no-files": "No files",
     "restore-defaults": "Restore Defaults",
+    "user-settings": "User Settings",
+    "delete-account": "Delete Account",
+    "delete-account-description":
+      "All songs and accounts stored in the cloud will be deleted. Once deleted, the data cannot be restored. If you really want to execute the deletion, press the Delete button.",
     /* MIDI Instrument Categories */
     Piano: "钢琴",
     "Chromatic Percussion": "半音打击乐",
@@ -975,6 +995,10 @@ export default {
     "scale-half-whole-diminished": "Half-whole Diminished",
     "scale-whole-half-diminished": "Whole-half Diminished",
     "scale-whole-tone": "Whole Tone",
+    /* operation */
+    "operation-set": "Set",
+    "operation-add": "Add",
+    "operation-multiply": "Multiply",
   },
   "zh-Hant": {
     "piano-roll": "鋼琴卷軸",
@@ -1116,6 +1140,10 @@ export default {
     midi: "MIDI",
     "no-files": "No files",
     "restore-defaults": "Restore Defaults",
+    "user-settings": "User Settings",
+    "delete-account": "Delete Account",
+    "delete-account-description":
+      "All songs and accounts stored in the cloud will be deleted. Once deleted, the data cannot be restored. If you really want to execute the deletion, press the Delete button.",
     /* MIDI Instrument Categories */
     Piano: "鋼琴",
     "Chromatic Percussion": "固定音高敲擊樂器",
@@ -1299,5 +1327,9 @@ export default {
     "scale-half-whole-diminished": "Half-whole Diminished",
     "scale-whole-half-diminished": "Whole-half Diminished",
     "scale-whole-tone": "Whole Tone",
+    /* operation */
+    "operation-set": "Set",
+    "operation-add": "Add",
+    "operation-multiply": "Multiply",
   },
 } as const

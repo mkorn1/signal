@@ -33,7 +33,7 @@ export default class Quantizer {
       tick,
       this.songStore.song.timebase,
     )
-    const beats = this.denominator === 1 ? measureStart.numerator ?? 4 : 4
+    const beats = this.denominator === 1 ? (measureStart.numerator ?? 4) : 4
     const u = (this.timebase * beats) / this.denominator
     const offset = measureStart?.tick ?? 0
     return fn((tick - offset) / u) * u + offset

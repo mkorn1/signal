@@ -70,6 +70,11 @@ export const PianoSelectionContextMenu: FC<ContextMenuProps> = React.memo(
       handleClose()
     }, [])
 
+    const onClickVelocity = useCallback(() => {
+      pianoRollStore.openVelocityDialog = true
+      handleClose()
+    }, [])
+
     return (
       <ContextMenu {...props}>
         <MenuItem onClick={onClickCut} disabled={!isNoteSelected}>
@@ -109,6 +114,9 @@ export const PianoSelectionContextMenu: FC<ContextMenuProps> = React.memo(
         <MenuItem onClick={onClickQuantize} disabled={!isNoteSelected}>
           <Localized name="quantize" />
           <HotKey>Q</HotKey>
+        </MenuItem>
+        <MenuItem onClick={onClickVelocity} disabled={!isNoteSelected}>
+          <Localized name="velocity" />
         </MenuItem>
       </ContextMenu>
     )

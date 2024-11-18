@@ -48,7 +48,7 @@ const MetronomeButton = styled(CircleButton)<{ active: boolean }>`
 `
 
 const TimestampText = styled.div`
-  font-family: "Roboto Mono", monospace;
+  font-family: ${({ theme }) => theme.monoFont};
   font-size: 0.9rem;
   color: ${({ theme }) => theme.secondaryTextColor};
 `

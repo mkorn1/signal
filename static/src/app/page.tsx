@@ -1,12 +1,14 @@
 import { styled } from "@kuma-ui/core"
 import { Metadata } from "next"
 import { FeatureList } from "../components/FeatureList/FeatureList"
+import { Footer } from "../components/Footer/Footer"
 import Localized from "../components/Localized"
 import { Navigation } from "../components/Navigation/Navigation"
 import githubIcon from "./images/github-icon.svg"
 import favoriteIcon from "./images/iconmonstr-favorite-4.svg"
 import twitterIcon from "./images/iconmonstr-twitter-1.svg"
 import macAppStore from "./images/mac-app-store.svg"
+import microsoftStore from "./images/microsoft-store.svg"
 import screenshot from "./images/screenshot.png"
 import twitterCard from "./images/twitter-card.png"
 
@@ -126,6 +128,19 @@ const LaunchButton = styled.a`
 
 const StoreIntro = styled.p`
   color: var(--secondaryTextColor);
+  margin-bottom: 0.5rem;
+`
+
+const StoreIcon = styled.img`
+  height: 3rem;
+  background: black;
+  border: 1px solid #ffffff4f;
+  border-radius: 0.3rem;
+  transition: 0.2s ease;
+
+  &:hover {
+    border-color: #ffffff;
+  }
 `
 
 const SponsorSection = styled.section`
@@ -211,6 +226,12 @@ const SupportRow = styled.div`
   }
 `
 
+const CarbonAd = styled.div`
+  position: fixed;
+  right: 0;
+  bottom: 0;
+`
+
 export default function Home() {
   return (
     <>
@@ -230,25 +251,29 @@ export default function Home() {
                 <Localized name="launch" />
               </LaunchButton>
               <Platform>
-                <pre>
-                  <Localized name="platform" />
-                </pre>
+                <Localized name="supported-browsers-label" />
+                <br />
+                <Localized name="supported-browsers-body" />
               </Platform>
             </LaunchWrapper>
             <div style={{ marginTop: "4rem" }}>
               <StoreIntro>
                 <Localized name="store-intro" />
               </StoreIntro>
-              <a
-                href="https://apps.apple.com/us/app/signal-midi-editor/id6499489458"
-                target="_blank"
-              >
-                <img
-                  src={macAppStore.src}
-                  alt="Mac App Store"
-                  style={{ width: "12rem" }}
-                />
-              </a>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <a
+                  href="https://apps.apple.com/us/app/signal-midi-editor/id6499489458"
+                  target="_blank"
+                >
+                  <StoreIcon src={macAppStore.src} alt="Mac App Store" />
+                </a>
+                <a
+                  href="https://apps.microsoft.com/store/detail/9NTLRJSL8SZC?cid=DevShareMCLPCB"
+                  target="_blank"
+                >
+                  <StoreIcon src={microsoftStore.src} alt="Microsoft Store" />
+                </a>
+              </div>
             </div>
           </div>
           <div className="image">
@@ -265,20 +290,6 @@ export default function Home() {
             </SectionTitle>
             <FeatureList />
           </div>
-
-          <div
-            className="right"
-            dangerouslySetInnerHTML={{
-              __html: `
-                <script
-                  async
-                  type="text/javascript"
-                  src="https://cdn.carbonads.com/carbon.js?serve=CESI52QY&placement=signalvercelapp"
-                  id="_carbonads_js"
-                ></script>
-            `,
-            }}
-          />
         </SectionContent>
       </Features>
 
@@ -327,6 +338,22 @@ export default function Home() {
           </SupportRow>
         </SectionContent>
       </section>
+
+      <Footer />
+
+      <CarbonAd
+        className="right"
+        dangerouslySetInnerHTML={{
+          __html: `
+      <script
+        async
+        type="text/javascript"
+        src="https://cdn.carbonads.com/carbon.js?serve=CESI52QY&placement=signalvercelapp"
+        id="_carbonads_js"
+      ></script>
+  `,
+        }}
+      />
     </>
   )
 }

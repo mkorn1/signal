@@ -82,8 +82,10 @@ export default class PianoRollStore {
   showTrackList = false
   showEventList = false
   openTransposeDialog = false
+  openVelocityDialog = false
   newNoteVelocity = 100
   keySignature: KeySignature | null = null
+  previewingNoteNumbers: Set<number> = new Set()
 
   constructor(readonly rootStore: RootStore) {
     this.rulerStore = new RulerStore(this)
@@ -111,8 +113,10 @@ export default class PianoRollStore {
       showTrackList: observable,
       showEventList: observable,
       openTransposeDialog: observable,
+      openVelocityDialog: observable,
       newNoteVelocity: observable,
       keySignature: observable,
+      previewingNoteNumbers: observable,
       contentWidth: computed,
       contentHeight: computed,
       scrollLeft: computed,

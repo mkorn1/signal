@@ -46,7 +46,7 @@ const Container = styled.div`
       const platform = getPlatform()
       switch (platform) {
         case "Windows":
-          return "0 3rem 0 0"
+          return "0 0 0 0"
         case "macOS":
           return "0 0 0 76px"
       }

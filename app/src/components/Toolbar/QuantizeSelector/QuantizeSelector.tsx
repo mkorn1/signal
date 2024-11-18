@@ -42,6 +42,7 @@ const Value = styled.div`
   min-width: 3em;
   pointer-events: none;
   font-size: 0.9rem;
+  font-family: ${({ theme }) => theme.monoFont};
 `
 
 const Note = styled(MusicNote)`

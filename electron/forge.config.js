@@ -22,6 +22,9 @@ const packagerConfig = {
     "^/nodemon.json",
     "^/icons",
     "^/.env",
+    "^/appx_assets",
+    "^/appxmanifest.xml",
+    "^/appxmanifest-template.xml",
   ],
   overwrite: true,
   prune: false,
@@ -97,6 +100,19 @@ module.exports = {
       name: "@electron-forge/maker-pkg",
       config: {
         identity: process.env.APPLE_INSTALLER_CERTIFICATE_NAME,
+      },
+    },
+    {
+      name: "@electron-forge/maker-appx",
+      config: {
+        publisher: process.env.WINDOWS_PUBLISHER,
+        devCert: process.env.WINDOWS_CERTIFICATE_NAME,
+        certPass: process.env.WINDOWS_CERTIFICATE_PASSWORD,
+        publisherDisplayName: "codingcafe.jp",
+        packageDescription: "MIDI Editor",
+        manifest: "./appxmanifest.xml",
+        assets: "./appx_assets",
+        makePri: true, // https://github.com/electron-userland/electron-windows-store/issues/93
       },
     },
   ],

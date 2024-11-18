@@ -98,7 +98,7 @@ const createWindow = (): void => {
     width: mainWindowState.width,
     height: mainWindowState.height,
     title: `signal v${app.getVersion()}`,
-    titleBarStyle: "hidden",
+    titleBarStyle: isMas ? "hidden" : "default",
     trafficLightPosition: { x: 10, y: 17 },
     webPreferences: {
       nodeIntegration: false,
@@ -169,7 +169,7 @@ app.on("activate", () => {
   }
 })
 
-if (!isMas) {
+if (process.platform === "darwin" && !isMas) {
   const additionalData = { filePath: getArgument() }
   type AdditionalData = typeof additionalData
   const gotTheLock = app.requestSingleInstanceLock(additionalData)

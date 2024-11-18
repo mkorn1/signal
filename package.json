@@ -14,10 +14,12 @@
     "firebase": "npm --prefix functions run build && firebase emulators:start",
     "firebase:deploy": "firebase deploy",
     "dev:electron": "concurrently \"npm run dev:electron -w app\" \"npm run dev --prefix electron\"",
-    "build:electron": "npm run build:electron -w app && rm -rf electron/dist_renderer && cpx \"app/dist/**/*\" electron/dist_renderer",
-    "package:electron": "npm run build:electron && npm run package:darwin --prefix electron",
+    "build:electron": "npm run build:electron -w app && rimraf electron/dist_renderer && cpx \"app/dist/**/*\" electron/dist_renderer",
+    "package:electron:darwin": "npm run build:electron && npm run package:darwin --prefix electron",
+    "package:electron": "npm run build:electron && npm run package --prefix electron",
     "make:electron": "npm run build:electron && npm run make:mas --prefix electron",
-    "make:darwin": "npm run build:electron && npm run make:darwin --prefix electron"
+    "make:darwin": "npm run build:electron && npm run make:darwin --prefix electron",
+    "make:win": "npm run build:electron && npm run make:win --prefix electron"
   },
   "repository": {
     "type": "git",
@@ -32,12 +34,13 @@
   "private": true,
   "devDependencies": {
     "cpx": "^1.5.0",
-    "prettier": "^3.2.5",
-    "turbo": "^2.0.14"
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "turbo": "^2.2.3"
   },
   "workspaces": [
     "app",
     "packages/*"
   ],
-  "packageManager": "npm@10.8.1"
+  "packageManager": "npm@10.9.0"
 }
