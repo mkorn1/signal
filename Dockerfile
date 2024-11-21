@@ -1,15 +1,20 @@
-FROM node:lts
+ARG NODE_VERSION=lts-alpine
 
-WORKDIR /app
+FROM node:${NODE_VERSION} AS builder
 
-COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm npm install
+WORKDIR /code
 
 COPY . .
+RUN --mount=type=cache,target=/root/.npm npm install && npm run build
 
-RUN npm run build
+FROM node:${NODE_VERSION} AS runner
+
+WORKDIR /web
+
+RUN --mount=type=cache,target=/root/.npm npm install -global serve@latest
+
+COPY --from=builder /code/dist .
 
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "run", "serve"]
+CMD [ "serve" ]
