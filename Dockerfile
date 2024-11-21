@@ -2,9 +2,12 @@ FROM node:18
 
 WORKDIR /app
 
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm install
+
 COPY . .
 
-RUN npm install && npm run build
+RUN npm run build
 
 EXPOSE 3000
 
