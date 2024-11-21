@@ -1,3 +1,5 @@
-Dockerfile
-docker-compose.yml
-.dockerignore
+.git
+.cache
+.idea
+.vscode
+node_modules
