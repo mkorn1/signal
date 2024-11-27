@@ -1,10 +1,9 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
-import React, { FC, useCallback } from "react"
+import { FC, useCallback } from "react"
 import { setTrackPan } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
-import { TrackId } from "../../track"
 import { Slider } from "../ui/Slider"
 
 const Container = styled.div`
@@ -23,16 +22,12 @@ const Label = styled.div`
   color: ${({ theme }) => theme.secondaryTextColor};
 `
 
-export interface PanSliderProps {
-  trackId: TrackId
-}
-
 const PAN_CENTER = 64
 
-const _PanSlider: FC<PanSliderProps> = observer(({ trackId }) => {
+export const PanSlider: FC = observer(() => {
   const rootStore = useStores()
   const {
-    pianoRollStore: { currentPan },
+    pianoRollStore: { currentPan, selectedTrackId: trackId },
   } = rootStore
   const onChange = useCallback(
     (value: number) => setTrackPan(rootStore)(trackId, value),
@@ -58,5 +53,3 @@ const _PanSlider: FC<PanSliderProps> = observer(({ trackId }) => {
     </Container>
   )
 })
-
-export const PanSlider = React.memo(_PanSlider)

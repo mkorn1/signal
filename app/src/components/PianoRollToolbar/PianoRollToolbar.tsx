@@ -1,7 +1,5 @@
 import styled from "@emotion/styled"
-import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { useStores } from "../../hooks/useStores"
 import InstrumentBrowser from "../InstrumentBrowser/InstrumentBrowser"
 import { Toolbar } from "../Toolbar/Toolbar"
 import { TrackListMenuButton } from "../TrackList/TrackListMenuButton"
@@ -22,11 +20,7 @@ const FlexibleSpacer = styled.div`
   flex-grow: 1;
 `
 
-export const PianoRollToolbar: FC = observer(() => {
-  const { pianoRollStore } = useStores()
-
-  const { selectedTrackId } = pianoRollStore
-
+export const PianoRollToolbar: FC = () => {
   return (
     <Toolbar>
       <TrackListMenuButton />
@@ -40,8 +34,8 @@ export const PianoRollToolbar: FC = observer(() => {
       <InstrumentButton />
       <InstrumentBrowser />
 
-      <VolumeSlider trackId={selectedTrackId} />
-      <PanSlider trackId={selectedTrackId} />
+      <VolumeSlider />
+      <PanSlider />
 
       <FlexibleSpacer />
 
@@ -52,4 +46,4 @@ export const PianoRollToolbar: FC = observer(() => {
       <PianoRollAutoScrollButton />
     </Toolbar>
   )
-})
+}
