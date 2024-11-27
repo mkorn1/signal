@@ -11,13 +11,6 @@ export const InstrumentButton: FC = observer(() => {
     pianoRollStore: { selectedTrack },
   } = useStores()
 
-  if (selectedTrack === undefined) {
-    return <></>
-  }
-
-  const { programNumber } = selectedTrack
-  const emoji = categoryEmojis[getCategoryIndex(programNumber ?? 0)]
-
   const onClickInstrument = useCallback(() => {
     const track = selectedTrack
     if (track === undefined) {
@@ -30,6 +23,13 @@ export const InstrumentButton: FC = observer(() => {
     }
     pianoRollStore.openInstrumentBrowser = true
   }, [pianoRollStore])
+
+  if (selectedTrack === undefined) {
+    return <></>
+  }
+
+  const { programNumber } = selectedTrack
+  const emoji = categoryEmojis[getCategoryIndex(programNumber ?? 0)]
 
   return (
     <ToolbarButton

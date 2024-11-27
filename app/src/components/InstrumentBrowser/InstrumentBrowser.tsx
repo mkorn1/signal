@@ -160,7 +160,6 @@ const InstrumentBrowserWrapper: FC = observer(() => {
   const {
     pianoRollStore: {
       selectedTrack: track,
-      selectedTrackIndex: trackIndex,
       instrumentBrowserSetting,
       openInstrumentBrowser,
     },
@@ -174,7 +173,7 @@ const InstrumentBrowserWrapper: FC = observer(() => {
   )
 
   if (track === undefined) {
-    throw new Error("selectedTrack is undefined")
+    return <></>
   }
 
   const close = () => (pianoRollStore.openInstrumentBrowser = false)

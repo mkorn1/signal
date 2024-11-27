@@ -5,7 +5,7 @@ import QuantizeSelector from "../Toolbar/QuantizeSelector/QuantizeSelector"
 
 export const TempoGraphQuantizeSelector: FC = observer(() => {
   const { tempoEditorStore } = useStores()
-  const { quantize } = tempoEditorStore
+  const { quantize, isQuantizeEnabled } = tempoEditorStore
 
   const onSelectQuantize = useCallback(
     (denominator: number) => (tempoEditorStore.quantize = denominator),
@@ -19,7 +19,7 @@ export const TempoGraphQuantizeSelector: FC = observer(() => {
   return (
     <QuantizeSelector
       value={quantize}
-      enabled={true}
+      enabled={isQuantizeEnabled}
       onSelect={onSelectQuantize}
       onClickSwitch={onClickQuantizeSwitch}
     />
