@@ -4,12 +4,12 @@ import { FC, useCallback } from "react"
 import { useStores } from "../../hooks/useStores"
 import InstrumentBrowser from "../InstrumentBrowser/InstrumentBrowser"
 import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
-import QuantizeSelector from "../Toolbar/QuantizeSelector/QuantizeSelector"
 import { Toolbar } from "../Toolbar/Toolbar"
 import { TrackListMenuButton } from "../TrackList/TrackListMenuButton"
 import { EventListButton } from "./EventListButton"
 import { InstrumentButton } from "./InstrumentButton"
 import { PanSlider } from "./PanSlider"
+import { PianoRollQuantizeSelector } from "./PianoRollQuantizeSelector"
 import { PianoRollToolSelector } from "./PianoRollToolSelector"
 import { TrackNameInput } from "./TrackNameInput"
 import { VolumeSlider } from "./VolumeSlider"
@@ -25,29 +25,12 @@ const FlexibleSpacer = styled.div`
 export const PianoRollToolbar: FC = observer(() => {
   const { pianoRollStore } = useStores()
 
-  const {
-    quantize,
-    autoScroll,
-    isQuantizeEnabled,
-    selectedTrack,
-    selectedTrackId,
-  } = pianoRollStore
+  const { autoScroll, selectedTrack, selectedTrackId } = pianoRollStore
 
   const onClickAutoScroll = useCallback(
     () => (pianoRollStore.autoScroll = !pianoRollStore.autoScroll),
     [pianoRollStore],
   )
-
-  const onSelectQuantize = useCallback(
-    (denominator: number) => {
-      pianoRollStore.quantize = denominator
-    },
-    [pianoRollStore],
-  )
-
-  const onClickQuantizeSwitch = useCallback(() => {
-    pianoRollStore.isQuantizeEnabled = !pianoRollStore.isQuantizeEnabled
-  }, [pianoRollStore])
 
   if (selectedTrack === undefined) {
     return <></>
@@ -73,12 +56,7 @@ export const PianoRollToolbar: FC = observer(() => {
 
       <PianoRollToolSelector />
 
-      <QuantizeSelector
-        value={quantize}
-        enabled={isQuantizeEnabled}
-        onSelect={onSelectQuantize}
-        onClickSwitch={onClickQuantizeSwitch}
-      />
+      <PianoRollQuantizeSelector />
 
       <AutoScrollButton onClick={onClickAutoScroll} selected={autoScroll} />
     </Toolbar>
