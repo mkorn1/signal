@@ -4,8 +4,8 @@ import { FC, useCallback } from "react"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
 import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
-import QuantizeSelector from "../Toolbar/QuantizeSelector/QuantizeSelector"
 import { Toolbar } from "../Toolbar/Toolbar"
+import { ArrangeQuantizeSelector } from "./ArrangeQuantizeSelector"
 
 const Title = styled.div`
   font-weight: bold;
@@ -24,15 +24,10 @@ const FlexibleSpacer = styled.div`
 
 export const ArrangeToolbar: FC = observer(() => {
   const { arrangeViewStore } = useStores()
-  const { quantize, autoScroll } = arrangeViewStore
+  const { autoScroll } = arrangeViewStore
 
   const onClickAutoScroll = useCallback(
     () => (arrangeViewStore.autoScroll = !arrangeViewStore.autoScroll),
-    [arrangeViewStore],
-  )
-
-  const onSelectQuantize = useCallback(
-    (denominator: number) => (arrangeViewStore.quantize = denominator),
     [arrangeViewStore],
   )
 
@@ -44,12 +39,7 @@ export const ArrangeToolbar: FC = observer(() => {
 
       <FlexibleSpacer />
 
-      <QuantizeSelector
-        value={quantize}
-        enabled={true}
-        onSelect={onSelectQuantize}
-        onClickSwitch={() => {}}
-      />
+      <ArrangeQuantizeSelector />
 
       <AutoScrollButton onClick={onClickAutoScroll} selected={autoScroll} />
     </Toolbar>
