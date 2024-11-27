@@ -1,11 +1,11 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
-import { FC, useCallback } from "react"
+import { FC } from "react"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
 import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
-import QuantizeSelector from "../Toolbar/QuantizeSelector/QuantizeSelector"
 import { Toolbar } from "../Toolbar/Toolbar"
+import { TempoGraphQuantizeSelector } from "./TempoGraphQuantizeSelector"
 import { TempoGraphToolSelector } from "./TempoGraphToolSelector"
 
 const Title = styled.span`
@@ -21,17 +21,7 @@ const FlexibleSpacer = styled.div`
 
 export const TempoGraphToolbar: FC = observer(() => {
   const { tempoEditorStore } = useStores()
-  const { autoScroll, quantize, isQuantizeEnabled, mouseMode } =
-    tempoEditorStore
-
-  const onSelectQuantize = useCallback(
-    (denominator: number) => (tempoEditorStore.quantize = denominator),
-    [tempoEditorStore],
-  )
-
-  const onClickQuantizeSwitch = useCallback(() => {
-    tempoEditorStore.isQuantizeEnabled = !tempoEditorStore.isQuantizeEnabled
-  }, [tempoEditorStore])
+  const { autoScroll } = tempoEditorStore
 
   return (
     <Toolbar>
@@ -43,12 +33,7 @@ export const TempoGraphToolbar: FC = observer(() => {
 
       <TempoGraphToolSelector />
 
-      <QuantizeSelector
-        value={quantize}
-        enabled={isQuantizeEnabled}
-        onSelect={onSelectQuantize}
-        onClickSwitch={onClickQuantizeSwitch}
-      />
+      <TempoGraphQuantizeSelector />
 
       <AutoScrollButton
         onClick={() => (tempoEditorStore.autoScroll = !autoScroll)}
