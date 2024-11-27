@@ -1,9 +1,9 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
+import { ArrangeToolbar } from "../ArrangeToolbar/ArrangeToolbar"
 import { ArrangeViewKeyboardShortcut } from "../KeyboardShortcut/ArrangeViewKeyboardShortcut"
 import { ArrangeTransposeDialog } from "../TransposeDialog/ArrangeTransposeDialog"
 import { ArrangeVelocityDialog } from "../VelocityDialog/ArrangeVelocityDialog"
-import { ArrangeToolbar } from "./ArrangeToolbar"
 import { ArrangeView } from "./ArrangeView"
 
 const Container = styled.div`
