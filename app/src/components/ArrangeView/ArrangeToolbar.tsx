@@ -1,10 +1,8 @@
 import styled from "@emotion/styled"
-import { observer } from "mobx-react-lite"
-import { FC, useCallback } from "react"
-import { useStores } from "../../hooks/useStores"
+import { FC } from "react"
 import { Localized } from "../../localize/useLocalization"
-import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
 import { Toolbar } from "../Toolbar/Toolbar"
+import { ArrangeAutoScrollButton } from "./ArrangeAutoScrollButton"
 import { ArrangeQuantizeSelector } from "./ArrangeQuantizeSelector"
 
 const Title = styled.div`
@@ -22,15 +20,7 @@ const FlexibleSpacer = styled.div`
   flex-grow: 1;
 `
 
-export const ArrangeToolbar: FC = observer(() => {
-  const { arrangeViewStore } = useStores()
-  const { autoScroll } = arrangeViewStore
-
-  const onClickAutoScroll = useCallback(
-    () => (arrangeViewStore.autoScroll = !arrangeViewStore.autoScroll),
-    [arrangeViewStore],
-  )
-
+export const ArrangeToolbar: FC = () => {
   return (
     <Toolbar>
       <Title>
@@ -41,7 +31,7 @@ export const ArrangeToolbar: FC = observer(() => {
 
       <ArrangeQuantizeSelector />
 
-      <AutoScrollButton onClick={onClickAutoScroll} selected={autoScroll} />
+      <ArrangeAutoScrollButton />
     </Toolbar>
   )
-})
+}
