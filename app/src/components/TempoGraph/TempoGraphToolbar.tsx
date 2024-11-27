@@ -5,8 +5,8 @@ import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
 import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
 import QuantizeSelector from "../Toolbar/QuantizeSelector/QuantizeSelector"
-import { ToolSelector } from "../Toolbar/ToolSelector"
 import { Toolbar } from "../Toolbar/Toolbar"
+import { TempoGraphToolSelector } from "./TempoGraphToolSelector"
 
 const Title = styled.span`
   font-weight: bold;
@@ -41,13 +41,7 @@ export const TempoGraphToolbar: FC = observer(() => {
 
       <FlexibleSpacer />
 
-      <ToolSelector
-        mouseMode={mouseMode}
-        onSelect={useCallback(
-          (mouseMode: any) => (tempoEditorStore.mouseMode = mouseMode),
-          [],
-        )}
-      />
+      <TempoGraphToolSelector />
 
       <QuantizeSelector
         value={quantize}
