@@ -1,10 +1,8 @@
 import styled from "@emotion/styled"
-import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
-import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
 import { Toolbar } from "../Toolbar/Toolbar"
+import { TempoGraphAutoScrollButton } from "./TempoGraphAutoScrollButton"
 import { TempoGraphQuantizeSelector } from "./TempoGraphQuantizeSelector"
 import { TempoGraphToolSelector } from "./TempoGraphToolSelector"
 
@@ -19,10 +17,7 @@ const FlexibleSpacer = styled.div`
   flex-grow: 1;
 `
 
-export const TempoGraphToolbar: FC = observer(() => {
-  const { tempoEditorStore } = useStores()
-  const { autoScroll } = tempoEditorStore
-
+export const TempoGraphToolbar: FC = () => {
   return (
     <Toolbar>
       <Title>
@@ -35,10 +30,7 @@ export const TempoGraphToolbar: FC = observer(() => {
 
       <TempoGraphQuantizeSelector />
 
-      <AutoScrollButton
-        onClick={() => (tempoEditorStore.autoScroll = !autoScroll)}
-        selected={autoScroll}
-      />
+      <TempoGraphAutoScrollButton />
     </Toolbar>
   )
-})
+}
