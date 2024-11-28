@@ -22,7 +22,7 @@ export const InstrumentButton: FC = observer(() => {
       programNumber: programNumber ?? 0,
     }
     pianoRollStore.openInstrumentBrowser = true
-  }, [pianoRollStore])
+  }, [pianoRollStore, selectedTrack])
 
   if (selectedTrack === undefined) {
     return <></>
