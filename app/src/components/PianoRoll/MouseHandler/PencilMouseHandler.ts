@@ -14,7 +14,6 @@ import { Point } from "../../../entities/geometry/Point"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
-import RootStore from "../../../stores/RootStore"
 import { isNoteEvent } from "../../../track"
 import { moveDraggableAction } from "./moveDraggableAction"
 import { MouseGesture } from "./NoteMouseHandler"
@@ -22,70 +21,70 @@ import { MouseGesture } from "./NoteMouseHandler"
 export const usePencilGesture = () => {
   const rootStore = useStores()
 
-  return (e: MouseEvent) => {
-    const local = rootStore.pianoRollStore.getLocal(e)
-    const items = rootStore.pianoRollStore.getNotes(local)
-    const isDrum =
-      rootStore.pianoRollStore.selectedTrack?.isRhythmTrack ?? false
+  return {
+    onMouseDown(e: MouseEvent) {
+      const local = rootStore.pianoRollStore.getLocal(e)
+      const items = rootStore.pianoRollStore.getNotes(local)
+      const isDrum =
+        rootStore.pianoRollStore.selectedTrack?.isRhythmTrack ?? false
 
-    switch (e.button) {
-      case 0: {
-        if (items.length > 0) {
-          if (e.detail % 2 === 0) {
-            return removeNoteAction
-          }
+      switch (e.button) {
+        case 0: {
+          if (items.length > 0) {
+            if (e.detail % 2 === 0) {
+              return removeNoteAction
+            }
 
-          const item = items[0]
+            const item = items[0]
 
-          if (e.shiftKey) {
-            if (item.isSelected) {
-              removeNoteFromSelection(rootStore)(item.id)
+            if (e.shiftKey) {
+              if (item.isSelected) {
+                removeNoteFromSelection(rootStore)(item.id)
+              } else {
+                addNoteToSelection(rootStore)(item.id)
+              }
             } else {
-              addNoteToSelection(rootStore)(item.id)
+              if (!item.isSelected) {
+                selectNote(rootStore)(item.id)
+              }
+              const position = getPositionType(local, item, isDrum)
+              switch (position) {
+                case "center":
+                  return dragNoteCenterAction(item.id)
+                case "left":
+                  return dragNoteLeftAction(item.id)
+                case "right":
+                  return dragNoteRightAction(item.id)
+              }
             }
           } else {
-            if (!item.isSelected) {
-              selectNote(rootStore)(item.id)
-            }
-            const position = getPositionType(local, item, isDrum)
-            switch (position) {
-              case "center":
-                return dragNoteCenterAction(item.id)
-              case "left":
-                return dragNoteLeftAction(item.id)
-              case "right":
-                return dragNoteRightAction(item.id)
+            if (e.shiftKey || e.metaKey) {
+              return selectNoteAction
             }
           }
-        } else {
-          if (e.shiftKey || e.metaKey) {
-            return selectNoteAction
-          }
-        }
 
-        return createNoteAction
+          return createNoteAction
+        }
+        case 2:
+          return removeNoteAction
+        default:
+          return null
       }
-      case 2:
-        return removeNoteAction
-      default:
-        return null
-    }
+    },
+    getCursor(e: MouseEvent): string {
+      const local = rootStore.pianoRollStore.getLocal(e)
+      const items = rootStore.pianoRollStore.getNotes(local)
+      const isDrum =
+        rootStore.pianoRollStore.selectedTrack?.isRhythmTrack ?? false
+      if (items.length > 0) {
+        const position = getPositionType(local, items[0], isDrum)
+        return mousePositionToCursor(position)
+      }
+
+      return "auto"
+    },
   }
 }
-
-export const getPencilCursorForMouseMove =
-  ({ pianoRollStore }: RootStore) =>
-  (e: MouseEvent): string => {
-    const local = pianoRollStore.getLocal(e)
-    const items = pianoRollStore.getNotes(local)
-    const isDrum = pianoRollStore.selectedTrack?.isRhythmTrack ?? false
-    if (items.length > 0) {
-      const position = getPositionType(local, items[0], isDrum)
-      return mousePositionToCursor(position)
-    }
-
-    return "auto"
-  }
 
 type MousePositionType = "left" | "center" | "right"
 

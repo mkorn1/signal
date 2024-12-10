@@ -8,7 +8,6 @@ import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
-import RootStore from "../../../stores/RootStore"
 import { moveDraggableAction } from "./moveDraggableAction"
 import { MouseGesture } from "./NoteMouseHandler"
 
@@ -17,55 +16,55 @@ export const MIN_LENGTH = 10
 export const useSelectionGesture = () => {
   const rootStore = useStores()
 
-  return (e: MouseEvent) => {
-    if (e.relatedTarget) {
-      return null
-    }
-
-    const { selectionBounds, selectedNoteIds } = rootStore.pianoRollStore
-    const local = rootStore.pianoRollStore.getLocal(e)
-
-    if (e.button === 0) {
-      if (selectionBounds !== null) {
-        const type = positionType(selectionBounds, local)
-        switch (type) {
-          case "center":
-            return moveSelectionAction(selectedNoteIds)
-          case "right":
-            return dragSelectionRightEdgeAction(selectedNoteIds)
-          case "left":
-            return dragSelectionLeftEdgeAction(selectedNoteIds)
-          case "outside":
-            return createSelectionAction
-        }
-      } else {
-        return createSelectionAction
+  return {
+    onMouseDown(e: MouseEvent) {
+      if (e.relatedTarget) {
+        return null
       }
-    }
 
-    return null
+      const { selectionBounds, selectedNoteIds } = rootStore.pianoRollStore
+      const local = rootStore.pianoRollStore.getLocal(e)
+
+      if (e.button === 0) {
+        if (selectionBounds !== null) {
+          const type = positionType(selectionBounds, local)
+          switch (type) {
+            case "center":
+              return moveSelectionAction(selectedNoteIds)
+            case "right":
+              return dragSelectionRightEdgeAction(selectedNoteIds)
+            case "left":
+              return dragSelectionLeftEdgeAction(selectedNoteIds)
+            case "outside":
+              return createSelectionAction
+          }
+        } else {
+          return createSelectionAction
+        }
+      }
+
+      return null
+    },
+    getCursor(e: MouseEvent) {
+      const { selectionBounds } = rootStore.pianoRollStore
+      const local = rootStore.pianoRollStore.getLocal(e)
+      const type =
+        selectionBounds === null
+          ? "outside"
+          : positionType(selectionBounds, local)
+      switch (type) {
+        case "center":
+          return "move"
+        case "left":
+          return "w-resize"
+        case "right":
+          return "e-resize"
+        case "outside":
+          return "crosshair"
+      }
+    },
   }
 }
-
-export const getSelectionCursorForMouseMoven =
-  (rootStore: RootStore) => (e: MouseEvent) => {
-    const { selectionBounds } = rootStore.pianoRollStore
-    const local = rootStore.pianoRollStore.getLocal(e)
-    const type =
-      selectionBounds === null
-        ? "outside"
-        : positionType(selectionBounds, local)
-    switch (type) {
-      case "center":
-        return "move"
-      case "left":
-        return "w-resize"
-      case "right":
-        return "e-resize"
-      case "outside":
-        return "crosshair"
-    }
-  }
 
 function positionType(selectionBounds: Rect, pos: Point) {
   const rect = selectionBounds

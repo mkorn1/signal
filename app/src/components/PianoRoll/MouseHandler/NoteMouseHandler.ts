@@ -2,14 +2,8 @@ import { useState } from "react"
 import { observeDrag } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
 import RootStore from "../../../stores/RootStore"
-import {
-  getPencilCursorForMouseMove,
-  usePencilGesture,
-} from "./PencilMouseHandler"
-import {
-  getSelectionCursorForMouseMoven,
-  useSelectionGesture,
-} from "./SelectionMouseHandler"
+import { usePencilGesture } from "./PencilMouseHandler"
+import { useSelectionGesture } from "./SelectionMouseHandler"
 
 export type MouseGesture = (rootStore: RootStore) => (e: MouseEvent) => void
 
@@ -18,6 +12,14 @@ export const useNoteMouseHandler = () => {
   const [isMouseDown, setMouseDown] = useState(false)
   const pencilGesture = usePencilGesture()
   const selectionGesture = useSelectionGesture()
+  const currentGesture = (() => {
+    switch (rootStore.pianoRollStore.mouseMode) {
+      case "pencil":
+        return pencilGesture
+      case "selection":
+        return selectionGesture
+    }
+  })()
 
   // mousedown 以降に行う MouseAction を返す
   // Returns a MouseAction to do after MouseDown
@@ -36,21 +38,7 @@ export const useNoteMouseHandler = () => {
       return changeToolAction
     }
 
-    switch (rootStore.pianoRollStore.mouseMode) {
-      case "pencil":
-        return pencilGesture(e)
-      case "selection":
-        return selectionGesture(e)
-    }
-  }
-
-  function getCursorForMouseMove(e: MouseEvent): string {
-    switch (rootStore.pianoRollStore.mouseMode) {
-      case "pencil":
-        return getPencilCursorForMouseMove(rootStore)(e)
-      case "selection":
-        return getSelectionCursorForMouseMoven(rootStore)(e)
-    }
+    return currentGesture.onMouseDown(e)
   }
 
   return {
@@ -63,7 +51,7 @@ export const useNoteMouseHandler = () => {
     onMouseMove(ev: React.MouseEvent) {
       const e = ev.nativeEvent
       if (!isMouseDown) {
-        const cursor = getCursorForMouseMove(e)
+        const cursor = currentGesture.getCursor(e)
         rootStore.pianoRollStore.notesCursor = cursor
       }
     },
