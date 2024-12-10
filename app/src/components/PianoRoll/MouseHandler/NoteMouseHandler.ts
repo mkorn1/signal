@@ -21,31 +21,27 @@ export const useNoteMouseHandler = () => {
     }
   })()
 
-  // mousedown 以降に行う MouseAction を返す
-  // Returns a MouseAction to do after MouseDown
-  function actionForMouseDown(e: MouseEvent): MouseGesture | null {
-    // 共通の action
+  function getGestureForMouseDown(e: MouseEvent) {
     // Common Action
 
     // wheel drag to start scrolling
     if (e.button === 1) {
-      return dragScrollAction
+      return dragScrollAction(rootStore)
     }
 
-    // 右ダブルクリック
     // Right Double-click
     if (e.button === 2 && e.detail % 2 === 0) {
-      return changeToolAction
+      return changeToolAction(rootStore)
     }
 
-    return currentGesture.onMouseDown(e)
+    return currentGesture.onMouseDown
   }
 
   return {
     onMouseDown(ev: React.MouseEvent) {
       const e = ev.nativeEvent
       setMouseDown(true)
-      actionForMouseDown(e)?.(rootStore)(e)
+      getGestureForMouseDown(e)(e)
     },
 
     onMouseMove(ev: React.MouseEvent) {
