@@ -7,8 +7,8 @@ import {
   usePencilGesture,
 } from "./PencilMouseHandler"
 import {
-  getSelectionActionForMouseDown,
   getSelectionCursorForMouseMoven,
+  useSelectionGesture,
 } from "./SelectionMouseHandler"
 
 export type MouseGesture = (rootStore: RootStore) => (e: MouseEvent) => void
@@ -17,6 +17,7 @@ export const useNoteMouseHandler = () => {
   const rootStore = useStores()
   const [isMouseDown, setMouseDown] = useState(false)
   const pencilGesture = usePencilGesture()
+  const selectionGesture = useSelectionGesture()
 
   // mousedown 以降に行う MouseAction を返す
   // Returns a MouseAction to do after MouseDown
@@ -39,7 +40,7 @@ export const useNoteMouseHandler = () => {
       case "pencil":
         return pencilGesture(e)
       case "selection":
-        return getSelectionActionForMouseDown(rootStore)(e)
+        return selectionGesture(e)
     }
   }
 

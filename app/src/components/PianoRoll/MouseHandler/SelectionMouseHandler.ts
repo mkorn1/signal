@@ -7,15 +7,17 @@ import {
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
 import { observeDrag2 } from "../../../helpers/observeDrag"
+import { useStores } from "../../../hooks/useStores"
 import RootStore from "../../../stores/RootStore"
 import { moveDraggableAction } from "./moveDraggableAction"
 import { MouseGesture } from "./NoteMouseHandler"
 
 export const MIN_LENGTH = 10
 
-export const getSelectionActionForMouseDown =
-  (rootStore: RootStore) =>
-  (e: MouseEvent): MouseGesture | null => {
+export const useSelectionGesture = () => {
+  const rootStore = useStores()
+
+  return (e: MouseEvent) => {
     if (e.relatedTarget) {
       return null
     }
@@ -43,6 +45,7 @@ export const getSelectionActionForMouseDown =
 
     return null
   }
+}
 
 export const getSelectionCursorForMouseMoven =
   (rootStore: RootStore) => (e: MouseEvent) => {
