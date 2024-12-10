@@ -1,4 +1,6 @@
+import { useState } from "react"
 import { observeDrag } from "../../../helpers/observeDrag"
+import { useStores } from "../../../hooks/useStores"
 import RootStore from "../../../stores/RootStore"
 import {
   getPencilActionForMouseDown,
@@ -11,20 +13,13 @@ import {
 
 export type MouseGesture = (rootStore: RootStore) => (e: MouseEvent) => void
 
-export default class NoteMouseHandler {
-  protected readonly rootStore: RootStore
-  private isMouseDown = false
-
-  constructor(rootStore: RootStore) {
-    this.rootStore = rootStore
-    this.onMouseDown = this.onMouseDown.bind(this)
-    this.onMouseMove = this.onMouseMove.bind(this)
-    this.onMouseUp = this.onMouseUp.bind(this)
-  }
+export const useNoteMouseHandler = () => {
+  const rootStore = useStores()
+  const [isMouseDown, setMouseDown] = useState(false)
 
   // mousedown 以降に行う MouseAction を返す
   // Returns a MouseAction to do after MouseDown
-  actionForMouseDown(e: MouseEvent): MouseGesture | null {
+  function actionForMouseDown(e: MouseEvent): MouseGesture | null {
     // 共通の action
     // Common Action
 
@@ -39,39 +34,41 @@ export default class NoteMouseHandler {
       return changeToolAction
     }
 
-    switch (this.rootStore.pianoRollStore.mouseMode) {
+    switch (rootStore.pianoRollStore.mouseMode) {
       case "pencil":
-        return getPencilActionForMouseDown(this.rootStore)(e)
+        return getPencilActionForMouseDown(rootStore)(e)
       case "selection":
-        return getSelectionActionForMouseDown(this.rootStore)(e)
+        return getSelectionActionForMouseDown(rootStore)(e)
     }
   }
 
-  protected getCursorForMouseMove(e: MouseEvent): string {
-    switch (this.rootStore.pianoRollStore.mouseMode) {
+  function getCursorForMouseMove(e: MouseEvent): string {
+    switch (rootStore.pianoRollStore.mouseMode) {
       case "pencil":
-        return getPencilCursorForMouseMove(this.rootStore)(e)
+        return getPencilCursorForMouseMove(rootStore)(e)
       case "selection":
-        return getSelectionCursorForMouseMoven(this.rootStore)(e)
+        return getSelectionCursorForMouseMoven(rootStore)(e)
     }
   }
 
-  onMouseDown(ev: React.MouseEvent) {
-    const e = ev.nativeEvent
-    this.isMouseDown = true
-    this.actionForMouseDown(e)?.(this.rootStore)(e)
-  }
+  return {
+    onMouseDown(ev: React.MouseEvent) {
+      const e = ev.nativeEvent
+      setMouseDown(true)
+      actionForMouseDown(e)?.(rootStore)(e)
+    },
 
-  onMouseMove(ev: React.MouseEvent) {
-    const e = ev.nativeEvent
-    if (!this.isMouseDown) {
-      const cursor = this.getCursorForMouseMove(e)
-      this.rootStore.pianoRollStore.notesCursor = cursor
-    }
-  }
+    onMouseMove(ev: React.MouseEvent) {
+      const e = ev.nativeEvent
+      if (!isMouseDown) {
+        const cursor = getCursorForMouseMove(e)
+        rootStore.pianoRollStore.notesCursor = cursor
+      }
+    },
 
-  onMouseUp(_ev: React.MouseEvent) {
-    this.isMouseDown = false
+    onMouseUp(_ev: React.MouseEvent) {
+      setMouseDown(false)
+    },
   }
 }
 
