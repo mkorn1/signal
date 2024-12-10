@@ -12,15 +12,17 @@ import {
 } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { observeDrag2 } from "../../../helpers/observeDrag"
+import { useStores } from "../../../hooks/useStores"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import RootStore from "../../../stores/RootStore"
 import { isNoteEvent } from "../../../track"
 import { moveDraggableAction } from "./moveDraggableAction"
 import { MouseGesture } from "./NoteMouseHandler"
 
-export const getPencilActionForMouseDown =
-  (rootStore: RootStore) =>
-  (e: MouseEvent): MouseGesture | null => {
+export const usePencilGesture = () => {
+  const rootStore = useStores()
+
+  return (e: MouseEvent) => {
     const local = rootStore.pianoRollStore.getLocal(e)
     const items = rootStore.pianoRollStore.getNotes(local)
     const isDrum =
@@ -69,6 +71,7 @@ export const getPencilActionForMouseDown =
         return null
     }
   }
+}
 
 export const getPencilCursorForMouseMove =
   ({ pianoRollStore }: RootStore) =>
