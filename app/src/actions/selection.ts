@@ -204,27 +204,6 @@ export const duplicateSelection =
     pianoRollStore.selectedNoteIds = addedNotes.map((n) => n.id)
   }
 
-export const addNoteToSelection =
-  ({ pianoRollStore }: RootStore) =>
-  (noteId: number) => {
-    pianoRollStore.selectedNoteIds.push(noteId)
-  }
-
-export const removeNoteFromSelection =
-  ({
-    pianoRollStore,
-    pianoRollStore: { selectedNoteIds, selectedTrack },
-  }: RootStore) =>
-  (noteId: number) => {
-    if (selectedTrack === undefined || selectedNoteIds.length === 0) {
-      return
-    }
-
-    pianoRollStore.selectedNoteIds = selectedNoteIds.filter(
-      (id) => id !== noteId,
-    )
-  }
-
 export const selectNote =
   ({
     pianoRollStore,

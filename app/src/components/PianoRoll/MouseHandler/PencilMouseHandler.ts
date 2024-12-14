@@ -1,7 +1,5 @@
 import {
-  addNoteToSelection,
   eventsInSelection,
-  removeNoteFromSelection,
   selectNote,
   startNote,
   stopNote,
@@ -15,33 +13,22 @@ import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import { isNoteEvent, NoteEvent } from "../../../track"
 import { moveDraggableAction } from "./moveDraggableAction"
 
-const createGesture = <Params extends any[]>(
-  fn: (e: MouseEvent, ...params: Params) => void,
-) => ({
-  onMouseDown: fn,
-})
-
 export const usePencilGesture = () => {
-  const rootStore = useStores()
+  const { pianoRollStore } = useStores()
   const removeNoteGesture = useRemoveNoteGesture()
   const createNoteGesture = useCreateNoteGesture()
   const selectNoteGesture = useSelectNoteGesture()
   const dragNoteCenterGesture = useDragNoteCenterGesture()
   const dragNoteLeftGesture = useDragNoteLeftGesture()
   const dragNoteRightGesture = useDragNoteRightGesture()
-  const removeNoteFromSelectionGesture = createGesture((_e, noteId: number) =>
-    removeNoteFromSelection(rootStore)(noteId),
-  )
-  const addNoteToSelectionGesture = createGesture((_e, noteId: number) =>
-    addNoteToSelection(rootStore)(noteId),
-  )
+  const removeNoteFromSelectionGesture = useRemoveNoteFromSelectionGesture()
+  const addNoteToSelectionGesture = useAddNoteToSelectionGesture()
 
   return {
     onMouseDown(e: MouseEvent) {
-      const local = rootStore.pianoRollStore.getLocal(e)
-      const items = rootStore.pianoRollStore.getNotes(local)
-      const isDrum =
-        rootStore.pianoRollStore.selectedTrack?.isRhythmTrack ?? false
+      const local = pianoRollStore.getLocal(e)
+      const items = pianoRollStore.getNotes(local)
+      const isDrum = pianoRollStore.selectedTrack?.isRhythmTrack ?? false
 
       switch (e.button) {
         case 0: {
@@ -85,10 +72,9 @@ export const usePencilGesture = () => {
       }
     },
     getCursor(e: MouseEvent): string {
-      const local = rootStore.pianoRollStore.getLocal(e)
-      const items = rootStore.pianoRollStore.getNotes(local)
-      const isDrum =
-        rootStore.pianoRollStore.selectedTrack?.isRhythmTrack ?? false
+      const local = pianoRollStore.getLocal(e)
+      const items = pianoRollStore.getNotes(local)
+      const isDrum = pianoRollStore.selectedTrack?.isRhythmTrack ?? false
       if (items.length > 0) {
         const position = getPositionType(local, items[0], isDrum)
         return mousePositionToCursor(position)
@@ -138,14 +124,13 @@ const getPositionType = (
 
 const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
   const rootStore = useStores()
+  const {
+    pianoRollStore,
+    pianoRollStore: { selectedTrack, selectedNoteIds },
+  } = rootStore
 
   return {
     onMouseDown(e: MouseEvent, noteId: number) {
-      const {
-        pianoRollStore,
-        pianoRollStore: { selectedTrack, selectedNoteIds },
-      } = rootStore
-
       if (selectedTrack === undefined || selectedTrack.channel === undefined) {
         return
       }
@@ -358,6 +343,35 @@ const useSelectNoteGesture = () => {
           pianoRollStore.selection = null
         },
       })
+    },
+  }
+}
+
+const useRemoveNoteFromSelectionGesture = () => {
+  const {
+    pianoRollStore,
+    pianoRollStore: { selectedTrack, selectedNoteIds },
+  } = useStores()
+
+  return {
+    onMouseDown(_e: MouseEvent, noteId: number) {
+      if (selectedTrack === undefined || selectedNoteIds.length === 0) {
+        return
+      }
+
+      pianoRollStore.selectedNoteIds = selectedNoteIds.filter(
+        (id) => id !== noteId,
+      )
+    },
+  }
+}
+
+const useAddNoteToSelectionGesture = () => {
+  const { pianoRollStore } = useStores()
+
+  return {
+    onMouseDown(_e: MouseEvent, noteId: number) {
+      pianoRollStore.selectedNoteIds.push(noteId)
     },
   }
 }
