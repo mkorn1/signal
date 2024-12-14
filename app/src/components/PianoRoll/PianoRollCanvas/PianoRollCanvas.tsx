@@ -8,7 +8,7 @@ import { useStores } from "../../../hooks/useStores"
 import { Beats } from "../../GLNodes/Beats"
 import { Cursor } from "../../GLNodes/Cursor"
 import { Selection } from "../../GLNodes/Selection"
-import { useNoteMouseHandler } from "../MouseHandler/NoteMouseHandler"
+import { useNoteMouseGesture } from "../MouseHandler/NoteMouseHandler"
 import { PianoRollStageProps } from "../PianoRollStage"
 import { PianoSelectionContextMenu } from "../PianoSelectionContextMenu"
 import { GhostNotes } from "./GhostNotes"
@@ -31,7 +31,7 @@ export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
       },
     } = rootStore
 
-    const mouseHandler = useNoteMouseHandler()
+    const mouseHandler = useNoteMouseGesture()
 
     const { onContextMenu, menuProps } = useContextMenu()
 
