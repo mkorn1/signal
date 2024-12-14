@@ -205,25 +205,20 @@ export const duplicateSelection =
     pianoRollStore.selectedNoteIds = addedNotes.map((n) => n.id)
   }
 
-const selectNote =
-  ({
+export const useSelectNote = () => {
+  const {
     pianoRollStore,
     pianoRollStore: { selectedTrack },
     controlStore,
-  }: RootStore) =>
-  (noteId: number) =>
-  (noteId: number) => {
+  } = useStores()
+
+  return (noteId: number) => {
     if (selectedTrack === undefined) {
       return
     }
-
     controlStore.selectedEventIds = []
     pianoRollStore.selectedNoteIds = [noteId]
   }
-
-export const useSelectNote = () => {
-  const rootStore = useStores()
-  return selectNote(rootStore)
 }
 
 const sortedNotes = (notes: NoteEvent[]): NoteEvent[] =>
@@ -235,51 +230,59 @@ const sortedNotes = (notes: NoteEvent[]): NoteEvent[] =>
     return 0
   })
 
-const selectNeighborNote = (rootStore: RootStore) => (deltaIndex: number) => {
+const useSelectNeighborNote = () => {
+  const rootStore = useStores()
   const {
     pianoRollStore: { selectedTrack, selectedNoteIds },
     song,
   } = rootStore
+  const selectNote = useSelectNote()
 
-  if (selectedTrack === undefined || selectedNoteIds.length === 0) {
-    return
+  return (deltaIndex: number) => {
+    if (selectedTrack === undefined || selectedNoteIds.length === 0) {
+      return
+    }
+
+    const allNotes = selectedTrack.events.filter(isNoteEvent)
+    const selectedNotes = sortedNotes(
+      selectedNoteIds
+        .map((id) => allNotes.find((n) => n.id === id))
+        .filter(isNotUndefined),
+    )
+    if (selectedNotes.length === 0) {
+      return
+    }
+    const channel = selectedTrack?.channel ?? 0
+    const firstNote = sortedNotes(selectedNotes)[0]
+    const notes = sortedNotes(allNotes)
+    const currentIndex = notes.findIndex((n) => n.id === firstNote.id)
+    const currentNote = notes[currentIndex]
+    const nextNote = notes[currentIndex + deltaIndex]
+    if (nextNote === undefined) {
+      return
+    }
+
+    selectNote(nextNote.id)
+
+    // Stop playing the current note, then play the new note.
+    stopNote(rootStore)({ ...currentNote, channel })
+    startNote(rootStore)({ ...nextNote, channel })
+    stopNote(rootStore)(
+      { ...nextNote, channel },
+      tickToMillisec(nextNote.duration, 120, song.timebase) / 1000,
+    )
   }
-
-  const allNotes = selectedTrack.events.filter(isNoteEvent)
-  const selectedNotes = sortedNotes(
-    selectedNoteIds
-      .map((id) => allNotes.find((n) => n.id === id))
-      .filter(isNotUndefined),
-  )
-  if (selectedNotes.length === 0) {
-    return
-  }
-  const channel = selectedTrack?.channel ?? 0
-  const firstNote = sortedNotes(selectedNotes)[0]
-  const notes = sortedNotes(allNotes)
-  const currentIndex = notes.findIndex((n) => n.id === firstNote.id)
-  const currentNote = notes[currentIndex]
-  const nextNote = notes[currentIndex + deltaIndex]
-  if (nextNote === undefined) {
-    return
-  }
-
-  selectNote(rootStore)(nextNote.id)
-
-  // Stop playing the current note, then play the new note.
-  stopNote(rootStore)({ ...currentNote, channel })
-  startNote(rootStore)({ ...nextNote, channel })
-  stopNote(rootStore)(
-    { ...nextNote, channel },
-    tickToMillisec(nextNote.duration, 120, song.timebase) / 1000,
-  )
 }
 
-export const selectNextNote = (rootStore: RootStore) => () =>
-  selectNeighborNote(rootStore)(1)
+export const useSelectNextNote = () => {
+  const selectNeighborNote = useSelectNeighborNote()
+  return () => selectNeighborNote(1)
+}
 
-export const selectPreviousNote = (rootStore: RootStore) => () =>
-  selectNeighborNote(rootStore)(-1)
+export const useSelectPreviousNote = () => {
+  const selectNeighborNote = useSelectNeighborNote()
+  return () => selectNeighborNote(-1)
+}
 
 export const quantizeSelectedNotes =
   ({

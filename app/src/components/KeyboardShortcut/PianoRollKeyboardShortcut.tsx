@@ -9,15 +9,19 @@ import {
 import { useStores } from "../../hooks/useStores"
 import clipboard from "../../services/Clipboard"
 import { KeyboardShortcut } from "./KeyboardShortcut"
-import { controlPaneKeyboardShortcutActions } from "./controlPaneKeyboardShortcutActions"
+import { useControlPaneKeyboardShortcutActions } from "./controlPaneKeyboardShortcutActions"
 import { isFocusable } from "./isFocusable"
-import { pianoNotesKeyboardShortcutActions } from "./pianoNotesKeyboardShortcutActions"
+import { usePianoNotesKeyboardShortcutActions } from "./pianoNotesKeyboardShortcutActions"
 
 const SCROLL_DELTA = 24
 
 export const PianoRollKeyboardShortcut: FC = observer(() => {
   const rootStore = useStores()
   const { pianoRollStore, controlStore } = rootStore
+  const pianoNotesKeyboardShortcutActions =
+    usePianoNotesKeyboardShortcutActions()
+  const controlPaneKeyboardShortcutActions =
+    useControlPaneKeyboardShortcutActions()
 
   // Handle pasting here to allow pasting even when the element does not have focus, such as after clicking the ruler
   const onPaste = (e: ClipboardEvent) => {
@@ -44,10 +48,10 @@ export const PianoRollKeyboardShortcut: FC = observer(() => {
     <KeyboardShortcut
       actions={[
         ...(pianoRollStore.selectedNoteIds.length > 0
-          ? pianoNotesKeyboardShortcutActions(rootStore)
+          ? pianoNotesKeyboardShortcutActions()
           : []),
         ...(controlStore.selectedEventIds.length > 0
-          ? controlPaneKeyboardShortcutActions(rootStore)
+          ? controlPaneKeyboardShortcutActions()
           : []),
         {
           code: "ArrowUp",
