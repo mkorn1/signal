@@ -208,23 +208,6 @@ export const updateValueEvents =
       ValueEventType.getEventFactory(type),
     )
 
-export const removeEvent =
-  ({
-    pianoRollStore,
-    pianoRollStore: { selectedTrack },
-    pushHistory,
-  }: RootStore) =>
-  (eventId: number) => {
-    if (selectedTrack === undefined) {
-      return
-    }
-    pushHistory()
-    selectedTrack.removeEvent(eventId)
-    pianoRollStore.selectedNoteIds = pianoRollStore.selectedNoteIds.filter(
-      (id) => id !== eventId,
-    )
-  }
-
 /* note */
 
 export const createNote =

@@ -2,7 +2,6 @@ import {
   addNoteToSelection,
   createNote,
   eventsInSelection,
-  removeEvent,
   removeNoteFromSelection,
   selectNote,
   startNote,
@@ -243,22 +242,37 @@ const useCreateNoteGesture = () => {
 }
 
 const useRemoveNoteGesture = () => {
-  const rootStore = useStores()
+  const {
+    pianoRollStore,
+    pianoRollStore: { selectedTrack },
+    pushHistory,
+  } = useStores()
+
+  const removeEvent = (eventId: number) => {
+    if (selectedTrack === undefined) {
+      return
+    }
+    pushHistory()
+    selectedTrack.removeEvent(eventId)
+    pianoRollStore.selectedNoteIds = pianoRollStore.selectedNoteIds.filter(
+      (id) => id !== eventId,
+    )
+  }
 
   return {
     onMouseDown(e: MouseEvent) {
-      const startPos = rootStore.pianoRollStore.getLocal(e)
-      const items = rootStore.pianoRollStore.getNotes(startPos)
+      const startPos = pianoRollStore.getLocal(e)
+      const items = pianoRollStore.getNotes(startPos)
       if (items.length > 0) {
-        removeEvent(rootStore)(items[0].id)
+        removeEvent(items[0].id)
       }
 
       observeDrag2(e, {
         onMouseMove: (_e, delta) => {
           const local = Point.add(startPos, delta)
-          const items = rootStore.pianoRollStore.getNotes(local)
+          const items = pianoRollStore.getNotes(local)
           if (items.length > 0) {
-            removeEvent(rootStore)(items[0].id)
+            removeEvent(items[0].id)
           }
         },
       })
@@ -267,21 +281,20 @@ const useRemoveNoteGesture = () => {
 }
 
 const useSelectNoteGesture = () => {
-  const rootStore = useStores()
+  const {
+    pianoRollStore,
+    pianoRollStore: { transform, quantizer, selectedTrack },
+    player,
+    controlStore,
+  } = useStores()
+
   return {
     onMouseDown(e: MouseEvent) {
-      const {
-        pianoRollStore,
-        pianoRollStore: { transform, quantizer, selectedTrack },
-        player,
-        controlStore,
-      } = rootStore
-
       if (selectedTrack === undefined) {
         return
       }
 
-      const local = rootStore.pianoRollStore.getLocal(e)
+      const local = pianoRollStore.getLocal(e)
       const start = transform.getNotePoint(local)
       const startPos = local
 

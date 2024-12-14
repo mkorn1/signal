@@ -96,7 +96,7 @@ const createSelectionAction: MouseGesture = (rootStore) => (e) => {
     return
   }
 
-  const local = rootStore.pianoRollStore.getLocal(e)
+  const local = pianoRollStore.getLocal(e)
   const start = transform.getNotePointFractional(local)
   const startPos = local
 
