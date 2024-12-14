@@ -1,11 +1,7 @@
-import {
-  cloneSelection,
-  fixSelection,
-  resizeSelection,
-  startSelection,
-} from "../../../actions"
+import { cloneSelection, eventsInSelection } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
+import { Selection } from "../../../entities/selection/Selection"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
 import { moveDraggableAction } from "./moveDraggableAction"
@@ -90,26 +86,49 @@ function positionType(selectionBounds: Rect, pos: Point) {
 // 選択範囲外でクリックした場合は選択範囲をリセット
 const createSelectionAction: MouseGesture = (rootStore) => (e) => {
   const {
-    pianoRollStore: { transform, quantizer },
+    pianoRollStore,
+    pianoRollStore: { transform, quantizer, selectedTrack },
+    player,
+    controlStore,
   } = rootStore
+
+  if (selectedTrack === undefined) {
+    return
+  }
 
   const local = rootStore.pianoRollStore.getLocal(e)
   const start = transform.getNotePointFractional(local)
   const startPos = local
-  startSelection(rootStore)(start)
+
+  if (!player.isPlaying) {
+    player.position = quantizer.round(start.tick)
+  }
+
+  controlStore.selectedEventIds = []
+  pianoRollStore.selection = Selection.fromPoints(start, start)
 
   observeDrag2(e, {
     onMouseMove: (_e, delta) => {
       const offsetPos = Point.add(startPos, delta)
       const end = transform.getNotePointFractional(offsetPos)
-      resizeSelection(rootStore)(
+      pianoRollStore.selection = Selection.fromPoints(
         { ...start, tick: quantizer.round(start.tick) },
         { ...end, tick: quantizer.round(end.tick) },
       )
     },
 
     onMouseUp: () => {
-      fixSelection(rootStore)()
+      const { selection } = pianoRollStore
+      if (selection === null) {
+        return
+      }
+
+      // 選択範囲を確定して選択範囲内のノートを選択状態にする
+      // Confirm the selection and select the notes in the selection state
+      pianoRollStore.selectedNoteIds = eventsInSelection(
+        selectedTrack.events,
+        selection,
+      ).map((e) => e.id)
     },
   })
 }

@@ -5,7 +5,6 @@ import {
 } from "../clipboard/clipboardTypes"
 import { Rect } from "../entities/geometry/Rect"
 import { Selection } from "../entities/selection/Selection"
-import { NotePoint } from "../entities/transform/NotePoint"
 import { isNotUndefined } from "../helpers/array"
 import { tickToMillisec } from "../helpers/bpm"
 import clipboard from "../services/Clipboard"
@@ -14,7 +13,7 @@ import { NoteEvent, TrackEvent, isNoteEvent } from "../track"
 import { startNote, stopNote } from "./player"
 import { transposeNotes } from "./song"
 
-function eventsInSelection(events: TrackEvent[], selection: Selection) {
+export function eventsInSelection(events: TrackEvent[], selection: Selection) {
   const selectionRect = {
     x: selection.fromTick,
     width: selection.toTick - selection.fromTick,
@@ -34,34 +33,6 @@ function eventsInSelection(events: TrackEvent[], selection: Selection) {
   )
 }
 
-export const resizeSelection =
-  ({ pianoRollStore }: RootStore) =>
-  (start: NotePoint, end: NotePoint) => {
-    pianoRollStore.selection = Selection.fromPoints(start, end)
-  }
-
-export const fixSelection =
-  ({
-    pianoRollStore,
-    pianoRollStore: { selectedTrack, selection },
-  }: RootStore) =>
-  (clearRect: boolean = false) => {
-    if (selectedTrack === undefined || selection === null) {
-      return
-    }
-
-    // 選択範囲を確定して選択範囲内のノートを選択状態にする
-    // Confirm the selection and select the notes in the selection state
-    pianoRollStore.selectedNoteIds = eventsInSelection(
-      selectedTrack.events,
-      selection,
-    ).map((e) => e.id)
-
-    if (clearRect) {
-      pianoRollStore.selection = null
-    }
-  }
-
 export const transposeSelection =
   (rootStore: RootStore) => (deltaPitch: number) => {
     const {
@@ -80,28 +51,6 @@ export const transposeSelection =
     transposeNotes(rootStore)(deltaPitch, {
       [selectedTrackIndex]: selectedNoteIds,
     })
-  }
-
-export const startSelection =
-  ({
-    pianoRollStore,
-    controlStore,
-    player,
-    controlStore: { quantizer },
-  }: RootStore) =>
-  (point: NotePoint, keepSelectedNoteIds: boolean = false) => {
-    if (!player.isPlaying) {
-      player.position = quantizer.round(point.tick)
-    }
-
-    controlStore.selectedEventIds = []
-
-    if (!keepSelectedNoteIds) {
-      // deselect the notes
-      pianoRollStore.selectedNoteIds = []
-    }
-
-    pianoRollStore.selection = Selection.fromPoints(point, point)
   }
 
 export const resetSelection =

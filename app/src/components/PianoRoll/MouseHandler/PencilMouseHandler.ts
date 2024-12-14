@@ -1,16 +1,15 @@
 import {
   addNoteToSelection,
   createNote,
-  fixSelection,
+  eventsInSelection,
   removeEvent,
   removeNoteFromSelection,
-  resizeSelection,
   selectNote,
   startNote,
-  startSelection,
   stopNote,
 } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
+import { Selection } from "../../../entities/selection/Selection"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
@@ -272,23 +271,48 @@ const useSelectNoteGesture = () => {
   return {
     onMouseDown(e: MouseEvent) {
       const {
-        pianoRollStore: { transform },
+        pianoRollStore,
+        pianoRollStore: { transform, quantizer, selectedTrack },
+        player,
+        controlStore,
       } = rootStore
+
+      if (selectedTrack === undefined) {
+        return
+      }
 
       const local = rootStore.pianoRollStore.getLocal(e)
       const start = transform.getNotePoint(local)
       const startPos = local
-      startSelection(rootStore)(start, true)
+
+      if (!player.isPlaying) {
+        player.position = quantizer.round(start.tick)
+      }
+
+      controlStore.selectedEventIds = []
+      pianoRollStore.selection = Selection.fromPoints(start, start)
 
       observeDrag2(e, {
         onMouseMove: (_e, delta) => {
           const offsetPos = Point.add(startPos, delta)
           const end = transform.getNotePoint(offsetPos)
-          resizeSelection(rootStore)(start, end)
+          pianoRollStore.selection = Selection.fromPoints(start, end)
         },
 
         onMouseUp: () => {
-          fixSelection(rootStore)(true)
+          const { selection } = pianoRollStore
+          if (selection === null) {
+            return
+          }
+
+          // 選択範囲を確定して選択範囲内のノートを選択状態にする
+          // Confirm the selection and select the notes in the selection state
+          pianoRollStore.selectedNoteIds = eventsInSelection(
+            selectedTrack.events,
+            selection,
+          ).map((e) => e.id)
+
+          pianoRollStore.selection = null
         },
       })
     },
