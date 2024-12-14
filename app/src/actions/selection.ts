@@ -7,6 +7,7 @@ import { Rect } from "../entities/geometry/Rect"
 import { Selection } from "../entities/selection/Selection"
 import { isNotUndefined } from "../helpers/array"
 import { tickToMillisec } from "../helpers/bpm"
+import { useStores } from "../hooks/useStores"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import { NoteEvent, TrackEvent, isNoteEvent } from "../track"
@@ -204,12 +205,13 @@ export const duplicateSelection =
     pianoRollStore.selectedNoteIds = addedNotes.map((n) => n.id)
   }
 
-export const selectNote =
+const selectNote =
   ({
     pianoRollStore,
     pianoRollStore: { selectedTrack },
     controlStore,
   }: RootStore) =>
+  (noteId: number) =>
   (noteId: number) => {
     if (selectedTrack === undefined) {
       return
@@ -218,6 +220,11 @@ export const selectNote =
     controlStore.selectedEventIds = []
     pianoRollStore.selectedNoteIds = [noteId]
   }
+
+export const useSelectNote = () => {
+  const rootStore = useStores()
+  return selectNote(rootStore)
+}
 
 const sortedNotes = (notes: NoteEvent[]): NoteEvent[] =>
   notes.filter(isNoteEvent).sort((a, b) => {

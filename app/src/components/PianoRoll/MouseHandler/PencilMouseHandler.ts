@@ -1,8 +1,8 @@
 import {
   eventsInSelection,
-  selectNote,
   startNote,
   stopNote,
+  useSelectNote,
 } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { Selection } from "../../../entities/selection/Selection"
@@ -128,6 +128,7 @@ const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
     pianoRollStore,
     pianoRollStore: { selectedTrack, selectedNoteIds },
   } = rootStore
+  const selectNote = useSelectNote()
 
   return {
     onMouseDown(e: MouseEvent, noteId: number) {
@@ -143,7 +144,7 @@ const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
       const isSelected = selectedNoteIds.includes(noteId)
 
       if (!isSelected) {
-        selectNote(rootStore)(noteId)
+        selectNote(noteId)
       }
 
       const { channel } = selectedTrack
@@ -187,7 +188,7 @@ const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
           },
           onClick(e) {
             if (!e.shiftKey) {
-              selectNote(rootStore)(noteId)
+              selectNote(noteId)
             }
           },
         },
@@ -201,14 +202,14 @@ const useDragNoteRightGesture = useDragNoteEdgeGesture("right")
 const useDragNoteCenterGesture = useDragNoteEdgeGesture("center")
 
 const useCreateNoteGesture = () => {
-  const rootStore = useStores()
   const {
     song: { timebase },
     pianoRollStore,
     pianoRollStore: { transform, selectedTrack, quantizer, newNoteVelocity },
     pushHistory,
-  } = rootStore
+  } = useStores()
   const dragNoteCenterAction = useDragNoteCenterGesture()
+  const selectNote = useSelectNote()
 
   return {
     onMouseDown(e: MouseEvent) {
@@ -250,7 +251,7 @@ const useCreateNoteGesture = () => {
         return
       }
 
-      selectNote(rootStore)(note.id)
+      selectNote(note.id)
       dragNoteCenterAction.onMouseDown(e, note.id)
     },
   }
