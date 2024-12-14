@@ -1,6 +1,5 @@
 import {
   addNoteToSelection,
-  createNote,
   eventsInSelection,
   removeNoteFromSelection,
   selectNote,
@@ -9,10 +8,11 @@ import {
 } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { Selection } from "../../../entities/selection/Selection"
+import { NoteNumber } from "../../../entities/unit/NoteNumber"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
-import { isNoteEvent } from "../../../track"
+import { isNoteEvent, NoteEvent } from "../../../track"
 import { moveDraggableAction } from "./moveDraggableAction"
 
 const createGesture = <Params extends any[]>(
@@ -217,19 +217,49 @@ const useDragNoteCenterGesture = useDragNoteEdgeGesture("center")
 
 const useCreateNoteGesture = () => {
   const rootStore = useStores()
+  const {
+    song: { timebase },
+    pianoRollStore,
+    pianoRollStore: { transform, selectedTrack, quantizer, newNoteVelocity },
+    pushHistory,
+  } = rootStore
   const dragNoteCenterAction = useDragNoteCenterGesture()
 
   return {
     onMouseDown(e: MouseEvent) {
-      const { transform } = rootStore.pianoRollStore
-      const local = rootStore.pianoRollStore.getLocal(e)
-
       if (e.shiftKey) {
         return
       }
 
+      const local = pianoRollStore.getLocal(e)
       const { tick, noteNumber } = transform.getNotePoint(local)
-      const note = createNote(rootStore)(tick, noteNumber)
+
+      if (
+        selectedTrack === undefined ||
+        selectedTrack.channel == undefined ||
+        !NoteNumber.isValid(noteNumber)
+      ) {
+        return
+      }
+
+      pushHistory()
+
+      const quantizedTick = selectedTrack.isRhythmTrack
+        ? quantizer.round(tick)
+        : quantizer.floor(tick)
+
+      const duration = selectedTrack.isRhythmTrack
+        ? timebase / 8 // 32th note in the rhythm track
+        : (pianoRollStore.lastNoteDuration ?? quantizer.unit)
+
+      const note = selectedTrack.addEvent({
+        type: "channel",
+        subtype: "note",
+        noteNumber: noteNumber,
+        tick: quantizedTick,
+        velocity: newNoteVelocity,
+        duration,
+      } as NoteEvent)
 
       if (note === undefined) {
         return
