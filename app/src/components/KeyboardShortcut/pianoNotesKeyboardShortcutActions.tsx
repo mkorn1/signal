@@ -1,92 +1,100 @@
 import {
-  copySelection,
-  deleteSelection,
-  duplicateSelection,
-  pasteSelection,
-  quantizeSelectedNotes,
-  resetSelection,
-  selectAllNotes,
-  transposeSelection,
+  useCopySelection,
+  useDeleteSelection,
+  useDuplicateSelection,
+  usePasteSelection,
+  useQuantizeSelectedNotes,
+  useResetSelection,
+  useSelectAllNotes,
   useSelectNextNote,
   useSelectPreviousNote,
+  useTransposeSelection,
 } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 
 export const usePianoNotesKeyboardShortcutActions = () => {
-  const rootStore = useStores()
   const selectNextNote = useSelectNextNote()
   const selectPreviousNote = useSelectPreviousNote()
+  const copySelection = useCopySelection()
+  const deleteSelection = useDeleteSelection()
+  const pasteSelection = usePasteSelection()
+  const duplicateSelection = useDuplicateSelection()
+  const selectAllNotes = useSelectAllNotes()
+  const quantizeSelectedNotes = useQuantizeSelectedNotes()
+  const transposeSelection = useTransposeSelection()
+  const resetSelection = useResetSelection()
+  const { pianoRollStore } = useStores()
 
   return () => [
     {
       code: "KeyC",
       metaKey: true,
-      run: () => copySelection(rootStore)(),
+      run: copySelection,
     },
     {
       code: "KeyX",
       metaKey: true,
       run: () => {
-        copySelection(rootStore)()
-        deleteSelection(rootStore)()
+        copySelection()
+        deleteSelection()
       },
     },
     {
       code: "KeyV",
       metaKey: true,
-      run: () => pasteSelection(rootStore)(),
+      run: pasteSelection,
     },
     {
       code: "KeyD",
       metaKey: true,
-      run: () => duplicateSelection(rootStore)(),
+      run: duplicateSelection,
     },
     {
       code: "KeyA",
       metaKey: true,
-      run: () => selectAllNotes(rootStore)(),
+      run: selectAllNotes,
     },
     {
       code: "KeyQ",
-      run: () => quantizeSelectedNotes(rootStore)(),
+      run: quantizeSelectedNotes,
     },
     {
       code: "KeyT",
-      run: () => (rootStore.pianoRollStore.openTransposeDialog = true),
+      run: () => (pianoRollStore.openTransposeDialog = true),
     },
-    { code: "Delete", run: () => deleteSelection(rootStore)() },
+    { code: "Delete", run: deleteSelection },
     {
       code: "Backspace",
-      run: () => deleteSelection(rootStore)(),
+      run: deleteSelection,
     },
     {
       code: "ArrowUp",
       shiftKey: true,
-      run: () => transposeSelection(rootStore)(12),
+      run: () => transposeSelection(12),
     },
     {
       code: "ArrowUp",
-      run: () => transposeSelection(rootStore)(1),
+      run: () => transposeSelection(1),
     },
     {
       code: "ArrowDown",
       shiftKey: true,
-      run: () => transposeSelection(rootStore)(-12),
+      run: () => transposeSelection(-12),
     },
     {
       code: "ArrowDown",
-      run: () => transposeSelection(rootStore)(-1),
+      run: () => transposeSelection(-1),
     },
     {
       code: "ArrowRight",
       run: selectNextNote,
-      enabled: () => rootStore.pianoRollStore.mouseMode == "pencil",
+      enabled: () => pianoRollStore.mouseMode == "pencil",
     },
     {
       code: "ArrowLeft",
       run: selectPreviousNote,
-      enabled: () => rootStore.pianoRollStore.mouseMode == "pencil",
+      enabled: () => pianoRollStore.mouseMode == "pencil",
     },
-    { code: "Escape", run: () => resetSelection(rootStore)() },
+    { code: "Escape", run: resetSelection },
   ]
 }
