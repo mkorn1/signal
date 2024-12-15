@@ -13,20 +13,6 @@ import RootStore from "../stores/RootStore"
 import Track from "../track"
 import { batchUpdateNotesVelocity, BatchUpdateOperation } from "./track"
 
-export const arrangeResetSelection =
-  ({ arrangeViewStore }: RootStore) =>
-  () => {
-    arrangeViewStore.selection = null
-    arrangeViewStore.selectedEventIds = {}
-  }
-
-export const arrangeStartSelection =
-  ({ arrangeViewStore }: RootStore) =>
-  () => {
-    arrangeViewStore.selection = null
-    arrangeViewStore.selectedEventIds = {}
-  }
-
 export const arrangeResizeSelection =
   ({
     song: { tracks },
