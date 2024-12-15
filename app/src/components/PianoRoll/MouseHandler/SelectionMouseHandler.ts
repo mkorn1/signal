@@ -4,13 +4,19 @@ import { Rect } from "../../../entities/geometry/Rect"
 import { Selection } from "../../../entities/selection/Selection"
 import { observeDrag2 } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
-import { moveDraggableAction } from "./moveDraggableAction"
-import { MouseGesture } from "./NoteMouseHandler"
+import { useMoveDraggableGesture } from "./moveDraggableAction"
 
 export const MIN_LENGTH = 10
 
 export const useSelectionGesture = () => {
-  const rootStore = useStores()
+  const {
+    pianoRollStore,
+    pianoRollStore: { selectionBounds, selectedNoteIds },
+  } = useStores()
+  const moveSelectionAction = useMoveSelectionGesture()
+  const dragSelectionLeftEdgeAction = useDragSelectionLeftEdgeGesture()
+  const dragSelectionRightEdgeAction = useDragSelectionRightEdgeGesture()
+  const createSelectionAction = useCreateSelectionGesture()
 
   return {
     onMouseDown(e: MouseEvent) {
@@ -18,32 +24,33 @@ export const useSelectionGesture = () => {
         return null
       }
 
-      const { selectionBounds, selectedNoteIds } = rootStore.pianoRollStore
-      const local = rootStore.pianoRollStore.getLocal(e)
+      const local = pianoRollStore.getLocal(e)
 
       if (e.button === 0) {
         if (selectionBounds !== null) {
           const type = positionType(selectionBounds, local)
           switch (type) {
             case "center":
-              return moveSelectionAction(selectedNoteIds)
+              return moveSelectionAction.onMouseDown(e, selectedNoteIds)
             case "right":
-              return dragSelectionRightEdgeAction(selectedNoteIds)
+              return dragSelectionRightEdgeAction.onMouseDown(
+                e,
+                selectedNoteIds,
+              )
             case "left":
-              return dragSelectionLeftEdgeAction(selectedNoteIds)
+              return dragSelectionLeftEdgeAction.onMouseDown(e, selectedNoteIds)
             case "outside":
-              return createSelectionAction
+              return createSelectionAction.onMouseDown(e)
           }
         } else {
-          return createSelectionAction
+          return createSelectionAction.onMouseDown(e)
         }
       }
 
       return null
     },
     getCursor(e: MouseEvent) {
-      const { selectionBounds } = rootStore.pianoRollStore
-      const local = rootStore.pianoRollStore.getLocal(e)
+      const local = pianoRollStore.getLocal(e)
       const type =
         selectionBounds === null
           ? "outside"
@@ -84,97 +91,122 @@ function positionType(selectionBounds: Rect, pos: Point) {
 }
 
 // 選択範囲外でクリックした場合は選択範囲をリセット
-const createSelectionAction: MouseGesture = (rootStore) => (e) => {
+const useCreateSelectionGesture = () => {
   const {
     pianoRollStore,
     pianoRollStore: { transform, quantizer, selectedTrack },
     player,
     controlStore,
-  } = rootStore
+  } = useStores()
 
-  if (selectedTrack === undefined) {
-    return
-  }
-
-  const local = pianoRollStore.getLocal(e)
-  const start = transform.getNotePointFractional(local)
-  const startPos = local
-
-  if (!player.isPlaying) {
-    player.position = quantizer.round(start.tick)
-  }
-
-  controlStore.selectedEventIds = []
-  pianoRollStore.selection = Selection.fromPoints(start, start)
-
-  observeDrag2(e, {
-    onMouseMove: (_e, delta) => {
-      const offsetPos = Point.add(startPos, delta)
-      const end = transform.getNotePointFractional(offsetPos)
-      pianoRollStore.selection = Selection.fromPoints(
-        { ...start, tick: quantizer.round(start.tick) },
-        { ...end, tick: quantizer.round(end.tick) },
-      )
-    },
-
-    onMouseUp: () => {
-      const { selection } = pianoRollStore
-      if (selection === null) {
+  return {
+    onMouseDown(e: MouseEvent) {
+      if (selectedTrack === undefined) {
         return
       }
 
-      // 選択範囲を確定して選択範囲内のノートを選択状態にする
-      // Confirm the selection and select the notes in the selection state
-      pianoRollStore.selectedNoteIds = eventsInSelection(
-        selectedTrack.events,
-        selection,
-      ).map((e) => e.id)
+      const local = pianoRollStore.getLocal(e)
+      const start = transform.getNotePointFractional(local)
+      const startPos = local
+
+      if (!player.isPlaying) {
+        player.position = quantizer.round(start.tick)
+      }
+
+      controlStore.selectedEventIds = []
+      pianoRollStore.selection = Selection.fromPoints(start, start)
+
+      observeDrag2(e, {
+        onMouseMove: (_e, delta) => {
+          const offsetPos = Point.add(startPos, delta)
+          const end = transform.getNotePointFractional(offsetPos)
+          pianoRollStore.selection = Selection.fromPoints(
+            { ...start, tick: quantizer.round(start.tick) },
+            { ...end, tick: quantizer.round(end.tick) },
+          )
+        },
+
+        onMouseUp: () => {
+          const { selection } = pianoRollStore
+          if (selection === null) {
+            return
+          }
+
+          // 選択範囲を確定して選択範囲内のノートを選択状態にする
+          // Confirm the selection and select the notes in the selection state
+          pianoRollStore.selectedNoteIds = eventsInSelection(
+            selectedTrack.events,
+            selection,
+          ).map((e) => e.id)
+        },
+      })
     },
-  })
+  }
 }
 
-const moveSelectionAction =
-  (selectedNoteIds: number[]): MouseGesture =>
-  (rootStore) =>
-  (e) => {
-    const isCopy = e.metaKey
+const useMoveSelectionGesture = () => {
+  const rootStore = useStores()
+  const moveDraggableAction = useMoveDraggableGesture()
 
-    if (isCopy) {
-      cloneSelection(rootStore)()
-    }
+  return {
+    onMouseDown(e: MouseEvent, selectedNoteIds: number[]) {
+      const isCopy = e.metaKey
 
-    return moveDraggableAction(
-      { type: "selection", position: "center" },
-      selectedNoteIds.map((noteId) => ({
-        type: "note",
-        position: "center",
-        noteId,
-      })),
-    )(rootStore)(e)
+      if (isCopy) {
+        cloneSelection(rootStore)()
+      }
+
+      return moveDraggableAction.onMouseDown(
+        e,
+        { type: "selection", position: "center" },
+        selectedNoteIds.map((noteId) => ({
+          type: "note",
+          position: "center",
+          noteId,
+        })),
+      )
+    },
   }
+}
 
-const dragSelectionLeftEdgeAction = (selectedNoteIds: number[]) =>
-  moveDraggableAction(
-    {
-      type: "selection",
-      position: "left",
-    },
-    selectedNoteIds.map((noteId) => ({
-      type: "note",
-      position: "left",
-      noteId,
-    })),
-  )
+const useDragSelectionLeftEdgeGesture = () => {
+  const moveDraggableAction = useMoveDraggableGesture()
 
-const dragSelectionRightEdgeAction = (selectedNoteIds: number[]) =>
-  moveDraggableAction(
-    {
-      type: "selection",
-      position: "right",
+  return {
+    onMouseDown(e: MouseEvent, selectedNoteIds: number[]) {
+      moveDraggableAction.onMouseDown(
+        e,
+        {
+          type: "selection",
+          position: "left",
+        },
+        selectedNoteIds.map((noteId) => ({
+          type: "note",
+          position: "left",
+          noteId,
+        })),
+      )
     },
-    selectedNoteIds.map((noteId) => ({
-      type: "note",
-      position: "right",
-      noteId,
-    })),
-  )
+  }
+}
+
+const useDragSelectionRightEdgeGesture = () => {
+  const moveDraggableAction = useMoveDraggableGesture()
+
+  return {
+    onMouseDown(e: MouseEvent, selectedNoteIds: number[]) {
+      moveDraggableAction.onMouseDown(
+        e,
+        {
+          type: "selection",
+          position: "right",
+        },
+        selectedNoteIds.map((noteId) => ({
+          type: "note",
+          position: "right",
+          noteId,
+        })),
+      )
+    },
+  }
+}

@@ -11,7 +11,7 @@ import { observeDrag2 } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import { isNoteEvent, NoteEvent } from "../../../track"
-import { moveDraggableAction } from "./moveDraggableAction"
+import { useMoveDraggableGesture } from "./moveDraggableAction"
 
 export const usePencilGesture = () => {
   const { pianoRollStore } = useStores()
@@ -129,6 +129,7 @@ const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
     pianoRollStore: { selectedTrack, selectedNoteIds },
   } = rootStore
   const selectNote = useSelectNote()
+  const moveDraggableAction = useMoveDraggableGesture()
 
   return {
     onMouseDown(e: MouseEvent, noteId: number) {
@@ -151,7 +152,8 @@ const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
       startNote(rootStore)({ ...note, channel })
       let playingNoteNumber = note.noteNumber
 
-      moveDraggableAction(
+      moveDraggableAction.onMouseDown(
+        e,
         { type: "note", position: edge, noteId },
         selectedNoteIds
           .filter((id) => id !== noteId)
@@ -192,7 +194,7 @@ const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
             }
           },
         },
-      )(rootStore)(e)
+      )
     },
   }
 }
