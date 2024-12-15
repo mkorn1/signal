@@ -4,10 +4,10 @@ import {
   duplicateControlSelection,
   resetControlSelection,
 } from "../../actions/control"
-import RootStore from "../../stores/RootStore"
+import { useStores } from "../../hooks/useStores"
 
 export const useControlPaneKeyboardShortcutActions = () => {
-  const rootStore = new RootStore()
+  const rootStore = useStores()
 
   return () => [
     { code: "Escape", run: () => resetControlSelection(rootStore)() },
