@@ -53,14 +53,6 @@ export const useTransposeSelection = () => {
   }
 }
 
-export const useResetSelection = () => {
-  const { pianoRollStore } = useStores()
-  return () => {
-    pianoRollStore.selection = null
-    pianoRollStore.selectedNoteIds = []
-  }
-}
-
 export const useCloneSelection = () => {
   const {
     pianoRollStore,

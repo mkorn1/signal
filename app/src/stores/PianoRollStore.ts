@@ -156,8 +156,7 @@ export default class PianoRollStore {
         mouseMode: this.mouseMode,
       }),
       () => {
-        this.selection = null
-        this.selectedNoteIds = []
+        this.resetSelection()
       },
     )
   }
@@ -240,6 +239,11 @@ export default class PianoRollStore {
 
   toggleTool() {
     this.mouseMode === "pencil" ? "selection" : "pencil"
+  }
+
+  resetSelection() {
+    this.selection = null
+    this.selectedNoteIds = []
   }
 
   get selectedTrackIndex(): number {

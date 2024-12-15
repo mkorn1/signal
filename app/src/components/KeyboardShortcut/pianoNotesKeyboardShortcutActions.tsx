@@ -4,7 +4,6 @@ import {
   useDuplicateSelection,
   usePasteSelection,
   useQuantizeSelectedNotes,
-  useResetSelection,
   useSelectAllNotes,
   useSelectNextNote,
   useSelectPreviousNote,
@@ -22,7 +21,6 @@ export const usePianoNotesKeyboardShortcutActions = () => {
   const selectAllNotes = useSelectAllNotes()
   const quantizeSelectedNotes = useQuantizeSelectedNotes()
   const transposeSelection = useTransposeSelection()
-  const resetSelection = useResetSelection()
   const { pianoRollStore } = useStores()
 
   return () => [
@@ -95,6 +93,6 @@ export const usePianoNotesKeyboardShortcutActions = () => {
       run: selectPreviousNote,
       enabled: () => pianoRollStore.mouseMode == "pencil",
     },
-    { code: "Escape", run: resetSelection },
+    { code: "Escape", run: () => pianoRollStore.resetSelection() },
   ]
 }
