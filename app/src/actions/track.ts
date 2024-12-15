@@ -5,6 +5,7 @@ import { Range } from "../entities/geometry/Range"
 import { Measure } from "../entities/measure/Measure"
 import { closedRange, isNotUndefined } from "../helpers/array"
 import { isEventInRange } from "../helpers/filterEvents"
+import { useStores } from "../hooks/useStores"
 import {
   panMidiEvent,
   programChangeMidiEvent,
@@ -20,7 +21,7 @@ import Track, {
   TrackId,
   isNoteEvent,
 } from "../track"
-import { stopNote } from "./player"
+import { useStopNote } from "./player"
 
 export const changeTempo =
   ({ song, pushHistory }: RootStore) =>
@@ -209,14 +210,18 @@ export const updateValueEvents =
 
 /* note */
 
-export const muteNote =
-  ({ player, pianoRollStore: { selectedTrack } }: RootStore) =>
-  (noteNumber: number) => {
+export const useMuteNote = () => {
+  const {
+    pianoRollStore: { selectedTrack },
+  } = useStores()
+  const stopNote = useStopNote()
+  return (noteNumber: number) => {
     if (selectedTrack === undefined || selectedTrack.channel == undefined) {
       return
     }
-    stopNote({ player })({ channel: selectedTrack.channel, noteNumber })
+    stopNote({ channel: selectedTrack.channel, noteNumber })
   }
+}
 
 /* track meta */
 

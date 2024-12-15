@@ -1,4 +1,4 @@
-import { cloneSelection, eventsInSelection } from "../../../actions"
+import { eventsInSelection, useCloneSelection } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
 import { Selection } from "../../../entities/selection/Selection"
@@ -145,15 +145,15 @@ const useCreateSelectionGesture = () => {
 }
 
 const useMoveSelectionGesture = () => {
-  const rootStore = useStores()
   const moveDraggableAction = useMoveDraggableGesture()
+  const cloneSelection = useCloneSelection()
 
   return {
     onMouseDown(e: MouseEvent, selectedNoteIds: number[]) {
       const isCopy = e.metaKey
 
       if (isCopy) {
-        cloneSelection(rootStore)()
+        cloneSelection()
       }
 
       return moveDraggableAction.onMouseDown(

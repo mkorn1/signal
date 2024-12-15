@@ -11,7 +11,7 @@ import { useStores } from "../hooks/useStores"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import { NoteEvent, TrackEvent, isNoteEvent } from "../track"
-import { startNote, stopNote } from "./player"
+import { useStartNote, useStopNote } from "./player"
 import { transposeNotes } from "./song"
 
 export function eventsInSelection(events: TrackEvent[], selection: Selection) {
@@ -61,12 +61,12 @@ export const resetSelection =
     pianoRollStore.selectedNoteIds = []
   }
 
-export const cloneSelection =
-  ({
+export const useCloneSelection = () => {
+  const {
     pianoRollStore,
     pianoRollStore: { selection, selectedNoteIds, selectedTrack },
-  }: RootStore) =>
-  () => {
+  } = useStores()
+  return () => {
     if (selectedTrack === undefined || selection === null) {
       return
     }
@@ -82,6 +82,7 @@ export const cloneSelection =
     selectedTrack.addEvents(notes)
     pianoRollStore.selectedNoteIds = notes.map((e) => e.id)
   }
+}
 
 export const copySelection =
   ({
@@ -231,12 +232,13 @@ const sortedNotes = (notes: NoteEvent[]): NoteEvent[] =>
   })
 
 const useSelectNeighborNote = () => {
-  const rootStore = useStores()
   const {
     pianoRollStore: { selectedTrack, selectedNoteIds },
     song,
-  } = rootStore
+  } = useStores()
   const selectNote = useSelectNote()
+  const startNote = useStartNote()
+  const stopNote = useStopNote()
 
   return (deltaIndex: number) => {
     if (selectedTrack === undefined || selectedNoteIds.length === 0) {
@@ -265,9 +267,9 @@ const useSelectNeighborNote = () => {
     selectNote(nextNote.id)
 
     // Stop playing the current note, then play the new note.
-    stopNote(rootStore)({ ...currentNote, channel })
-    startNote(rootStore)({ ...nextNote, channel })
-    stopNote(rootStore)(
+    stopNote({ ...currentNote, channel })
+    startNote({ ...nextNote, channel })
+    stopNote(
       { ...nextNote, channel },
       tickToMillisec(nextNote.duration, 120, song.timebase) / 1000,
     )

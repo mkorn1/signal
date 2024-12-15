@@ -1,8 +1,8 @@
 import {
   eventsInSelection,
-  startNote,
-  stopNote,
   useSelectNote,
+  useStartNote,
+  useStopNote,
 } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { Selection } from "../../../entities/selection/Selection"
@@ -123,12 +123,13 @@ const getPositionType = (
 }
 
 const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
-  const rootStore = useStores()
   const {
     pianoRollStore,
     pianoRollStore: { selectedTrack, selectedNoteIds },
-  } = rootStore
+  } = useStores()
   const selectNote = useSelectNote()
+  const startNote = useStartNote()
+  const stopNote = useStopNote()
   const moveDraggableAction = useMoveDraggableGesture()
 
   return {
@@ -149,7 +150,7 @@ const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
       }
 
       const { channel } = selectedTrack
-      startNote(rootStore)({ ...note, channel })
+      startNote({ ...note, channel })
       let playingNoteNumber = note.noteNumber
 
       moveDraggableAction.onMouseDown(
@@ -176,8 +177,8 @@ const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
               oldPosition.noteNumber !== newPosition.noteNumber &&
               newNote.noteNumber !== playingNoteNumber
             ) {
-              stopNote(rootStore)({ noteNumber: playingNoteNumber, channel })
-              startNote(rootStore)({
+              stopNote({ noteNumber: playingNoteNumber, channel })
+              startNote({
                 noteNumber: newNote.noteNumber,
                 channel,
                 velocity: newNote.velocity,
@@ -186,7 +187,7 @@ const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
             }
           },
           onMouseUp() {
-            stopNote(rootStore)({ noteNumber: playingNoteNumber, channel })
+            stopNote({ noteNumber: playingNoteNumber, channel })
           },
           onClick(e) {
             if (!e.shiftKey) {
