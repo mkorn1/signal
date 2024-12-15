@@ -11,8 +11,6 @@ import { isEventInRange } from "../helpers/filterEvents"
 import clipboard from "../services/Clipboard"
 import RootStore from "../stores/RootStore"
 import Track from "../track"
-import { pushHistory } from "./history"
-import { transposeNotes } from "./song"
 import { batchUpdateNotesVelocity, BatchUpdateOperation } from "./track"
 
 export const arrangeResetSelection =
@@ -249,12 +247,10 @@ function getEventsInSelection(tracks: Track[], selection: ArrangeSelection) {
 }
 
 export const arrangeTransposeSelection =
-  (rootStore: RootStore) => (deltaPitch: number) => {
-    pushHistory(rootStore)()
-    transposeNotes(rootStore)(
-      deltaPitch,
-      rootStore.arrangeViewStore.selectedEventIds,
-    )
+  ({ song, pushHistory, arrangeViewStore: { selectedEventIds } }: RootStore) =>
+  (deltaPitch: number) => {
+    pushHistory()
+    song.transposeNotes(deltaPitch, selectedEventIds)
   }
 
 export const arrangeDuplicateSelection =

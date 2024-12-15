@@ -11,7 +11,6 @@ import { useStores } from "../hooks/useStores"
 import clipboard from "../services/Clipboard"
 import { NoteEvent, TrackEvent, isNoteEvent } from "../track"
 import { useStartNote, useStopNote } from "./player"
-import { transposeNotes } from "./song"
 
 export function eventsInSelection(events: TrackEvent[], selection: Selection) {
   const selectionRect = {
@@ -34,12 +33,12 @@ export function eventsInSelection(events: TrackEvent[], selection: Selection) {
 }
 
 export const useTransposeSelection = () => {
-  const rootStore = useStores()
   const {
+    song,
     pianoRollStore,
     pianoRollStore: { selectedTrackIndex, selection, selectedNoteIds },
     pushHistory,
-  } = rootStore
+  } = useStores()
   return (deltaPitch: number) => {
     pushHistory()
 
@@ -48,7 +47,7 @@ export const useTransposeSelection = () => {
       pianoRollStore.selection = s
     }
 
-    transposeNotes(rootStore)(deltaPitch, {
+    song.transposeNotes(deltaPitch, {
       [selectedTrackIndex]: selectedNoteIds,
     })
   }
