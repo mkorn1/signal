@@ -149,6 +149,8 @@ const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
         selectNote(noteId)
       }
 
+      const newSelectedNoteIds = pianoRollStore.selectedNoteIds
+
       const { channel } = selectedTrack
       startNote({ ...note, channel })
       let playingNoteNumber = note.noteNumber
@@ -156,7 +158,7 @@ const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
       moveDraggableAction.onMouseDown(
         e,
         { type: "note", position: edge, noteId },
-        selectedNoteIds
+        newSelectedNoteIds
           .filter((id) => id !== noteId)
           .map((noteId) => ({
             type: "note",
@@ -212,7 +214,6 @@ const useCreateNoteGesture = () => {
     pushHistory,
   } = useStores()
   const dragNoteCenterAction = useDragNoteCenterGesture()
-  const selectNote = useSelectNote()
 
   return {
     onMouseDown(e: MouseEvent) {
@@ -254,7 +255,6 @@ const useCreateNoteGesture = () => {
         return
       }
 
-      selectNote(note.id)
       dragNoteCenterAction.onMouseDown(e, note.id)
     },
   }
