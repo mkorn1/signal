@@ -1,11 +1,14 @@
 import { useState } from "react"
 import { observeDrag } from "../../../helpers/observeDrag"
 import { useStores } from "../../../hooks/useStores"
-import RootStore from "../../../stores/RootStore"
 import { usePencilGesture } from "./PencilMouseHandler"
 import { useSelectionGesture } from "./SelectionMouseHandler"
 
-export type MouseGesture = (rootStore: RootStore) => (e: MouseEvent) => void
+export interface MouseGesture<Params extends any[] = []> {
+  onMouseDown(e: MouseEvent, ...params: Params): void
+  onMouseMove?(e: MouseEvent): void
+  onMouseUp?(e: MouseEvent): void
+}
 
 export const useNoteMouseGesture = () => {
   const rootStore = useStores()
@@ -58,13 +61,13 @@ export const useNoteMouseGesture = () => {
       }
     },
 
-    onMouseUp(_ev: React.MouseEvent) {
+    onMouseUp() {
       setMouseDown(false)
     },
   }
 }
 
-const useDragScrollGesture = () => {
+const useDragScrollGesture = (): MouseGesture => {
   const { pianoRollStore } = useStores()
   return {
     onMouseDown(_e: MouseEvent) {
@@ -78,7 +81,7 @@ const useDragScrollGesture = () => {
   }
 }
 
-const useChangeToolGesture = () => {
+const useChangeToolGesture = (): MouseGesture => {
   const { pianoRollStore } = useStores()
   return {
     onMouseDown(_e: MouseEvent) {

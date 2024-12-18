@@ -12,6 +12,7 @@ import { useStores } from "../../../hooks/useStores"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import { isNoteEvent, NoteEvent } from "../../../track"
 import { useMoveDraggableGesture } from "./moveDraggableAction"
+import { MouseGesture } from "./NoteMouseHandler"
 
 export const usePencilGesture = () => {
   const { pianoRollStore } = useStores()
@@ -122,91 +123,95 @@ const getPositionType = (
   return "center"
 }
 
-const useDragNoteEdgeGesture = (edge: "left" | "right" | "center") => () => {
-  const {
-    pianoRollStore,
-    pianoRollStore: { selectedTrack, selectedNoteIds },
-  } = useStores()
-  const selectNote = useSelectNote()
-  const startNote = useStartNote()
-  const stopNote = useStopNote()
-  const moveDraggableAction = useMoveDraggableGesture()
+const useDragNoteEdgeGesture =
+  (edge: "left" | "right" | "center") => (): MouseGesture<[number]> => {
+    const {
+      pianoRollStore,
+      pianoRollStore: { selectedTrack, selectedNoteIds },
+    } = useStores()
+    const selectNote = useSelectNote()
+    const startNote = useStartNote()
+    const stopNote = useStopNote()
+    const moveDraggableAction = useMoveDraggableGesture()
 
-  return {
-    onMouseDown(e: MouseEvent, noteId: number) {
-      if (selectedTrack === undefined || selectedTrack.channel === undefined) {
-        return
-      }
+    return {
+      onMouseDown(e: MouseEvent, noteId: number) {
+        if (
+          selectedTrack === undefined ||
+          selectedTrack.channel === undefined
+        ) {
+          return
+        }
 
-      const note = selectedTrack.getEventById(noteId)
-      if (note == undefined || !isNoteEvent(note)) {
-        return
-      }
+        const note = selectedTrack.getEventById(noteId)
+        if (note == undefined || !isNoteEvent(note)) {
+          return
+        }
 
-      const isSelected = selectedNoteIds.includes(noteId)
+        const isSelected = selectedNoteIds.includes(noteId)
 
-      if (!isSelected) {
-        selectNote(noteId)
-      }
+        if (!isSelected) {
+          selectNote(noteId)
+        }
 
-      const newSelectedNoteIds = pianoRollStore.selectedNoteIds
+        const newSelectedNoteIds = pianoRollStore.selectedNoteIds
 
-      const { channel } = selectedTrack
-      startNote({ ...note, channel })
-      let playingNoteNumber = note.noteNumber
+        const { channel } = selectedTrack
+        startNote({ ...note, channel })
+        let playingNoteNumber = note.noteNumber
 
-      moveDraggableAction.onMouseDown(
-        e,
-        { type: "note", position: edge, noteId },
-        newSelectedNoteIds
-          .filter((id) => id !== noteId)
-          .map((noteId) => ({
-            type: "note",
-            position: edge,
-            noteId,
-          })),
-        {
-          onChange(_e, { oldPosition, newPosition }) {
-            const newNote = selectedTrack.getEventById(noteId)
-            if (newNote == undefined || !isNoteEvent(newNote)) {
-              return
-            }
-            // save last note duration
-            if (oldPosition.tick !== newPosition.tick) {
-              pianoRollStore.lastNoteDuration = newNote.duration
-            }
-            if (
-              oldPosition.noteNumber !== newPosition.noteNumber &&
-              newNote.noteNumber !== playingNoteNumber
-            ) {
+        moveDraggableAction.onMouseDown(
+          e,
+          { type: "note", position: edge, noteId },
+          newSelectedNoteIds
+            .filter((id) => id !== noteId)
+            .map((noteId) => ({
+              type: "note",
+              position: edge,
+              noteId,
+            })),
+          {
+            onChange(_e, { oldPosition, newPosition }) {
+              const newNote = selectedTrack.getEventById(noteId)
+              if (newNote == undefined || !isNoteEvent(newNote)) {
+                return
+              }
+              // save last note duration
+              if (oldPosition.tick !== newPosition.tick) {
+                pianoRollStore.lastNoteDuration = newNote.duration
+              }
+              if (
+                oldPosition.noteNumber !== newPosition.noteNumber &&
+                newNote.noteNumber !== playingNoteNumber
+              ) {
+                stopNote({ noteNumber: playingNoteNumber, channel })
+                startNote({
+                  noteNumber: newNote.noteNumber,
+                  channel,
+                  velocity: newNote.velocity,
+                })
+                playingNoteNumber = newNote.noteNumber
+              }
+            },
+            onMouseUp() {
               stopNote({ noteNumber: playingNoteNumber, channel })
-              startNote({
-                noteNumber: newNote.noteNumber,
-                channel,
-                velocity: newNote.velocity,
-              })
-              playingNoteNumber = newNote.noteNumber
-            }
+            },
+            onClick(e) {
+              if (!e.shiftKey) {
+                selectNote(noteId)
+              }
+            },
           },
-          onMouseUp() {
-            stopNote({ noteNumber: playingNoteNumber, channel })
-          },
-          onClick(e) {
-            if (!e.shiftKey) {
-              selectNote(noteId)
-            }
-          },
-        },
-      )
-    },
+        )
+      },
+    }
   }
-}
 
 const useDragNoteLeftGesture = useDragNoteEdgeGesture("left")
 const useDragNoteRightGesture = useDragNoteEdgeGesture("right")
 const useDragNoteCenterGesture = useDragNoteEdgeGesture("center")
 
-const useCreateNoteGesture = () => {
+const useCreateNoteGesture = (): MouseGesture => {
   const {
     song: { timebase },
     pianoRollStore,
@@ -260,7 +265,7 @@ const useCreateNoteGesture = () => {
   }
 }
 
-const useRemoveNoteGesture = () => {
+const useRemoveNoteGesture = (): MouseGesture => {
   const {
     pianoRollStore,
     pianoRollStore: { selectedTrack },
@@ -299,7 +304,7 @@ const useRemoveNoteGesture = () => {
   }
 }
 
-const useSelectNoteGesture = () => {
+const useSelectNoteGesture = (): MouseGesture => {
   const {
     pianoRollStore,
     pianoRollStore: { transform, quantizer, selectedTrack },
@@ -351,7 +356,7 @@ const useSelectNoteGesture = () => {
   }
 }
 
-const useRemoveNoteFromSelectionGesture = () => {
+const useRemoveNoteFromSelectionGesture = (): MouseGesture<[number]> => {
   const {
     pianoRollStore,
     pianoRollStore: { selectedTrack, selectedNoteIds },
@@ -370,7 +375,7 @@ const useRemoveNoteFromSelectionGesture = () => {
   }
 }
 
-const useAddNoteToSelectionGesture = () => {
+const useAddNoteToSelectionGesture = (): MouseGesture<[number]> => {
   const { pianoRollStore } = useStores()
 
   return {
