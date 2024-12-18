@@ -22,7 +22,7 @@ export const useRemoveNoteGesture = (): MouseGesture => {
   }
 
   return {
-    onMouseDown(e: MouseEvent) {
+    onMouseDown(e) {
       const startPos = pianoRollStore.getLocal(e)
       const items = pianoRollStore.getNotes(startPos)
       if (items.length > 0) {

@@ -8,7 +8,7 @@ export const useRemoveNoteFromSelectionGesture = (): MouseGesture<[number]> => {
   } = useStores()
 
   return {
-    onMouseDown(_e: MouseEvent, noteId: number) {
+    onMouseDown(_e, noteId) {
       if (selectedTrack === undefined || selectedNoteIds.length === 0) {
         return
       }

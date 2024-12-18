@@ -14,7 +14,7 @@ export const useCreateNoteGesture = (): MouseGesture => {
   const dragNoteCenterAction = useDragNoteCenterGesture()
 
   return {
-    onMouseDown(e: MouseEvent) {
+    onMouseDown(e) {
       if (e.shiftKey) {
         return
       }

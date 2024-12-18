@@ -5,7 +5,7 @@ export const useAddNoteToSelectionGesture = (): MouseGesture<[number]> => {
   const { pianoRollStore } = useStores()
 
   return {
-    onMouseDown(_e: MouseEvent, noteId: number) {
+    onMouseDown(_e, noteId) {
       pianoRollStore.selectedNoteIds.push(noteId)
     },
   }

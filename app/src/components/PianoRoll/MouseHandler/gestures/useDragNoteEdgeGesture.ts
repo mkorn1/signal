@@ -16,7 +16,7 @@ const useDragNoteEdgeGesture =
     const moveDraggableAction = useMoveDraggableGesture()
 
     return {
-      onMouseDown(e: MouseEvent, noteId: number) {
+      onMouseDown(e, noteId) {
         if (
           selectedTrack === undefined ||
           selectedTrack.channel === undefined

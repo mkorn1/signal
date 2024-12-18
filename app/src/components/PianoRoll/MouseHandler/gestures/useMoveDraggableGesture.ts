@@ -1,6 +1,7 @@
 import { Point } from "../../../../entities/geometry/Point"
 import { Range } from "../../../../entities/geometry/Range"
 import { NotePoint } from "../../../../entities/transform/NotePoint"
+import { MouseGesture } from "../../../../gesture/MouseGesture"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
 import { useStores } from "../../../../hooks/useStores"
 import {
@@ -34,7 +35,9 @@ const constraintToDraggableArea = (
   }
 }
 
-export const useMoveDraggableGesture = () => {
+export const useMoveDraggableGesture = (): MouseGesture<
+  [PianoRollDraggable, PianoRollDraggable[]?, MoveDraggableCallback?]
+> => {
   const {
     pianoRollStore,
     pianoRollStore: { isQuantizeEnabled, transform, quantizer },
@@ -42,12 +45,7 @@ export const useMoveDraggableGesture = () => {
   } = useStores()
 
   return {
-    onMouseDown(
-      e: MouseEvent,
-      draggable: PianoRollDraggable,
-      subDraggables: PianoRollDraggable[] = [],
-      callback: MoveDraggableCallback = {},
-    ) {
+    onMouseDown(e, draggable, subDraggables = [], callback = {}) {
       const draggablePosition = pianoRollStore.getDraggablePosition(draggable)
 
       if (draggablePosition === null) {

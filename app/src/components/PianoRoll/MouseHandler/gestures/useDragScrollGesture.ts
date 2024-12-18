@@ -5,7 +5,7 @@ import { useStores } from "../../../../hooks/useStores"
 export const useDragScrollGesture = (): MouseGesture => {
   const { pianoRollStore } = useStores()
   return {
-    onMouseDown(_e: MouseEvent) {
+    onMouseDown() {
       observeDrag({
         onMouseMove: (e: MouseEvent) => {
           pianoRollStore.scrollBy(e.movementX, e.movementY)

@@ -1,10 +1,11 @@
+import { MouseGesture } from "../../../../gesture/MouseGesture"
 import { useMoveDraggableGesture } from "./useMoveDraggableGesture"
 
-export const useDragSelectionLeftEdgeGesture = () => {
+export const useDragSelectionLeftEdgeGesture = (): MouseGesture<[number[]]> => {
   const moveDraggableAction = useMoveDraggableGesture()
 
   return {
-    onMouseDown(e: MouseEvent, selectedNoteIds: number[]) {
+    onMouseDown(e, selectedNoteIds) {
       moveDraggableAction.onMouseDown(
         e,
         {

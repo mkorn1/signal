@@ -14,7 +14,7 @@ export const useSelectNoteGesture = (): MouseGesture => {
   } = useStores()
 
   return {
-    onMouseDown(e: MouseEvent) {
+    onMouseDown(e) {
       const local = pianoRollStore.getLocal(e)
       const start = transform.getNotePoint(local)
       const startPos = local

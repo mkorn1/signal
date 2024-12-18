@@ -1,12 +1,13 @@
 import { useCloneSelection } from "../../../../actions"
+import { MouseGesture } from "../../../../gesture/MouseGesture"
 import { useMoveDraggableGesture } from "./useMoveDraggableGesture"
 
-export const useMoveSelectionGesture = () => {
+export const useMoveSelectionGesture = (): MouseGesture<[number[]]> => {
   const moveDraggableAction = useMoveDraggableGesture()
   const cloneSelection = useCloneSelection()
 
   return {
-    onMouseDown(e: MouseEvent, selectedNoteIds: number[]) {
+    onMouseDown(e, selectedNoteIds) {
       const isCopy = e.metaKey
 
       if (isCopy) {
