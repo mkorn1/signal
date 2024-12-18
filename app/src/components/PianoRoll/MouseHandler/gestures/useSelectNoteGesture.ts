@@ -1,9 +1,9 @@
 import { eventsInSelection } from "../../../../actions"
 import { Point } from "../../../../entities/geometry/Point"
 import { Selection } from "../../../../entities/selection/Selection"
+import { MouseGesture } from "../../../../gesture/MouseGesture"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
 import { useStores } from "../../../../hooks/useStores"
-import { MouseGesture } from "../NoteMouseHandler"
 
 export const useSelectNoteGesture = (): MouseGesture => {
   const {

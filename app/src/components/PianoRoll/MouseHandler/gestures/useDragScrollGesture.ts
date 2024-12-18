@@ -1,6 +1,6 @@
+import { MouseGesture } from "../../../../gesture/MouseGesture"
 import { observeDrag } from "../../../../helpers/observeDrag"
 import { useStores } from "../../../../hooks/useStores"
-import { MouseGesture } from "../NoteMouseHandler"
 
 export const useDragScrollGesture = (): MouseGesture => {
   const { pianoRollStore } = useStores()

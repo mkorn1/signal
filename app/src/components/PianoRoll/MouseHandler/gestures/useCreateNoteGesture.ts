@@ -1,7 +1,7 @@
 import { NoteNumber } from "../../../../entities/unit/NoteNumber"
+import { MouseGesture } from "../../../../gesture/MouseGesture"
 import { useStores } from "../../../../hooks/useStores"
 import { NoteEvent } from "../../../../track"
-import { MouseGesture } from "../NoteMouseHandler"
 import { useDragNoteCenterGesture } from "./useDragNoteEdgeGesture"
 
 export const useCreateNoteGesture = (): MouseGesture => {

@@ -1,7 +1,7 @@
 import { useSelectNote, useStartNote, useStopNote } from "../../../../actions"
+import { MouseGesture } from "../../../../gesture/MouseGesture"
 import { useStores } from "../../../../hooks/useStores"
 import { isNoteEvent } from "../../../../track"
-import { MouseGesture } from "../NoteMouseHandler"
 import { useMoveDraggableGesture } from "./useMoveDraggableGesture"
 
 const useDragNoteEdgeGesture =

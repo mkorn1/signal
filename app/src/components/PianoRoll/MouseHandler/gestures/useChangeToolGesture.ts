@@ -1,5 +1,5 @@
+import { MouseGesture } from "../../../../gesture/MouseGesture"
 import { useStores } from "../../../../hooks/useStores"
-import { MouseGesture } from "../NoteMouseHandler"
 
 export const useChangeToolGesture = (): MouseGesture => {
   const { pianoRollStore } = useStores()
