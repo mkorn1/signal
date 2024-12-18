@@ -12,7 +12,7 @@ import {
 import { useRemoveNoteFromSelectionGesture } from "./gestures/useRemoveNoteFromSelectionGesture"
 import { useRemoveNoteGesture } from "./gestures/useRemoveNoteGesture"
 import { useSelectNoteGesture } from "./gestures/useSelectNoteGesture"
-import { CursorProvider } from "./NoteMouseHandler"
+import { CursorProvider } from "./useNoteMouseGesture"
 
 export const usePencilGesture = (): MouseGesture & CursorProvider => {
   const { pianoRollStore } = useStores()

@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { MouseGesture } from "../../../gesture/MouseGesture"
 import { useStores } from "../../../hooks/useStores"
-import { usePencilGesture } from "./PencilMouseHandler"
-import { useSelectionGesture } from "./SelectionMouseHandler"
 import { useChangeToolGesture } from "./gestures/useChangeToolGesture"
 import { useDragScrollGesture } from "./gestures/useDragScrollGesture"
+import { usePencilGesture } from "./usePencilGesture"
+import { useSelectionGesture } from "./useSelectionGesture"
 
 export interface CursorProvider {
   getCursor(e: MouseEvent): string

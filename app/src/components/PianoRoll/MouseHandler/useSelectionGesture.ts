@@ -6,7 +6,7 @@ import { useCreateSelectionGesture } from "./gestures/useCreateSelectionGesture"
 import { useDragSelectionLeftEdgeGesture } from "./gestures/useDragSelectionLeftEdgeGesture"
 import { useDragSelectionRightEdgeGesture } from "./gestures/useDragSelectionRightEdgeGesture"
 import { useMoveSelectionGesture } from "./gestures/useMoveSelectionGesture"
-import { CursorProvider } from "./NoteMouseHandler"
+import { CursorProvider } from "./useNoteMouseGesture"
 
 export const MIN_LENGTH = 10
 

@@ -8,7 +8,7 @@ import {
   DraggableArea,
   PianoRollDraggable,
 } from "../../../../stores/PianoRollStore"
-import { MIN_LENGTH } from "../SelectionMouseHandler"
+import { MIN_LENGTH } from "../useSelectionGesture"
 
 export interface MoveDraggableCallback {
   onChange?: (
