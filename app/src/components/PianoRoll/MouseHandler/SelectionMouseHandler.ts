@@ -1,14 +1,16 @@
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
+import { MouseGesture } from "../../../gesture/MouseGesture"
 import { useStores } from "../../../hooks/useStores"
 import { useCreateSelectionGesture } from "./gestures/useCreateSelectionGesture"
 import { useDragSelectionLeftEdgeGesture } from "./gestures/useDragSelectionLeftEdgeGesture"
 import { useDragSelectionRightEdgeGesture } from "./gestures/useDragSelectionRightEdgeGesture"
 import { useMoveSelectionGesture } from "./gestures/useMoveSelectionGesture"
+import { CursorProvider } from "./NoteMouseHandler"
 
 export const MIN_LENGTH = 10
 
-export const useSelectionGesture = () => {
+export const useSelectionGesture = (): MouseGesture & CursorProvider => {
   const {
     pianoRollStore,
     pianoRollStore: { selectionBounds, selectedNoteIds },

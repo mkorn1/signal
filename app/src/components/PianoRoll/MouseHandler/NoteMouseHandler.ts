@@ -1,11 +1,16 @@
 import { useState } from "react"
+import { MouseGesture } from "../../../gesture/MouseGesture"
 import { useStores } from "../../../hooks/useStores"
 import { usePencilGesture } from "./PencilMouseHandler"
 import { useSelectionGesture } from "./SelectionMouseHandler"
 import { useChangeToolGesture } from "./gestures/useChangeToolGesture"
 import { useDragScrollGesture } from "./gestures/useDragScrollGesture"
 
-export const useNoteMouseGesture = () => {
+export interface CursorProvider {
+  getCursor(e: MouseEvent): string
+}
+
+export const useNoteMouseGesture = (): MouseGesture<[], React.MouseEvent> => {
   const rootStore = useStores()
   const {
     pianoRollStore,
@@ -42,13 +47,13 @@ export const useNoteMouseGesture = () => {
   }
 
   return {
-    onMouseDown(ev: React.MouseEvent) {
+    onMouseDown(ev) {
       const e = ev.nativeEvent
       setMouseDown(true)
       getGestureForMouseDown(e).onMouseDown(e)
     },
 
-    onMouseMove(ev: React.MouseEvent) {
+    onMouseMove(ev) {
       const e = ev.nativeEvent
       if (!isMouseDown) {
         const cursor = currentGesture.getCursor(e)

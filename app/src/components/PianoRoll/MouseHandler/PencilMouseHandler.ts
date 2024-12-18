@@ -1,4 +1,5 @@
 import { Point } from "../../../entities/geometry/Point"
+import { MouseGesture } from "../../../gesture/MouseGesture"
 import { useStores } from "../../../hooks/useStores"
 import { PianoNoteItem } from "../../../stores/PianoRollStore"
 import { useAddNoteToSelectionGesture } from "./gestures/useAddNoteToSelectionGesture"
@@ -11,8 +12,9 @@ import {
 import { useRemoveNoteFromSelectionGesture } from "./gestures/useRemoveNoteFromSelectionGesture"
 import { useRemoveNoteGesture } from "./gestures/useRemoveNoteGesture"
 import { useSelectNoteGesture } from "./gestures/useSelectNoteGesture"
+import { CursorProvider } from "./NoteMouseHandler"
 
-export const usePencilGesture = () => {
+export const usePencilGesture = (): MouseGesture & CursorProvider => {
   const { pianoRollStore } = useStores()
   const removeNoteGesture = useRemoveNoteGesture()
   const createNoteGesture = useCreateNoteGesture()
