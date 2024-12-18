@@ -1,13 +1,13 @@
-import { Point } from "../../../entities/geometry/Point"
-import { Range } from "../../../entities/geometry/Range"
-import { NotePoint } from "../../../entities/transform/NotePoint"
-import { observeDrag2 } from "../../../helpers/observeDrag"
-import { useStores } from "../../../hooks/useStores"
+import { Point } from "../../../../entities/geometry/Point"
+import { Range } from "../../../../entities/geometry/Range"
+import { NotePoint } from "../../../../entities/transform/NotePoint"
+import { observeDrag2 } from "../../../../helpers/observeDrag"
+import { useStores } from "../../../../hooks/useStores"
 import {
   DraggableArea,
   PianoRollDraggable,
-} from "../../../stores/PianoRollStore"
-import { MIN_LENGTH } from "./SelectionMouseHandler"
+} from "../../../../stores/PianoRollStore"
+import { MIN_LENGTH } from "../SelectionMouseHandler"
 
 export interface MoveDraggableCallback {
   onChange?: (
