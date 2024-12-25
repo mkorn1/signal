@@ -2,7 +2,7 @@ import { useTheme } from "@emotion/react"
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { observer } from "mobx-react-lite"
 import React, { MouseEventHandler, useCallback, useMemo } from "react"
-import { createOrUpdateControlEventsValue } from "../../../actions/control"
+import { useCreateOrUpdateControlEventsValue } from "../../../actions/control"
 import { ValueEventType } from "../../../entities/event/ValueEventType"
 import { Point } from "../../../entities/geometry/Point"
 import { Range } from "../../../entities/geometry/Range"
@@ -54,6 +54,8 @@ const LineGraph = observer(
     const {
       controlStore: { scrollLeft, transform, cursor, mouseMode },
     } = rootStore
+    const createOrUpdateControlEventsValue =
+      useCreateOrUpdateControlEventsValue()
 
     const controlTransform = useMemo(
       () => new ControlCoordTransform(transform, maxValue, height, lineWidth),
@@ -129,9 +131,9 @@ const LineGraph = observer(
     const onClickAxis = useCallback(
       (value: number) => {
         const event = ValueEventType.getEventFactory(eventType)(value)
-        createOrUpdateControlEventsValue(rootStore)(event)
+        createOrUpdateControlEventsValue(event)
       },
-      [eventType],
+      [eventType, createOrUpdateControlEventsValue],
     )
 
     const { onContextMenu, menuProps } = useContextMenu()

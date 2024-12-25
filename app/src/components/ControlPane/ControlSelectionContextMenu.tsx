@@ -1,10 +1,10 @@
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
 import {
-  copyControlSelection,
-  deleteControlSelection,
-  duplicateControlSelection,
-  pasteControlSelection,
+  useCopyControlSelection,
+  useDeleteControlSelection,
+  useDuplicateControlSelection,
+  usePasteControlSelection,
 } from "../../actions/control"
 import { useStores } from "../../hooks/useStores"
 import { envString } from "../../localize/envString"
@@ -22,32 +22,36 @@ export const ControlSelectionContextMenu: FC<ContextMenuProps> = observer(
     const rootStore = useStores()
     const { controlStore } = rootStore
     const isEventSelected = controlStore.selectedEventIds.length > 0
+    const copyControlSelection = useCopyControlSelection()
+    const deleteControlSelection = useDeleteControlSelection()
+    const duplicateControlSelection = useDuplicateControlSelection()
+    const pasteControlSelection = usePasteControlSelection()
 
     const onClickCut = useCallback(() => {
-      copyControlSelection(rootStore)()
-      deleteControlSelection(rootStore)()
+      copyControlSelection()
+      deleteControlSelection()
       handleClose()
-    }, [])
+    }, [copyControlSelection, deleteControlSelection])
 
     const onClickCopy = useCallback(() => {
-      copyControlSelection(rootStore)()
+      copyControlSelection()
       handleClose()
-    }, [])
+    }, [copyControlSelection])
 
     const onClickPaste = useCallback(() => {
-      pasteControlSelection(rootStore)()
+      pasteControlSelection()
       handleClose()
-    }, [])
+    }, [pasteControlSelection])
 
     const onClickDuplicate = useCallback(() => {
-      duplicateControlSelection(rootStore)()
+      duplicateControlSelection()
       handleClose()
-    }, [])
+    }, [duplicateControlSelection])
 
     const onClickDelete = useCallback(() => {
-      deleteControlSelection(rootStore)()
+      deleteControlSelection()
       handleClose()
-    }, [])
+    }, [deleteControlSelection])
 
     return (
       <ContextMenu {...props}>

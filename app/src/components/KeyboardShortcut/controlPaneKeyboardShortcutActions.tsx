@@ -1,35 +1,37 @@
 import {
-  copyControlSelection,
-  deleteControlSelection,
-  duplicateControlSelection,
-  resetControlSelection,
+  useCopyControlSelection,
+  useDeleteControlSelection,
+  useDuplicateControlSelection,
+  useResetControlSelection,
 } from "../../actions/control"
-import { useStores } from "../../hooks/useStores"
 
 export const useControlPaneKeyboardShortcutActions = () => {
-  const rootStore = useStores()
+  const resetControlSelection = useResetControlSelection()
+  const deleteControlSelection = useDeleteControlSelection()
+  const copyControlSelection = useCopyControlSelection()
+  const duplicateControlSelection = useDuplicateControlSelection()
 
   return () => [
-    { code: "Escape", run: () => resetControlSelection(rootStore)() },
-    { code: "Backspace", run: () => deleteControlSelection(rootStore)() },
-    { code: "Delete", run: () => deleteControlSelection(rootStore)() },
+    { code: "Escape", run: () => resetControlSelection() },
+    { code: "Backspace", run: () => deleteControlSelection() },
+    { code: "Delete", run: () => deleteControlSelection() },
     {
       code: "KeyC",
       metaKey: true,
-      run: () => copyControlSelection(rootStore)(),
+      run: () => copyControlSelection(),
     },
     {
       code: "KeyX",
       metaKey: true,
       run: () => {
-        copyControlSelection(rootStore)()
-        deleteControlSelection(rootStore)()
+        copyControlSelection()
+        deleteControlSelection()
       },
     },
     {
       code: "KeyD",
       metaKey: true,
-      run: () => duplicateControlSelection(rootStore)(),
+      run: () => duplicateControlSelection(),
     },
   ]
 }

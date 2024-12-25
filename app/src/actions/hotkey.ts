@@ -1,13 +1,9 @@
+import { useCopySelection, useDeleteSelection, usePasteSelection } from "."
 import {
-  copyControlSelection,
-  deleteControlSelection,
-  pasteControlSelection,
+  useCopyControlSelection,
+  useDeleteControlSelection,
+  usePasteControlSelection,
 } from "../actions/control"
-import {
-  useCopySelection,
-  useDeleteSelection,
-  usePasteSelection,
-} from "../actions/selection"
 import {
   isControlEventsClipboardData,
   isPianoNotesClipboardData,
@@ -30,6 +26,7 @@ export const useCopySelectionGlobal = () => {
   const copySelection = useCopySelection()
   const arrangeCopySelection = useArrangeCopySelection()
   const copyTempoSelection = useCopyTempoSelection()
+  const copyControlSelection = useCopyControlSelection()
 
   return () => {
     switch (rootStore.router.path) {
@@ -37,7 +34,7 @@ export const useCopySelectionGlobal = () => {
         if (rootStore.pianoRollStore.selectedNoteIds.length > 0) {
           copySelection()
         } else if (rootStore.controlStore.selectedEventIds.length > 0) {
-          copyControlSelection(rootStore)()
+          copyControlSelection()
         }
         break
       case "/arrange":
@@ -58,6 +55,8 @@ export const useCutSelectionGlobal = () => {
   const arrangeDeleteSelection = useArrangeDeleteSelection()
   const copyTempoSelection = useCopyTempoSelection()
   const deleteTempoSelection = useDeleteTempoSelection()
+  const copyControlSelection = useCopyControlSelection()
+  const deleteControlSelection = useDeleteControlSelection()
 
   return () => {
     switch (rootStore.router.path) {
@@ -66,8 +65,8 @@ export const useCutSelectionGlobal = () => {
           copySelection()
           deleteSelection()
         } else if (rootStore.controlStore.selectedEventIds.length > 0) {
-          copyControlSelection(rootStore)()
-          deleteControlSelection(rootStore)()
+          copyControlSelection()
+          deleteControlSelection()
         }
         break
       case "/arrange":
@@ -87,6 +86,7 @@ export const usePasteSelectionGlobal = () => {
   const pasteSelection = usePasteSelection()
   const arrangePasteSelection = useArrangePasteSelection()
   const pasteTempoSelection = usePasteTempoSelection()
+  const pasteControlSelection = usePasteControlSelection()
 
   return () => {
     switch (rootStore.router.path) {
@@ -99,7 +99,7 @@ export const usePasteSelectionGlobal = () => {
         if (isPianoNotesClipboardData(obj)) {
           pasteSelection()
         } else if (isControlEventsClipboardData(obj)) {
-          pasteControlSelection(rootStore)()
+          pasteControlSelection()
         }
         break
       case "/arrange":
