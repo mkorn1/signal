@@ -1,7 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
 import {
-  toggleRecording,
   useFastForwardOneBar,
   useNextTrack,
   usePreviousTrack,
@@ -9,6 +8,7 @@ import {
   useStop,
   useToggleGhost,
   useToggleMute,
+  useToggleRecording,
   useToggleSolo,
 } from "../../actions"
 import { useRedo, useUndo } from "../../actions/history"
@@ -16,8 +16,7 @@ import { useStores } from "../../hooks/useStores"
 import { KeyboardShortcut } from "./KeyboardShortcut"
 
 export const GlobalKeyboardShortcut: FC = observer(() => {
-  const rootStore = useStores()
-  const { rootViewStore, router, player } = rootStore
+  const { rootViewStore, router, player } = useStores()
   const rewindOneBar = useRewindOneBar()
   const fastForwardOneBar = useFastForwardOneBar()
   const stop = useStop()
@@ -26,6 +25,7 @@ export const GlobalKeyboardShortcut: FC = observer(() => {
   const toggleSolo = useToggleSolo()
   const toggleMute = useToggleMute()
   const toggleGhost = useToggleGhost()
+  const toggleRecording = useToggleRecording()
   const undo = useUndo()
   const redo = useRedo()
 
@@ -83,12 +83,12 @@ export const GlobalKeyboardShortcut: FC = observer(() => {
         { code: "Enter", run: stop },
         { code: "KeyA", run: rewindOneBar },
         { code: "KeyD", run: fastForwardOneBar },
-        { code: "KeyS", run: () => nextTrack() },
-        { code: "KeyW", run: () => previousTrack() },
-        { code: "KeyN", run: () => toggleSolo() },
-        { code: "KeyM", run: () => toggleMute() },
-        { code: "KeyR", run: () => toggleRecording(rootStore)() },
-        { code: "Comma", run: () => toggleGhost() },
+        { code: "KeyS", run: nextTrack },
+        { code: "KeyW", run: previousTrack },
+        { code: "KeyN", run: toggleSolo },
+        { code: "KeyM", run: toggleMute },
+        { code: "KeyR", run: toggleRecording },
+        { code: "Comma", run: toggleGhost },
         {
           code: "Digit1",
           metaKey: true,
