@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
-import { addTimeSignature, setLoopBegin, setLoopEnd } from "../../actions"
+import { addTimeSignature } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { envString } from "../../localize/envString"
 import { Localized } from "../../localize/useLocalization"
@@ -42,14 +42,14 @@ export const RulerContextMenu: FC<RulerContextMenuProps> = observer(
     }, [song])
 
     const onClickSetLoopStart = useCallback(() => {
-      setLoopBegin(rootStore)(tick)
+      player.setLoopBegin(tick)
       handleClose()
-    }, [tick])
+    }, [tick, player])
 
     const onClickSetLoopEnd = useCallback(() => {
-      setLoopEnd(rootStore)(tick)
+      player.setLoopEnd(tick)
       handleClose()
-    }, [tick])
+    }, [tick, player])
 
     const closeOpenTimeSignatureDialog = useCallback(() => {
       setOpenTimeSignatureDialog(false)

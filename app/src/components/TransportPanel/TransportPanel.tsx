@@ -7,13 +7,7 @@ import MetronomeIcon from "mdi-react/MetronomeIcon"
 import Stop from "mdi-react/StopIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
-import {
-  fastForwardOneBar,
-  playOrPause,
-  rewindOneBar,
-  stop,
-  toggleEnableLoop,
-} from "../../actions"
+import { useFastForwardOneBar, useRewindOneBar, useStop } from "../../actions"
 import { toggleRecording } from "../../actions/recording"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
@@ -87,13 +81,16 @@ export const TransportPanel: FC = observer(() => {
   const canRecording =
     Object.values(midiDeviceStore.enabledInputs).filter((e) => e).length > 0
   const isSynthLoading = soundFontStore.isLoading
+  const stop = useStop()
+  const rewindOneBar = useRewindOneBar()
+  const fastForwardOneBar = useFastForwardOneBar()
 
-  const onClickPlay = playOrPause(rootStore)
-  const onClickStop = stop(rootStore)
-  const onClickBackward = rewindOneBar(rootStore)
-  const onClickForward = fastForwardOneBar(rootStore)
+  const onClickPlay = () => player.playOrPause()
+  const onClickStop = stop
+  const onClickBackward = rewindOneBar
+  const onClickForward = fastForwardOneBar
   const onClickRecord = toggleRecording(rootStore)
-  const onClickEnableLoop = toggleEnableLoop(rootStore)
+  const onClickEnableLoop = () => player.toggleEnableLoop()
   const onClickMetronone = useCallback(() => {
     synthGroup.isMetronomeEnabled = !synthGroup.isMetronomeEnabled
   }, [player])

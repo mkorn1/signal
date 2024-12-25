@@ -4,7 +4,7 @@ import { findLast, isEqual } from "lodash"
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useState } from "react"
 import { Layout } from "../../Constants"
-import { setLoopBegin, setLoopEnd, updateTimeSignature } from "../../actions"
+import { updateTimeSignature } from "../../actions"
 import { BeatWithX } from "../../entities/beat/BeatWithX"
 import { TickTransform } from "../../entities/transform/TickTransform"
 import { useContextMenu } from "../../hooks/useContextMenu"
@@ -209,14 +209,14 @@ const PianoRuler: FC<PianoRulerProps> = observer(
           const tick = rulerStore.getTick(e.nativeEvent.offsetX)
           const quantizedTick = quantizer.round(tick)
           if (e.nativeEvent.ctrlKey) {
-            setLoopBegin(rootStore)(quantizedTick)
+            player.setLoopBegin(quantizedTick)
           } else if (e.nativeEvent.altKey) {
-            setLoopEnd(rootStore)(quantizedTick)
+            player.setLoopEnd(quantizedTick)
           } else {
             player.position = quantizedTick
           }
         },
-        [rootStore, quantizer, player],
+        [quantizer, player],
       )
 
     const onMouseDown: React.MouseEventHandler<HTMLCanvasElement> = useCallback(

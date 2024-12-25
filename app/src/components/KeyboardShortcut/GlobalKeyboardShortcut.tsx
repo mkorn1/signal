@@ -1,23 +1,31 @@
+import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
 import {
-  fastForwardOneBar,
-  nextTrack,
-  playOrPause,
-  previousTrack,
-  rewindOneBar,
-  stop,
-  toggleGhost,
-  toggleMute,
   toggleRecording,
-  toggleSolo,
+  useFastForwardOneBar,
+  useNextTrack,
+  usePreviousTrack,
+  useRewindOneBar,
+  useStop,
+  useToggleGhost,
+  useToggleMute,
+  useToggleSolo,
 } from "../../actions"
 import { redo, undo } from "../../actions/history"
 import { useStores } from "../../hooks/useStores"
 import { KeyboardShortcut } from "./KeyboardShortcut"
 
-export const GlobalKeyboardShortcut: FC = () => {
+export const GlobalKeyboardShortcut: FC = observer(() => {
   const rootStore = useStores()
-  const { rootViewStore, router } = rootStore
+  const { rootViewStore, router, player } = rootStore
+  const rewindOneBar = useRewindOneBar()
+  const fastForwardOneBar = useFastForwardOneBar()
+  const stop = useStop()
+  const nextTrack = useNextTrack()
+  const previousTrack = usePreviousTrack()
+  const toggleSolo = useToggleSolo()
+  const toggleMute = useToggleMute()
+  const toggleGhost = useToggleGhost()
 
   useEffect(() => {
     // prevent zooming
@@ -50,7 +58,7 @@ export const GlobalKeyboardShortcut: FC = () => {
   return (
     <KeyboardShortcut
       actions={[
-        { code: "Space", run: () => playOrPause(rootStore)() },
+        { code: "Space", run: () => player.playOrPause() },
         {
           code: "KeyZ",
           metaKey: true,
@@ -70,15 +78,15 @@ export const GlobalKeyboardShortcut: FC = () => {
           shiftKey: true,
           run: () => (rootViewStore.openHelp = true),
         },
-        { code: "Enter", run: () => stop(rootStore)() },
-        { code: "KeyA", run: () => rewindOneBar(rootStore)() },
-        { code: "KeyD", run: () => fastForwardOneBar(rootStore)() },
-        { code: "KeyS", run: () => nextTrack(rootStore)() },
-        { code: "KeyW", run: () => previousTrack(rootStore)() },
-        { code: "KeyN", run: () => toggleSolo(rootStore)() },
-        { code: "KeyM", run: () => toggleMute(rootStore)() },
+        { code: "Enter", run: stop },
+        { code: "KeyA", run: rewindOneBar },
+        { code: "KeyD", run: fastForwardOneBar },
+        { code: "KeyS", run: () => nextTrack() },
+        { code: "KeyW", run: () => previousTrack() },
+        { code: "KeyN", run: () => toggleSolo() },
+        { code: "KeyM", run: () => toggleMute() },
         { code: "KeyR", run: () => toggleRecording(rootStore)() },
-        { code: "Comma", run: () => toggleGhost(rootStore)() },
+        { code: "Comma", run: () => toggleGhost() },
         {
           code: "Digit1",
           metaKey: true,
@@ -97,4 +105,4 @@ export const GlobalKeyboardShortcut: FC = () => {
       ]}
     />
   )
-}
+})
