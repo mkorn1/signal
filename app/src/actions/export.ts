@@ -1,15 +1,16 @@
 import { renderAudio } from "@signal-app/player"
 import { encode } from "wav-encoder"
 import { downloadBlob } from "../helpers/Downloader"
+import { useStores } from "../hooks/useStores"
 import Song from "../song"
-import RootStore from "../stores/RootStore"
 
 const waitForAnimationFrame = () =>
   new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()))
 
-export const exportSongAsWav =
-  ({ song, synth, exportStore }: RootStore) =>
-  async () => {
+export const useExportSongAsWav = () => {
+  const { song, synth, exportStore } = useStores()
+
+  return async () => {
     const soundFontData = synth.loadedSoundFontData
     if (soundFontData === null) {
       return
@@ -53,12 +54,15 @@ export const exportSongAsWav =
       console.warn(e)
     }
   }
+}
 
-export const cancelExport =
-  ({ exportStore }: RootStore) =>
-  () => {
+export const useCancelExport = () => {
+  const { exportStore } = useStores()
+
+  return () => {
     exportStore.isCanceled = true
   }
+}
 
 export const canExport = (song: Song) =>
   song.allEvents.some((e) => e.tick >= 120)

@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useState } from "react"
-import { canExport, exportSongAsWav } from "../../actions"
+import { canExport, useExportSongAsWav } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
 import {
@@ -14,6 +14,8 @@ import { Button, PrimaryButton } from "../ui/Button"
 
 export const ExportDialog: FC = observer(() => {
   const rootStore = useStores()
+  const exportSongAsWav = useExportSongAsWav()
+
   const { exportStore, song } = rootStore
   const { openExportDialog: open } = exportStore
   const onClose = useCallback(
@@ -23,8 +25,8 @@ export const ExportDialog: FC = observer(() => {
 
   const onClickExport = useCallback(() => {
     exportStore.openExportDialog = false
-    exportSongAsWav(rootStore)()
-  }, [rootStore, exportStore])
+    exportSongAsWav()
+  }, [exportStore, exportSongAsWav])
 
   const [exportEnabled, setExportEnabled] = useState(false)
   useEffect(() => {
