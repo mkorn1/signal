@@ -1,7 +1,4 @@
-import {
-  createEvent as createTrackEvent,
-  updateValueEvents,
-} from "../../../../actions"
+import { useCreateEvent, useUpdateValueEvents } from "../../../../actions"
 import { usePushHistory } from "../../../../actions/history"
 import { ValueEventType } from "../../../../entities/event/ValueEventType"
 import { Point } from "../../../../entities/geometry/Point"
@@ -16,6 +13,8 @@ export const usePencilGesture = (): MouseGesture<
 > => {
   const rootStore = useStores()
   const { controlStore, pianoRollStore } = rootStore
+  const createTrackEvent = useCreateEvent()
+  const updateValueEvents = useUpdateValueEvents()
   const pushHistory = usePushHistory()
 
   return {
@@ -31,7 +30,7 @@ export const usePencilGesture = (): MouseGesture<
       const pos = transform.fromPosition(startPoint)
 
       const event = ValueEventType.getEventFactory(type)(pos.value)
-      createTrackEvent(rootStore)(event, pos.tick)
+      createTrackEvent(event, pos.tick)
 
       let lastTick = pos.tick
       let lastValue = pos.value
@@ -47,7 +46,7 @@ export const usePencilGesture = (): MouseGesture<
           )
           const tick = transform.getTick(local.x)
 
-          updateValueEvents(type)(rootStore)(lastValue, value, lastTick, tick)
+          updateValueEvents(type)(lastValue, value, lastTick, tick)
 
           lastTick = tick
           lastValue = value

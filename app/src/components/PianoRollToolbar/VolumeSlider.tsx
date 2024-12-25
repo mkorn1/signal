@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import VolumeUp from "mdi-react/VolumeHighIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
-import { setTrackVolume } from "../../actions"
+import { useSetTrackVolume } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { Slider } from "../ui/Slider"
 
@@ -24,14 +24,14 @@ const VolumeIcon = styled(VolumeUp)`
 `
 
 export const VolumeSlider: FC = observer(() => {
-  const rootStore = useStores()
   const {
     pianoRollStore: { currentVolume, selectedTrackId: trackId },
-  } = rootStore
+  } = useStores()
+  const setTrackVolume = useSetTrackVolume()
   const volume = currentVolume ?? 100
   const onChange = useCallback(
-    (value: number) => setTrackVolume(rootStore)(trackId, value),
-    [rootStore, trackId],
+    (value: number) => setTrackVolume(trackId, value),
+    [setTrackVolume, trackId],
   )
   return (
     <Container>

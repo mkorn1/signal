@@ -6,9 +6,9 @@ import VolumeOff from "mdi-react/VolumeOffIcon"
 import { observer } from "mobx-react-lite"
 import { FC, MouseEventHandler, useCallback, useState } from "react"
 import {
-  toogleAllGhostTracks,
-  toogleGhostTrack,
   useSelectTrack,
+  useToggleAllGhostTracks,
+  useToggleGhostTrack,
   useToggleMuteTrack,
   useToggleSoloTrack,
 } from "../../actions"
@@ -134,10 +134,11 @@ const ControlButton = styled.div<{ active?: boolean }>`
 `
 
 export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
-  const rootStore = useStores()
-  const { pianoRollStore, rootViewStore, trackMute, router } = rootStore
+  const { pianoRollStore, rootViewStore, trackMute, router } = useStores()
   const toggleMuteTrack = useToggleMuteTrack()
   const toggleSoloTrack = useToggleSoloTrack()
+  const toggleGhostTrack = useToggleGhostTrack()
+  const toggleAllGhostTracks = useToggleAllGhostTracks()
   const selectTrack = useSelectTrack()
 
   const selected =
@@ -178,12 +179,12 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
     (e) => {
       e.stopPropagation()
       if (e.nativeEvent.altKey) {
-        toogleAllGhostTracks(rootStore)()
+        toggleAllGhostTracks()
       } else {
-        toogleGhostTrack(rootStore)(track.id)
+        toggleGhostTrack(track.id)
       }
     },
-    [track.id, toogleAllGhostTracks, toogleGhostTrack],
+    [track.id, toggleAllGhostTracks, toggleGhostTrack],
   )
   const onSelectTrack = useCallback(() => {
     router.pushTrack()

@@ -3,8 +3,8 @@ import { LoopSetting } from "@signal-app/player"
 import { findLast, isEqual } from "lodash"
 import { observer } from "mobx-react-lite"
 import React, { FC, useCallback, useState } from "react"
+import { useUpdateTimeSignature } from "../../actions"
 import { Layout } from "../../Constants"
-import { updateTimeSignature } from "../../actions"
 import { BeatWithX } from "../../entities/beat/BeatWithX"
 import { TickTransform } from "../../entities/transform/TickTransform"
 import { useContextMenu } from "../../hooks/useContextMenu"
@@ -165,7 +165,11 @@ const TIME_SIGNATURE_HIT_WIDTH = 20
 
 const PianoRuler: FC<PianoRulerProps> = observer(
   ({ rulerStore, onMouseDown: _onMouseDown, style }) => {
-    const rootStore = useStores()
+    const {
+      player,
+      player: { loop },
+    } = useStores()
+    const updateTimeSignature = useUpdateTimeSignature()
     const theme = useTheme()
     const { onContextMenu, menuProps } = useContextMenu()
     const [timeSignatureDialogState, setTimeSignatureDialogState] =
@@ -175,10 +179,6 @@ const PianoRuler: FC<PianoRulerProps> = observer(
 
     const { canvasWidth: width, transform, scrollLeft } = rulerStore.parent
     const { beats, timeSignatures, quantizer } = rulerStore
-    const {
-      player,
-      player: { loop },
-    } = rootStore
 
     const timeSignatureHitTest = (tick: number) => {
       const widthTick = transform.getTick(TIME_SIGNATURE_HIT_WIDTH)
@@ -241,7 +241,7 @@ const PianoRuler: FC<PianoRulerProps> = observer(
 
         _onMouseDown?.(e)
       },
-      [rootStore, quantizer, player, scrollLeft, transform, timeSignatures],
+      [quantizer, player, scrollLeft, transform, timeSignatures],
     )
 
     const draw = useCallback(
@@ -266,10 +266,10 @@ const PianoRuler: FC<PianoRulerProps> = observer(
     const okTimeSignatureDialog = useCallback(
       ({ numerator, denominator }: TimeSignatureDialogState) => {
         rulerStore.selectedTimeSignatureEventIds.forEach((id) => {
-          updateTimeSignature(rootStore)(id, numerator, denominator)
+          updateTimeSignature(id, numerator, denominator)
         })
       },
-      [],
+      [updateTimeSignature],
     )
 
     return (

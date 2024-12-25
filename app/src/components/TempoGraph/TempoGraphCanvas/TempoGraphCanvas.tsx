@@ -1,7 +1,7 @@
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { CSSProperties, FC, useCallback, useMemo } from "react"
-import { changeTempo } from "../../../actions"
+import { useChangeTempo } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../../../helpers/bpm"
 import { matrixFromTranslation } from "../../../helpers/matrix"
@@ -24,6 +24,7 @@ export interface TempoGraphCanvasProps {
 export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
   ({ width, height, style }) => {
     const rootStore = useStores()
+    const changeTempo = useChangeTempo()
 
     const {
       tempoEditorStore,
@@ -107,12 +108,9 @@ export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
         const event = items.filter((ev) => ev.id === item.id)[0]
         const movement = e.nativeEvent.deltaY > 0 ? -1 : 1
         const bpm = uSecPerBeatToBPM(event.microsecondsPerBeat)
-        changeTempo(rootStore)(
-          event.id,
-          Math.floor(bpmToUSecPerBeat(bpm + movement)),
-        )
+        changeTempo(event.id, Math.floor(bpmToUSecPerBeat(bpm + movement)))
       },
-      [items, rootStore, scrollLeft],
+      [items, rootStore, scrollLeft, changeTempo],
     )
 
     const scrollXMatrix = useMemo(

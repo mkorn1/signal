@@ -3,7 +3,10 @@ import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
-import { changeNotesVelocity, updateVelocitiesInRange } from "../../../actions"
+import {
+  useChangeNotesVelocity,
+  useUpdateVelocitiesInRange,
+} from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
 import { colorToVec4, enhanceContrast } from "../../../gl/color"
@@ -34,6 +37,8 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
         cursorX,
       },
     } = rootStore
+    const updateVelocitiesInRange = useUpdateVelocitiesInRange()
+    const changeNotesVelocity = useChangeNotesVelocity()
     const theme = useTheme()
 
     const items: VelocityItem[] = useMemo(
@@ -102,12 +107,7 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
               const tick = transform.getTick(local.x)
               const value = calcValue(e)
 
-              updateVelocitiesInRange(rootStore)(
-                lastTick,
-                lastValue,
-                tick,
-                value,
-              )
+              updateVelocitiesInRange(lastTick, lastValue, tick, value)
               lastTick = tick
               lastValue = value
             },
@@ -117,15 +117,22 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
         function handleSingleDrag() {
           const noteIds = hitItems.map((e) => e.id)
 
-          changeNotesVelocity(rootStore)(noteIds, calcValue(e))
+          changeNotesVelocity(noteIds, calcValue(e))
 
           observeDrag({
-            onMouseMove: (e) =>
-              changeNotesVelocity(rootStore)(noteIds, calcValue(e)),
+            onMouseMove: (e) => changeNotesVelocity(noteIds, calcValue(e)),
           })
         }
       },
-      [height, items, rootStore, selectedNoteIds, scrollLeft],
+      [
+        height,
+        items,
+        rootStore,
+        selectedNoteIds,
+        scrollLeft,
+        updateVelocitiesInRange,
+        changeNotesVelocity,
+      ],
     )
 
     const scrollXMatrix = useMemo(
