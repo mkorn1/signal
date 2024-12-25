@@ -3,11 +3,10 @@ import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import {
-  arrangeEndSelection,
-  arrangeMoveSelection,
-  arrangeResizeSelection,
+  useArrangeEndSelection,
+  useArrangeMoveSelection,
+  useArrangeResizeSelection,
 } from "../../../actions"
-import { pushHistory } from "../../../actions/history"
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
 import { matrixFromTranslation } from "../../../helpers/matrix"
@@ -28,8 +27,7 @@ export interface ArrangeViewCanvasProps {
 
 export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
   ({ width, onContextMenu }) => {
-    const rootStore = useStores()
-    const { arrangeViewStore, player } = rootStore
+    const { arrangeViewStore, player, pushHistory } = useStores()
     const theme = useTheme()
     const {
       scrollLeft,
@@ -41,6 +39,11 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
       selectionRect,
       trackTransform,
     } = arrangeViewStore
+
+    const arrangeMoveSelection = useArrangeMoveSelection()
+    const arrangeEndSelection = useArrangeEndSelection()
+    const arrangeResizeSelection = useArrangeResizeSelection()
+
     const scrollXMatrix = useMemo(
       () => matrixFromTranslation(-scrollLeft, 0),
       [scrollLeft],
@@ -85,10 +88,10 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
 
               if ((deltaPx.x !== 0 || deltaPx.y !== 0) && !isMoved) {
                 isMoved = true
-                pushHistory(rootStore)()
+                pushHistory()
               }
 
-              arrangeMoveSelection(rootStore)(
+              arrangeMoveSelection(
                 trackTransform.getArrangePoint(selectionFromPx),
               )
             },
@@ -107,18 +110,28 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
             onMouseMove: (e) => {
               const deltaPx = Point.sub(getClientPos(e), startClientPos)
               const selectionToPx = Point.add(startPosPx, deltaPx)
-              arrangeResizeSelection(rootStore)(
+              arrangeResizeSelection(
                 startPos,
                 trackTransform.getArrangePoint(selectionToPx),
               )
             },
             onMouseUp: (e) => {
-              arrangeEndSelection(rootStore)()
+              arrangeEndSelection()
             },
           })
         }
       },
-      [selection, trackTransform, rootStore, scrollLeft, scrollTop],
+      [
+        selection,
+        trackTransform,
+        scrollLeft,
+        scrollTop,
+        arrangeMoveSelection,
+        arrangeEndSelection,
+        arrangeResizeSelection,
+        player,
+        pushHistory,
+      ],
     )
 
     const handleMiddleClick = useCallback(

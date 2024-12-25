@@ -6,9 +6,9 @@ import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useRef } from "react"
 import { Layout, WHEEL_SCROLL_RATE } from "../../Constants"
 import {
-  arrangeEndSelection,
-  arrangeResizeSelection,
   selectTrack,
+  useArrangeEndSelection,
+  useArrangeResizeSelection,
 } from "../../actions"
 import { Point } from "../../entities/geometry/Point"
 import { ArrangePoint } from "../../entities/transform/ArrangePoint"
@@ -94,6 +94,9 @@ export const ArrangeView: FC = observer(() => {
     router,
     song: { tracks },
   } = rootStore
+
+  const arrangeResizeSelection = useArrangeResizeSelection()
+  const arrangeEndSelection = useArrangeEndSelection()
 
   const ref = useRef(null)
   const size = useComponentSize(ref)
@@ -203,14 +206,14 @@ export const ArrangeView: FC = observer(() => {
               tick: trackTransform.getTick(selectionToPx.x),
               trackIndex: tracks.length,
             }
-            arrangeResizeSelection(rootStore)(startPos, endPos)
+            arrangeResizeSelection(startPos, endPos)
           },
-          onMouseUp: (e) => {
-            arrangeEndSelection(rootStore)()
+          onMouseUp: () => {
+            arrangeEndSelection()
           },
         })
       },
-      [arrangeViewStore, player, rootStore],
+      [arrangeViewStore, player, arrangeResizeSelection, arrangeEndSelection],
     )
 
   const openTrack = (trackId: TrackId) => {
