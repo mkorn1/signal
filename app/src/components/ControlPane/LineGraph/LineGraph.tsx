@@ -95,13 +95,7 @@ const LineGraph = observer(
           eventType,
         )
       },
-      [
-        rootStore,
-        scrollLeft,
-        controlTransform,
-        eventType,
-        handlePencilMouseDown,
-      ],
+      [scrollLeft, controlTransform, eventType, handlePencilMouseDown],
     )
 
     const selectionMouseDown: MouseEventHandler = useCallback(

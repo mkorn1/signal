@@ -26,7 +26,6 @@ export type VelocityItem = Rect & {
 
 export const VelocityControlCanvas: FC<{ width: number; height: number }> =
   observer(({ width, height }) => {
-    const rootStore = useStores()
     const {
       pianoRollStore: {
         transform,
@@ -36,7 +35,7 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
         selectedNoteIds,
         cursorX,
       },
-    } = rootStore
+    } = useStores()
     const updateVelocitiesInRange = useUpdateVelocitiesInRange()
     const changeNotesVelocity = useChangeNotesVelocity()
     const theme = useTheme()
@@ -127,7 +126,6 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
       [
         height,
         items,
-        rootStore,
         selectedNoteIds,
         scrollLeft,
         updateVelocitiesInRange,

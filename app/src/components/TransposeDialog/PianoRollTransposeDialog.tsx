@@ -5,8 +5,7 @@ import { useStores } from "../../hooks/useStores"
 import { TransposeDialog } from "./TransposeDialog"
 
 export const PianoRollTransposeDialog = observer(() => {
-  const rootStore = useStores()
-  const { pianoRollStore } = rootStore
+  const { pianoRollStore } = useStores()
   const { openTransposeDialog } = pianoRollStore
   const transposeSelection = useTransposeSelection()
 

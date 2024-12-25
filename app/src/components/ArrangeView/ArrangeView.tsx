@@ -76,7 +76,6 @@ const HeaderList = styled.div`
 `
 
 export const ArrangeView: FC = observer(() => {
-  const rootStore = useStores()
   const {
     arrangeViewStore,
     arrangeViewStore: {
@@ -84,7 +83,6 @@ export const ArrangeView: FC = observer(() => {
       contentWidth,
       contentHeight,
       transform,
-      trackTransform,
       scrollLeft,
       scrollTop,
       scrollBy,
@@ -93,7 +91,7 @@ export const ArrangeView: FC = observer(() => {
     player,
     router,
     song: { tracks },
-  } = rootStore
+  } = useStores()
 
   const arrangeResizeSelection = useArrangeResizeSelection()
   const arrangeEndSelection = useArrangeEndSelection()

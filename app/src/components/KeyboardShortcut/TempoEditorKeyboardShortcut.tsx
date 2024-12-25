@@ -14,8 +14,7 @@ import { KeyboardShortcut } from "./KeyboardShortcut"
 import { isFocusable } from "./isFocusable"
 
 export const TempoEditorKeyboardShortcut: FC = observer(() => {
-  const rootStore = useStores()
-  const { tempoEditorStore } = rootStore
+  const { tempoEditorStore } = useStores()
   const resetTempoSelection = useResetTempoSelection()
   const deleteTempoSelection = useDeleteTempoSelection()
   const copyTempoSelection = useCopyTempoSelection()

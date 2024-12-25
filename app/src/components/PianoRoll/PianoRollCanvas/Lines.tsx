@@ -15,7 +15,6 @@ function keySignatureToConditions(keySignature: KeySignature) {
 
 export const Lines: FC<{ zIndex: number }> = observer(({ zIndex }) => {
   const theme = useTheme()
-  const rootStore = useStores()
   const {
     pianoRollStore: {
       scrollTop,
@@ -24,7 +23,7 @@ export const Lines: FC<{ zIndex: number }> = observer(({ zIndex }) => {
       scaleY,
       keySignature,
     },
-  } = rootStore
+  } = useStores()
 
   const laneColors = useMemo(() => {
     const whiteLaneColor = colorToVec4(

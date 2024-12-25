@@ -73,8 +73,7 @@ const Header = styled.div`
 `
 
 export const CloudFileList = observer(() => {
-  const rootStore = useStores()
-  const { cloudFileStore, rootViewStore } = rootStore
+  const { cloudFileStore, rootViewStore } = useStores()
   const setSong = useSetSong()
   const loadSong = useLoadSong()
   const toast = useToast()

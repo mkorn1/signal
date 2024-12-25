@@ -19,8 +19,7 @@ import { MenuDivider, MenuItem } from "../ui/Menu"
 
 export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
   const { handleClose } = props
-  const rootStore = useStores()
-  const { arrangeViewStore } = rootStore
+  const { arrangeViewStore } = useStores()
 
   const arrangeCopySelection = useArrangeCopySelection()
   const arrangeDeleteSelection = useArrangeDeleteSelection()

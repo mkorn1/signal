@@ -13,11 +13,10 @@ import { MenuItem } from "../ui/Menu"
 export const ArrangeTrackContextMenu: FC<ContextMenuProps> = observer(
   (props) => {
     const { handleClose } = props
-    const rootStore = useStores()
     const {
       song: { tracks },
       arrangeViewStore: { selectedTrackIndex, selectedTrackId },
-    } = rootStore
+    } = useStores()
     const insertTrack = useInsertTrack()
     const removeTrack = useRemoveTrack()
     const duplicateTrack = useDuplicateTrack()

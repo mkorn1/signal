@@ -11,8 +11,7 @@ import { useStores } from "../../../../hooks/useStores"
 export const usePencilGesture = (): MouseGesture<
   [Point, ControlCoordTransform, ValueEventType]
 > => {
-  const rootStore = useStores()
-  const { controlStore, pianoRollStore } = rootStore
+  const { controlStore, pianoRollStore } = useStores()
   const createTrackEvent = useCreateEvent()
   const updateValueEvents = useUpdateValueEvents()
   const pushHistory = usePushHistory()

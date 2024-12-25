@@ -13,8 +13,7 @@ import { Button } from "../ui/Button"
 import { LinearProgress } from "../ui/LinearProgress"
 
 export const ExportProgressDialog: FC = observer(() => {
-  const rootStore = useStores()
-  const { exportStore } = rootStore
+  const { exportStore } = useStores()
   const cancelExport = useCancelExport()
   const { openExportProgressDialog: open, progress } = exportStore
 

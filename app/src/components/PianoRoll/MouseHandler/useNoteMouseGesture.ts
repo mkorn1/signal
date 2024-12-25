@@ -11,11 +11,10 @@ export interface CursorProvider {
 }
 
 export const useNoteMouseGesture = (): MouseGesture<[], React.MouseEvent> => {
-  const rootStore = useStores()
   const {
     pianoRollStore,
     pianoRollStore: { mouseMode },
-  } = rootStore
+  } = useStores()
   const [isMouseDown, setMouseDown] = useState(false)
   const pencilGesture = usePencilGesture()
   const selectionGesture = useSelectionGesture()

@@ -13,10 +13,9 @@ import { Alert } from "../ui/Alert"
 import { Button, PrimaryButton } from "../ui/Button"
 
 export const ExportDialog: FC = observer(() => {
-  const rootStore = useStores()
+  const { exportStore, song } = useStores()
   const exportSongAsWav = useExportSongAsWav()
 
-  const { exportStore, song } = rootStore
   const { openExportDialog: open } = exportStore
   const onClose = useCallback(
     () => (exportStore.openExportDialog = false),

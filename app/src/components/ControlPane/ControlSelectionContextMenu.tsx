@@ -19,8 +19,7 @@ import { MenuItem } from "../ui/Menu"
 export const ControlSelectionContextMenu: FC<ContextMenuProps> = observer(
   (props) => {
     const { handleClose } = props
-    const rootStore = useStores()
-    const { controlStore } = rootStore
+    const { controlStore } = useStores()
     const isEventSelected = controlStore.selectedEventIds.length > 0
     const copyControlSelection = useCopyControlSelection()
     const deleteControlSelection = useDeleteControlSelection()

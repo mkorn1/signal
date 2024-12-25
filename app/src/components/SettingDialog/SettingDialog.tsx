@@ -31,8 +31,7 @@ const Content = styled.div`
 `
 
 export const SettingDialog: FC = observer(() => {
-  const rootStore = useStores()
-  const { rootViewStore } = rootStore
+  const { rootViewStore } = useStores()
   const { openSettingDialog: open } = rootViewStore
   const [route, setRoute] = useState<SettingRoute>("general")
 

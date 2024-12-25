@@ -12,8 +12,7 @@ import { KeyboardShortcut } from "./KeyboardShortcut"
 const SCROLL_DELTA = 24
 
 export const ArrangeViewKeyboardShortcut: FC = observer(() => {
-  const rootStore = useStores()
-  const { arrangeViewStore } = rootStore
+  const { arrangeViewStore } = useStores()
   const arrangeDeleteSelection = useArrangeDeleteSelection()
   const arrangeCopySelection = useArrangeCopySelection()
   const arrangePasteSelection = useArrangePasteSelection()
