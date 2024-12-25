@@ -4,7 +4,7 @@ import { useToast } from "dialog-hooks"
 import OpenInNewIcon from "mdi-react/OpenInNewIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useState } from "react"
-import { publishSong, unpublishSong } from "../../actions/cloudSong"
+import { usePublishSong, useUnpublishSong } from "../../actions/cloudSong"
 import { useStores } from "../../hooks/useStores"
 import { Localized, useLocalization } from "../../localize/useLocalization"
 import {
@@ -21,6 +21,8 @@ type PublishState = "publishable" | "published" | "notPublishable"
 
 export const PublishDialog: FC = observer(() => {
   const rootStore = useStores()
+  const publishSong = usePublishSong()
+  const unpublishSong = useUnpublishSong()
   const { rootViewStore, cloudSongRepository } = rootStore
   const { openPublishDialog: open } = rootViewStore
   const [publishState, setPublishState] =
@@ -62,7 +64,7 @@ export const PublishDialog: FC = observer(() => {
       if (user === null) {
         throw new Error("Failed to get current user, please re-sign in")
       }
-      await publishSong(rootStore)(song, user)
+      await publishSong(song, user)
       setPublishState("published")
       toast.success(localized["song-published"])
     } catch (e) {
@@ -76,7 +78,7 @@ export const PublishDialog: FC = observer(() => {
     const { song } = rootStore
     try {
       setIsLoading(true)
-      await unpublishSong(rootStore)(song)
+      await unpublishSong(song)
       setPublishState("publishable")
       toast.success(localized["song-unpublished"])
     } catch (e) {

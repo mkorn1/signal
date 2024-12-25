@@ -1,7 +1,7 @@
 import { useDialog, useProgress, usePrompt, useToast } from "dialog-hooks"
 import { ChangeEvent } from "react"
 import { useOpenSong, useSaveSong, useSetSong } from "../actions"
-import { createSong, updateSong } from "../actions/cloudSong"
+import { useCreateSong, useUpdateSong } from "../actions/cloudSong"
 import { hasFSAccess, saveFileAs, useOpenFile } from "../actions/file"
 import { useLocalization } from "../localize/useLocalization"
 import { emptySong } from "../song"
@@ -19,6 +19,8 @@ export const useCloudFile = () => {
   const openSong = useOpenSong()
   const saveSong = useSaveSong()
   const openFile = useOpenFile()
+  const updateSong = useUpdateSong()
+  const createSong = useCreateSong()
 
   const saveOrCreateSong = async () => {
     const { song } = rootStore
@@ -33,7 +35,7 @@ export const useCloudFile = () => {
       }
       const closeProgress = showProgress(localized["song-saving"])
       try {
-        await updateSong(rootStore)(song)
+        await updateSong(song)
         toast.success(localized["song-saved"])
       } catch (e) {
         alert((e as Error).message)
@@ -51,7 +53,7 @@ export const useCloudFile = () => {
       }
       const closeProgress = showProgress(localized["song-saving"])
       try {
-        await createSong(rootStore)(song)
+        await createSong(song)
         toast.success(localized["song-created"])
       } catch (e) {
         alert((e as Error).message)
@@ -96,7 +98,7 @@ export const useCloudFile = () => {
         }
         const newSong = emptySong()
         setSong(newSong)
-        await createSong(rootStore)(newSong)
+        await createSong(newSong)
         toast.success(localized["song-created"])
       } catch (e) {
         toast.error((e as Error).message)
@@ -126,7 +128,7 @@ export const useCloudFile = () => {
         } else {
           return
         }
-        await createSong(rootStore)(song)
+        await createSong(song)
         toast.success(localized["song-saved"])
       } catch (e) {
         toast.error((e as Error).message)
@@ -143,9 +145,9 @@ export const useCloudFile = () => {
           return Promise.resolve(false)
         }
         if (song.cloudSongId !== null) {
-          await updateSong(rootStore)(song)
+          await updateSong(song)
         } else {
-          await createSong(rootStore)(song)
+          await createSong(song)
         }
         toast.success(localized["song-saved"])
       } catch (e) {
@@ -174,7 +176,7 @@ export const useCloudFile = () => {
     async exportSong() {
       try {
         if (hasFSAccess) {
-          await saveFileAs(rootStore)
+          await saveFileAs
         } else {
           saveSong()
         }
