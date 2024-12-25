@@ -11,7 +11,7 @@ import {
   useToggleMute,
   useToggleSolo,
 } from "../../actions"
-import { redo, undo } from "../../actions/history"
+import { useRedo, useUndo } from "../../actions/history"
 import { useStores } from "../../hooks/useStores"
 import { KeyboardShortcut } from "./KeyboardShortcut"
 
@@ -26,6 +26,8 @@ export const GlobalKeyboardShortcut: FC = observer(() => {
   const toggleSolo = useToggleSolo()
   const toggleMute = useToggleMute()
   const toggleGhost = useToggleGhost()
+  const undo = useUndo()
+  const redo = useRedo()
 
   useEffect(() => {
     // prevent zooming
@@ -63,15 +65,15 @@ export const GlobalKeyboardShortcut: FC = observer(() => {
           code: "KeyZ",
           metaKey: true,
           shiftKey: true,
-          run: () => redo(rootStore)(),
+          run: redo,
         },
         {
           code: "KeyZ",
           metaKey: true,
           shiftKey: false,
-          run: () => undo(rootStore)(),
+          run: undo,
         },
-        { code: "KeyY", metaKey: true, run: () => redo(rootStore)() },
+        { code: "KeyY", metaKey: true, run: redo },
         {
           // Press ?
           code: "Slash",

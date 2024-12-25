@@ -8,7 +8,6 @@ import { Player, SoundFontSynth } from "@signal-app/player"
 import { makeObservable, observable } from "mobx"
 import { deserialize, serialize } from "serializr"
 import { auth, firestore, functions } from ".././firebase/firebase"
-import { pushHistory } from "../actions/history"
 import { isRunningInElectron } from "../helpers/platform"
 import { EventSource } from "../player/EventSource"
 import { GroupOutput } from "../services/GroupOutput"
@@ -149,7 +148,10 @@ export default class RootStore {
   }
 
   get pushHistory() {
-    return pushHistory(this)
+    return () => {
+      const state = this.serialize()
+      this.historyStore.push(state)
+    }
   }
 }
 

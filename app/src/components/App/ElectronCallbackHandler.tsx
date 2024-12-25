@@ -12,7 +12,7 @@ import { FirebaseCredential } from "../../../../electron/src/FirebaseCredential"
 import { auth } from "../.././firebase/firebase"
 import { useSetSong } from "../../actions"
 import { songFromArrayBuffer } from "../../actions/file"
-import { redo, undo } from "../../actions/history"
+import { useRedo, useUndo } from "../../actions/history"
 import {
   useCopySelectionGlobal,
   useCutSelectionGlobal,
@@ -39,6 +39,8 @@ export const ElectronCallbackHandler: FC = observer(() => {
   const cutSelectionGlobal = useCutSelectionGlobal()
   const copySelectionGlobal = useCopySelectionGlobal()
   const pasteSelectionGlobal = usePasteSelectionGlobal()
+  const undo = useUndo()
+  const redo = useRedo()
   const [isInitialized, setIsInitialized] = useState(false)
   const setSong = useSetSong()
 
@@ -154,10 +156,10 @@ export const ElectronCallbackHandler: FC = observer(() => {
         rootStore.exportStore.openExportDialog = true
       }),
       window.electronAPI.onUndo(() => {
-        undo(rootStore)()
+        undo()
       }),
       window.electronAPI.onRedo(() => {
-        redo(rootStore)()
+        redo()
       }),
       window.electronAPI.onCut(() => {
         cutSelectionGlobal()
@@ -197,6 +199,8 @@ export const ElectronCallbackHandler: FC = observer(() => {
     cutSelectionGlobal,
     copySelectionGlobal,
     pasteSelectionGlobal,
+    redo,
+    undo,
   ])
 
   return <></>

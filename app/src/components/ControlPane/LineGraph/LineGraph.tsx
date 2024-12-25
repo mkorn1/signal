@@ -15,7 +15,7 @@ import { pointToCircleRect } from "../../../stores/TempoEditorStore"
 import { TrackEventOf } from "../../../track"
 import { ControlSelectionContextMenu } from "../ControlSelectionContextMenu"
 import { handleCreateSelectionDrag } from "../Graph/MouseHandler/handleCreateSelectionDrag"
-import { handlePencilMouseDown } from "../Graph/MouseHandler/handlePencilMouseDown"
+import { usePencilGesture } from "../Graph/MouseHandler/handlePencilMouseDown"
 import { handleSelectionDragEvents } from "../Graph/MouseHandler/handleSelectionDragEvents"
 import { GraphAxis } from "./GraphAxis"
 import { LineGraphCanvas } from "./LineGraphCanvas"
@@ -56,6 +56,7 @@ const LineGraph = observer(
     } = rootStore
     const createOrUpdateControlEventsValue =
       useCreateOrUpdateControlEventsValue()
+    const handlePencilMouseDown = usePencilGesture()
 
     const controlTransform = useMemo(
       () => new ControlCoordTransform(transform, maxValue, height, lineWidth),
@@ -87,14 +88,20 @@ const LineGraph = observer(
       (ev) => {
         const local = getLocal(ev.nativeEvent)
 
-        handlePencilMouseDown(rootStore)(
+        handlePencilMouseDown.onMouseDown(
           ev.nativeEvent,
           local,
           controlTransform,
           eventType,
         )
       },
-      [rootStore, scrollLeft, controlTransform, eventType],
+      [
+        rootStore,
+        scrollLeft,
+        controlTransform,
+        eventType,
+        handlePencilMouseDown,
+      ],
     )
 
     const selectionMouseDown: MouseEventHandler = useCallback(

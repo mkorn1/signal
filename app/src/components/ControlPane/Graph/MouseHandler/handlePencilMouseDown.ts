@@ -2,53 +2,57 @@ import {
   createEvent as createTrackEvent,
   updateValueEvents,
 } from "../../../../actions"
-import { pushHistory } from "../../../../actions/history"
+import { usePushHistory } from "../../../../actions/history"
 import { ValueEventType } from "../../../../entities/event/ValueEventType"
 import { Point } from "../../../../entities/geometry/Point"
 import { ControlCoordTransform } from "../../../../entities/transform/ControlCoordTransform"
+import { MouseGesture } from "../../../../gesture/MouseGesture"
 import { getClientPos } from "../../../../helpers/mouseEvent"
 import { observeDrag } from "../../../../helpers/observeDrag"
-import RootStore from "../../../../stores/RootStore"
+import { useStores } from "../../../../hooks/useStores"
 
-export const handlePencilMouseDown =
-  (rootStore: RootStore) =>
-  (
-    e: MouseEvent,
-    startPoint: Point,
-    transform: ControlCoordTransform,
-    type: ValueEventType,
-  ) => {
-    pushHistory(rootStore)()
+export const usePencilGesture = (): MouseGesture<
+  [Point, ControlCoordTransform, ValueEventType]
+> => {
+  const rootStore = useStores()
+  const { controlStore, pianoRollStore } = rootStore
+  const pushHistory = usePushHistory()
 
-    rootStore.controlStore.selectedEventIds = []
-    rootStore.controlStore.selection = null
-    rootStore.pianoRollStore.selection = null
-    rootStore.pianoRollStore.selectedNoteIds = []
+  return {
+    onMouseDown(e, startPoint, transform, type) {
+      pushHistory()
 
-    const startClientPos = getClientPos(e)
-    const pos = transform.fromPosition(startPoint)
+      controlStore.selectedEventIds = []
+      controlStore.selection = null
+      pianoRollStore.selection = null
+      pianoRollStore.selectedNoteIds = []
 
-    const event = ValueEventType.getEventFactory(type)(pos.value)
-    createTrackEvent(rootStore)(event, pos.tick)
+      const startClientPos = getClientPos(e)
+      const pos = transform.fromPosition(startPoint)
 
-    let lastTick = pos.tick
-    let lastValue = pos.value
+      const event = ValueEventType.getEventFactory(type)(pos.value)
+      createTrackEvent(rootStore)(event, pos.tick)
 
-    observeDrag({
-      onMouseMove: (e) => {
-        const posPx = getClientPos(e)
-        const deltaPx = Point.sub(posPx, startClientPos)
-        const local = Point.add(startPoint, deltaPx)
-        const value = Math.max(
-          0,
-          Math.min(transform.maxValue, transform.fromPosition(local).value),
-        )
-        const tick = transform.getTick(local.x)
+      let lastTick = pos.tick
+      let lastValue = pos.value
 
-        updateValueEvents(type)(rootStore)(lastValue, value, lastTick, tick)
+      observeDrag({
+        onMouseMove: (e) => {
+          const posPx = getClientPos(e)
+          const deltaPx = Point.sub(posPx, startClientPos)
+          const local = Point.add(startPoint, deltaPx)
+          const value = Math.max(
+            0,
+            Math.min(transform.maxValue, transform.fromPosition(local).value),
+          )
+          const tick = transform.getTick(local.x)
 
-        lastTick = tick
-        lastValue = value
-      },
-    })
+          updateValueEvents(type)(rootStore)(lastValue, value, lastTick, tick)
+
+          lastTick = tick
+          lastValue = value
+        },
+      })
+    },
   }
+}
