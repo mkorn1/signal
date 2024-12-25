@@ -7,10 +7,10 @@ import { observer } from "mobx-react-lite"
 import { FC, MouseEventHandler, useCallback, useState } from "react"
 import {
   selectTrack,
-  toggleMuteTrack,
-  toggleSoloTrack,
   toogleAllGhostTracks,
   toogleGhostTrack,
+  useToggleMuteTrack,
+  useToggleSoloTrack,
 } from "../../actions"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
@@ -136,6 +136,8 @@ const ControlButton = styled.div<{ active?: boolean }>`
 export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
   const rootStore = useStores()
   const { pianoRollStore, rootViewStore, trackMute, router } = rootStore
+  const toggleMuteTrack = useToggleMuteTrack()
+  const toggleSoloTrack = useToggleSoloTrack()
 
   const selected =
     !rootViewStore.isArrangeViewSelected &&
@@ -160,14 +162,14 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
   const onClickMute: MouseEventHandler = useCallback(
     (e) => {
       e.stopPropagation()
-      toggleMuteTrack(rootStore)(track.id)
+      toggleMuteTrack(track.id)
     },
     [track.id],
   )
   const onClickSolo: MouseEventHandler = useCallback(
     (e) => {
       e.stopPropagation()
-      toggleSoloTrack(rootStore)(track.id)
+      toggleSoloTrack(track.id)
     },
     [track.id],
   )
