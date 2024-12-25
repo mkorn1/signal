@@ -1,7 +1,7 @@
 import { basename } from "../helpers/path"
 import { songFromMidi, songToMidi } from "../midi/midiConversion"
 import { writeFile } from "../services/fs-helper"
-import RootStore from "../stores/RootStore"
+import Song from "../song"
 import { useSetSong } from "./song"
 
 // URL parameter for automation purposes used in scripts/perf/index.js
@@ -70,11 +70,10 @@ export const songFromArrayBuffer = (
   return song
 }
 
-export const saveFile = async (rootStore: RootStore) => {
-  const { song } = rootStore
+export const saveFile = async (song: Song) => {
   const fileHandle = song.fileHandle
   if (fileHandle === null) {
-    await saveFileAs(rootStore)
+    await saveFileAs(song)
     return
   }
 
@@ -88,7 +87,7 @@ export const saveFile = async (rootStore: RootStore) => {
   }
 }
 
-export const saveFileAs = async ({ song }: RootStore) => {
+export const saveFileAs = async (song: Song) => {
   let fileHandle
   try {
     fileHandle = await window.showSaveFilePicker({

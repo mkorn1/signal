@@ -176,7 +176,7 @@ export const useCloudFile = () => {
     async exportSong() {
       try {
         if (hasFSAccess) {
-          await saveFileAs
+          await saveFileAs(song)
         } else {
           saveSong()
         }

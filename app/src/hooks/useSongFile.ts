@@ -40,10 +40,10 @@ export const useSongFile = () => {
       }
     },
     async saveSong() {
-      await saveFile(rootStore)
+      await saveFile(song)
     },
     async saveAsSong() {
-      await saveFileAs(rootStore)
+      await saveFileAs(song)
     },
     async downloadSong() {
       saveSong()
