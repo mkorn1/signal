@@ -9,11 +9,6 @@ import {
   usePasteSelection,
 } from "../actions/selection"
 import {
-  copyTempoSelection,
-  deleteTempoSelection,
-  pasteTempoSelection,
-} from "../actions/tempo"
-import {
   isControlEventsClipboardData,
   isPianoNotesClipboardData,
 } from "../clipboard/clipboardTypes"
@@ -24,11 +19,18 @@ import {
   useArrangeDeleteSelection,
   useArrangePasteSelection,
 } from "./arrangeView"
+import {
+  useCopyTempoSelection,
+  useDeleteTempoSelection,
+  usePasteTempoSelection,
+} from "./tempo"
 
 export const useCopySelectionGlobal = () => {
   const rootStore = useStores()
   const copySelection = useCopySelection()
   const arrangeCopySelection = useArrangeCopySelection()
+  const copyTempoSelection = useCopyTempoSelection()
+
   return () => {
     switch (rootStore.router.path) {
       case "/track":
@@ -42,7 +44,7 @@ export const useCopySelectionGlobal = () => {
         arrangeCopySelection()
         break
       case "/tempo":
-        copyTempoSelection(rootStore)()
+        copyTempoSelection()
         break
     }
   }
@@ -54,6 +56,8 @@ export const useCutSelectionGlobal = () => {
   const deleteSelection = useDeleteSelection()
   const arrangeCopySelection = useArrangeCopySelection()
   const arrangeDeleteSelection = useArrangeDeleteSelection()
+  const copyTempoSelection = useCopyTempoSelection()
+  const deleteTempoSelection = useDeleteTempoSelection()
 
   return () => {
     switch (rootStore.router.path) {
@@ -71,8 +75,8 @@ export const useCutSelectionGlobal = () => {
         arrangeDeleteSelection()
         break
       case "/tempo":
-        copyTempoSelection(rootStore)()
-        deleteTempoSelection(rootStore)()
+        copyTempoSelection()
+        deleteTempoSelection()
         break
     }
   }
@@ -82,6 +86,8 @@ export const usePasteSelectionGlobal = () => {
   const rootStore = useStores()
   const pasteSelection = usePasteSelection()
   const arrangePasteSelection = useArrangePasteSelection()
+  const pasteTempoSelection = usePasteTempoSelection()
+
   return () => {
     switch (rootStore.router.path) {
       case "/track":
@@ -100,7 +106,7 @@ export const usePasteSelectionGlobal = () => {
         arrangePasteSelection()
         break
       case "/tempo":
-        pasteTempoSelection(rootStore)()
+        pasteTempoSelection()
     }
   }
 }
