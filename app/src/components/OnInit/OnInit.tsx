@@ -1,7 +1,7 @@
 import { useProgress } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { FC, useEffect, useState } from "react"
-import { setSong } from "../../actions"
+import { useSetSong } from "../../actions"
 import { loadSongFromExternalMidiFile } from "../../actions/cloudSong"
 import { songFromArrayBuffer } from "../../actions/file"
 import { isRunningInElectron } from "../../helpers/platform"
@@ -11,6 +11,8 @@ import { InitializeErrorDialog } from "./InitializeErrorDialog"
 
 export const OnInit: FC = observer(() => {
   const rootStore = useStores()
+  const setSong = useSetSong()
+
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const { show: showProgress } = useProgress()
@@ -36,7 +38,7 @@ export const OnInit: FC = observer(() => {
       const closeProgress = showProgress(localized["loading-external-midi"])
       try {
         const song = await loadSongFromExternalMidiFile(rootStore)(openParam)
-        setSong(rootStore)(song)
+        setSong(song)
       } catch (e) {
         setIsErrorDialogOpen(true)
         setErrorMessage((e as Error).message)
@@ -56,7 +58,7 @@ export const OnInit: FC = observer(() => {
       if (filePath) {
         const data = await window.electronAPI.readFile(filePath)
         const song = songFromArrayBuffer(data, filePath)
-        setSong(rootStore)(song)
+        setSong(song)
       }
     } catch (e) {
       setIsErrorDialogOpen(true)

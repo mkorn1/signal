@@ -6,9 +6,9 @@ import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useRef } from "react"
 import { Layout, WHEEL_SCROLL_RATE } from "../../Constants"
 import {
-  selectTrack,
   useArrangeEndSelection,
   useArrangeResizeSelection,
+  useSelectTrack,
 } from "../../actions"
 import { Point } from "../../entities/geometry/Point"
 import { ArrangePoint } from "../../entities/transform/ArrangePoint"
@@ -97,6 +97,7 @@ export const ArrangeView: FC = observer(() => {
 
   const arrangeResizeSelection = useArrangeResizeSelection()
   const arrangeEndSelection = useArrangeEndSelection()
+  const selectTrack = useSelectTrack()
 
   const ref = useRef(null)
   const size = useComponentSize(ref)
@@ -218,7 +219,7 @@ export const ArrangeView: FC = observer(() => {
 
   const openTrack = (trackId: TrackId) => {
     router.pushTrack()
-    selectTrack(rootStore)(trackId)
+    selectTrack(trackId)
   }
 
   return (

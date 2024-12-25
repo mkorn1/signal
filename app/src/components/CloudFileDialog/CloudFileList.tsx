@@ -7,7 +7,7 @@ import ArrowDropDown from "mdi-react/ArrowDropDownIcon"
 import ArrowUpward from "mdi-react/ArrowUpwardIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
-import { setSong } from "../../actions"
+import { useSetSong } from "../../actions"
 import { loadSong } from "../../actions/cloudSong"
 import { useStores } from "../../hooks/useStores"
 import { Localized, useLocalization } from "../../localize/useLocalization"
@@ -75,6 +75,7 @@ const Header = styled.div`
 export const CloudFileList = observer(() => {
   const rootStore = useStores()
   const { cloudFileStore, rootViewStore } = rootStore
+  const setSong = useSetSong()
   const toast = useToast()
   const theme = useTheme()
   const localized = useLocalization()
@@ -88,7 +89,7 @@ export const CloudFileList = observer(() => {
   const onClickSong = async (song: CloudSong) => {
     try {
       const midiSong = await loadSong(rootStore)(song)
-      setSong(rootStore)(midiSong)
+      setSong(midiSong)
       rootViewStore.openCloudFileDialog = false
     } catch (e) {
       toast.error((e as Error).message)

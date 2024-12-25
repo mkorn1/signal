@@ -6,9 +6,9 @@ import VolumeOff from "mdi-react/VolumeOffIcon"
 import { observer } from "mobx-react-lite"
 import { FC, MouseEventHandler, useCallback, useState } from "react"
 import {
-  selectTrack,
   toogleAllGhostTracks,
   toogleGhostTrack,
+  useSelectTrack,
   useToggleMuteTrack,
   useToggleSoloTrack,
 } from "../../actions"
@@ -138,6 +138,7 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
   const { pianoRollStore, rootViewStore, trackMute, router } = rootStore
   const toggleMuteTrack = useToggleMuteTrack()
   const toggleSoloTrack = useToggleSoloTrack()
+  const selectTrack = useSelectTrack()
 
   const selected =
     !rootViewStore.isArrangeViewSelected &&
@@ -164,14 +165,14 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
       e.stopPropagation()
       toggleMuteTrack(track.id)
     },
-    [track.id],
+    [track.id, toggleMuteTrack],
   )
   const onClickSolo: MouseEventHandler = useCallback(
     (e) => {
       e.stopPropagation()
       toggleSoloTrack(track.id)
     },
-    [track.id],
+    [track.id, toggleSoloTrack],
   )
   const onClickGhostTrack: MouseEventHandler = useCallback(
     (e) => {
@@ -182,12 +183,12 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
         toogleGhostTrack(rootStore)(track.id)
       }
     },
-    [track.id],
+    [track.id, toogleAllGhostTracks, toogleGhostTrack],
   )
   const onSelectTrack = useCallback(() => {
     router.pushTrack()
-    selectTrack(rootStore)(track.id)
-  }, [track.id])
+    selectTrack(track.id)
+  }, [track.id, selectTrack])
   const onClickChannel = useCallback(() => {
     setDialogOpened(true)
   }, [])

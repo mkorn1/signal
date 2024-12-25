@@ -1,8 +1,8 @@
 import { useDialog, useProgress, usePrompt, useToast } from "dialog-hooks"
 import { ChangeEvent } from "react"
-import { openSong, saveSong, setSong } from "../actions"
+import { useOpenSong, useSaveSong, useSetSong } from "../actions"
 import { createSong, updateSong } from "../actions/cloudSong"
-import { hasFSAccess, openFile, saveFileAs } from "../actions/file"
+import { hasFSAccess, saveFileAs, useOpenFile } from "../actions/file"
 import { useLocalization } from "../localize/useLocalization"
 import { emptySong } from "../song"
 import { useStores } from "./useStores"
@@ -15,6 +15,10 @@ export const useCloudFile = () => {
   const dialog = useDialog()
   const { show: showProgress } = useProgress()
   const localized = useLocalization()
+  const setSong = useSetSong()
+  const openSong = useOpenSong()
+  const saveSong = useSaveSong()
+  const openFile = useOpenFile()
 
   const saveOrCreateSong = async () => {
     const { song } = rootStore
@@ -91,7 +95,7 @@ export const useCloudFile = () => {
           return
         }
         const newSong = emptySong()
-        setSong(rootStore)(newSong)
+        setSong(newSong)
         await createSong(rootStore)(newSong)
         toast.success(localized["song-created"])
       } catch (e) {
@@ -153,7 +157,7 @@ export const useCloudFile = () => {
         if (!(await saveIfNeeded())) {
           return
         }
-        await openFile(rootStore)
+        await openFile()
         await saveOrCreateSong()
       } catch (e) {
         toast.error((e as Error).message)
@@ -161,7 +165,7 @@ export const useCloudFile = () => {
     },
     async importSongLegacy(e: ChangeEvent<HTMLInputElement>) {
       try {
-        await openSong(rootStore)(e.currentTarget)
+        await openSong(e.currentTarget)
         await saveOrCreateSong()
       } catch (e) {
         toast.error((e as Error).message)
@@ -172,7 +176,7 @@ export const useCloudFile = () => {
         if (hasFSAccess) {
           await saveFileAs(rootStore)
         } else {
-          saveSong(rootStore)()
+          saveSong()
         }
       } catch (e) {
         toast.error((e as Error).message)

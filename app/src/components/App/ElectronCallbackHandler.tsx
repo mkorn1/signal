@@ -10,7 +10,7 @@ import { FC, useEffect, useState } from "react"
 import { ElectronAPI } from "../../../../electron/src/ElectronAPI"
 import { FirebaseCredential } from "../../../../electron/src/FirebaseCredential"
 import { auth } from "../.././firebase/firebase"
-import { setSong } from "../../actions"
+import { useSetSong } from "../../actions"
 import { songFromArrayBuffer } from "../../actions/file"
 import { redo, undo } from "../../actions/history"
 import {
@@ -40,6 +40,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
   const copySelectionGlobal = useCopySelectionGlobal()
   const pasteSelectionGlobal = usePasteSelectionGlobal()
   const [isInitialized, setIsInitialized] = useState(false)
+  const setSong = useSetSong()
 
   const saveFileAs = async () => {
     const { song } = rootStore
@@ -89,7 +90,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
               }
               const { path, content } = res
               const song = songFromArrayBuffer(content, path)
-              setSong(rootStore)(song)
+              setSong(song)
               window.electronAPI.addRecentDocument(path)
             }
           } catch (e) {
@@ -103,7 +104,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
           if (song.isSaved || confirm(localized["confirm-open"])) {
             const data = await window.electronAPI.readFile(filePath)
             const song = songFromArrayBuffer(data, filePath)
-            setSong(rootStore)(song)
+            setSong(song)
             window.electronAPI.addRecentDocument(filePath)
           }
         } catch (e) {
