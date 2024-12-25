@@ -23,12 +23,6 @@ export interface TempoGraphCanvasProps {
 
 export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
   ({ width, height, style }) => {
-    const rootStore = useStores()
-    const changeTempo = useChangeTempo()
-    const pencilGesture = usePencilGesture()
-    const createSelectionGesture = useCreateSelectionGesture()
-    const dragSelectionGesture = useDragSelectionGesture()
-
     const {
       tempoEditorStore,
       tempoEditorStore: {
@@ -40,7 +34,11 @@ export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
         cursorX,
         selectionRect,
       },
-    } = rootStore
+    } = useStores()
+    const changeTempo = useChangeTempo()
+    const pencilGesture = usePencilGesture()
+    const createSelectionGesture = useCreateSelectionGesture()
+    const dragSelectionGesture = useDragSelectionGesture()
 
     const scrollLeft = Math.floor(_scrollLeft)
 
@@ -113,7 +111,7 @@ export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
         const bpm = uSecPerBeatToBPM(event.microsecondsPerBeat)
         changeTempo(event.id, Math.floor(bpmToUSecPerBeat(bpm + movement)))
       },
-      [items, rootStore, scrollLeft, changeTempo],
+      [items, scrollLeft, changeTempo],
     )
 
     const scrollXMatrix = useMemo(

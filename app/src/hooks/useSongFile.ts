@@ -6,10 +6,9 @@ import { useLocalization } from "../localize/useLocalization"
 import { useStores } from "./useStores"
 
 export const useSongFile = () => {
-  const rootStore = useStores()
+  const { song } = useStores()
   const toast = useToast()
   const localized = useLocalization()
-  const { song } = rootStore
   const createSong = useCreateSong()
   const openSong = useOpenSong()
   const saveSong = useSaveSong()
