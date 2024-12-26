@@ -14,9 +14,9 @@ import { useStores } from "../../../hooks/useStores"
 import { pointToCircleRect } from "../../../stores/TempoEditorStore"
 import { TrackEventOf } from "../../../track"
 import { ControlSelectionContextMenu } from "../ControlSelectionContextMenu"
-import { handleCreateSelectionDrag } from "../Graph/MouseHandler/handleCreateSelectionDrag"
-import { usePencilGesture } from "../Graph/MouseHandler/handlePencilMouseDown"
-import { handleSelectionDragEvents } from "../Graph/MouseHandler/handleSelectionDragEvents"
+import { useCreateSelectionGesture } from "../Graph/MouseHandler/useCreateSelectionGesture"
+import { useDragSelectionGesture } from "../Graph/MouseHandler/useDragSelectionGesture"
+import { usePencilGesture } from "../Graph/MouseHandler/usePencilGesture"
 import { GraphAxis } from "./GraphAxis"
 import { LineGraphCanvas } from "./LineGraphCanvas"
 
@@ -57,6 +57,8 @@ const LineGraph = observer(
     const createOrUpdateControlEventsValue =
       useCreateOrUpdateControlEventsValue()
     const handlePencilMouseDown = usePencilGesture()
+    const dragSelectionGesture = useDragSelectionGesture()
+    const createSelectionGesture = useCreateSelectionGesture()
 
     const controlTransform = useMemo(
       () => new ControlCoordTransform(transform, maxValue, height, lineWidth),
@@ -104,7 +106,7 @@ const LineGraph = observer(
         const hitEventId = hitTest(local)
 
         if (hitEventId !== undefined) {
-          handleSelectionDragEvents(rootStore)(
+          dragSelectionGesture.onMouseDown(
             ev.nativeEvent,
             hitEventId,
             local,
@@ -112,7 +114,7 @@ const LineGraph = observer(
             eventType,
           )
         } else {
-          handleCreateSelectionDrag(rootStore)(
+          createSelectionGesture.onMouseDown(
             ev.nativeEvent,
             local,
             controlTransform,
@@ -123,7 +125,15 @@ const LineGraph = observer(
           )
         }
       },
-      [rootStore, controlTransform, scrollLeft, events, eventType, hitTest],
+      [
+        controlTransform,
+        scrollLeft,
+        events,
+        eventType,
+        hitTest,
+        dragSelectionGesture,
+        createSelectionGesture,
+      ],
     )
 
     const onMouseDown =
