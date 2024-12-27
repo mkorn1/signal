@@ -2,9 +2,7 @@ import { useTheme } from "@emotion/react"
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
-import { Point } from "../../../entities/geometry/Point"
 import { matrixFromTranslation } from "../../../helpers/matrix"
-import { observeDrag } from "../../../helpers/observeDrag"
 import { AbstractMouseEvent } from "../../../hooks/useContextMenu"
 import { useStores } from "../../../hooks/useStores"
 import { Beats } from "../../GLNodes/Beats"
@@ -12,6 +10,7 @@ import { Cursor } from "../../GLNodes/Cursor"
 import { Selection } from "../../GLNodes/Selection"
 import { Lines } from "./Lines"
 import { Notes } from "./Notes"
+import { useDragScrollGesture } from "./gestures/useDragScrollGesture"
 import { useSelectionGesture } from "./gestures/useSelectionGesture"
 
 export interface ArrangeViewCanvasProps {
@@ -33,6 +32,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
     } = arrangeViewStore
 
     const selectionGesture = useSelectionGesture()
+    const dragScrollGesture = useDragScrollGesture()
 
     const scrollXMatrix = useMemo(
       () => matrixFromTranslation(-scrollLeft, 0),
@@ -49,34 +49,6 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
       [scrollLeft, scrollTop],
     )
 
-    const setScrollLeft = useCallback((v: number) => {
-      arrangeViewStore.setScrollLeftInPixels(v)
-      arrangeViewStore.autoScroll = false
-    }, [])
-
-    const setScrollTop = useCallback(
-      (v: number) => arrangeViewStore.setScrollTop(v),
-      [],
-    )
-    const handleMiddleClick = useCallback(
-      (e: React.MouseEvent) => {
-        function createPoint(e: MouseEvent) {
-          return { x: e.clientX, y: e.clientY }
-        }
-        const startPos = createPoint(e.nativeEvent)
-
-        observeDrag({
-          onMouseMove(e) {
-            const pos = createPoint(e)
-            const delta = Point.sub(pos, startPos)
-            setScrollLeft(Math.max(0, scrollLeft - delta.x))
-            setScrollTop(Math.max(0, scrollTop - delta.y))
-          },
-        })
-      },
-      [scrollLeft, scrollTop],
-    )
-
     const onMouseDown = useCallback(
       (e: React.MouseEvent) => {
         switch (e.button) {
@@ -84,7 +56,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
             selectionGesture.onMouseDown(e)
             break
           case 1:
-            handleMiddleClick(e)
+            dragScrollGesture.onMouseDown(e)
             break
           case 2:
             onContextMenu(e)
@@ -93,7 +65,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
             break
         }
       },
-      [selectionGesture, handleMiddleClick, onContextMenu],
+      [selectionGesture, dragScrollGesture, onContextMenu],
     )
 
     return (
