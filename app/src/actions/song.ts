@@ -14,12 +14,17 @@ const openSongFile = async (input: HTMLInputElement): Promise<Song | null> => {
 }
 
 export const useSetSong = () => {
-  const rootStore = useStores()
-  const { trackMute, pianoRollStore, player, historyStore, arrangeViewStore } =
-    rootStore
+  const {
+    songStore,
+    trackMute,
+    pianoRollStore,
+    player,
+    historyStore,
+    arrangeViewStore,
+  } = useStores()
 
   return (newSong: Song) => {
-    rootStore.song = newSong
+    songStore.song = newSong
     trackMute.reset()
 
     pianoRollStore.setScrollLeftInPixels(0)

@@ -8,8 +8,8 @@ import { emptySong } from "../song"
 import { useStores } from "./useStores"
 
 export const useCloudFile = () => {
-  const rootStore = useStores()
-  const { rootViewStore, song } = rootStore
+  const { songStore, rootViewStore } = useStores()
+  const { song } = songStore
   const toast = useToast()
   const prompt = usePrompt()
   const dialog = useDialog()
@@ -23,7 +23,7 @@ export const useCloudFile = () => {
   const createSong = useCreateSong()
 
   const saveOrCreateSong = async () => {
-    const { song } = rootStore
+    const { song } = songStore
     if (song.cloudSongId !== null) {
       if (song.name.length === 0) {
         const text = await prompt.show({
@@ -66,7 +66,7 @@ export const useCloudFile = () => {
   // true: saved or not necessary
   // false: canceled
   const saveIfNeeded = async (): Promise<boolean> => {
-    const { song } = rootStore
+    const { song } = songStore
     if (song.isSaved) {
       return true
     }

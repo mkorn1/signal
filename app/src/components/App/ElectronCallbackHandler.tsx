@@ -31,8 +31,7 @@ declare global {
 }
 
 export const ElectronCallbackHandler: FC = observer(() => {
-  const rootStore = useStores()
-  const { authStore, exportStore, rootViewStore } = rootStore
+  const { songStore, authStore, exportStore, rootViewStore } = useStores()
   const localized = useLocalization()
   const localSongFile = useSongFile()
   const cloudSongFile = useCloudFile()
@@ -46,7 +45,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
   const setSong = useSetSong()
 
   const saveFileAs = async () => {
-    const { song } = rootStore
+    const { song } = songStore
     try {
       const res = await window.electronAPI.showSaveDialog()
       if (res === null) {
@@ -80,7 +79,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
         if (isLoggedIn) {
           await cloudSongFile.openSong()
         } else {
-          const { song } = rootStore
+          const { song } = songStore
           try {
             if (song.isSaved || confirm(localized["confirm-open"])) {
               const res = await window.electronAPI.showOpenDialog()
@@ -98,7 +97,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
         }
       }),
       window.electronAPI.onOpenFile(async ({ filePath }) => {
-        const { song } = rootStore
+        const { song } = songStore
         try {
           if (song.isSaved || confirm(localized["confirm-open"])) {
             const data = await window.electronAPI.readFile(filePath)
@@ -112,14 +111,14 @@ export const ElectronCallbackHandler: FC = observer(() => {
       }),
       window.electronAPI.onSaveFile(async () => {
         const { isLoggedIn } = authStore
-        const { song } = rootStore
+        const { song } = songStore
 
         if (isLoggedIn) {
           await cloudSongFile.saveSong()
         } else {
           try {
             if (song.filepath) {
-              const data = songToMidi(rootStore.song).buffer
+              const data = songToMidi(songStore.song).buffer
               await window.electronAPI.saveFile(song.filepath, data)
               song.isSaved = true
             } else {

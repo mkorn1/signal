@@ -20,10 +20,11 @@ import { LinkShare } from "../ui/LinkShare"
 type PublishState = "publishable" | "published" | "notPublishable"
 
 export const PublishDialog: FC = observer(() => {
-  const rootStore = useStores()
+  const { songStore, rootViewStore, cloudSongRepository, userRepository } =
+    useStores()
+  const { song } = songStore
   const publishSong = usePublishSong()
   const unpublishSong = useUnpublishSong()
-  const { rootViewStore, cloudSongRepository } = rootStore
   const { openPublishDialog: open } = rootViewStore
   const [publishState, setPublishState] =
     useState<PublishState>("notPublishable")
@@ -36,7 +37,7 @@ export const PublishDialog: FC = observer(() => {
     ;(async () => {
       if (open) {
         setIsLoading(true)
-        const cloudSongId = rootStore.song.cloudSongId
+        const cloudSongId = songStore.song.cloudSongId
         if (cloudSongId === null) {
           setPublishState("notPublishable")
           setIsLoading(false)
@@ -57,7 +58,7 @@ export const PublishDialog: FC = observer(() => {
   )
 
   const onClickPublish = async () => {
-    const { song, userRepository } = rootStore
+    const { song } = songStore
     try {
       setIsLoading(true)
       const user = await userRepository.getCurrentUser()
@@ -75,7 +76,7 @@ export const PublishDialog: FC = observer(() => {
   }
 
   const onClickUnpublish = async () => {
-    const { song } = rootStore
+    const { song } = songStore
     try {
       setIsLoading(true)
       await unpublishSong(song)
@@ -104,23 +105,19 @@ export const PublishDialog: FC = observer(() => {
             </Alert>
           </>
         )}
-        {publishState === "published" &&
-          rootStore.song.cloudSongId !== null && (
-            <>
-              <SongLink
-                href={getCloudSongUrl(rootStore.song.cloudSongId)}
-                target="_blank"
-              >
-                <Localized name="published-notice" />
-                <OpenInNewIcon color={theme.secondaryTextColor} size="1rem" />
-              </SongLink>
-              <LinkShare
-                url={getCloudSongUrl(rootStore.song.cloudSongId)}
-                text={localized["share-my-song-text"]}
-              />
-              <Divider />
-            </>
-          )}
+        {publishState === "published" && song.cloudSongId !== null && (
+          <>
+            <SongLink href={getCloudSongUrl(song.cloudSongId)} target="_blank">
+              <Localized name="published-notice" />
+              <OpenInNewIcon color={theme.secondaryTextColor} size="1rem" />
+            </SongLink>
+            <LinkShare
+              url={getCloudSongUrl(song.cloudSongId)}
+              text={localized["share-my-song-text"]}
+            />
+            <Divider />
+          </>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>

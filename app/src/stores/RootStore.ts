@@ -30,6 +30,7 @@ import { registerReactions } from "./reactions"
 import RootViewStore from "./RootViewStore"
 import Router from "./Router"
 import SettingStore from "./SettingStore"
+import { SongStore } from "./SongStore"
 import { SoundFontStore } from "./SoundFontStore"
 import TempoEditorStore from "./TempoEditorStore"
 import { ThemeStore } from "./ThemeStore"
@@ -149,6 +150,10 @@ export default class RootStore {
 
   get pushHistory() {
     return () => this.historyStore.push()
+  }
+
+  get songStore(): SongStore {
+    return this
   }
 }
 

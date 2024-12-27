@@ -5,7 +5,7 @@ import {
 } from "@signal-app/api"
 import { orderBy } from "lodash"
 import { computed, makeObservable, observable } from "mobx"
-import RootStore from "./RootStore"
+import { SongStore } from "./SongStore"
 
 export class CloudFileStore {
   isLoading = false
@@ -15,7 +15,7 @@ export class CloudFileStore {
   _files: CloudSong[] = []
 
   constructor(
-    private readonly rootStore: RootStore,
+    private readonly songStore: SongStore,
     private readonly cloudSongRepository: ICloudSongRepository,
     private readonly cloudSongDataRepository: ICloudSongDataRepository,
   ) {
@@ -59,9 +59,9 @@ export class CloudFileStore {
     await this.cloudSongDataRepository.delete(song.songDataId)
     await this.cloudSongRepository.delete(song.id)
 
-    if (this.rootStore.song.cloudSongId === song.id) {
-      this.rootStore.song.cloudSongId = null
-      this.rootStore.song.cloudSongDataId = null
+    if (this.songStore.song.cloudSongId === song.id) {
+      this.songStore.song.cloudSongId = null
+      this.songStore.song.cloudSongDataId = null
     }
     await this.load()
   }
