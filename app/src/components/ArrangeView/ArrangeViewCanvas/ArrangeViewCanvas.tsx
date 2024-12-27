@@ -2,10 +2,6 @@ import { useTheme } from "@emotion/react"
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
-import {
-  useArrangeEndSelection,
-  useArrangeResizeSelection,
-} from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
 import { matrixFromTranslation } from "../../../helpers/matrix"
@@ -18,6 +14,7 @@ import { Cursor } from "../../GLNodes/Cursor"
 import { Selection } from "../../GLNodes/Selection"
 import { Lines } from "./Lines"
 import { Notes } from "./Notes"
+import { useCreateSelectionGesture } from "./gestures/useCreateSelectionGesture"
 import { useMoveSelectionGesture } from "./gestures/useMoveSelectionGesture"
 
 export interface ArrangeViewCanvasProps {
@@ -27,7 +24,7 @@ export interface ArrangeViewCanvasProps {
 
 export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
   ({ width, onContextMenu }) => {
-    const { arrangeViewStore, player, pushHistory } = useStores()
+    const { arrangeViewStore } = useStores()
     const theme = useTheme()
     const {
       scrollLeft,
@@ -35,14 +32,11 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
       contentHeight: height,
       rulerStore: { beats },
       cursorX,
-      selection,
       selectionRect,
-      trackTransform,
     } = arrangeViewStore
 
     const moveSelectionGesture = useMoveSelectionGesture()
-    const arrangeEndSelection = useArrangeEndSelection()
-    const arrangeResizeSelection = useArrangeResizeSelection()
+    const createSelectionGesture = useCreateSelectionGesture()
 
     const scrollXMatrix = useMemo(
       () => matrixFromTranslation(-scrollLeft, 0),
@@ -63,6 +57,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
       arrangeViewStore.setScrollLeftInPixels(v)
       arrangeViewStore.autoScroll = false
     }, [])
+
     const setScrollTop = useCallback(
       (v: number) => arrangeViewStore.setScrollTop(v),
       [],
@@ -82,40 +77,15 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
         if (isSelectionSelected) {
           moveSelectionGesture.onMouseDown(e, startClientPos, selectionRect)
         } else {
-          const startPos = trackTransform.getArrangePoint(startPosPx)
-          arrangeViewStore.resetSelection()
-
-          if (!player.isPlaying) {
-            player.position = arrangeViewStore.quantizer.round(startPos.tick)
-          }
-
-          arrangeViewStore.selectedTrackIndex = Math.floor(startPos.trackIndex)
-
-          observeDrag({
-            onMouseMove: (e) => {
-              const deltaPx = Point.sub(getClientPos(e), startClientPos)
-              const selectionToPx = Point.add(startPosPx, deltaPx)
-              arrangeResizeSelection(
-                startPos,
-                trackTransform.getArrangePoint(selectionToPx),
-              )
-            },
-            onMouseUp: (e) => {
-              arrangeEndSelection()
-            },
-          })
+          createSelectionGesture.onMouseDown(e, startClientPos, startPosPx)
         }
       },
       [
-        selection,
-        trackTransform,
+        selectionRect,
         scrollLeft,
         scrollTop,
         moveSelectionGesture,
-        arrangeEndSelection,
-        arrangeResizeSelection,
-        player,
-        pushHistory,
+        createSelectionGesture,
       ],
     )
 
