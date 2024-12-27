@@ -57,7 +57,7 @@ export default class RootStore {
 
   readonly router = new Router()
   readonly trackMute = new TrackMute()
-  readonly historyStore = new HistoryStore<SerializedRootStore>()
+  readonly historyStore = new HistoryStore(this)
   readonly rootViewStore = new RootViewStore()
   readonly pianoRollStore: PianoRollStore
   readonly controlStore: ControlStore
@@ -148,10 +148,7 @@ export default class RootStore {
   }
 
   get pushHistory() {
-    return () => {
-      const state = this.serialize()
-      this.historyStore.push(state)
-    }
+    return () => this.historyStore.push()
   }
 }
 
