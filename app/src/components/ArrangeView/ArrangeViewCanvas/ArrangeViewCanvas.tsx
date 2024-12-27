@@ -3,9 +3,7 @@ import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import { Point } from "../../../entities/geometry/Point"
-import { Rect } from "../../../entities/geometry/Rect"
 import { matrixFromTranslation } from "../../../helpers/matrix"
-import { getClientPos } from "../../../helpers/mouseEvent"
 import { observeDrag } from "../../../helpers/observeDrag"
 import { AbstractMouseEvent } from "../../../hooks/useContextMenu"
 import { useStores } from "../../../hooks/useStores"
@@ -14,8 +12,7 @@ import { Cursor } from "../../GLNodes/Cursor"
 import { Selection } from "../../GLNodes/Selection"
 import { Lines } from "./Lines"
 import { Notes } from "./Notes"
-import { useCreateSelectionGesture } from "./gestures/useCreateSelectionGesture"
-import { useMoveSelectionGesture } from "./gestures/useMoveSelectionGesture"
+import { useSelectionGesture } from "./gestures/useSelectionGesture"
 
 export interface ArrangeViewCanvasProps {
   width: number
@@ -35,8 +32,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
       selectionRect,
     } = arrangeViewStore
 
-    const moveSelectionGesture = useMoveSelectionGesture()
-    const createSelectionGesture = useCreateSelectionGesture()
+    const selectionGesture = useSelectionGesture()
 
     const scrollXMatrix = useMemo(
       () => matrixFromTranslation(-scrollLeft, 0),
@@ -62,33 +58,6 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
       (v: number) => arrangeViewStore.setScrollTop(v),
       [],
     )
-
-    const handleLeftClick = useCallback(
-      (e: React.MouseEvent) => {
-        const startPosPx: Point = {
-          x: e.nativeEvent.offsetX + scrollLeft,
-          y: e.nativeEvent.offsetY + scrollTop,
-        }
-        const startClientPos = getClientPos(e.nativeEvent)
-
-        const isSelectionSelected =
-          selectionRect != null && Rect.containsPoint(selectionRect, startPosPx)
-
-        if (isSelectionSelected) {
-          moveSelectionGesture.onMouseDown(e, startClientPos, selectionRect)
-        } else {
-          createSelectionGesture.onMouseDown(e, startClientPos, startPosPx)
-        }
-      },
-      [
-        selectionRect,
-        scrollLeft,
-        scrollTop,
-        moveSelectionGesture,
-        createSelectionGesture,
-      ],
-    )
-
     const handleMiddleClick = useCallback(
       (e: React.MouseEvent) => {
         function createPoint(e: MouseEvent) {
@@ -112,7 +81,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
       (e: React.MouseEvent) => {
         switch (e.button) {
           case 0:
-            handleLeftClick(e)
+            selectionGesture.onMouseDown(e)
             break
           case 1:
             handleMiddleClick(e)
@@ -124,7 +93,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
             break
         }
       },
-      [handleLeftClick, handleMiddleClick, onContextMenu],
+      [selectionGesture, handleMiddleClick, onContextMenu],
     )
 
     return (
