@@ -51,13 +51,15 @@ export const useArrangeEndSelection = () => {
 
 export const useArrangeMoveSelection = () => {
   const {
-    arrangeViewStore: { quantizer, selection },
+    arrangeViewStore,
+    arrangeViewStore: { quantizer },
     song: { tracks },
   } = useStores()
 
   const arrangeMoveSelectionBy = useArrangeMoveSelectionBy()
 
   return (point: ArrangePoint) => {
+    const { selection } = arrangeViewStore
     if (selection === null) {
       return
     }
