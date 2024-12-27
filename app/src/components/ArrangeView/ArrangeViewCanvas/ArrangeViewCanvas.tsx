@@ -4,7 +4,6 @@ import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
 import {
   useArrangeEndSelection,
-  useArrangeMoveSelection,
   useArrangeResizeSelection,
 } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
@@ -19,6 +18,7 @@ import { Cursor } from "../../GLNodes/Cursor"
 import { Selection } from "../../GLNodes/Selection"
 import { Lines } from "./Lines"
 import { Notes } from "./Notes"
+import { useMoveSelectionGesture } from "./gestures/useMoveSelectionGesture"
 
 export interface ArrangeViewCanvasProps {
   width: number
@@ -40,7 +40,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
       trackTransform,
     } = arrangeViewStore
 
-    const arrangeMoveSelection = useArrangeMoveSelection()
+    const moveSelectionGesture = useMoveSelectionGesture()
     const arrangeEndSelection = useArrangeEndSelection()
     const arrangeResizeSelection = useArrangeResizeSelection()
 
@@ -80,22 +80,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
           selectionRect != null && Rect.containsPoint(selectionRect, startPosPx)
 
         if (isSelectionSelected) {
-          let isMoved = false
-          observeDrag({
-            onMouseMove: (e) => {
-              const deltaPx = Point.sub(getClientPos(e), startClientPos)
-              const selectionFromPx = Point.add(deltaPx, selectionRect)
-
-              if ((deltaPx.x !== 0 || deltaPx.y !== 0) && !isMoved) {
-                isMoved = true
-                pushHistory()
-              }
-
-              arrangeMoveSelection(
-                trackTransform.getArrangePoint(selectionFromPx),
-              )
-            },
-          })
+          moveSelectionGesture.onMouseDown(e, startClientPos, selectionRect)
         } else {
           const startPos = trackTransform.getArrangePoint(startPosPx)
           arrangeViewStore.resetSelection()
@@ -126,7 +111,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
         trackTransform,
         scrollLeft,
         scrollTop,
-        arrangeMoveSelection,
+        moveSelectionGesture,
         arrangeEndSelection,
         arrangeResizeSelection,
         player,
