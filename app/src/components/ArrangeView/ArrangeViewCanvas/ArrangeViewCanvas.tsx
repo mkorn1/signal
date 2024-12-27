@@ -20,16 +20,17 @@ export interface ArrangeViewCanvasProps {
 
 export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
   ({ width, onContextMenu }) => {
-    const { arrangeViewStore } = useStores()
-    const theme = useTheme()
     const {
-      scrollLeft,
-      scrollTop,
-      contentHeight: height,
-      rulerStore: { beats },
-      cursorX,
-      selectionRect,
-    } = arrangeViewStore
+      arrangeViewStore: {
+        scrollLeft,
+        scrollTop,
+        contentHeight: height,
+        rulerStore: { beats },
+        cursorX,
+        selectionRect,
+      },
+    } = useStores()
+    const theme = useTheme()
 
     const selectionGesture = useSelectionGesture()
     const dragScrollGesture = useDragScrollGesture()
@@ -41,7 +42,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = observer(
 
     const scrollYMatrix = useMemo(
       () => matrixFromTranslation(0, -scrollTop),
-      [scrollLeft, scrollTop],
+      [scrollTop],
     )
 
     const scrollXYMatrix = useMemo(
