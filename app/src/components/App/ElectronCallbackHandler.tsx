@@ -32,6 +32,7 @@ declare global {
 
 export const ElectronCallbackHandler: FC = observer(() => {
   const rootStore = useStores()
+  const { authStore, exportStore, rootViewStore } = rootStore
   const localized = useLocalization()
   const localSongFile = useSongFile()
   const cloudSongFile = useCloudFile()
@@ -65,9 +66,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
   useEffect(() => {
     const unsubscribes = [
       window.electronAPI.onNewFile(async () => {
-        const {
-          authStore: { isLoggedIn },
-        } = rootStore
+        const { isLoggedIn } = authStore
 
         if (isLoggedIn) {
           await cloudSongFile.createNewSong()
@@ -76,9 +75,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
         }
       }),
       window.electronAPI.onClickOpenFile(async () => {
-        const {
-          authStore: { isLoggedIn },
-        } = rootStore
+        const { isLoggedIn } = authStore
 
         if (isLoggedIn) {
           await cloudSongFile.openSong()
@@ -114,10 +111,8 @@ export const ElectronCallbackHandler: FC = observer(() => {
         }
       }),
       window.electronAPI.onSaveFile(async () => {
-        const {
-          song,
-          authStore: { isLoggedIn },
-        } = rootStore
+        const { isLoggedIn } = authStore
+        const { song } = rootStore
 
         if (isLoggedIn) {
           await cloudSongFile.saveSong()
@@ -136,9 +131,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
         }
       }),
       window.electronAPI.onSaveFileAs(async () => {
-        const {
-          authStore: { isLoggedIn },
-        } = rootStore
+        const { isLoggedIn } = authStore
 
         if (isLoggedIn) {
           await cloudSongFile.saveAsSong()
@@ -153,7 +146,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
         await cloudSongFile.importSong()
       }),
       window.electronAPI.onExportWav(() => {
-        rootStore.exportStore.openExportDialog = true
+        exportStore.openExportDialog = true
       }),
       window.electronAPI.onUndo(() => {
         undo()
@@ -171,10 +164,10 @@ export const ElectronCallbackHandler: FC = observer(() => {
         pasteSelectionGlobal()
       }),
       window.electronAPI.onOpenSetting(() => {
-        rootStore.rootViewStore.openSettingDialog = true
+        rootViewStore.openSettingDialog = true
       }),
       window.electronAPI.onOpenHelp(() => {
-        rootStore.rootViewStore.openHelp = true
+        rootViewStore.openHelp = true
       }),
       window.electronAPI.onBrowserSignInCompleted(
         async ({ credential: credentialJSON }) => {

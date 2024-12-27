@@ -49,11 +49,10 @@ const LineGraph = observer(
     axis,
     axisLabelFormatter = (v) => v.toString(),
   }: LineGraphProps<T>) => {
-    const rootStore = useStores()
-    const theme = useTheme()
     const {
       controlStore: { scrollLeft, transform, cursor, mouseMode },
-    } = rootStore
+    } = useStores()
+    const theme = useTheme()
     const createOrUpdateControlEventsValue =
       useCreateOrUpdateControlEventsValue()
     const handlePencilMouseDown = usePencilGesture()
