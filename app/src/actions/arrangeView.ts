@@ -8,18 +8,19 @@ import { ArrangeSelection } from "../entities/selection/ArrangeSelection"
 import { ArrangePoint } from "../entities/transform/ArrangePoint"
 import { isNotUndefined } from "../helpers/array"
 import { isEventInRange } from "../helpers/filterEvents"
+import { useStores } from "../hooks/useStores"
 import clipboard from "../services/Clipboard"
-import RootStore from "../stores/RootStore"
 import Track from "../track"
 import { batchUpdateNotesVelocity, BatchUpdateOperation } from "./track"
 
-export const arrangeResizeSelection =
-  ({
+export const useArrangeResizeSelection = () => {
+  const {
     song: { tracks },
     arrangeViewStore,
     arrangeViewStore: { quantizer },
-  }: RootStore) =>
-  (start: ArrangePoint, end: ArrangePoint) => {
+  } = useStores()
+
+  return (start: ArrangePoint, end: ArrangePoint) => {
     // 選択範囲作成時 (確定前) のドラッグ中
     // Drag during selection (before finalization)
     arrangeViewStore.selection = ArrangeSelection.fromPoints(
@@ -29,14 +30,16 @@ export const arrangeResizeSelection =
       tracks.length,
     )
   }
+}
 
-export const arrangeEndSelection =
-  ({
+export const useArrangeEndSelection = () => {
+  const {
     arrangeViewStore,
-    arrangeViewStore: { selection },
     song: { tracks },
-  }: RootStore) =>
-  () => {
+  } = useStores()
+
+  return () => {
+    const { selection } = arrangeViewStore
     if (selection) {
       arrangeViewStore.selectedEventIds = getEventsInSelection(
         tracks,
@@ -44,14 +47,19 @@ export const arrangeEndSelection =
       )
     }
   }
+}
 
-export const arrangeMoveSelection =
-  (rootStore: RootStore) => (point: ArrangePoint) => {
-    const {
-      arrangeViewStore: { quantizer, selection },
-      song: { tracks },
-    } = rootStore
+export const useArrangeMoveSelection = () => {
+  const {
+    arrangeViewStore,
+    arrangeViewStore: { quantizer },
+    song: { tracks },
+  } = useStores()
 
+  const arrangeMoveSelectionBy = useArrangeMoveSelectionBy()
+
+  return (point: ArrangePoint) => {
+    const { selection } = arrangeViewStore
     if (selection === null) {
       return
     }
@@ -70,12 +78,17 @@ export const arrangeMoveSelection =
 
     const delta = ArrangePoint.sub(point, ArrangeSelection.start(selection))
 
-    arrangeMoveSelectionBy(rootStore)(delta)
+    arrangeMoveSelectionBy(delta)
   }
+}
 
-export const arrangeMoveSelectionBy =
-  ({ arrangeViewStore: s, song: { tracks }, pushHistory }: RootStore) =>
-  (delta: ArrangePoint) => {
+export const useArrangeMoveSelectionBy = () => {
+  const {
+    arrangeViewStore: s,
+    song: { tracks },
+  } = useStores()
+
+  return (delta: ArrangePoint) => {
     if (s.selection === null) {
       return
     }
@@ -84,15 +97,12 @@ export const arrangeMoveSelectionBy =
       return
     }
 
-    // 選択範囲を移動
     // Move selection range
     const selection = ArrangeSelection.moved(s.selection, delta)
 
     s.selection = selection
 
-    // ノートを移動
     // Move notes
-
     const updates = []
     for (const [trackIndexStr, selectedEventIds] of Object.entries(
       s.selectedEventIds,
@@ -131,18 +141,19 @@ export const arrangeMoveSelectionBy =
       s.selectedEventIds = ids
     }
   }
+}
 
-export const arrangeCopySelection =
-  ({
+export const useArrangeCopySelection = () => {
+  const {
     arrangeViewStore: { selection, selectedEventIds },
     song: { tracks },
-  }: RootStore) =>
-  () => {
+  } = useStores()
+
+  return () => {
     if (selection === null) {
       return
     }
-    // 選択されたノートをコピー
-    // Copy selected note
+
     const notes = mapValues(selectedEventIds, (ids, trackIndex) => {
       const track = tracks[parseInt(trackIndex, 10)]
       return ids
@@ -150,7 +161,7 @@ export const arrangeCopySelection =
         .filter(isNotUndefined)
         .map((note) => ({
           ...note,
-          tick: note.tick - selection.fromTick, // 選択範囲からの相対位置にする // To relative position from selection
+          tick: note.tick - selection.fromTick,
         }))
     })
     const data: ArrangeNotesClipboardData = {
@@ -160,17 +171,17 @@ export const arrangeCopySelection =
     }
     clipboard.writeText(JSON.stringify(data))
   }
+}
 
-export const arrangePasteSelection =
-  ({
+export const useArrangePasteSelection = () => {
+  const {
     song: { tracks },
     player,
     arrangeViewStore: { selectedTrackIndex },
     pushHistory,
-  }: RootStore) =>
-  () => {
-    // 現在位置にコピーしたノートをペースト
-    // Paste notes copied to the current position
+  } = useStores()
+
+  return () => {
     const text = clipboard.readText()
     if (!text || text.length === 0) {
       return
@@ -200,20 +211,25 @@ export const arrangePasteSelection =
       }
     }
   }
+}
 
-export const arrangeDeleteSelection =
-  ({ arrangeViewStore: s, song: { tracks }, pushHistory }: RootStore) =>
-  () => {
+export const useArrangeDeleteSelection = () => {
+  const {
+    arrangeViewStore: s,
+    song: { tracks },
+    pushHistory,
+  } = useStores()
+
+  return () => {
     pushHistory()
 
-    // 選択範囲と選択されたノートを削除
-    // Remove selected notes and selected notes
     for (const trackIndex in s.selectedEventIds) {
       tracks[trackIndex].removeEvents(s.selectedEventIds[trackIndex])
     }
     s.selection = null
     s.selectedEventIds = []
   }
+}
 
 // returns { trackIndex: [eventId] }
 function getEventsInSelection(tracks: Track[], selection: ArrangeSelection) {
@@ -232,21 +248,28 @@ function getEventsInSelection(tracks: Track[], selection: ArrangeSelection) {
   return ids
 }
 
-export const arrangeTransposeSelection =
-  ({ song, pushHistory, arrangeViewStore: { selectedEventIds } }: RootStore) =>
-  (deltaPitch: number) => {
+export const useArrangeTransposeSelection = () => {
+  const {
+    song,
+    pushHistory,
+    arrangeViewStore: { selectedEventIds },
+  } = useStores()
+
+  return (deltaPitch: number) => {
     pushHistory()
     song.transposeNotes(deltaPitch, selectedEventIds)
   }
+}
 
-export const arrangeDuplicateSelection =
-  ({
+export const useArrangeDuplicateSelection = () => {
+  const {
     song: { tracks },
     arrangeViewStore,
     arrangeViewStore: { selection, selectedEventIds },
     pushHistory,
-  }: RootStore) =>
-  () => {
+  } = useStores()
+
+  return () => {
     if (selection === null) {
       return
     }
@@ -282,10 +305,16 @@ export const arrangeDuplicateSelection =
 
     arrangeViewStore.selectedEventIds = addedEventIds
   }
+}
 
-export const arrangeBatchUpdateSelectedNotesVelocity =
-  ({ arrangeViewStore, song: { tracks }, pushHistory }: RootStore) =>
-  (operation: BatchUpdateOperation) => {
+export const useArrangeBatchUpdateSelectedNotesVelocity = () => {
+  const {
+    arrangeViewStore,
+    song: { tracks },
+    pushHistory,
+  } = useStores()
+
+  return (operation: BatchUpdateOperation) => {
     const { selectedEventIds } = arrangeViewStore
     pushHistory()
 
@@ -295,3 +324,4 @@ export const arrangeBatchUpdateSelectedNotesVelocity =
       batchUpdateNotesVelocity(track, eventIds, operation)
     }
   }
+}

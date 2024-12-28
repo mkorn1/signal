@@ -1,7 +1,7 @@
 import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import { observer } from "mobx-react-lite"
 import { CSSProperties, FC, useCallback, useMemo } from "react"
-import { changeTempo } from "../../../actions"
+import { useChangeTempo } from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { bpmToUSecPerBeat, uSecPerBeatToBPM } from "../../../helpers/bpm"
 import { matrixFromTranslation } from "../../../helpers/matrix"
@@ -9,9 +9,9 @@ import { useStores } from "../../../hooks/useStores"
 import { Beats } from "../../GLNodes/Beats"
 import { Cursor } from "../../GLNodes/Cursor"
 import { Selection } from "../../GLNodes/Selection"
-import { handleCreateSelectionDrag } from "../MouseHandler/handleCreateSelectionDrag"
-import { handlePencilMouseDown } from "../MouseHandler/handlePencilMouseDown"
-import { handleSelectionDragEvents } from "../MouseHandler/handleSelectionDragEvents"
+import { useCreateSelectionGesture } from "../MouseHandler/useCreateSelectionGesture"
+import { useDragSelectionGesture } from "../MouseHandler/useDragSelectionGesture"
+import { usePencilGesture } from "../MouseHandler/usePencilGesture"
 import { Lines } from "./Lines"
 import { TempoItems } from "./TempoItems"
 
@@ -23,8 +23,6 @@ export interface TempoGraphCanvasProps {
 
 export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
   ({ width, height, style }) => {
-    const rootStore = useStores()
-
     const {
       tempoEditorStore,
       tempoEditorStore: {
@@ -36,7 +34,11 @@ export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
         cursorX,
         selectionRect,
       },
-    } = rootStore
+    } = useStores()
+    const changeTempo = useChangeTempo()
+    const pencilGesture = usePencilGesture()
+    const createSelectionGesture = useCreateSelectionGesture()
+    const dragSelectionGesture = useDragSelectionGesture()
 
     const scrollLeft = Math.floor(_scrollLeft)
 
@@ -62,13 +64,13 @@ export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
           return
         }
 
-        handlePencilMouseDown(rootStore)(
+        pencilGesture.onMouseDown(
           e.nativeEvent,
           getLocal(e.nativeEvent),
           transform,
         )
       },
-      [rootStore, transform, scrollLeft, mouseMode],
+      [pencilGesture, transform, scrollLeft, mouseMode],
     )
 
     const selectionMouseDown = useCallback(
@@ -81,17 +83,17 @@ export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
         const hitEventId = tempoEditorStore.hitTest(local)
 
         if (hitEventId !== undefined) {
-          handleSelectionDragEvents(rootStore)(
+          dragSelectionGesture.onMouseDown(
             e.nativeEvent,
             hitEventId,
             local,
             transform,
           )
         } else {
-          handleCreateSelectionDrag(rootStore)(e.nativeEvent, local, transform)
+          createSelectionGesture.onMouseDown(e.nativeEvent, local, transform)
         }
       },
-      [rootStore, transform, scrollLeft],
+      [dragSelectionGesture, createSelectionGesture, transform, scrollLeft],
     )
 
     const onMouseDownGraph =
@@ -107,12 +109,9 @@ export const TempoGraphCanvas: FC<TempoGraphCanvasProps> = observer(
         const event = items.filter((ev) => ev.id === item.id)[0]
         const movement = e.nativeEvent.deltaY > 0 ? -1 : 1
         const bpm = uSecPerBeatToBPM(event.microsecondsPerBeat)
-        changeTempo(rootStore)(
-          event.id,
-          Math.floor(bpmToUSecPerBeat(bpm + movement)),
-        )
+        changeTempo(event.id, Math.floor(bpmToUSecPerBeat(bpm + movement)))
       },
-      [items, rootStore, scrollLeft],
+      [items, scrollLeft, changeTempo],
     )
 
     const scrollXMatrix = useMemo(

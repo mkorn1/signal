@@ -8,8 +8,7 @@ import { MenuItem } from "../ui/Menu"
 
 export const PianoKeysContextMenu: FC<ContextMenuProps> = observer((props) => {
   const { handleClose } = props
-  const rootStore = useStores()
-  const { pianoRollStore } = rootStore
+  const { pianoRollStore } = useStores()
   const [isKeySignatureDialogOpen, setKeySignatureDialogOpen] = useState(false)
 
   const onClickShowScale = () => {

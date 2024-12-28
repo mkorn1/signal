@@ -41,7 +41,7 @@ export default class ArrangeViewStore {
 
   constructor(readonly rootStore: RootStore) {
     this.rootStore = rootStore
-    this.rulerStore = new RulerStore(this)
+    this.rulerStore = new RulerStore(this, rootStore.songStore)
     this.tickScrollStore = new TickScrollStore(this, 0.15, 15)
 
     makeObservable(this, {

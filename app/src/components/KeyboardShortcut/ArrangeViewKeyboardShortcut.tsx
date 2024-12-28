@@ -1,25 +1,29 @@
+import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import {
-  arrangeCopySelection,
-  arrangeDeleteSelection,
-  arrangeDuplicateSelection,
-  arrangePasteSelection,
+  useArrangeCopySelection,
+  useArrangeDeleteSelection,
+  useArrangeDuplicateSelection,
+  useArrangePasteSelection,
 } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { KeyboardShortcut } from "./KeyboardShortcut"
 
 const SCROLL_DELTA = 24
 
-export const ArrangeViewKeyboardShortcut: FC = () => {
-  const rootStore = useStores()
-  const { arrangeViewStore } = rootStore
+export const ArrangeViewKeyboardShortcut: FC = observer(() => {
+  const { arrangeViewStore } = useStores()
+  const arrangeDeleteSelection = useArrangeDeleteSelection()
+  const arrangeCopySelection = useArrangeCopySelection()
+  const arrangePasteSelection = useArrangePasteSelection()
+  const arrangeDuplicateSelection = useArrangeDuplicateSelection()
 
   return (
     <KeyboardShortcut
       actions={[
         { code: "Escape", run: () => arrangeViewStore.resetSelection() },
-        { code: "Delete", run: () => arrangeDeleteSelection(rootStore)() },
-        { code: "Backspace", run: () => arrangeDeleteSelection(rootStore)() },
+        { code: "Delete", run: () => arrangeDeleteSelection() },
+        { code: "Backspace", run: () => arrangeDeleteSelection() },
         {
           code: "ArrowUp",
           metaKey: true,
@@ -37,15 +41,15 @@ export const ArrangeViewKeyboardShortcut: FC = () => {
         {
           code: "KeyD",
           metaKey: true,
-          run: () => arrangeDuplicateSelection(rootStore)(),
+          run: () => arrangeDuplicateSelection(),
         },
       ]}
       onCut={() => {
-        arrangeCopySelection(rootStore)()
-        arrangeDeleteSelection(rootStore)()
+        arrangeCopySelection()
+        arrangeDeleteSelection()
       }}
-      onCopy={() => arrangeCopySelection(rootStore)()}
-      onPaste={() => arrangePasteSelection(rootStore)()}
+      onCopy={() => arrangeCopySelection()}
+      onPaste={() => arrangePasteSelection()}
     />
   )
-}
+})

@@ -4,18 +4,19 @@ import {
   isTempoEventsClipboardData,
 } from "../clipboard/clipboardTypes"
 import { isNotUndefined } from "../helpers/array"
+import { useStores } from "../hooks/useStores"
 import clipboard from "../services/Clipboard"
-import RootStore from "../stores/RootStore"
 import { isSetTempoEvent } from "../track"
 
-export const deleteTempoSelection =
-  ({
+export const useDeleteTempoSelection = () => {
+  const {
     song: { conductorTrack },
     tempoEditorStore,
     tempoEditorStore: { selectedEventIds },
     pushHistory,
-  }: RootStore) =>
-  () => {
+  } = useStores()
+
+  return () => {
     if (conductorTrack === undefined || selectedEventIds.length === 0) {
       return
     }
@@ -27,20 +28,24 @@ export const deleteTempoSelection =
     conductorTrack.removeEvents(selectedEventIds)
     tempoEditorStore.selection = null
   }
+}
 
-export const resetTempoSelection =
-  ({ tempoEditorStore }: RootStore) =>
-  () => {
+export const useResetTempoSelection = () => {
+  const { tempoEditorStore } = useStores()
+
+  return () => {
     tempoEditorStore.selection = null
     tempoEditorStore.selectedEventIds = []
   }
+}
 
-export const copyTempoSelection =
-  ({
+export const useCopyTempoSelection = () => {
+  const {
     song: { conductorTrack },
     tempoEditorStore: { selectedEventIds },
-  }: RootStore) =>
-  () => {
+  } = useStores()
+
+  return () => {
     if (conductorTrack === undefined || selectedEventIds.length === 0) {
       return
     }
@@ -69,10 +74,16 @@ export const copyTempoSelection =
 
     clipboard.writeText(JSON.stringify(data))
   }
+}
 
-export const pasteTempoSelection =
-  ({ song: { conductorTrack }, player, pushHistory }: RootStore) =>
-  () => {
+export const usePasteTempoSelection = () => {
+  const {
+    song: { conductorTrack },
+    player,
+    pushHistory,
+  } = useStores()
+
+  return () => {
     if (conductorTrack === undefined) {
       return
     }
@@ -97,15 +108,17 @@ export const pasteTempoSelection =
       events.forEach((e) => it.createOrUpdate(e))
     })
   }
+}
 
-export const duplicateTempoSelection =
-  ({
+export const useDuplicateTempoSelection = () => {
+  const {
     song: { conductorTrack },
     tempoEditorStore,
     tempoEditorStore: { selectedEventIds },
     pushHistory,
-  }: RootStore) =>
-  () => {
+  } = useStores()
+
+  return () => {
     if (conductorTrack === undefined || selectedEventIds.length === 0) {
       return
     }
@@ -133,3 +146,4 @@ export const duplicateTempoSelection =
     // select the created events
     tempoEditorStore.selectedEventIds = addedEvents.map((e) => e.id)
   }
+}

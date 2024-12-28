@@ -8,7 +8,6 @@ import { Player, SoundFontSynth } from "@signal-app/player"
 import { makeObservable, observable } from "mobx"
 import { deserialize, serialize } from "serializr"
 import { auth, firestore, functions } from ".././firebase/firebase"
-import { pushHistory } from "../actions/history"
 import { isRunningInElectron } from "../helpers/platform"
 import { EventSource } from "../player/EventSource"
 import { GroupOutput } from "../services/GroupOutput"
@@ -31,6 +30,7 @@ import { registerReactions } from "./reactions"
 import RootViewStore from "./RootViewStore"
 import Router from "./Router"
 import SettingStore from "./SettingStore"
+import { SongStore } from "./SongStore"
 import { SoundFontStore } from "./SoundFontStore"
 import TempoEditorStore from "./TempoEditorStore"
 import { ThemeStore } from "./ThemeStore"
@@ -58,7 +58,7 @@ export default class RootStore {
 
   readonly router = new Router()
   readonly trackMute = new TrackMute()
-  readonly historyStore = new HistoryStore<SerializedRootStore>()
+  readonly historyStore = new HistoryStore(this)
   readonly rootViewStore = new RootViewStore()
   readonly pianoRollStore: PianoRollStore
   readonly controlStore: ControlStore
@@ -149,7 +149,11 @@ export default class RootStore {
   }
 
   get pushHistory() {
-    return pushHistory(this)
+    return () => this.historyStore.push()
+  }
+
+  get songStore(): SongStore {
+    return this
   }
 }
 

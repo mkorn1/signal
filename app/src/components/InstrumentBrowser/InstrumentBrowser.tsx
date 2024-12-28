@@ -5,11 +5,7 @@ import difference from "lodash/difference"
 import range from "lodash/range"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
-import {
-  setTrackInstrument as setTrackInstrumentAction,
-  useStartNote,
-  useStopNote,
-} from "../../actions"
+import { useSetTrackInstrument, useStartNote, useStopNote } from "../../actions"
 import { isNotUndefined } from "../../helpers/array"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
@@ -155,8 +151,6 @@ const InstrumentBrowser: FC<InstrumentBrowserProps> = ({
 }
 
 const InstrumentBrowserWrapper: FC = observer(() => {
-  const rootStore = useStores()
-
   const {
     pianoRollStore: {
       selectedTrack: track,
@@ -166,10 +160,11 @@ const InstrumentBrowserWrapper: FC = observer(() => {
     pianoRollStore,
     player,
     song,
-  } = rootStore
+  } = useStores()
 
   const startNote = useStartNote()
   const stopNote = useStopNote()
+  const setTrackInstrumentAction = useSetTrackInstrument()
 
   const [stopNoteTimeout, setStopNoteTimeout] = useState<NodeJS.Timeout | null>(
     null,
@@ -181,7 +176,7 @@ const InstrumentBrowserWrapper: FC = observer(() => {
 
   const close = () => (pianoRollStore.openInstrumentBrowser = false)
   const setTrackInstrument = (programNumber: number) =>
-    setTrackInstrumentAction(rootStore)(track.id, programNumber)
+    setTrackInstrumentAction(track.id, programNumber)
 
   const presets: PresetItem[] = range(0, 128).map((programNumber) => ({
     programNumber,

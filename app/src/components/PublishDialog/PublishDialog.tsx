@@ -4,7 +4,7 @@ import { useToast } from "dialog-hooks"
 import OpenInNewIcon from "mdi-react/OpenInNewIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useState } from "react"
-import { publishSong, unpublishSong } from "../../actions/cloudSong"
+import { usePublishSong, useUnpublishSong } from "../../actions/cloudSong"
 import { useStores } from "../../hooks/useStores"
 import { Localized, useLocalization } from "../../localize/useLocalization"
 import {
@@ -20,8 +20,11 @@ import { LinkShare } from "../ui/LinkShare"
 type PublishState = "publishable" | "published" | "notPublishable"
 
 export const PublishDialog: FC = observer(() => {
-  const rootStore = useStores()
-  const { rootViewStore, cloudSongRepository } = rootStore
+  const { songStore, rootViewStore, cloudSongRepository, userRepository } =
+    useStores()
+  const { song } = songStore
+  const publishSong = usePublishSong()
+  const unpublishSong = useUnpublishSong()
   const { openPublishDialog: open } = rootViewStore
   const [publishState, setPublishState] =
     useState<PublishState>("notPublishable")
@@ -34,7 +37,7 @@ export const PublishDialog: FC = observer(() => {
     ;(async () => {
       if (open) {
         setIsLoading(true)
-        const cloudSongId = rootStore.song.cloudSongId
+        const cloudSongId = songStore.song.cloudSongId
         if (cloudSongId === null) {
           setPublishState("notPublishable")
           setIsLoading(false)
@@ -55,14 +58,14 @@ export const PublishDialog: FC = observer(() => {
   )
 
   const onClickPublish = async () => {
-    const { song, userRepository } = rootStore
+    const { song } = songStore
     try {
       setIsLoading(true)
       const user = await userRepository.getCurrentUser()
       if (user === null) {
         throw new Error("Failed to get current user, please re-sign in")
       }
-      await publishSong(rootStore)(song, user)
+      await publishSong(song, user)
       setPublishState("published")
       toast.success(localized["song-published"])
     } catch (e) {
@@ -73,10 +76,10 @@ export const PublishDialog: FC = observer(() => {
   }
 
   const onClickUnpublish = async () => {
-    const { song } = rootStore
+    const { song } = songStore
     try {
       setIsLoading(true)
-      await unpublishSong(rootStore)(song)
+      await unpublishSong(song)
       setPublishState("publishable")
       toast.success(localized["song-unpublished"])
     } catch (e) {
@@ -102,23 +105,19 @@ export const PublishDialog: FC = observer(() => {
             </Alert>
           </>
         )}
-        {publishState === "published" &&
-          rootStore.song.cloudSongId !== null && (
-            <>
-              <SongLink
-                href={getCloudSongUrl(rootStore.song.cloudSongId)}
-                target="_blank"
-              >
-                <Localized name="published-notice" />
-                <OpenInNewIcon color={theme.secondaryTextColor} size="1rem" />
-              </SongLink>
-              <LinkShare
-                url={getCloudSongUrl(rootStore.song.cloudSongId)}
-                text={localized["share-my-song-text"]}
-              />
-              <Divider />
-            </>
-          )}
+        {publishState === "published" && song.cloudSongId !== null && (
+          <>
+            <SongLink href={getCloudSongUrl(song.cloudSongId)} target="_blank">
+              <Localized name="published-notice" />
+              <OpenInNewIcon color={theme.secondaryTextColor} size="1rem" />
+            </SongLink>
+            <LinkShare
+              url={getCloudSongUrl(song.cloudSongId)}
+              text={localized["share-my-song-text"]}
+            />
+            <Divider />
+          </>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>

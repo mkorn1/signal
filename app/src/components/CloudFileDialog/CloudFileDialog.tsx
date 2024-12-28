@@ -12,11 +12,10 @@ import { Button } from "../ui/Button"
 import { CloudFileList } from "./CloudFileList"
 
 export const CloudFileDialog = observer(() => {
-  const rootStore = useStores()
   const {
     rootViewStore,
     rootViewStore: { openCloudFileDialog },
-  } = rootStore
+  } = useStores()
 
   const onClose = useCallback(
     () => (rootViewStore.openCloudFileDialog = false),

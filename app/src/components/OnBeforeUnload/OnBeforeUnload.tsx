@@ -5,12 +5,12 @@ import { useStores } from "../../hooks/useStores"
 import { useLocalization } from "../../localize/useLocalization"
 
 export const OnBeforeUnload = observer(() => {
-  const rootStore = useStores()
+  const { songStore } = useStores()
   const localized = useLocalization()
 
   useEffect(() => {
     const listener = (e: BeforeUnloadEvent) => {
-      if (!rootStore.song.isSaved) {
+      if (!songStore.song.isSaved) {
         const message = localized["confirm-close"]
         if (isRunningInElectron()) {
           // do not close the window immediately

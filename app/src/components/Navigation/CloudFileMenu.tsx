@@ -9,8 +9,7 @@ import { FileInput } from "./LegacyFileMenu"
 
 export const CloudFileMenu: FC<{ close: () => void }> = observer(
   ({ close }) => {
-    const rootStore = useStores()
-    const { song } = rootStore
+    const { song } = useStores()
     const isCloudSaved = song.cloudSongId !== null
     const {
       createNewSong,
@@ -81,7 +80,7 @@ export const CloudFileMenu: FC<{ close: () => void }> = observer(
           <Localized name="open-song" />
         </MenuItem>
 
-        <MenuItem onClick={onClickSave} disabled={rootStore.song.isSaved}>
+        <MenuItem onClick={onClickSave} disabled={song.isSaved}>
           <Localized name="save-song" />
         </MenuItem>
 

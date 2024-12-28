@@ -4,10 +4,9 @@ import { Range } from "../entities/geometry/Range"
 import { TickTransform } from "../entities/transform/TickTransform"
 import { isEventInRange } from "../helpers/filterEvents"
 import Quantizer from "../quantizer"
-import Song from "../song"
+import { SongStore } from "./SongStore"
 
 interface RulerProvider {
-  rootStore: { song: Song }
   transform: TickTransform
   scrollLeft: number
   canvasWidth: number
@@ -25,7 +24,10 @@ export interface TimeSignature {
 export class RulerStore {
   selectedTimeSignatureEventIds: number[] = []
 
-  constructor(readonly parent: RulerProvider) {
+  constructor(
+    readonly parent: RulerProvider,
+    private readonly songStore: SongStore,
+  ) {
     makeObservable(this, {
       selectedTimeSignatureEventIds: observable.shallow,
       beats: computed,
@@ -35,21 +37,26 @@ export class RulerStore {
   }
 
   get beats(): BeatWithX[] {
-    const { scrollLeft, transform, canvasWidth, rootStore } = this.parent
+    const { scrollLeft, transform, canvasWidth } = this.parent
+    const {
+      song: { measures, timebase },
+    } = this.songStore
 
     return BeatWithX.createInRange(
-      rootStore.song.measures,
+      measures,
       transform,
-      rootStore.song.timebase,
+      timebase,
       scrollLeft,
       canvasWidth,
     )
   }
 
   get timeSignatures(): TimeSignature[] {
-    const { transform, scrollLeft, canvasWidth, rootStore } = this.parent
+    const { transform, scrollLeft, canvasWidth } = this.parent
     const { selectedTimeSignatureEventIds } = this
-    const { timeSignatures } = rootStore.song
+    const {
+      song: { timeSignatures },
+    } = this.songStore
 
     return timeSignatures
       .filter(

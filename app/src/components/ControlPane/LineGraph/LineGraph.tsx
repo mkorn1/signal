@@ -2,7 +2,7 @@ import { useTheme } from "@emotion/react"
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
 import { observer } from "mobx-react-lite"
 import React, { MouseEventHandler, useCallback, useMemo } from "react"
-import { createOrUpdateControlEventsValue } from "../../../actions/control"
+import { useCreateOrUpdateControlEventsValue } from "../../../actions/control"
 import { ValueEventType } from "../../../entities/event/ValueEventType"
 import { Point } from "../../../entities/geometry/Point"
 import { Range } from "../../../entities/geometry/Range"
@@ -14,9 +14,9 @@ import { useStores } from "../../../hooks/useStores"
 import { pointToCircleRect } from "../../../stores/TempoEditorStore"
 import { TrackEventOf } from "../../../track"
 import { ControlSelectionContextMenu } from "../ControlSelectionContextMenu"
-import { handleCreateSelectionDrag } from "../Graph/MouseHandler/handleCreateSelectionDrag"
-import { handlePencilMouseDown } from "../Graph/MouseHandler/handlePencilMouseDown"
-import { handleSelectionDragEvents } from "../Graph/MouseHandler/handleSelectionDragEvents"
+import { useCreateSelectionGesture } from "../Graph/MouseHandler/useCreateSelectionGesture"
+import { useDragSelectionGesture } from "../Graph/MouseHandler/useDragSelectionGesture"
+import { usePencilGesture } from "../Graph/MouseHandler/usePencilGesture"
 import { GraphAxis } from "./GraphAxis"
 import { LineGraphCanvas } from "./LineGraphCanvas"
 
@@ -49,11 +49,15 @@ const LineGraph = observer(
     axis,
     axisLabelFormatter = (v) => v.toString(),
   }: LineGraphProps<T>) => {
-    const rootStore = useStores()
-    const theme = useTheme()
     const {
       controlStore: { scrollLeft, transform, cursor, mouseMode },
-    } = rootStore
+    } = useStores()
+    const theme = useTheme()
+    const createOrUpdateControlEventsValue =
+      useCreateOrUpdateControlEventsValue()
+    const handlePencilMouseDown = usePencilGesture()
+    const dragSelectionGesture = useDragSelectionGesture()
+    const createSelectionGesture = useCreateSelectionGesture()
 
     const controlTransform = useMemo(
       () => new ControlCoordTransform(transform, maxValue, height, lineWidth),
@@ -85,14 +89,14 @@ const LineGraph = observer(
       (ev) => {
         const local = getLocal(ev.nativeEvent)
 
-        handlePencilMouseDown(rootStore)(
+        handlePencilMouseDown.onMouseDown(
           ev.nativeEvent,
           local,
           controlTransform,
           eventType,
         )
       },
-      [rootStore, scrollLeft, controlTransform, eventType],
+      [scrollLeft, controlTransform, eventType, handlePencilMouseDown],
     )
 
     const selectionMouseDown: MouseEventHandler = useCallback(
@@ -101,7 +105,7 @@ const LineGraph = observer(
         const hitEventId = hitTest(local)
 
         if (hitEventId !== undefined) {
-          handleSelectionDragEvents(rootStore)(
+          dragSelectionGesture.onMouseDown(
             ev.nativeEvent,
             hitEventId,
             local,
@@ -109,7 +113,7 @@ const LineGraph = observer(
             eventType,
           )
         } else {
-          handleCreateSelectionDrag(rootStore)(
+          createSelectionGesture.onMouseDown(
             ev.nativeEvent,
             local,
             controlTransform,
@@ -120,7 +124,15 @@ const LineGraph = observer(
           )
         }
       },
-      [rootStore, controlTransform, scrollLeft, events, eventType, hitTest],
+      [
+        controlTransform,
+        scrollLeft,
+        events,
+        eventType,
+        hitTest,
+        dragSelectionGesture,
+        createSelectionGesture,
+      ],
     )
 
     const onMouseDown =
@@ -129,9 +141,9 @@ const LineGraph = observer(
     const onClickAxis = useCallback(
       (value: number) => {
         const event = ValueEventType.getEventFactory(eventType)(value)
-        createOrUpdateControlEventsValue(rootStore)(event)
+        createOrUpdateControlEventsValue(event)
       },
-      [eventType],
+      [eventType, createOrUpdateControlEventsValue],
     )
 
     const { onContextMenu, menuProps } = useContextMenu()

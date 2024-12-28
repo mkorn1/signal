@@ -1,9 +1,8 @@
 import styled from "@emotion/styled"
 import Add from "mdi-react/AddIcon"
 import { observer } from "mobx-react-lite"
-import { FC, useCallback } from "react"
-import { addTrack } from "../../actions"
-import { useStores } from "../../hooks/useStores"
+import { FC } from "react"
+import { useAddTrack } from "../../actions"
 import { Localized } from "../../localize/useLocalization"
 
 const Wrapper = styled.div`
@@ -31,12 +30,10 @@ const Label = styled.div`
 `
 
 export const AddTrackButton: FC = observer(() => {
-  const rootStore = useStores()
-
-  const onClickAddTrack = useCallback(() => addTrack(rootStore)(), [])
+  const addTrack = useAddTrack()
 
   return (
-    <Wrapper onClick={onClickAddTrack}>
+    <Wrapper onClick={addTrack}>
       <AddIcon />
       <Label>
         <Localized name="add-track" />

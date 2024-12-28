@@ -1,13 +1,13 @@
 import { observer } from "mobx-react-lite"
 import { useCallback } from "react"
-import { arrangeTransposeSelection } from "../../actions"
+import { useArrangeTransposeSelection } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { TransposeDialog } from "./TransposeDialog"
 
 export const ArrangeTransposeDialog = observer(() => {
-  const rootStore = useStores()
-  const { arrangeViewStore } = rootStore
+  const { arrangeViewStore } = useStores()
   const { openTransposeDialog } = arrangeViewStore
+  const arrangeTransposeSelection = useArrangeTransposeSelection()
 
   const onClose = useCallback(
     () => (arrangeViewStore.openTransposeDialog = false),
@@ -16,10 +16,10 @@ export const ArrangeTransposeDialog = observer(() => {
 
   const onClickOK = useCallback(
     (value: number) => {
-      arrangeTransposeSelection(rootStore)(value)
+      arrangeTransposeSelection(value)
       arrangeViewStore.openTransposeDialog = false
     },
-    [arrangeViewStore],
+    [arrangeViewStore, arrangeTransposeSelection],
   )
 
   return (

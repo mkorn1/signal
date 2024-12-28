@@ -1,26 +1,36 @@
+interface Serializable<T> {
+  serialize(): T
+  restore(serialized: T): void
+}
+
 export default class HistoryStore<State> {
   undoHistory: State[] = []
   redoHistory: State[] = []
 
-  push(currentState: State) {
+  constructor(private readonly serializable: Serializable<State>) {}
+
+  push() {
+    const currentState = this.serializable.serialize()
     this.undoHistory.push(currentState)
     this.redoHistory = []
   }
 
-  undo(currentState: State) {
+  undo() {
+    const currentState = this.serializable.serialize()
     const state = this.undoHistory.pop()
     if (state) {
       this.redoHistory.push(currentState)
+      this.serializable.restore(state)
     }
-    return state
   }
 
-  redo(currentState: State) {
+  redo() {
+    const currentState = this.serializable.serialize()
     const state = this.redoHistory.pop()
     if (state) {
       this.undoHistory.push(currentState)
+      this.serializable.restore(state)
     }
-    return state
   }
 
   clear() {

@@ -1,8 +1,8 @@
-import RootStore from "../stores/RootStore"
+import { useStores } from "../hooks/useStores"
 
-export const toggleRecording =
-  ({ midiRecorder, player }: RootStore) =>
-  () => {
+export const useToggleRecording = () => {
+  const { midiRecorder, player } = useStores()
+  return () => {
     if (midiRecorder.isRecording) {
       midiRecorder.isRecording = false
       player.stop()
@@ -11,3 +11,4 @@ export const toggleRecording =
       player.play()
     }
   }
+}

@@ -6,11 +6,11 @@ import VolumeOff from "mdi-react/VolumeOffIcon"
 import { observer } from "mobx-react-lite"
 import { FC, MouseEventHandler, useCallback, useState } from "react"
 import {
-  selectTrack,
-  toggleMuteTrack,
-  toggleSoloTrack,
-  toogleAllGhostTracks,
-  toogleGhostTrack,
+  useSelectTrack,
+  useToggleAllGhostTracks,
+  useToggleGhostTrack,
+  useToggleMuteTrack,
+  useToggleSoloTrack,
 } from "../../actions"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
@@ -134,8 +134,12 @@ const ControlButton = styled.div<{ active?: boolean }>`
 `
 
 export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
-  const rootStore = useStores()
-  const { pianoRollStore, rootViewStore, trackMute, router } = rootStore
+  const { pianoRollStore, rootViewStore, trackMute, router } = useStores()
+  const toggleMuteTrack = useToggleMuteTrack()
+  const toggleSoloTrack = useToggleSoloTrack()
+  const toggleGhostTrack = useToggleGhostTrack()
+  const toggleAllGhostTracks = useToggleAllGhostTracks()
+  const selectTrack = useSelectTrack()
 
   const selected =
     !rootViewStore.isArrangeViewSelected &&
@@ -160,32 +164,32 @@ export const TrackListItem: FC<TrackListItemProps> = observer(({ track }) => {
   const onClickMute: MouseEventHandler = useCallback(
     (e) => {
       e.stopPropagation()
-      toggleMuteTrack(rootStore)(track.id)
+      toggleMuteTrack(track.id)
     },
-    [track.id],
+    [track.id, toggleMuteTrack],
   )
   const onClickSolo: MouseEventHandler = useCallback(
     (e) => {
       e.stopPropagation()
-      toggleSoloTrack(rootStore)(track.id)
+      toggleSoloTrack(track.id)
     },
-    [track.id],
+    [track.id, toggleSoloTrack],
   )
   const onClickGhostTrack: MouseEventHandler = useCallback(
     (e) => {
       e.stopPropagation()
       if (e.nativeEvent.altKey) {
-        toogleAllGhostTracks(rootStore)()
+        toggleAllGhostTracks()
       } else {
-        toogleGhostTrack(rootStore)(track.id)
+        toggleGhostTrack(track.id)
       }
     },
-    [track.id],
+    [track.id, toggleAllGhostTracks, toggleGhostTrack],
   )
   const onSelectTrack = useCallback(() => {
     router.pushTrack()
-    selectTrack(rootStore)(track.id)
-  }, [track.id])
+    selectTrack(track.id)
+  }, [track.id, selectTrack])
   const onClickChannel = useCallback(() => {
     setDialogOpened(true)
   }, [])

@@ -5,16 +5,17 @@ import {
   isControlEventsClipboardData,
 } from "../clipboard/clipboardTypes"
 import { isNotUndefined } from "../helpers/array"
+import { useStores } from "../hooks/useStores"
 import clipboard from "../services/Clipboard"
-import RootStore from "../stores/RootStore"
 
-export const createOrUpdateControlEventsValue =
-  ({
+export const useCreateOrUpdateControlEventsValue = () => {
+  const {
     controlStore: { selectedEventIds, selectedTrack },
     player,
     pushHistory,
-  }: RootStore) =>
-  <T extends ControllerEvent | PitchBendEvent>(event: T) => {
+  } = useStores()
+
+  return <T extends ControllerEvent | PitchBendEvent>(event: T) => {
     if (selectedTrack === undefined) {
       return
     }
@@ -36,36 +37,43 @@ export const createOrUpdateControlEventsValue =
       })
     }
   }
+}
 
-export const deleteControlSelection =
-  ({
+export const useDeleteControlSelection = () => {
+  const {
     controlStore,
     controlStore: { selectedEventIds, selectedTrack },
     pushHistory,
-  }: RootStore) =>
-  () => {
+  } = useStores()
+
+  return () => {
     if (selectedTrack === undefined || selectedEventIds.length === 0) {
       return
     }
 
     pushHistory()
 
-    // 選択範囲と選択されたノートを削除
     // Remove selected notes and selected notes
     selectedTrack.removeEvents(selectedEventIds)
     controlStore.selection = null
   }
+}
 
-export const resetControlSelection =
-  ({ controlStore }: RootStore) =>
-  () => {
+export const useResetControlSelection = () => {
+  const { controlStore } = useStores()
+
+  return () => {
     controlStore.selection = null
     controlStore.selectedEventIds = []
   }
+}
 
-export const copyControlSelection =
-  ({ controlStore: { selectedEventIds, selectedTrack } }: RootStore) =>
-  () => {
+export const useCopyControlSelection = () => {
+  const {
+    controlStore: { selectedEventIds, selectedTrack },
+  } = useStores()
+
+  return () => {
     if (selectedTrack === undefined || selectedEventIds.length === 0) {
       return
     }
@@ -93,10 +101,16 @@ export const copyControlSelection =
 
     clipboard.writeText(JSON.stringify(data))
   }
+}
 
-export const pasteControlSelection =
-  ({ pianoRollStore: { selectedTrack }, player, pushHistory }: RootStore) =>
-  () => {
+export const usePasteControlSelection = () => {
+  const {
+    pianoRollStore: { selectedTrack },
+    player,
+    pushHistory,
+  } = useStores()
+
+  return () => {
     if (selectedTrack === undefined) {
       return
     }
@@ -121,14 +135,16 @@ export const pasteControlSelection =
       events.forEach((e) => it.createOrUpdate(e)),
     )
   }
+}
 
-export const duplicateControlSelection =
-  ({
+export const useDuplicateControlSelection = () => {
+  const {
     controlStore,
     controlStore: { selectedEventIds, selectedTrack },
     pushHistory,
-  }: RootStore) =>
-  () => {
+  } = useStores()
+
+  return () => {
     if (selectedTrack === undefined || selectedEventIds.length === 0) {
       return
     }
@@ -155,3 +171,4 @@ export const duplicateControlSelection =
     )
     controlStore.selectedEventIds = addedEvents.map((e) => e.id)
   }
+}

@@ -17,7 +17,6 @@ import { Notes } from "./Notes"
 
 export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
   ({ width, height }) => {
-    const rootStore = useStores()
     const {
       pianoRollStore,
       pianoRollStore: {
@@ -29,7 +28,7 @@ export const PianoRollCanvas: FC<PianoRollStageProps> = observer(
         selectionBounds,
         ghostTrackIds,
       },
-    } = rootStore
+    } = useStores()
 
     const mouseHandler = useNoteMouseGesture()
 
