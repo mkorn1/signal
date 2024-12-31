@@ -6,8 +6,7 @@ import {
   signInWithCredential,
 } from "firebase/auth"
 import { observer } from "mobx-react-lite"
-import { FC, useEffect, useState } from "react"
-import { ElectronAPI } from "../../../../electron/src/ElectronAPI"
+import { FC } from "react"
 import { FirebaseCredential } from "../../../../electron/src/FirebaseCredential"
 import { auth } from "../.././firebase/firebase"
 import { useSetSong } from "../../actions"
@@ -23,15 +22,15 @@ import { useSongFile } from "../../hooks/useSongFile"
 import { useStores } from "../../hooks/useStores"
 import { useLocalization } from "../../localize/useLocalization"
 import { songToMidi } from "../../midi/midiConversion"
-
-declare global {
-  interface Window {
-    electronAPI: ElectronAPI
-  }
-}
+import { ElectronCallback } from "./ElectronCallback"
 
 export const ElectronCallbackHandler: FC = observer(() => {
-  const { songStore, authStore, exportStore, rootViewStore } = useStores()
+  const {
+    songStore: { song },
+    authStore: { isLoggedIn },
+    exportStore,
+    rootViewStore,
+  } = useStores()
   const localized = useLocalization()
   const localSongFile = useSongFile()
   const cloudSongFile = useCloudFile()
@@ -41,11 +40,9 @@ export const ElectronCallbackHandler: FC = observer(() => {
   const pasteSelectionGlobal = usePasteSelectionGlobal()
   const undo = useUndo()
   const redo = useRedo()
-  const [isInitialized, setIsInitialized] = useState(false)
   const setSong = useSetSong()
 
   const saveFileAs = async () => {
-    const { song } = songStore
     try {
       const res = await window.electronAPI.showSaveDialog()
       if (res === null) {
@@ -62,24 +59,19 @@ export const ElectronCallbackHandler: FC = observer(() => {
     }
   }
 
-  useEffect(() => {
-    const unsubscribes = [
-      window.electronAPI.onNewFile(async () => {
-        const { isLoggedIn } = authStore
-
+  return (
+    <ElectronCallback
+      onNewFile={async () => {
         if (isLoggedIn) {
           await cloudSongFile.createNewSong()
         } else {
           await localSongFile.createNewSong()
         }
-      }),
-      window.electronAPI.onClickOpenFile(async () => {
-        const { isLoggedIn } = authStore
-
+      }}
+      onClickOpenFile={async () => {
         if (isLoggedIn) {
           await cloudSongFile.openSong()
         } else {
-          const { song } = songStore
           try {
             if (song.isSaved || confirm(localized["confirm-open"])) {
               const res = await window.electronAPI.showOpenDialog()
@@ -95,9 +87,8 @@ export const ElectronCallbackHandler: FC = observer(() => {
             alert((e as Error).message)
           }
         }
-      }),
-      window.electronAPI.onOpenFile(async ({ filePath }) => {
-        const { song } = songStore
+      }}
+      onOpenFile={async ({ filePath }) => {
         try {
           if (song.isSaved || confirm(localized["confirm-open"])) {
             const data = await window.electronAPI.readFile(filePath)
@@ -108,17 +99,14 @@ export const ElectronCallbackHandler: FC = observer(() => {
         } catch (e) {
           alert((e as Error).message)
         }
-      }),
-      window.electronAPI.onSaveFile(async () => {
-        const { isLoggedIn } = authStore
-        const { song } = songStore
-
+      }}
+      onSaveFile={async () => {
         if (isLoggedIn) {
           await cloudSongFile.saveSong()
         } else {
           try {
             if (song.filepath) {
-              const data = songToMidi(songStore.song).buffer
+              const data = songToMidi(song).buffer
               await window.electronAPI.saveFile(song.filepath, data)
               song.isSaved = true
             } else {
@@ -128,74 +116,44 @@ export const ElectronCallbackHandler: FC = observer(() => {
             alert((e as Error).message)
           }
         }
-      }),
-      window.electronAPI.onSaveFileAs(async () => {
-        const { isLoggedIn } = authStore
-
+      }}
+      onSaveFileAs={async () => {
         if (isLoggedIn) {
           await cloudSongFile.saveAsSong()
         } else {
           await saveFileAs()
         }
-      }),
-      window.electronAPI.onRename(async () => {
+      }}
+      onRename={async () => {
         await cloudSongFile.renameSong()
-      }),
-      window.electronAPI.onImport(async () => {
+      }}
+      onImport={async () => {
         await cloudSongFile.importSong()
-      }),
-      window.electronAPI.onExportWav(() => {
+      }}
+      onExportWav={() => {
         exportStore.openExportDialog = true
-      }),
-      window.electronAPI.onUndo(() => {
-        undo()
-      }),
-      window.electronAPI.onRedo(() => {
-        redo()
-      }),
-      window.electronAPI.onCut(() => {
-        cutSelectionGlobal()
-      }),
-      window.electronAPI.onCopy(() => {
-        copySelectionGlobal()
-      }),
-      window.electronAPI.onPaste(() => {
-        pasteSelectionGlobal()
-      }),
-      window.electronAPI.onOpenSetting(() => {
+      }}
+      onUndo={undo}
+      onRedo={redo}
+      onCut={cutSelectionGlobal}
+      onCopy={copySelectionGlobal}
+      onPaste={pasteSelectionGlobal}
+      onOpenSetting={() => {
         rootViewStore.openSettingDialog = true
-      }),
-      window.electronAPI.onOpenHelp(() => {
+      }}
+      onOpenHelp={() => {
         rootViewStore.openHelp = true
-      }),
-      window.electronAPI.onBrowserSignInCompleted(
-        async ({ credential: credentialJSON }) => {
-          const credential = createCredential(credentialJSON)
-          try {
-            await signInWithCredential(auth, credential)
-          } catch (e) {
-            toast.error("Failed to sign in: " + (e as Error).message)
-          }
-        },
-      ),
-    ]
-    if (!isInitialized) {
-      setIsInitialized(true)
-      window.electronAPI.ready()
-    }
-    return () => {
-      unsubscribes.forEach((unsubscribe) => unsubscribe())
-    }
-  }, [
-    isInitialized,
-    cutSelectionGlobal,
-    copySelectionGlobal,
-    pasteSelectionGlobal,
-    redo,
-    undo,
-  ])
-
-  return <></>
+      }}
+      onBrowserSignInCompleted={async ({ credential: credentialJSON }) => {
+        const credential = createCredential(credentialJSON)
+        try {
+          await signInWithCredential(auth, credential)
+        } catch {
+          toast.error("Failed to sign in")
+        }
+      }}
+    />
+  )
 })
 
 function createCredential(credential: FirebaseCredential) {
