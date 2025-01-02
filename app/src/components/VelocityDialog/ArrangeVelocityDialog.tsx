@@ -1,15 +1,16 @@
 import { observer } from "mobx-react-lite"
 import { useCallback } from "react"
 import {
-  arrangeBatchUpdateSelectedNotesVelocity,
   BatchUpdateOperation,
+  useArrangeBatchUpdateSelectedNotesVelocity,
 } from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { VelocityDialog } from "./VelocityDialog"
 
 export const ArrangeVelocityDialog = observer(() => {
-  const rootStore = useStores()
-  const { arrangeViewStore, pianoRollStore } = rootStore
+  const { arrangeViewStore, pianoRollStore } = useStores()
+  const arrangeBatchUpdateSelectedNotesVelocity =
+    useArrangeBatchUpdateSelectedNotesVelocity()
 
   const onClose = useCallback(
     () => (arrangeViewStore.openVelocityDialog = false),
@@ -18,13 +19,13 @@ export const ArrangeVelocityDialog = observer(() => {
 
   const onClickOK = useCallback(
     (value: number, operationType: BatchUpdateOperation["type"]) => {
-      arrangeBatchUpdateSelectedNotesVelocity(rootStore)({
+      arrangeBatchUpdateSelectedNotesVelocity({
         type: operationType,
         value,
       })
       arrangeViewStore.openVelocityDialog = false
     },
-    [arrangeViewStore],
+    [arrangeViewStore, arrangeBatchUpdateSelectedNotesVelocity],
   )
 
   return (

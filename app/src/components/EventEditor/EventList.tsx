@@ -40,10 +40,9 @@ export const Cell = styled.div`
 `
 
 const EventList: FC = observer(() => {
-  const rootStore = useStores()
   const {
     pianoRollStore: { selectedTrack, selectedNoteIds: selectedEventIds = [] },
-  } = rootStore
+  } = useStores()
 
   const events = useMemo(() => {
     const { events = [] } = selectedTrack || {}

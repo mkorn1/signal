@@ -12,12 +12,11 @@ import { LegacyFileMenu } from "./LegacyFileMenu"
 import { Tab } from "./Navigation"
 
 export const FileMenuButton: FC = observer(() => {
-  const rootStore = useStores()
   const {
     rootViewStore,
     exportStore,
     authStore: { authUser: user },
-  } = rootStore
+  } = useStores()
   const isOpen = rootViewStore.openDrawer
   const handleClose = () => (rootViewStore.openDrawer = false)
 

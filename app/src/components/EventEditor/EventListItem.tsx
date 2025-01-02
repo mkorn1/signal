@@ -22,10 +22,9 @@ const equalEventListItemProps = (
 
 export const EventListItem: FC<EventListItemProps> = React.memo(
   ({ item, style, onClick }) => {
-    const rootStore = useStores()
     const {
       pianoRollStore: { selectedTrack },
-    } = rootStore
+    } = useStores()
 
     const controller = getEventController(item)
 
@@ -33,7 +32,7 @@ export const EventListItem: FC<EventListItemProps> = React.memo(
       (e: TrackEvent) => {
         selectedTrack?.removeEvent(e.id)
       },
-      [rootStore],
+      [selectedTrack],
     )
 
     const onChangeTick = useCallback(
@@ -43,7 +42,7 @@ export const EventListItem: FC<EventListItemProps> = React.memo(
           selectedTrack?.updateEvent(item.id, { tick: Math.max(0, value) })
         }
       },
-      [rootStore, item],
+      [selectedTrack, item],
     )
 
     const onChangeGate = useCallback(
@@ -56,7 +55,7 @@ export const EventListItem: FC<EventListItemProps> = React.memo(
           selectedTrack?.updateEvent(item.id, obj)
         }
       },
-      [rootStore, item],
+      [controller, selectedTrack, item],
     )
 
     const onChangeValue = useCallback(
@@ -69,7 +68,7 @@ export const EventListItem: FC<EventListItemProps> = React.memo(
           selectedTrack?.updateEvent(item.id, obj)
         }
       },
-      [rootStore, item],
+      [controller, selectedTrack, item],
     )
 
     return (

@@ -3,7 +3,7 @@ import { Beat } from "../entities/beat/Beat"
 import { Range } from "../entities/geometry/Range"
 import { isEventInRange } from "../helpers/filterEvents"
 import { noteOnMidiEvent } from "../midi/MidiEvent"
-import { SongProvider } from "../song/SongProvider"
+import { SongStore } from "../stores/SongStore"
 import { TrackId } from "../track"
 import { getStatusEvents } from "../track/selector"
 import { convertTrackEvents } from "./collectAllEvents"
@@ -11,7 +11,7 @@ import { convertTrackEvents } from "./collectAllEvents"
 export const METRONOME_TRACK_ID = 99999 as TrackId
 
 export class EventSource implements IEventSource {
-  constructor(private readonly songStore: SongProvider) {}
+  constructor(private readonly songStore: SongStore) {}
 
   get timebase(): number {
     return this.songStore.song.timebase

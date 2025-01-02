@@ -53,7 +53,9 @@ module.exports = merge(common, {
     ],
   },
   plugins: [
-    new ForkTsCheckerWebpackPlugin(),
+    new ForkTsCheckerWebpackPlugin({
+      formatter: { type: "codeframe", pathType: "absolute" },
+    }),
     new ReactRefreshWebpackPlugin({
       exclude: [/node_modules/],
     }),

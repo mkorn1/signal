@@ -6,7 +6,7 @@ import { Localized } from "../../localize/useLocalization"
 import { MenuDivider, MenuItem } from "../ui/Menu"
 
 export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
-  const rootStore = useStores()
+  const { song } = useStores()
   const { createNewSong, openSong, saveSong, saveAsSong, downloadSong } =
     useSongFile()
 
@@ -47,10 +47,7 @@ export const FileMenu: FC<{ close: () => void }> = observer(({ close }) => {
         <Localized name="open-song" />
       </MenuItem>
 
-      <MenuItem
-        onClick={onClickSave}
-        disabled={rootStore.song.fileHandle === null}
-      >
+      <MenuItem onClick={onClickSave} disabled={song.fileHandle === null}>
         <Localized name="save-song" />
       </MenuItem>
 

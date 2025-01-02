@@ -34,11 +34,12 @@ export const TrackNameInput: FC = observer(() => {
     pianoRollStore: { selectedTrack },
   } = useStores()
 
+  const [isEditing, setEditing] = useState(false)
+
   if (selectedTrack === undefined) {
     return <></>
   }
 
-  const [isEditing, setEditing] = useState(false)
   return (
     <>
       {isEditing ? (

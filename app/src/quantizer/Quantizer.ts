@@ -1,16 +1,12 @@
 import { Measure } from "../entities/measure/Measure"
-import { SongProvider } from "../song/SongProvider"
+import { SongStore } from "../stores/SongStore"
 
 export default class Quantizer {
   private denominator: number
-  private songStore: SongProvider
+  private songStore: SongStore
   private isEnabled: boolean = true
 
-  constructor(
-    songStore: SongProvider,
-    denominator: number,
-    isEnabled: boolean,
-  ) {
+  constructor(songStore: SongStore, denominator: number, isEnabled: boolean) {
     this.songStore = songStore
 
     // N 分音符の N
@@ -33,7 +29,7 @@ export default class Quantizer {
       tick,
       this.songStore.song.timebase,
     )
-    const beats = this.denominator === 1 ? measureStart.numerator ?? 4 : 4
+    const beats = this.denominator === 1 ? (measureStart.numerator ?? 4) : 4
     const u = (this.timebase * beats) / this.denominator
     const offset = measureStart?.tick ?? 0
     return fn((tick - offset) / u) * u + offset

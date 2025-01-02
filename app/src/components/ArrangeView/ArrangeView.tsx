@@ -5,16 +5,7 @@ import { clamp } from "lodash"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useRef } from "react"
 import { Layout, WHEEL_SCROLL_RATE } from "../../Constants"
-import {
-  arrangeEndSelection,
-  arrangeResizeSelection,
-  arrangeStartSelection,
-  selectTrack,
-} from "../../actions"
-import { Point } from "../../entities/geometry/Point"
-import { ArrangePoint } from "../../entities/transform/ArrangePoint"
-import { getClientPos } from "../../helpers/mouseEvent"
-import { observeDrag } from "../../helpers/observeDrag"
+import { useSelectTrack } from "../../actions"
 import { isTouchPadEvent } from "../../helpers/touchpad"
 import { useContextMenu } from "../../hooks/useContextMenu"
 import { useStores } from "../../hooks/useStores"
@@ -29,6 +20,7 @@ import { BAR_WIDTH } from "../inputs/ScrollBar"
 import { ArrangeContextMenu } from "./ArrangeContextMenu"
 import { ArrangeTrackContextMenu } from "./ArrangeTrackContextMenu"
 import { ArrangeViewCanvas } from "./ArrangeViewCanvas/ArrangeViewCanvas"
+import { useRulerSelectionGesture } from "./useRulerSelectionGesture"
 
 const Wrapper = styled.div`
   flex-grow: 1;
@@ -77,7 +69,6 @@ const HeaderList = styled.div`
 `
 
 export const ArrangeView: FC = observer(() => {
-  const rootStore = useStores()
   const {
     arrangeViewStore,
     arrangeViewStore: {
@@ -85,7 +76,6 @@ export const ArrangeView: FC = observer(() => {
       contentWidth,
       contentHeight,
       transform,
-      trackTransform,
       scrollLeft,
       scrollTop,
       scrollBy,
@@ -94,7 +84,9 @@ export const ArrangeView: FC = observer(() => {
     player,
     router,
     song: { tracks },
-  } = rootStore
+  } = useStores()
+  const selectTrack = useSelectTrack()
+  const rulerSelectionGesture = useRulerSelectionGesture()
 
   const ref = useRef(null)
   const size = useComponentSize(ref)
@@ -175,48 +167,9 @@ export const ArrangeView: FC = observer(() => {
     [arrangeViewStore, scrollBy],
   )
 
-  const onMouseDownRuler: React.MouseEventHandler<HTMLCanvasElement> =
-    useCallback(
-      (e) => {
-        if (e.button !== 0 || e.ctrlKey || e.altKey) {
-          return
-        }
-
-        const { scrollLeft, scrollTop, trackTransform } = arrangeViewStore
-
-        const startPosPx: Point = {
-          x: e.nativeEvent.offsetX + scrollLeft,
-          y: e.nativeEvent.offsetY + scrollTop,
-        }
-        const startClientPos = getClientPos(e.nativeEvent)
-
-        const startPos: ArrangePoint = {
-          tick: trackTransform.getTick(startPosPx.x),
-          trackIndex: 0,
-        }
-        arrangeStartSelection(rootStore)()
-
-        observeDrag({
-          onMouseMove: (e) => {
-            const deltaPx = Point.sub(getClientPos(e), startClientPos)
-            const selectionToPx = Point.add(startPosPx, deltaPx)
-            const endPos = {
-              tick: trackTransform.getTick(selectionToPx.x),
-              trackIndex: tracks.length,
-            }
-            arrangeResizeSelection(rootStore)(startPos, endPos)
-          },
-          onMouseUp: (e) => {
-            arrangeEndSelection(rootStore)()
-          },
-        })
-      },
-      [arrangeViewStore, player, rootStore],
-    )
-
   const openTrack = (trackId: TrackId) => {
     router.pushTrack()
-    selectTrack(rootStore)(trackId)
+    selectTrack(trackId)
   }
 
   return (
@@ -270,7 +223,7 @@ export const ArrangeView: FC = observer(() => {
         >
           <CanvasPianoRuler
             rulerStore={arrangeViewStore.rulerStore}
-            onMouseDown={onMouseDownRuler}
+            {...rulerSelectionGesture}
             style={{
               background: theme.backgroundColor,
               borderBottom: `1px solid ${theme.dividerColor}`,

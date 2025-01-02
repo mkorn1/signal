@@ -1,22 +1,16 @@
-import RootStore from "../stores/RootStore"
+import { useStores } from "../hooks/useStores"
 
-export const pushHistory = (rootStore: RootStore) => () => {
-  const state = rootStore.serialize()
-  rootStore.historyStore.push(state)
+export const usePushHistory = () => {
+  const { historyStore } = useStores()
+  return () => historyStore.push()
 }
 
-export const undo = (rootStore: RootStore) => () => {
-  const currentState = rootStore.serialize()
-  const nextState = rootStore.historyStore.undo(currentState)
-  if (nextState !== undefined) {
-    rootStore.restore(nextState)
-  }
+export const useUndo = () => {
+  const { historyStore } = useStores()
+  return () => historyStore.undo()
 }
 
-export const redo = (rootStore: RootStore) => () => {
-  const currentState = rootStore.serialize()
-  const nextState = rootStore.historyStore.redo(currentState)
-  if (nextState !== undefined) {
-    rootStore.restore(nextState)
-  }
+export const useRedo = () => {
+  const { historyStore } = useStores()
+  return () => historyStore.redo()
 }

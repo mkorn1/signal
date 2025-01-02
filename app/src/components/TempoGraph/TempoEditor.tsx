@@ -1,8 +1,8 @@
 import styled from "@emotion/styled"
 import { FC } from "react"
 import { TempoEditorKeyboardShortcut } from "../KeyboardShortcut/TempoEditorKeyboardShortcut"
+import { TempoGraphToolbar } from "../TempoGraphToolbar/TempoGraphToolbar"
 import { TempoGraph } from "./TempoGraph"
-import { TempoGraphToolbar } from "./TempoGraphToolbar"
 
 const Container = styled.div`
   display: flex;

@@ -39,16 +39,16 @@ export const LineGraphCanvas: FC<LineGraphCanvasProps> = observer(
     onMouseDown,
     onContextMenu,
   }) => {
-    const rootStore = useStores()
-
     const {
-      selection,
-      scrollLeft,
-      selectedEventIds,
-      cursorX,
-      transform,
-      rulerStore: { beats },
-    } = rootStore.controlStore
+      controlStore: {
+        selection,
+        scrollLeft,
+        selectedEventIds,
+        cursorX,
+        transform,
+        rulerStore: { beats },
+      },
+    } = useStores()
 
     const controlTransform = useMemo(
       () => new ControlCoordTransform(transform, maxValue, height, lineWidth),

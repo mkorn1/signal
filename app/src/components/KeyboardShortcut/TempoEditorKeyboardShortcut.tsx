@@ -1,10 +1,11 @@
+import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import {
-  copyTempoSelection,
-  deleteTempoSelection,
-  duplicateTempoSelection,
-  pasteTempoSelection,
-  resetTempoSelection,
+  useCopyTempoSelection,
+  useDeleteTempoSelection,
+  useDuplicateTempoSelection,
+  usePasteTempoSelection,
+  useResetTempoSelection,
 } from "../../actions/tempo"
 import { isTempoEventsClipboardData } from "../../clipboard/clipboardTypes"
 import { useStores } from "../../hooks/useStores"
@@ -12,9 +13,13 @@ import clipboard from "../../services/Clipboard"
 import { KeyboardShortcut } from "./KeyboardShortcut"
 import { isFocusable } from "./isFocusable"
 
-export const TempoEditorKeyboardShortcut: FC = () => {
-  const rootStore = useStores()
-  const { tempoEditorStore } = rootStore
+export const TempoEditorKeyboardShortcut: FC = observer(() => {
+  const { tempoEditorStore } = useStores()
+  const resetTempoSelection = useResetTempoSelection()
+  const deleteTempoSelection = useDeleteTempoSelection()
+  const copyTempoSelection = useCopyTempoSelection()
+  const duplicateTempoSelection = useDuplicateTempoSelection()
+  const pasteTempoSelection = usePasteTempoSelection()
 
   return (
     <KeyboardShortcut
@@ -27,28 +32,28 @@ export const TempoEditorKeyboardShortcut: FC = () => {
           code: "Digit2",
           run: () => (tempoEditorStore.mouseMode = "selection"),
         },
-        { code: "Escape", run: () => resetTempoSelection(rootStore)() },
-        { code: "Backspace", run: () => deleteTempoSelection(rootStore)() },
-        { code: "Delete", run: () => deleteTempoSelection(rootStore)() },
+        { code: "Escape", run: resetTempoSelection },
+        { code: "Backspace", run: deleteTempoSelection },
+        { code: "Delete", run: deleteTempoSelection },
         {
           code: "KeyC",
           metaKey: true,
-          run: () => copyTempoSelection(rootStore)(),
+          run: () => copyTempoSelection(),
         },
         {
           code: "KeyX",
           metaKey: true,
           run: () => {
             {
-              copyTempoSelection(rootStore)()
-              deleteTempoSelection(rootStore)()
+              copyTempoSelection()
+              deleteTempoSelection()
             }
           },
         },
         {
           code: "KeyD",
           metaKey: true,
-          run: () => duplicateTempoSelection(rootStore)(),
+          run: duplicateTempoSelection,
         },
       ]}
       onPaste={(e) => {
@@ -65,9 +70,9 @@ export const TempoEditorKeyboardShortcut: FC = () => {
         const obj = JSON.parse(text)
 
         if (isTempoEventsClipboardData(obj)) {
-          pasteTempoSelection(rootStore)()
+          pasteTempoSelection()
         }
       }}
     />
   )
-}
+})

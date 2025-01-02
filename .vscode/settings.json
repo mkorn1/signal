@@ -14,21 +14,5 @@
     "source.organizeImports": "explicit"
   },
   "testing.openTesting": "neverOpen",
-  "colorWheel.settings.workspaceColor": "hsl(180,4%,52%)",
-  "workbench.colorCustomizations": {
-    "titleBar.activeBackground": "#2d990f",
-    "titleBar.activeForeground": "#000000",
-    "titleBar.inactiveBackground": "#2d990f",
-    "titleBar.inactiveForeground": "#000000",
-    "titleBar.border": "#2d990f",
-    "activityBar.background": "#2d990f",
-    "activityBar.foreground": "#000000",
-    "statusBar.background": "#2d990f",
-    "statusBar.foreground": "#000000",
-    "statusBar.debuggingBackground": "#2d990f",
-    "statusBar.debuggingForeground": "#000000",
-    "tab.activeBorder": "#2d990f",
-    "iLoveWorkSpaceColors": true,
-    "iLoveWorkSpaceRandom": false
-  }
+  "testing.automaticallyOpenTestResults": "neverOpen"
 }

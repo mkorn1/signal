@@ -6,11 +6,10 @@ import { useLocalization } from "../../localize/useLocalization"
 import { SignInDialogContent } from "./SignInDialogContent"
 
 export const SignInDialog: FC = observer(() => {
-  const rootStore = useStores()
   const {
     rootViewStore,
     rootViewStore: { openSignInDialog },
-  } = rootStore
+  } = useStores()
   const toast = useToast()
   const localized = useLocalization()
 

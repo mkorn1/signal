@@ -74,8 +74,7 @@ const InsertButton = styled(Button)`
 `
 
 export const ControlSettingDialog = observer(() => {
-  const rootStore = useStores()
-  const { rootViewStore, controlStore } = rootStore
+  const { rootViewStore, controlStore } = useStores()
   const { openControlSettingDialog: open } = rootViewStore
   const [selectedLeftMode, setSelectedLeftMode] = useState<ControlMode | null>(
     null,

@@ -5,11 +5,7 @@ import difference from "lodash/difference"
 import range from "lodash/range"
 import { observer } from "mobx-react-lite"
 import { FC, useState } from "react"
-import {
-  setTrackInstrument as setTrackInstrumentAction,
-  startNote,
-  stopNote,
-} from "../../actions"
+import { useSetTrackInstrument, useStartNote, useStopNote } from "../../actions"
 import { isNotUndefined } from "../../helpers/array"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
@@ -155,31 +151,32 @@ const InstrumentBrowser: FC<InstrumentBrowserProps> = ({
 }
 
 const InstrumentBrowserWrapper: FC = observer(() => {
-  const rootStore = useStores()
-
   const {
     pianoRollStore: {
       selectedTrack: track,
-      selectedTrackIndex: trackIndex,
       instrumentBrowserSetting,
       openInstrumentBrowser,
     },
     pianoRollStore,
     player,
     song,
-  } = rootStore
+  } = useStores()
+
+  const startNote = useStartNote()
+  const stopNote = useStopNote()
+  const setTrackInstrumentAction = useSetTrackInstrument()
 
   const [stopNoteTimeout, setStopNoteTimeout] = useState<NodeJS.Timeout | null>(
     null,
   )
 
   if (track === undefined) {
-    throw new Error("selectedTrack is undefined")
+    return <></>
   }
 
   const close = () => (pianoRollStore.openInstrumentBrowser = false)
   const setTrackInstrument = (programNumber: number) =>
-    setTrackInstrumentAction(rootStore)(track.id, programNumber)
+    setTrackInstrumentAction(track.id, programNumber)
 
   const presets: PresetItem[] = range(0, 128).map((programNumber) => ({
     programNumber,
@@ -203,19 +200,19 @@ const InstrumentBrowserWrapper: FC = observer(() => {
       // if note is already playing, stop it immediately and cancel the timeout
       if (stopNoteTimeout !== null) {
         clearTimeout(stopNoteTimeout)
-        stopNote(rootStore)({
+        stopNote({
           noteNumber,
           channel,
         })
       }
 
-      startNote(rootStore)({
+      startNote({
         noteNumber,
         velocity: 100,
         channel,
       })
       const timeout = setTimeout(() => {
-        stopNote(rootStore)({
+        stopNote({
           noteNumber,
           channel,
         })

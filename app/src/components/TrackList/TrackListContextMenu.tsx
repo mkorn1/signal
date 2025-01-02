@@ -1,8 +1,7 @@
 import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useState } from "react"
-import { addTrack, removeTrack } from "../../actions"
-import { useStores } from "../../hooks/useStores"
+import { useAddTrack, useRemoveTrack } from "../../actions"
 import { Localized } from "../../localize/useLocalization"
 import Track from "../../track/Track"
 import { ColorPicker } from "../ColorPicker/ColorPicker"
@@ -16,15 +15,17 @@ export interface TrackListContextMenuProps extends ContextMenuProps {
 
 export const TrackListContextMenu: FC<TrackListContextMenuProps> = observer(
   ({ track, ...props }) => {
-    const rootStore = useStores()
+    const addTrack = useAddTrack()
+    const removeTrack = useRemoveTrack()
+
     const { handleClose } = props
     const [isDialogOpened, setDialogOpened] = useState(false)
     const [isColorPickerOpened, setColorPickerOpened] = useState(false)
 
-    const onClickAdd = useCallback(() => addTrack(rootStore)(), [])
+    const onClickAdd = addTrack
     const onClickDelete = useCallback(
-      () => removeTrack(rootStore)(track.id),
-      [track.id],
+      () => removeTrack(track.id),
+      [track.id, removeTrack],
     )
     const onClickProperty = () => setDialogOpened(true)
     const onClickChangeTrackColor = () => setColorPickerOpened(true)

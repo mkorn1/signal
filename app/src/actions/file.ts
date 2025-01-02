@@ -1,8 +1,8 @@
 import { basename } from "../helpers/path"
 import { songFromMidi, songToMidi } from "../midi/midiConversion"
 import { writeFile } from "../services/fs-helper"
-import RootStore from "../stores/RootStore"
-import { setSong } from "./song"
+import Song from "../song"
+import { useSetSong } from "./song"
 
 // URL parameter for automation purposes used in scripts/perf/index.js
 // /edit?disableFileSystem=true
@@ -13,32 +13,36 @@ export const hasFSAccess =
   ("chooseFileSystemEntries" in window || "showOpenFilePicker" in window) &&
   !disableFileSystem
 
-export const openFile = async (rootStore: RootStore) => {
-  let fileHandle: FileSystemFileHandle
-  try {
-    fileHandle = (
-      await window.showOpenFilePicker({
-        types: [
-          {
-            description: "MIDI file",
-            accept: { "audio/midi": [".mid"] },
-          },
-        ],
-      })
-    )[0]
-  } catch (ex) {
-    if ((ex as Error).name === "AbortError") {
+export const useOpenFile = () => {
+  const setSong = useSetSong()
+
+  return async () => {
+    let fileHandle: FileSystemFileHandle
+    try {
+      fileHandle = (
+        await window.showOpenFilePicker({
+          types: [
+            {
+              description: "MIDI file",
+              accept: { "audio/midi": [".mid"] },
+            },
+          ],
+        })
+      )[0]
+    } catch (ex) {
+      if ((ex as Error).name === "AbortError") {
+        return
+      }
+      const msg = "An error occured trying to open the file."
+      console.error(msg, ex)
+      alert(msg)
       return
     }
-    const msg = "An error occured trying to open the file."
-    console.error(msg, ex)
-    alert(msg)
-    return
+    const file = await fileHandle.getFile()
+    const song = await songFromFile(file)
+    song.fileHandle = fileHandle
+    setSong(song)
   }
-  const file = await fileHandle.getFile()
-  const song = await songFromFile(file)
-  song.fileHandle = fileHandle
-  setSong(rootStore)(song)
 }
 
 export const songFromFile = async (file: File) =>
@@ -66,11 +70,10 @@ export const songFromArrayBuffer = (
   return song
 }
 
-export const saveFile = async (rootStore: RootStore) => {
-  const { song } = rootStore
+export const saveFile = async (song: Song) => {
   const fileHandle = song.fileHandle
   if (fileHandle === null) {
-    await saveFileAs(rootStore)
+    await saveFileAs(song)
     return
   }
 
@@ -84,7 +87,7 @@ export const saveFile = async (rootStore: RootStore) => {
   }
 }
 
-export const saveFileAs = async ({ song }: RootStore) => {
+export const saveFileAs = async (song: Song) => {
   let fileHandle
   try {
     fileHandle = await window.showSaveFilePicker({

@@ -46,7 +46,9 @@ export class MIDIDeviceStore {
     }
 
     try {
-      const midiAccess = await navigator.requestMIDIAccess({ sysex: true })
+      const midiAccess = (await navigator.requestMIDIAccess({
+        sysex: true,
+      })) as WebMidi.MIDIAccess
 
       this.updatePorts(midiAccess)
       midiAccess.onstatechange = () => {

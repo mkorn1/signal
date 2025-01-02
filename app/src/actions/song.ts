@@ -1,9 +1,7 @@
-import { NoteNumber } from "../entities/unit/NoteNumber"
-import { isNotNull } from "../helpers/array"
+import { useStores } from "../hooks/useStores"
 import { downloadSongAsMidi } from "../midi/midiConversion"
 import Song, { emptySong } from "../song"
-import RootStore from "../stores/RootStore"
-import { emptyTrack, isNoteEvent, TrackId, UNASSIGNED_TRACK_ID } from "../track"
+import { emptyTrack, TrackId, UNASSIGNED_TRACK_ID } from "../track"
 import { songFromFile } from "./file"
 
 const openSongFile = async (input: HTMLInputElement): Promise<Song | null> => {
@@ -15,60 +13,74 @@ const openSongFile = async (input: HTMLInputElement): Promise<Song | null> => {
   return await songFromFile(file)
 }
 
-export const setSong = (rootStore: RootStore) => (song: Song) => {
-  const { trackMute, pianoRollStore, player, historyStore, arrangeViewStore } =
-    rootStore
-  rootStore.song = song
-  trackMute.reset()
+export const useSetSong = () => {
+  const {
+    songStore,
+    trackMute,
+    pianoRollStore,
+    player,
+    historyStore,
+    arrangeViewStore,
+  } = useStores()
 
-  pianoRollStore.setScrollLeftInPixels(0)
-  pianoRollStore.notGhostTrackIds = new Set()
-  pianoRollStore.showTrackList = true
-  pianoRollStore.selection = null
-  pianoRollStore.selectedNoteIds = []
-  pianoRollStore.selectedTrackId =
-    song.tracks.find((t) => !t.isConductorTrack)?.id ?? UNASSIGNED_TRACK_ID
+  return (newSong: Song) => {
+    songStore.song = newSong
+    trackMute.reset()
 
-  arrangeViewStore.selection = null
-  arrangeViewStore.selectedEventIds = []
+    pianoRollStore.setScrollLeftInPixels(0)
+    pianoRollStore.notGhostTrackIds = new Set()
+    pianoRollStore.showTrackList = true
+    pianoRollStore.selection = null
+    pianoRollStore.selectedNoteIds = []
+    pianoRollStore.selectedTrackId =
+      newSong.tracks.find((t) => !t.isConductorTrack)?.id ?? UNASSIGNED_TRACK_ID
 
-  historyStore.clear()
+    arrangeViewStore.selection = null
+    arrangeViewStore.selectedEventIds = []
 
-  player.stop()
-  player.reset()
-  player.position = 0
+    historyStore.clear()
+
+    player.stop()
+    player.reset()
+    player.position = 0
+  }
 }
 
-export const createSong = (rootStore: RootStore) => () => {
-  const store = rootStore
-  setSong(store)(emptySong())
+export const useCreateSong = () => {
+  const setSong = useSetSong()
+  return () => setSong(emptySong())
 }
 
-export const saveSong = (rootStore: RootStore) => () => {
-  const { song } = rootStore
-  song.isSaved = true
-  downloadSongAsMidi(song)
+export const useSaveSong = () => {
+  const { song } = useStores()
+  return () => {
+    song.isSaved = true
+    downloadSongAsMidi(song)
+  }
 }
 
-export const openSong =
-  (rootStore: RootStore) => async (input: HTMLInputElement) => {
+export const useOpenSong = () => {
+  const setSong = useSetSong()
+  return async (input: HTMLInputElement) => {
     const song = await openSongFile(input)
     if (song === null) {
       return
     }
-    setSong(rootStore)(song)
+    setSong(song)
   }
+}
 
-export const addTrack =
-  ({ song, pushHistory }: RootStore) =>
-  () => {
+export const useAddTrack = () => {
+  const { song, pushHistory } = useStores()
+  return () => {
     pushHistory()
     song.addTrack(emptyTrack(Math.min(song.tracks.length - 1, 0xf)))
   }
+}
 
-export const removeTrack =
-  ({ song, pianoRollStore, arrangeViewStore, pushHistory }: RootStore) =>
-  (trackId: TrackId) => {
+export const useRemoveTrack = () => {
+  const { song, pianoRollStore, arrangeViewStore, pushHistory } = useStores()
+  return (trackId: TrackId) => {
     if (song.tracks.filter((t) => !t.isConductorTrack).length <= 1) {
       // conductor track を除き、最後のトラックの場合
       // トラックがなくなるとエラーが出るので削除できなくする
@@ -89,23 +101,26 @@ export const removeTrack =
       song.tracks.length - 1,
     )
   }
+}
 
-export const selectTrack =
-  ({ pianoRollStore }: RootStore) =>
-  (trackId: TrackId) => {
+export const useSelectTrack = () => {
+  const { pianoRollStore } = useStores()
+  return (trackId: TrackId) => {
     pianoRollStore.selectedTrackId = trackId
   }
+}
 
-export const insertTrack =
-  ({ song, pushHistory }: RootStore) =>
-  (trackIndex: number) => {
+export const useInsertTrack = () => {
+  const { song, pushHistory } = useStores()
+  return (trackIndex: number) => {
     pushHistory()
     song.insertTrack(emptyTrack(song.tracks.length - 1), trackIndex)
   }
+}
 
-export const duplicateTrack =
-  ({ song, pushHistory }: RootStore) =>
-  (trackId: TrackId) => {
+export const useDuplicateTrack = () => {
+  const { song, pushHistory } = useStores()
+  return (trackId: TrackId) => {
     const track = song.getTrack(trackId)
     if (track === undefined) {
       throw new Error("No track found")
@@ -116,35 +131,4 @@ export const duplicateTrack =
     pushHistory()
     song.insertTrack(newTrack, trackIndex + 1)
   }
-
-export const transposeNotes =
-  ({ song }: RootStore) =>
-  (
-    deltaPitch: number,
-    selectedEventIds: {
-      [key: number]: number[] // trackIndex: eventId
-    },
-  ) => {
-    for (const trackIndexStr in selectedEventIds) {
-      const trackIndex = parseInt(trackIndexStr)
-      const eventIds = selectedEventIds[trackIndex]
-      const track = song.tracks[trackIndex]
-      if (track === undefined) {
-        continue
-      }
-      track.updateEvents(
-        eventIds
-          .map((id) => {
-            const n = track.getEventById(id)
-            if (n == undefined || !isNoteEvent(n)) {
-              return null
-            }
-            return {
-              id,
-              noteNumber: NoteNumber.clamp(n.noteNumber + deltaPitch),
-            }
-          })
-          .filter(isNotNull),
-      )
-    }
-  }
+}

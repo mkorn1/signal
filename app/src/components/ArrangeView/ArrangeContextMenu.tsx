@@ -1,12 +1,12 @@
 import { observer } from "mobx-react-lite"
 import { FC, useCallback } from "react"
 import {
-  arrangeCopySelection,
-  arrangeDeleteSelection,
-  arrangeDuplicateSelection,
-  arrangePasteSelection,
-  arrangeTransposeSelection,
-} from "../../actions/arrangeView"
+  useArrangeCopySelection,
+  useArrangeDeleteSelection,
+  useArrangeDuplicateSelection,
+  useArrangePasteSelection,
+  useArrangeTransposeSelection,
+} from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { envString } from "../../localize/envString"
 import { Localized } from "../../localize/useLocalization"
@@ -19,8 +19,14 @@ import { MenuDivider, MenuItem } from "../ui/Menu"
 
 export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
   const { handleClose } = props
-  const rootStore = useStores()
-  const { arrangeViewStore } = rootStore
+  const { arrangeViewStore } = useStores()
+
+  const arrangeCopySelection = useArrangeCopySelection()
+  const arrangeDeleteSelection = useArrangeDeleteSelection()
+  const arrangePasteSelection = useArrangePasteSelection()
+  const arrangeDuplicateSelection = useArrangeDuplicateSelection()
+  const arrangeTransposeSelection = useArrangeTransposeSelection()
+
   const isNoteSelected = Object.values(arrangeViewStore.selectedEventIds).some(
     (e) => e.length > 0,
   )
@@ -36,8 +42,8 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
         onClick={(e) => {
           e.stopPropagation()
           handleClose()
-          arrangeCopySelection(rootStore)()
-          arrangeDeleteSelection(rootStore)()
+          arrangeCopySelection()
+          arrangeDeleteSelection()
         }}
         disabled={!isNoteSelected}
       >
@@ -48,7 +54,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
         onClick={(e) => {
           e.stopPropagation()
           handleClose()
-          arrangeCopySelection(rootStore)()
+          arrangeCopySelection()
         }}
         disabled={!isNoteSelected}
       >
@@ -59,7 +65,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
         onClick={(e) => {
           e.stopPropagation()
           handleClose()
-          arrangePasteSelection(rootStore)()
+          arrangePasteSelection()
         }}
       >
         <Localized name="paste" />
@@ -69,7 +75,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
         onClick={(e) => {
           e.stopPropagation()
           handleClose()
-          arrangeDuplicateSelection(rootStore)()
+          arrangeDuplicateSelection()
         }}
         disabled={arrangeViewStore.selection === null}
       >
@@ -80,7 +86,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
         onClick={(e) => {
           e.stopPropagation()
           handleClose()
-          arrangeDeleteSelection(rootStore)()
+          arrangeDeleteSelection()
         }}
         disabled={!isNoteSelected}
       >
@@ -92,7 +98,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
         onClick={(e) => {
           e.stopPropagation()
           handleClose()
-          arrangeTransposeSelection(rootStore)(12)
+          arrangeTransposeSelection(12)
         }}
         disabled={!isNoteSelected}
       >
@@ -102,7 +108,7 @@ export const ArrangeContextMenu: FC<ContextMenuProps> = observer((props) => {
         onClick={(e) => {
           e.stopPropagation()
           handleClose()
-          arrangeTransposeSelection(rootStore)(-12)
+          arrangeTransposeSelection(-12)
         }}
         disabled={!isNoteSelected}
       >

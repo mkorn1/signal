@@ -41,7 +41,7 @@ export default class ArrangeViewStore {
 
   constructor(readonly rootStore: RootStore) {
     this.rootStore = rootStore
-    this.rulerStore = new RulerStore(this)
+    this.rulerStore = new RulerStore(this, rootStore.songStore)
     this.tickScrollStore = new TickScrollStore(this, 0.15, 15)
 
     makeObservable(this, {
@@ -116,6 +116,11 @@ export default class ArrangeViewStore {
   setScaleY(scaleY: number) {
     this.scaleY = clamp(scaleY, this.SCALE_Y_MIN, this.SCALE_Y_MAX)
     this.setScrollTop(this.scrollTop)
+  }
+
+  resetSelection() {
+    this.selection = null
+    this.selectedEventIds = {}
   }
 
   get contentWidth(): number {

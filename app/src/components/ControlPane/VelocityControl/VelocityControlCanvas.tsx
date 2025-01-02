@@ -3,7 +3,10 @@ import { GLCanvas, Transform } from "@ryohey/webgl-react"
 import Color from "color"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useMemo } from "react"
-import { changeNotesVelocity, updateVelocitiesInRange } from "../../../actions"
+import {
+  useChangeNotesVelocity,
+  useUpdateVelocitiesInRange,
+} from "../../../actions"
 import { Point } from "../../../entities/geometry/Point"
 import { Rect } from "../../../entities/geometry/Rect"
 import { colorToVec4, enhanceContrast } from "../../../gl/color"
@@ -23,7 +26,6 @@ export type VelocityItem = Rect & {
 
 export const VelocityControlCanvas: FC<{ width: number; height: number }> =
   observer(({ width, height }) => {
-    const rootStore = useStores()
     const {
       pianoRollStore: {
         transform,
@@ -33,7 +35,9 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
         selectedNoteIds,
         cursorX,
       },
-    } = rootStore
+    } = useStores()
+    const updateVelocitiesInRange = useUpdateVelocitiesInRange()
+    const changeNotesVelocity = useChangeNotesVelocity()
     const theme = useTheme()
 
     const items: VelocityItem[] = useMemo(
@@ -102,12 +106,7 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
               const tick = transform.getTick(local.x)
               const value = calcValue(e)
 
-              updateVelocitiesInRange(rootStore)(
-                lastTick,
-                lastValue,
-                tick,
-                value,
-              )
+              updateVelocitiesInRange(lastTick, lastValue, tick, value)
               lastTick = tick
               lastValue = value
             },
@@ -117,15 +116,21 @@ export const VelocityControlCanvas: FC<{ width: number; height: number }> =
         function handleSingleDrag() {
           const noteIds = hitItems.map((e) => e.id)
 
-          changeNotesVelocity(rootStore)(noteIds, calcValue(e))
+          changeNotesVelocity(noteIds, calcValue(e))
 
           observeDrag({
-            onMouseMove: (e) =>
-              changeNotesVelocity(rootStore)(noteIds, calcValue(e)),
+            onMouseMove: (e) => changeNotesVelocity(noteIds, calcValue(e)),
           })
         }
       },
-      [height, items, rootStore, selectedNoteIds, scrollLeft],
+      [
+        height,
+        items,
+        selectedNoteIds,
+        scrollLeft,
+        updateVelocitiesInRange,
+        changeNotesVelocity,
+      ],
     )
 
     const scrollXMatrix = useMemo(

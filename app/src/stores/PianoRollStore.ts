@@ -1,5 +1,5 @@
 import { clamp, cloneDeep, max, maxBy, min, minBy } from "lodash"
-import { action, computed, makeObservable, observable, observe } from "mobx"
+import { action, computed, makeObservable, observable, reaction } from "mobx"
 import { Layout, MaxNoteNumber } from "../Constants"
 import { InstrumentSetting } from "../components/InstrumentBrowser/InstrumentBrowser"
 import { Point } from "../entities/geometry/Point"
@@ -88,7 +88,7 @@ export default class PianoRollStore {
   previewingNoteNumbers: Set<number> = new Set()
 
   constructor(readonly rootStore: RootStore) {
-    this.rulerStore = new RulerStore(this)
+    this.rulerStore = new RulerStore(this, rootStore.songStore)
     this.tickScrollStore = new TickScrollStore(this, 0.15, 15)
 
     makeObservable(this, {
@@ -149,11 +149,16 @@ export default class PianoRollStore {
   setUpAutorun() {
     this.tickScrollStore.setUpAutoScroll()
 
-    // reset selection when change track
-    observe(this, "selectedTrackId", () => {
-      this.selection = null
-      this.selectedNoteIds = []
-    })
+    // reset selection when change track or mouse mode
+    reaction(
+      () => ({
+        selectedTrackId: this.selectedTrackId,
+        mouseMode: this.mouseMode,
+      }),
+      () => {
+        this.resetSelection()
+      },
+    )
   }
 
   serialize(): SerializedPianoRollStore {
@@ -234,6 +239,11 @@ export default class PianoRollStore {
 
   toggleTool() {
     this.mouseMode === "pencil" ? "selection" : "pencil"
+  }
+
+  resetSelection() {
+    this.selection = null
+    this.selectedNoteIds = []
   }
 
   get selectedTrackIndex(): number {

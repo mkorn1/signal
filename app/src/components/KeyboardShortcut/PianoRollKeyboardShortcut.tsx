@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { pasteSelection } from "../../actions"
-import { pasteControlSelection } from "../../actions/control"
+import { usePasteSelection } from "../../actions"
+import { usePasteControlSelection } from "../../actions/control"
 import {
   isControlEventsClipboardData,
   isPianoNotesClipboardData,
@@ -9,15 +9,20 @@ import {
 import { useStores } from "../../hooks/useStores"
 import clipboard from "../../services/Clipboard"
 import { KeyboardShortcut } from "./KeyboardShortcut"
-import { controlPaneKeyboardShortcutActions } from "./controlPaneKeyboardShortcutActions"
+import { useControlPaneKeyboardShortcutActions } from "./controlPaneKeyboardShortcutActions"
 import { isFocusable } from "./isFocusable"
-import { pianoNotesKeyboardShortcutActions } from "./pianoNotesKeyboardShortcutActions"
+import { usePianoNotesKeyboardShortcutActions } from "./pianoNotesKeyboardShortcutActions"
 
 const SCROLL_DELTA = 24
 
 export const PianoRollKeyboardShortcut: FC = observer(() => {
-  const rootStore = useStores()
-  const { pianoRollStore, controlStore } = rootStore
+  const { pianoRollStore, controlStore } = useStores()
+  const pianoNotesKeyboardShortcutActions =
+    usePianoNotesKeyboardShortcutActions()
+  const controlPaneKeyboardShortcutActions =
+    useControlPaneKeyboardShortcutActions()
+  const pasteSelection = usePasteSelection()
+  const pasteControlSelection = usePasteControlSelection()
 
   // Handle pasting here to allow pasting even when the element does not have focus, such as after clicking the ruler
   const onPaste = (e: ClipboardEvent) => {
@@ -34,9 +39,9 @@ export const PianoRollKeyboardShortcut: FC = observer(() => {
     const obj = JSON.parse(text)
 
     if (isPianoNotesClipboardData(obj)) {
-      pasteSelection(rootStore)()
+      pasteSelection()
     } else if (isControlEventsClipboardData(obj)) {
-      pasteControlSelection(rootStore)()
+      pasteControlSelection()
     }
   }
 
@@ -44,10 +49,10 @@ export const PianoRollKeyboardShortcut: FC = observer(() => {
     <KeyboardShortcut
       actions={[
         ...(pianoRollStore.selectedNoteIds.length > 0
-          ? pianoNotesKeyboardShortcutActions(rootStore)
+          ? pianoNotesKeyboardShortcutActions()
           : []),
         ...(controlStore.selectedEventIds.length > 0
-          ? controlPaneKeyboardShortcutActions(rootStore)
+          ? controlPaneKeyboardShortcutActions()
           : []),
         {
           code: "ArrowUp",

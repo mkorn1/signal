@@ -1,6 +1,10 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { duplicateTrack, insertTrack, removeTrack } from "../../actions"
+import {
+  useDuplicateTrack,
+  useInsertTrack,
+  useRemoveTrack,
+} from "../../actions"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
 import { ContextMenu, ContextMenuProps } from "../ContextMenu/ContextMenu"
@@ -9,18 +13,20 @@ import { MenuItem } from "../ui/Menu"
 export const ArrangeTrackContextMenu: FC<ContextMenuProps> = observer(
   (props) => {
     const { handleClose } = props
-    const rootStore = useStores()
     const {
       song: { tracks },
       arrangeViewStore: { selectedTrackIndex, selectedTrackId },
-    } = rootStore
+    } = useStores()
+    const insertTrack = useInsertTrack()
+    const removeTrack = useRemoveTrack()
+    const duplicateTrack = useDuplicateTrack()
 
     return (
       <ContextMenu {...props}>
         <MenuItem
           onClick={(e) => {
             e.stopPropagation()
-            insertTrack(rootStore)(selectedTrackIndex + 1)
+            insertTrack(selectedTrackIndex + 1)
             handleClose()
           }}
         >
@@ -30,7 +36,7 @@ export const ArrangeTrackContextMenu: FC<ContextMenuProps> = observer(
           <MenuItem
             onClick={(e) => {
               e.stopPropagation()
-              removeTrack(rootStore)(selectedTrackId)
+              removeTrack(selectedTrackId)
               handleClose()
             }}
           >
@@ -41,7 +47,7 @@ export const ArrangeTrackContextMenu: FC<ContextMenuProps> = observer(
           <MenuItem
             onClick={(e) => {
               e.stopPropagation()
-              duplicateTrack(rootStore)(selectedTrackId)
+              duplicateTrack(selectedTrackId)
               handleClose()
             }}
           >

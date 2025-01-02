@@ -227,4 +227,37 @@ export class Player {
 
     this.syncPosition()
   }
+
+  // convenience methods
+
+  playOrPause() {
+    if (this.isPlaying) {
+      this.stop()
+    } else {
+      this.play()
+    }
+  }
+
+  setLoopBegin(tick: number) {
+    this.loop = {
+      end: Math.max(tick, this.loop?.end ?? tick),
+      enabled: this.loop?.enabled ?? false,
+      begin: tick,
+    }
+  }
+
+  setLoopEnd(tick: number) {
+    this.loop = {
+      begin: Math.min(tick, this.loop?.begin ?? tick),
+      enabled: this.loop?.enabled ?? false,
+      end: tick,
+    }
+  }
+
+  toggleEnableLoop() {
+    if (this.loop === null) {
+      return
+    }
+    this.loop = { ...this.loop, enabled: !this.loop.enabled }
+  }
 }
