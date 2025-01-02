@@ -11,18 +11,13 @@ import {
 } from "../Dialog/Dialog"
 import { Alert } from "../ui/Alert"
 import { Button, PrimaryButton } from "../ui/Button"
+import { FileTypeSelector } from "./FileTypeSelector"
 
 export const ExportDialog: FC = observer(() => {
   const rootStore = useStores()
   const { exportStore, song } = rootStore
   const { openExportDialog: open, exportMode } = exportStore
 
-  const handleExportModeChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      exportStore.exportMode = event.target.value as "WAV" | "MP3"
-    },
-    [exportStore],
-  )
   const onClose = useCallback(
     () => (exportStore.openExportDialog = false),
     [exportStore],
@@ -46,27 +41,7 @@ export const ExportDialog: FC = observer(() => {
         <Localized name="export-audio" />
       </DialogTitle>
       <DialogContent>
-        <div>
-          <Localized name="file-type" />:
-          <label>
-            <input
-              type="radio"
-              value="WAV"
-              checked={exportMode === "WAV"}
-              onChange={handleExportModeChange}
-            />
-            WAV
-          </label>
-          <label>
-            <input
-              type="radio"
-              value="MP3"
-              checked={exportMode === "MP3"}
-              onChange={handleExportModeChange}
-            />
-            MP3
-          </label>
-        </div>
+        <FileTypeSelector />
         {!exportEnabled && (
           <Alert severity="warning">
             <Localized name="export-error-too-short" />
