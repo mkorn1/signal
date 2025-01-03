@@ -1,7 +1,7 @@
+import { Mp3Encoder } from "@breezystack/lamejs"
 import { renderAudio } from "@signal-app/player"
 import { downloadBlob } from "../../helpers/Downloader"
 import RootStore from "../../stores/RootStore"
-import { Mp3Encoder } from "./mp3-encoder/lame"
 import waitForAnimationFrame from "./wait-for-animation-frame"
 
 export const exportMp3 =
