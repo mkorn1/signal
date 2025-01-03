@@ -1,14 +1,18 @@
 
+import { useStores } from "../../hooks/useStores"
 import Song from "../../song"
 import RootStore from "../../stores/RootStore"
 import exportMp3 from "./export-mp3"
 import { exportWav } from "./export-wav"
 
 
-export const cancelExport = ({ exportStore }: RootStore) =>
-  () => {
+export const useCancelExport = () => {
+  const { exportStore } = useStores()
+
+  return () => {
     exportStore.isCanceled = true
   }
+}
 
 export const exportSong =
   (rootStore: RootStore) =>
