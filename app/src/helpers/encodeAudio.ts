@@ -1,4 +1,5 @@
 import { Mp3Encoder } from "@breezystack/lamejs"
+import { max } from "lodash"
 import { encode } from "wav-encoder"
 
 export const encodeMp3 = async (audioBuffer: AudioBuffer) => {
@@ -17,10 +18,16 @@ export const encodeMp3 = async (audioBuffer: AudioBuffer) => {
   const l = new Int16Array(left.length)
   const r = new Int16Array(right.length)
 
+  // Find the maximum amplitude to prevent clipping
+  const maxAmplitude = Math.max(
+    max(left.map((v) => Math.abs(v))) ?? 0,
+    max(right.map((v) => Math.abs(v))) ?? 0,
+  )
+
   //Convert to required format
   for (var i = 0; i < left.length; i++) {
-    l[i] = left[i] * 32767.5
-    r[i] = right[i] * 32767.5
+    l[i] = (left[i] / maxAmplitude) * 32767.5
+    r[i] = (right[i] / maxAmplitude) * 32767.5
   }
 
   const sampleBlockSize = 1152 //can be anything but make it a multiple of 576 to make encoders life easier
