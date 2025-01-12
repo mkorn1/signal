@@ -1,9 +1,10 @@
 import styled from "@emotion/styled"
-import { observer } from "mobx-react-lite"
-import { FC, useCallback } from "react"
-import { useStores } from "../../hooks/useStores"
+import { FC } from "react"
 import { Localized } from "../../localize/useLocalization"
-import { ToolbarButtonGroup, ToolbarButtonGroupItem } from "../Toolbar/ToolbarButtonGroup"
+import {
+  ToolbarButtonGroup,
+  ToolbarButtonGroupItem,
+} from "../Toolbar/ToolbarButtonGroup"
 
 const ButtonGroup = styled(ToolbarButtonGroup)`
   background-color: transparent;
@@ -11,28 +12,31 @@ const ButtonGroup = styled(ToolbarButtonGroup)`
 `
 
 export interface FormatSelectorProps {
-  formatMode: "WAV" | "MP3"
+  value: "WAV" | "MP3"
+  onChange: (format: "WAV" | "MP3") => void
 }
 
-export const FileTypeSelector: FC = observer(() => {
-  const rootStore = useStores()
-  const { exportStore } = rootStore
+export const FileTypeSelector: FC<FormatSelectorProps> = ({
+  value,
+  onChange,
+}) => {
   return (
     <div>
       <Localized name="file-type" />:
-
       <ButtonGroup>
         <ToolbarButtonGroupItem
-          selected={exportStore.exportMode === 'WAV'}
-          onMouseDown={useCallback(() => { exportStore.exportMode = "WAV" }, [exportStore])}>
+          selected={value === "WAV"}
+          onMouseDown={() => onChange("WAV")}
+        >
           <span>WAV</span>
         </ToolbarButtonGroupItem>
         <ToolbarButtonGroupItem
-          selected={exportStore.exportMode === 'MP3'}
-          onMouseDown={useCallback(() => { exportStore.exportMode = "MP3" }, [exportStore])}>
+          selected={value === "MP3"}
+          onMouseDown={() => onChange("MP3")}
+        >
           <span>MP3</span>
         </ToolbarButtonGroupItem>
       </ButtonGroup>
     </div>
   )
-})
+}

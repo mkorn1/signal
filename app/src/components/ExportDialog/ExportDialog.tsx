@@ -28,6 +28,11 @@ export const ExportDialog: FC = observer(() => {
     exportSong(rootStore)()
   }, [rootStore, exportStore])
 
+  const onChangeMode = useCallback(
+    (mode: "WAV" | "MP3") => (exportStore.exportMode = mode),
+    [exportStore],
+  )
+
   const [exportEnabled, setExportEnabled] = useState(false)
   useEffect(() => {
     if (open) {
@@ -41,7 +46,7 @@ export const ExportDialog: FC = observer(() => {
         <Localized name="export-audio" />
       </DialogTitle>
       <DialogContent>
-        <FileTypeSelector />
+        <FileTypeSelector value={exportMode} onChange={onChangeMode} />
         {!exportEnabled && (
           <Alert severity="warning">
             <Localized name="export-error-too-short" />
