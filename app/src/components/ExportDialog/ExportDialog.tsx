@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useEffect, useState } from "react"
-import { canExport, useExportSongAsWav } from "../../actions"
+import { canExport } from "../../actions"
+import { useExportSong } from "../../actions/export"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
 import {
@@ -11,12 +12,14 @@ import {
 } from "../Dialog/Dialog"
 import { Alert } from "../ui/Alert"
 import { Button, PrimaryButton } from "../ui/Button"
+import { FileTypeSelector } from "./FileTypeSelector"
 
 export const ExportDialog: FC = observer(() => {
-  const { exportStore, song } = useStores()
-  const exportSongAsWav = useExportSongAsWav()
+  const rootStore = useStores()
+  const { exportStore, song } = rootStore
+  const { openExportDialog: open, exportMode } = exportStore
+  const exportSong = useExportSong()
 
-  const { openExportDialog: open } = exportStore
   const onClose = useCallback(
     () => (exportStore.openExportDialog = false),
     [exportStore],
@@ -24,8 +27,13 @@ export const ExportDialog: FC = observer(() => {
 
   const onClickExport = useCallback(() => {
     exportStore.openExportDialog = false
-    exportSongAsWav()
-  }, [exportStore, exportSongAsWav])
+    exportSong()
+  }, [exportStore, exportSong])
+
+  const onChangeMode = useCallback(
+    (mode: "WAV" | "MP3") => (exportStore.exportMode = mode),
+    [exportStore],
+  )
 
   const [exportEnabled, setExportEnabled] = useState(false)
   useEffect(() => {
@@ -40,9 +48,7 @@ export const ExportDialog: FC = observer(() => {
         <Localized name="export-audio" />
       </DialogTitle>
       <DialogContent>
-        <p>
-          <Localized name="file-type" />: WAV
-        </p>
+        <FileTypeSelector value={exportMode} onChange={onChangeMode} />
         {!exportEnabled && (
           <Alert severity="warning">
             <Localized name="export-error-too-short" />

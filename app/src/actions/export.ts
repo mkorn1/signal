@@ -1,13 +1,13 @@
 import { renderAudio } from "@signal-app/player"
-import { encode } from "wav-encoder"
 import { downloadBlob } from "../helpers/Downloader"
+import { encodeMp3, encodeWAV } from "../helpers/encodeAudio"
 import { useStores } from "../hooks/useStores"
 import Song from "../song"
 
 const waitForAnimationFrame = () =>
   new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()))
 
-export const useExportSongAsWav = () => {
+export const useExportSong = () => {
   const { song, synth, exportStore } = useStores()
 
   return async () => {
@@ -39,17 +39,12 @@ export const useExportSongAsWav = () => {
 
       exportStore.progress = 1
 
-      const wavData = await encode({
-        sampleRate: audioBuffer.sampleRate,
-        channelData: [
-          audioBuffer.getChannelData(0),
-          audioBuffer.getChannelData(1),
-        ],
-      })
+      const encoder = getEncoder(exportStore.exportMode)
+      const audioData = await encoder.encode(audioBuffer)
 
-      const blob = new Blob([wavData], { type: "audio/wav" })
+      const blob = new Blob([audioData], { type: encoder.mimeType })
       exportStore.openExportProgressDialog = false
-      downloadBlob(blob, "song.wav")
+      downloadBlob(blob, "song." + encoder.ext)
     } catch (e) {
       console.warn(e)
     }
@@ -66,3 +61,20 @@ export const useCancelExport = () => {
 
 export const canExport = (song: Song) =>
   song.allEvents.some((e) => e.tick >= 120)
+
+const getEncoder = (mode: "WAV" | "MP3") => {
+  switch (mode) {
+    case "WAV":
+      return {
+        encode: encodeWAV,
+        ext: "wav",
+        mimeType: "audio/wav",
+      }
+    case "MP3":
+      return {
+        encode: encodeMp3,
+        ext: "mp3",
+        mimeType: "audio/mp3",
+      }
+  }
+}
