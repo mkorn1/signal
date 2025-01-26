@@ -14,6 +14,7 @@ import {
 import { useRedo, useUndo } from "../../actions/history"
 import { useStores } from "../../hooks/useStores"
 import { KeyboardShortcut } from "./KeyboardShortcut"
+import { useSongFile } from "../../hooks/useSongFile"
 
 export const GlobalKeyboardShortcut: FC = observer(() => {
   const { rootViewStore, router, player } = useStores()
@@ -28,6 +29,9 @@ export const GlobalKeyboardShortcut: FC = observer(() => {
   const toggleRecording = useToggleRecording()
   const undo = useUndo()
   const redo = useRedo()
+  const { createNewSong, openSong, saveSong, saveAsSong, downloadSong } =
+    useSongFile()
+
 
   useEffect(() => {
     // prevent zooming
@@ -103,6 +107,27 @@ export const GlobalKeyboardShortcut: FC = observer(() => {
           code: "Digit3",
           metaKey: true,
           run: () => (router.path = "/tempo"),
+        },
+        {
+          code: "KeyS",
+          metaKey: true,
+          run: saveSong,
+        },
+        {
+          code: "KeyS",
+          shiftKey: true,
+          metaKey: true,
+          run: saveAsSong,
+        },
+        {
+          code: "KeyO",
+          metaKey: true,
+          run: openSong,
+        },
+        {
+          code: "KeyN",
+          altKey: true,
+          run: createNewSong,
         },
       ]}
     />

@@ -5,10 +5,12 @@ export const envString = (() => {
     case "macOS":
       return {
         cmdOrCtrl: "Cmd",
+        altOrOption: "Option",
       }
     case "PC":
       return {
         cmdOrCtrl: "Ctrl",
+        altOrOption: "Alt",
       }
   }
 })()
