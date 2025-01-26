@@ -17,8 +17,8 @@ export const FileMenuButton: FC = observer(() => {
     exportStore,
     authStore: { authUser: user },
   } = useStores()
-  const isOpen = rootViewStore.openDrawer
-  const handleClose = () => (rootViewStore.openDrawer = false)
+  const isOpen = rootViewStore.openFileDrawer
+  const handleClose = () => (rootViewStore.openFileDrawer = false)
 
   const onClickExport = () => {
     handleClose()
@@ -30,11 +30,11 @@ export const FileMenuButton: FC = observer(() => {
   return (
     <Menu
       open={isOpen}
-      onOpenChange={(open) => (rootViewStore.openDrawer = open)}
+      onOpenChange={(open) => (rootViewStore.openFileDrawer = open)}
       trigger={
         <Tab
           ref={ref}
-          onClick={useCallback(() => (rootViewStore.openDrawer = true), [])}
+          onClick={useCallback(() => (rootViewStore.openFileDrawer = true), [])}
           id="tab-file"
         >
           <span style={{ marginLeft: "0.25rem" }}>

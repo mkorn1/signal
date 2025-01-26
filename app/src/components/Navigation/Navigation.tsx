@@ -14,6 +14,7 @@ import { envString } from "../../localize/envString"
 import { Localized } from "../../localize/useLocalization"
 import { Tooltip } from "../ui/Tooltip"
 import { FileMenuButton } from "./FileMenuButton"
+import { EditMenuButton } from "./EditMenuButton"
 import { UserButton } from "./UserButton"
 
 const BannerContainer = styled.div`
@@ -126,6 +127,7 @@ export const Navigation: FC = observer(() => {
   return (
     <Container>
       {!isRunningInElectron() && <FileMenuButton />}
+      <EditMenuButton />
 
       <Tooltip
         title={
