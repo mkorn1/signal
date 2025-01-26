@@ -48,9 +48,7 @@ export const PianoRollKeyboardShortcut: FC = observer(() => {
   return (
     <KeyboardShortcut
       actions={[
-        ...(pianoRollStore.selectedNoteIds.length > 0
-          ? pianoNotesKeyboardShortcutActions()
-          : []),
+        ...pianoNotesKeyboardShortcutActions(),
         ...(controlStore.selectedEventIds.length > 0
           ? controlPaneKeyboardShortcutActions()
           : []),
