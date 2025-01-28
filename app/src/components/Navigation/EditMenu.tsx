@@ -18,8 +18,8 @@ import { useRedo, useUndo } from "../../actions/history"
 
 export const EditMenu: FC<{ close: () => void }> = observer(({ close }) => {
   const { historyStore, pianoRollStore } = useStores()
-  const undo = useUndo();
-  const redo = useRedo();
+  const undo = useUndo()
+  const redo = useRedo()
   const copySelection = useCopySelection()
   const pasteSelection = usePasteSelection()
   const deleteSelection = useDeleteSelection()
@@ -33,12 +33,12 @@ export const EditMenu: FC<{ close: () => void }> = observer(({ close }) => {
 
   const onClickUndo = async () => {
     close()
-    await undo();
+    await undo()
   }
 
   const onClickRedo = async () => {
     close()
-    await redo();
+    await redo()
   }
 
   const onClickCut = async () => {
@@ -54,57 +54,57 @@ export const EditMenu: FC<{ close: () => void }> = observer(({ close }) => {
 
   const onClickPaste = async () => {
     close()
-    await pasteSelection();
+    await pasteSelection()
   }
 
   const onClickDelete = async () => {
     close()
-    await deleteSelection();
+    await deleteSelection()
   }
 
   const onClickSelectAll = async () => {
     close()
-    await selectAllNotes();
+    await selectAllNotes()
   }
 
   const onClickDuplicate = async () => {
     close()
-    await duplicateSelection();
+    await duplicateSelection()
   }
 
   const onClickSelectNextNote = async () => {
     close()
-    await selectNextNote();
+    await selectNextNote()
   }
 
   const onClickSelectPreviousNote = async () => {
     close()
-    await selectPreviousNote();
+    await selectPreviousNote()
   }
 
   const onClickQuantizeSelectedNotes = async () => {
     close()
-    await quantizeSelectedNotes();
+    await quantizeSelectedNotes()
   }
 
   const onClickTransposeUpOctave = async () => {
     close()
-    await transposeSelection(12);
+    await transposeSelection(12)
   }
 
   const onClickTransposeDownOctave = async () => {
     close()
-    await transposeSelection(-12);
+    await transposeSelection(-12)
   }
 
   const onClickTransposeUp = async () => {
     close()
-    await transposeSelection(1);
+    await transposeSelection(1)
   }
 
   const onClickTransposeDown = async () => {
     close()
-    await transposeSelection(-1);
+    await transposeSelection(-1)
   }
 
   return (
@@ -149,13 +149,19 @@ export const EditMenu: FC<{ close: () => void }> = observer(({ close }) => {
         <Localized name="select-next" />
       </MenuItem>
 
-      <MenuItem onClick={onClickSelectPreviousNote} disabled={!anySelectedNotes}>
+      <MenuItem
+        onClick={onClickSelectPreviousNote}
+        disabled={!anySelectedNotes}
+      >
         <Localized name="select-previous" />
       </MenuItem>
 
       <MenuDivider />
 
-      <MenuItem onClick={onClickQuantizeSelectedNotes} disabled={!anySelectedNotes}>
+      <MenuItem
+        onClick={onClickQuantizeSelectedNotes}
+        disabled={!anySelectedNotes}
+      >
         <Localized name="quantize" />
       </MenuItem>
 
@@ -171,7 +177,10 @@ export const EditMenu: FC<{ close: () => void }> = observer(({ close }) => {
         <Localized name="transpose-up-octave" />
       </MenuItem>
 
-      <MenuItem onClick={onClickTransposeDownOctave} disabled={!anySelectedNotes}>
+      <MenuItem
+        onClick={onClickTransposeDownOctave}
+        disabled={!anySelectedNotes}
+      >
         <Localized name="transpose-down-octave" />
       </MenuItem>
     </>
