@@ -3,7 +3,8 @@ import { TrackEvent } from "../track"
 
 export default class RootViewStore {
   isArrangeViewSelected: boolean = false
-  openDrawer = false
+  openFileDrawer = false
+  openEditDrawer = false
   openHelp = false
   eventEditorEvents: TrackEvent[] = []
   openSignInDialog = false
@@ -19,7 +20,8 @@ export default class RootViewStore {
   constructor() {
     makeObservable(this, {
       isArrangeViewSelected: observable,
-      openDrawer: observable,
+      openFileDrawer: observable,
+      openEditDrawer: observable,
       openHelp: observable,
       eventEditorEvents: observable.shallow,
       openSignInDialog: observable,
