@@ -15,7 +15,9 @@ export default class HistoryStore<State> {
     this.redoHistory = []
   }
 
-  get hasUndo() { return this.undoHistory.length > 0; }
+  get hasUndo() {
+    return this.undoHistory.length > 0
+  }
   undo() {
     const currentState = this.serializable.serialize()
     const state = this.undoHistory.pop()
@@ -25,7 +27,9 @@ export default class HistoryStore<State> {
     }
   }
 
-  get hasRedo() { return this.redoHistory.length > 0; }
+  get hasRedo() {
+    return this.redoHistory.length > 0
+  }
   redo() {
     const currentState = this.serializable.serialize()
     const state = this.redoHistory.pop()

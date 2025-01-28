@@ -23,10 +23,7 @@ export const EditMenuButton: FC = observer(() => {
   return (
     <Menu
       open={isOpen}
-      onOpenChange={(open) => (
-        rootViewStore.openEditDrawer = open
-      )
-    }
+      onOpenChange={(open) => (rootViewStore.openEditDrawer = open)}
       trigger={
         <Tab
           ref={ref}
