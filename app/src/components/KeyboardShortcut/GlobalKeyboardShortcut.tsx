@@ -33,7 +33,6 @@ export const GlobalKeyboardShortcut: FC = observer(() => {
   const { createNewSong, openSong, saveSong, saveAsSong, downloadSong } =
     useSongFile()
 
-
   useEffect(() => {
     // prevent zooming
     const onWheel = (e: WheelEvent) => {
