@@ -15,6 +15,7 @@ import { useRedo, useUndo } from "../../actions/history"
 import { useStores } from "../../hooks/useStores"
 import { KeyboardShortcut } from "./KeyboardShortcut"
 import { useSongFile } from "../../hooks/useSongFile"
+import { hasFSAccess } from "../../actions/file"
 
 export const GlobalKeyboardShortcut: FC = observer(() => {
   const { rootViewStore, router, player } = useStores()
@@ -111,13 +112,13 @@ export const GlobalKeyboardShortcut: FC = observer(() => {
         {
           code: "KeyS",
           metaKey: true,
-          run: saveSong,
+          run: hasFSAccess ? saveSong : downloadSong,
         },
         {
           code: "KeyS",
           shiftKey: true,
           metaKey: true,
-          run: saveAsSong,
+          run: hasFSAccess ? saveAsSong : downloadSong,
         },
         {
           code: "KeyO",
