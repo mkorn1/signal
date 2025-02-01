@@ -110,7 +110,6 @@ const LineGraph = observer(
             hitEventId,
             local,
             controlTransform,
-            eventType,
           )
         } else {
           createSelectionGesture.onMouseDown(
