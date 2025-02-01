@@ -4,6 +4,7 @@ import { isFocusable } from "./isFocusable"
 export interface Action {
   code: KeyboardEvent["code"]
   metaKey?: boolean
+  altKey?: boolean
   shiftKey?: boolean
   enabled?: () => boolean
   run: (e: KeyboardEvent) => void
@@ -31,6 +32,7 @@ export const KeyboardShortcut: FC<KeyboardShortcutProps> = ({
         (action) =>
           (action.enabled?.() ?? true) &&
           e.code === action.code &&
+          e.altKey === (action.altKey ?? false) &&
           e.shiftKey === (action.shiftKey ?? false) &&
           (e.ctrlKey || e.metaKey) === (action.metaKey ?? false),
       )

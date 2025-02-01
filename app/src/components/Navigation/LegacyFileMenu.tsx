@@ -10,17 +10,18 @@ export const FileInput: FC<
   React.PropsWithChildren<{
     onChange: (e: ChangeEvent<HTMLInputElement>) => void
     accept?: string
+    id?: string
   }>
-> = ({ onChange, children, accept }) => (
+> = ({ onChange, children, accept, id }) => (
   <>
     <input
       accept={accept}
       style={{ display: "none" }}
-      id={fileInputID}
+      id={id ?? fileInputID}
       type="file"
       onChange={onChange}
     />
-    <label htmlFor={fileInputID}>{children}</label>
+    <label htmlFor={id ?? fileInputID}>{children}</label>
   </>
 )
 

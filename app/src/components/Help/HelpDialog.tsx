@@ -71,6 +71,22 @@ export const HelpDialog: FC = observer(() => {
         <h3>
           <Localized name="keyboard-shortcut" />
         </h3>
+        <HotKey
+          hotKeys={[[envString.altOrOption, "N"]]}
+          text={<Localized name="new-song" />}
+        />
+        <HotKey
+          hotKeys={[[envString.cmdOrCtrl, "O"]]}
+          text={<Localized name="open-song" />}
+        />
+        <HotKey
+          hotKeys={[[envString.cmdOrCtrl, "S"]]}
+          text={<Localized name="save-song" />}
+        />
+        <HotKey
+          hotKeys={[[envString.cmdOrCtrl, "Shift", "S"]]}
+          text={<Localized name="save-as" />}
+        />
         <HotKey hotKeys={[["Space"]]} text={<Localized name="play-pause" />} />
         <HotKey hotKeys={[["Enter"]]} text={<Localized name="stop" />} />
         <HotKey
