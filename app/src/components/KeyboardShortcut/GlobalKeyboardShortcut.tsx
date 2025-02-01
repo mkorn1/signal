@@ -16,9 +16,13 @@ import { useStores } from "../../hooks/useStores"
 import { KeyboardShortcut } from "./KeyboardShortcut"
 import { useSongFile } from "../../hooks/useSongFile"
 import { hasFSAccess } from "../../actions/file"
+import { useOpenSong } from "../../actions"
+import { FileInput } from "../Navigation/LegacyFileMenu"
+import { useLocalization } from "../../localize/useLocalization"
+import { useToast } from "dialog-hooks"
 
 export const GlobalKeyboardShortcut: FC = observer(() => {
-  const { rootViewStore, router, player } = useStores()
+  const { rootViewStore, router, player, song } = useStores()
   const rewindOneBar = useRewindOneBar()
   const fastForwardOneBar = useFastForwardOneBar()
   const stop = useStop()
@@ -30,8 +34,18 @@ export const GlobalKeyboardShortcut: FC = observer(() => {
   const toggleRecording = useToggleRecording()
   const undo = useUndo()
   const redo = useRedo()
+  const openSongFile = useOpenSong()
   const { createNewSong, openSong, saveSong, saveAsSong, downloadSong } =
     useSongFile()
+  const LegacyOpenId: string = "LegacyOpenButtonInputFile"
+  const localized = useLocalization()
+  const toast = useToast()
+
+  const openLegacy = async () => {
+    if (song.isSaved || confirm(localized["confirm-open"])) {
+      document.getElementById(LegacyOpenId)?.click()
+    }
+  }
 
   useEffect(() => {
     // prevent zooming
@@ -62,74 +76,131 @@ export const GlobalKeyboardShortcut: FC = observer(() => {
   }, [])
 
   return (
-    <KeyboardShortcut
-      actions={[
-        { code: "Space", run: () => player.playOrPause() },
-        {
-          code: "KeyZ",
-          metaKey: true,
-          shiftKey: true,
-          run: redo,
-        },
-        {
-          code: "KeyZ",
-          metaKey: true,
-          shiftKey: false,
-          run: undo,
-        },
-        { code: "KeyY", metaKey: true, run: redo },
-        {
-          // Press ?
-          code: "Slash",
-          shiftKey: true,
-          run: () => (rootViewStore.openHelp = true),
-        },
-        { code: "Enter", run: stop },
-        { code: "KeyA", run: rewindOneBar },
-        { code: "KeyD", run: fastForwardOneBar },
-        { code: "KeyS", run: nextTrack },
-        { code: "KeyW", run: previousTrack },
-        { code: "KeyN", run: toggleSolo },
-        { code: "KeyM", run: toggleMute },
-        { code: "KeyR", run: toggleRecording },
-        { code: "Comma", run: toggleGhost },
-        {
-          code: "Digit1",
-          metaKey: true,
-          run: () => (router.path = "/track"),
-        },
-        {
-          code: "Digit2",
-          metaKey: true,
-          run: () => (router.path = "/arrange"),
-        },
-        {
-          code: "Digit3",
-          metaKey: true,
-          run: () => (router.path = "/tempo"),
-        },
-        {
-          code: "KeyS",
-          metaKey: true,
-          run: hasFSAccess ? saveSong : downloadSong,
-        },
-        {
-          code: "KeyS",
-          shiftKey: true,
-          metaKey: true,
-          run: hasFSAccess ? saveAsSong : downloadSong,
-        },
-        {
-          code: "KeyO",
-          metaKey: true,
-          run: openSong,
-        },
-        {
-          code: "KeyN",
-          altKey: true,
-          run: createNewSong,
-        },
-      ]}
-    />
+    <>
+      <FileInput
+        id={LegacyOpenId}
+        onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
+          try {
+            await openSongFile(e.currentTarget)
+          } catch (e) {
+            toast.error((e as Error).message)
+          }
+        }}
+        accept="audio/midi"
+      ></FileInput>
+      <KeyboardShortcut
+        actions={[
+          // Play/Pause (Space)
+          { code: "Space", run: () => player.playOrPause() },
+          // Undo (Meta-Z)
+          {
+            code: "KeyZ",
+            metaKey: true,
+            run: undo,
+          },
+          // Redo (Shift-Meta-Z)
+          {
+            code: "KeyZ",
+            metaKey: true,
+            shiftKey: true,
+            run: redo,
+          },
+          // Redo (Meta-Y)
+          { code: "KeyY", metaKey: true, run: redo },
+          // Help (?)
+          {
+            code: "Slash",
+            shiftKey: true,
+            run: () => (rootViewStore.openHelp = true),
+          },
+          // Stop (Enter)
+          { code: "Enter", run: stop },
+          // Rewind one bar (A)
+          { code: "KeyA", run: rewindOneBar },
+          // Fast forward one bar (D)
+          { code: "KeyD", run: fastForwardOneBar },
+          // Next track (S)
+          { code: "KeyS", run: nextTrack },
+          // Previous track (W)
+          { code: "KeyW", run: previousTrack },
+          // Toggle solo (N)
+          { code: "KeyN", run: toggleSolo },
+          // Toggle mute (M)
+          { code: "KeyM", run: toggleMute },
+          // Toggle recording (R)
+          { code: "KeyR", run: toggleRecording },
+          // Toggle ghost (,)
+          { code: "Comma", run: toggleGhost },
+          // Switch to piano roll (Meta-1)
+          {
+            code: "Digit1",
+            metaKey: true,
+            run: () => (router.path = "/track"),
+          },
+          // Switch to arrange roll (Meta-2)
+          {
+            code: "Digit2",
+            metaKey: true,
+            run: () => (router.path = "/arrange"),
+          },
+          // Switch to tempo roll (Meta-3)
+          {
+            code: "Digit3",
+            metaKey: true,
+            run: () => (router.path = "/tempo"),
+          },
+          // Save (Meta-S)
+          {
+            code: "KeyS",
+            metaKey: true,
+            run: hasFSAccess ? saveSong : downloadSong,
+          },
+          // Save (Alt-S)
+          {
+            code: "KeyS",
+            altKey: true,
+            run: hasFSAccess ? saveSong : downloadSong,
+          },
+          // Save As (Shift-Meta-S)
+          {
+            code: "KeyS",
+            shiftKey: true,
+            metaKey: true,
+            run: hasFSAccess ? saveAsSong : downloadSong,
+          },
+          // Save As (Shift-Alt-S)
+          {
+            code: "KeyS",
+            shiftKey: true,
+            altKey: true,
+            run: hasFSAccess ? saveAsSong : downloadSong,
+          },
+          // Open (Meta-O)
+          {
+            code: "KeyO",
+            metaKey: true,
+            run: hasFSAccess ? openSong : openLegacy,
+          },
+          // Open (Alt-O)
+          {
+            code: "KeyO",
+            altKey: true,
+            run: hasFSAccess ? openSong : openLegacy,
+          },
+          // New (Meta-N)
+          {
+            code: "KeyN",
+            metaKey: true,
+            run: createNewSong,
+          },
+          // New (Alt-N)
+          {
+            code: "KeyN",
+            altKey: true,
+            run: createNewSong,
+          },
+        ]}
+      />
+    </>
   )
 })
