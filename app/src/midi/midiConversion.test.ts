@@ -29,7 +29,7 @@ const reassignIDs = (track: Track) => {
 describe("SongFile", () => {
   it("write and read", () => {
     const song = emptySong()
-    const note = song.tracks[1].addEvent<NoteEvent>({
+    song.tracks[1].addEvent<NoteEvent>({
       type: "channel",
       subtype: "note",
       noteNumber: 57,

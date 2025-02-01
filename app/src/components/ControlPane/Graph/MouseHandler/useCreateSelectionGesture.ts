@@ -46,7 +46,7 @@ export const useCreateSelectionGesture = () => {
             toTick: Math.max(startTick, endTick),
           }
         },
-        onMouseUp: (_e) => {
+        onMouseUp: () => {
           const { selection } = controlStore
           if (selection === null) {
             return

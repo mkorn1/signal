@@ -3,7 +3,7 @@ import { FC, PropsWithChildren } from "react"
 import { useStores } from "../../hooks/useStores"
 import { LocalizationContext } from "../../localize/useLocalization"
 
-export const LocalizationProvider: FC<PropsWithChildren<{}>> = observer(
+export const LocalizationProvider: FC<PropsWithChildren> = observer(
   ({ children }) => {
     const { settingStore } = useStores()
     return (

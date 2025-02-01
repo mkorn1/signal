@@ -42,7 +42,7 @@ export const useCreateSelectionGesture = (): MouseGesture<
             trackTransform.getArrangePoint(selectionToPx),
           )
         },
-        onMouseUp: (e) => {
+        onMouseUp: () => {
           arrangeEndSelection()
         },
       })

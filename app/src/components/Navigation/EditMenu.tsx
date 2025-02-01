@@ -1,20 +1,20 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { useStores } from "../../hooks/useStores"
-import { Localized } from "../../localize/useLocalization"
-import { MenuDivider, MenuItem } from "../ui/Menu"
 import {
   useCopySelection,
   useDeleteSelection,
   useDuplicateSelection,
   usePasteSelection,
+  useQuantizeSelectedNotes,
   useSelectAllNotes,
   useSelectNextNote,
   useSelectPreviousNote,
-  useQuantizeSelectedNotes,
   useTransposeSelection,
 } from "../../actions"
 import { useRedo, useUndo } from "../../actions/history"
+import { useStores } from "../../hooks/useStores"
+import { Localized } from "../../localize/useLocalization"
+import { MenuDivider, MenuItem } from "../ui/Menu"
 
 export const EditMenu: FC<{ close: () => void }> = observer(({ close }) => {
   const { historyStore, pianoRollStore } = useStores()

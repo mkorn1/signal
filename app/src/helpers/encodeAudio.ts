@@ -25,24 +25,24 @@ export const encodeMp3 = async (audioBuffer: AudioBuffer) => {
   )
 
   //Convert to required format
-  for (var i = 0; i < left.length; i++) {
+  for (let i = 0; i < left.length; i++) {
     l[i] = (left[i] / maxAmplitude) * 32767.5
     r[i] = (right[i] / maxAmplitude) * 32767.5
   }
 
   const sampleBlockSize = 1152 //can be anything but make it a multiple of 576 to make encoders life easier
 
-  for (var i = 0; i < l.length; i += sampleBlockSize) {
+  for (let i = 0; i < l.length; i += sampleBlockSize) {
     const leftChunk = l.subarray(i, i + sampleBlockSize)
     const rightChunk = r.subarray(i, i + sampleBlockSize)
 
-    var mp3buf = mp3Encoder.encodeBuffer(leftChunk, rightChunk)
+    const mp3buf = mp3Encoder.encodeBuffer(leftChunk, rightChunk)
 
     if (mp3buf.length > 0) {
       mp3Data.push(mp3buf)
     }
   }
-  var mp3buf = mp3Encoder.flush() //finish writing mp3
+  const mp3buf = mp3Encoder.flush() //finish writing mp3
 
   if (mp3buf.length > 0) {
     mp3Data.push(mp3buf)

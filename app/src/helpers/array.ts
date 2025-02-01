@@ -10,7 +10,7 @@ export function isNotNullOrUndefined<T>(a: T | null): a is T {
   return a !== null && a !== undefined
 }
 
-export const joinObjects = <T extends {}>(
+export const joinObjects = <T extends object>(
   list: T[],
   separator: (prev: T, next: T) => T,
 ): T[] => {

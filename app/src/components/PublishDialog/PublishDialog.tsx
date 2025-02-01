@@ -44,9 +44,7 @@ export const PublishDialog: FC = observer(() => {
           return
         }
         const cloudSong = await cloudSongRepository.get(cloudSongId)
-        cloudSong?.isPublic
-          ? setPublishState("published")
-          : setPublishState("publishable")
+        setPublishState(cloudSong?.isPublic ? "published" : "publishable")
         setIsLoading(false)
       }
     })()

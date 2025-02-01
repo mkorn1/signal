@@ -1,5 +1,4 @@
 import { ControllerEvent, PitchBendEvent } from "midifile-ts"
-import { ValueEventType } from "../../../../entities/event/ValueEventType"
 import { Point } from "../../../../entities/geometry/Point"
 import { ControlCoordTransform } from "../../../../entities/transform/ControlCoordTransform"
 import { observeDrag2 } from "../../../../helpers/observeDrag"
@@ -18,7 +17,6 @@ export const useDragSelectionGesture = () => {
       hitEventId: number,
       startPoint: Point,
       transform: ControlCoordTransform,
-      type: ValueEventType,
     ) {
       if (selectedTrack === undefined) {
         return
@@ -65,7 +63,7 @@ export const useDragSelectionGesture = () => {
           )
         },
 
-        onMouseUp: (_e) => {
+        onMouseUp: () => {
           // Find events with the same tick and remove it
           const controllerEvents = selectedTrack.events.filter((e) =>
             controlStore.selectedEventIds.includes(e.id),

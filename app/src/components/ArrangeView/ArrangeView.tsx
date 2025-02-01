@@ -81,7 +81,6 @@ export const ArrangeView: FC = observer(() => {
       scrollBy,
       selectedTrackIndex,
     },
-    player,
     router,
     song: { tracks },
   } = useStores()

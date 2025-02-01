@@ -1,8 +1,10 @@
+import { useToast } from "dialog-hooks"
 import { observer } from "mobx-react-lite"
 import { FC, useEffect } from "react"
 import {
   useFastForwardOneBar,
   useNextTrack,
+  useOpenSong,
   usePreviousTrack,
   useRewindOneBar,
   useStop,
@@ -11,15 +13,13 @@ import {
   useToggleRecording,
   useToggleSolo,
 } from "../../actions"
-import { useRedo, useUndo } from "../../actions/history"
-import { useStores } from "../../hooks/useStores"
-import { KeyboardShortcut } from "./KeyboardShortcut"
-import { useSongFile } from "../../hooks/useSongFile"
 import { hasFSAccess } from "../../actions/file"
-import { useOpenSong } from "../../actions"
-import { FileInput } from "../Navigation/LegacyFileMenu"
+import { useRedo, useUndo } from "../../actions/history"
+import { useSongFile } from "../../hooks/useSongFile"
+import { useStores } from "../../hooks/useStores"
 import { useLocalization } from "../../localize/useLocalization"
-import { useToast } from "dialog-hooks"
+import { FileInput } from "../Navigation/LegacyFileMenu"
+import { KeyboardShortcut } from "./KeyboardShortcut"
 
 export const GlobalKeyboardShortcut: FC = observer(() => {
   const { rootViewStore, router, player, song } = useStores()
@@ -60,7 +60,7 @@ export const GlobalKeyboardShortcut: FC = observer(() => {
 
     // disable bounce scroll (Safari does not support overscroll-behavior CSS)
     const onTouchMove = (e: TouchEvent) => {
-      e.preventDefault
+      e.preventDefault()
     }
 
     document.addEventListener("touchmove", onTouchMove, { passive: false })

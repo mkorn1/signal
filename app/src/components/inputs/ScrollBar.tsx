@@ -199,7 +199,6 @@ const _ScrollBar: React.ForwardRefRenderFunction<
     }
 
     const elm = e.target as HTMLDivElement
-    const startPos = getPoint(e)
 
     if (elm.classList.contains("thumb")) {
       const startValue = scrollOffset

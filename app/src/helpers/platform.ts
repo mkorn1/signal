@@ -1,6 +1,6 @@
 export function getPlatform() {
-  var platform = navigator.platform.toLowerCase()
-  var os = null
+  const platform = navigator.platform.toLowerCase()
+  let os = null
 
   if (platform.indexOf("win") >= 0) {
     os = "Windows"

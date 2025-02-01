@@ -156,7 +156,7 @@ export const updateEventsInRange =
     // linear interpolate
     const getValue =
       endTick === startTick
-        ? (_tick: number) => endValue
+        ? () => endValue
         : (tick: number) =>
             Math.floor(
               Math.min(

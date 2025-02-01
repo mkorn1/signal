@@ -43,7 +43,7 @@ export const useCreateSelectionGesture = (): MouseGesture<
             toTick: Math.max(start.tick, end.tick),
           }
         },
-        onMouseUp: (e) => {
+        onMouseUp: () => {
           const { selection } = tempoEditorStore
           if (selection === null) {
             return

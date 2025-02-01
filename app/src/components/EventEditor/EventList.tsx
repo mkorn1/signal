@@ -88,7 +88,7 @@ const EventList: FC = observer(() => {
 })
 
 const ItemRenderer = ({ index, style, data }: ListChildComponentProps) => {
-  const { events, selectedEventIds = [], setSelectedEventIds } = data
+  const { events, setSelectedEventIds } = data
   const e = events[index]
 
   const onClickRow = useCallback((e: React.MouseEvent, ev: TrackEvent) => {
