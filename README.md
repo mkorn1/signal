@@ -2,7 +2,7 @@
 
 ![Node.js CI](https://github.com/ryohey/signal/workflows/Node.js%20CI/badge.svg) [![Join the chat at https://discord.gg/XQxzNdDJse](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/XQxzNdDJse)
 
-signal is a user-friendly music sequencer application developed using web technologies, designed for seamless, cross-platform use.
+signal is a user-friendly music sequencer application developed using web technologies, designed for seamless, cross-platform use, released under the MIT license.
 
 <img width="1024" alt="image" src="https://github.com/user-attachments/assets/0c64ff3d-b095-4359-ab77-9355e04a8bee" />
 
@@ -83,3 +83,6 @@ As the creator of signal, I, @ryohey, welcome any form of contribution to this m
 - signal is a personal project that I've been passionately developing. If you like what you see and wish to support my efforts, you can do so through [GitHub Sponsors](https://github.com/sponsors/ryohey). Even the smallest contribution can make a significant difference and is deeply appreciated.
 
 Your engagement, big or small, contributes greatly to the development of signal. Thank you for being a part of this journey, and I'm eager to see the impact of your contributions on this application.
+
+## License
+MIT. See [LICENSE](/LICENSE)
