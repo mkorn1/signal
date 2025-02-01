@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { FC } from "react"
-import { usePasteSelection } from "../../actions"
+import { usePasteSelection, useSelectAllNotes } from "../../actions"
 import { usePasteControlSelection } from "../../actions/control"
 import {
   isControlEventsClipboardData,
@@ -23,6 +23,7 @@ export const PianoRollKeyboardShortcut: FC = observer(() => {
     useControlPaneKeyboardShortcutActions()
   const pasteSelection = usePasteSelection()
   const pasteControlSelection = usePasteControlSelection()
+  const selectAllNotes = useSelectAllNotes()
 
   // Handle pasting here to allow pasting even when the element does not have focus, such as after clicking the ruler
   const onPaste = (e: ClipboardEvent) => {
@@ -81,6 +82,11 @@ export const PianoRollKeyboardShortcut: FC = observer(() => {
         {
           code: "Digit2",
           run: () => (pianoRollStore.mouseMode = "selection"),
+        },
+        {
+          code: "KeyA",
+          metaKey: true,
+          run: selectAllNotes,
         },
       ]}
       onPaste={onPaste}

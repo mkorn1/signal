@@ -318,12 +318,14 @@ export const useSelectAllNotes = () => {
   const {
     pianoRollStore,
     pianoRollStore: { selectedTrack },
+    controlStore,
   } = useStores()
   return () => {
     if (selectedTrack) {
       pianoRollStore.selectedNoteIds = selectedTrack.events
         .filter(isNoteEvent)
         .map((note) => note.id)
+      controlStore.selectedEventIds = []
     }
   }
 }
