@@ -4,7 +4,6 @@ import {
   useDuplicateSelection,
   usePasteSelection,
   useQuantizeSelectedNotes,
-  useSelectAllNotes,
   useSelectNextNote,
   useSelectPreviousNote,
   useTransposeSelection,
@@ -18,7 +17,6 @@ export const usePianoNotesKeyboardShortcutActions = () => {
   const deleteSelection = useDeleteSelection()
   const pasteSelection = usePasteSelection()
   const duplicateSelection = useDuplicateSelection()
-  const selectAllNotes = useSelectAllNotes()
   const quantizeSelectedNotes = useQuantizeSelectedNotes()
   const transposeSelection = useTransposeSelection()
   const { pianoRollStore } = useStores()
@@ -46,11 +44,6 @@ export const usePianoNotesKeyboardShortcutActions = () => {
       code: "KeyD",
       metaKey: true,
       run: duplicateSelection,
-    },
-    {
-      code: "KeyA",
-      metaKey: true,
-      run: selectAllNotes,
     },
     {
       code: "KeyQ",
