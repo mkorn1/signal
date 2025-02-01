@@ -38,11 +38,6 @@ export const UserButton: FC = observer(() => {
     setOpen(false)
   }
 
-  const onClickFiles = () => {
-    rootViewStore.openCloudFileDialog = true
-    setOpen(false)
-  }
-
   const onClickUserSettings = () => {
     rootViewStore.openUserSettingsDialog = true
   }

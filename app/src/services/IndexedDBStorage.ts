@@ -22,7 +22,7 @@ export class IndexedDBStorage<Data, Metadata> {
     return new Promise((resolve, reject) => {
       const openDBRequest = indexedDB.open(this.dbName, this.version)
       openDBRequest.onsuccess = () => resolve(openDBRequest.result)
-      openDBRequest.onupgradeneeded = (event) => {
+      openDBRequest.onupgradeneeded = () => {
         const db = openDBRequest.result
         if (!db.objectStoreNames.contains(filesStoreName)) {
           db.createObjectStore(filesStoreName, {

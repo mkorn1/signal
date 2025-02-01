@@ -75,7 +75,7 @@ export const createConductorTrackIfNeeded = (
   tracks: AnyEvent[][],
 ): AnyEvent[][] => {
   // Find conductor track
-  let [conductorTracks, normalTracks] = partition(tracks, isConductorTrack)
+  const [conductorTracks, normalTracks] = partition(tracks, isConductorTrack)
 
   // Create a conductor track if there is no conductor track
   if (conductorTracks.length === 0) {

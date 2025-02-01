@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 import { observer } from "mobx-react-lite"
-import { FC, useEffect } from "react"
+import { FC } from "react"
 import { Scale } from "../../entities/scale/Scale"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
@@ -52,11 +52,6 @@ export const KeySignatureDialog: FC<KeySignatureDialogProps> = observer(
   ({ open, onOpenChange }) => {
     const { pianoRollStore } = useStores()
     const onClose = () => onOpenChange(false)
-
-    useEffect(() => {
-      if (open) {
-      }
-    }, [open])
 
     return (
       <Dialog open={open} onOpenChange={onClose} style={{ minWidth: "20rem" }}>

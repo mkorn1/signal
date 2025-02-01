@@ -2,7 +2,7 @@ import { makeObservable, observable } from "mobx"
 import { TrackId } from "../track/Track"
 import { ITrackMute } from "./ITrackMute"
 
-function updated<T>(obj: T, key: keyof T, value: any) {
+function updated<T>(obj: T, key: keyof T, value: unknown) {
   return { ...obj, [key]: value }
 }
 

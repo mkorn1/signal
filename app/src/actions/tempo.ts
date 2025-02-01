@@ -130,7 +130,7 @@ export const useDuplicateTempoSelection = () => {
       .filter(isNotUndefined)
 
     // move to the end of selection
-    let deltaTick =
+    const deltaTick =
       (maxBy(selectedEvents, (e) => e.tick)?.tick ?? 0) -
       (minBy(selectedEvents, (e) => e.tick)?.tick ?? 0)
 

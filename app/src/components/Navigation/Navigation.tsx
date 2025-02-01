@@ -9,31 +9,12 @@ import { useStores } from "../../hooks/useStores"
 import ArrangeIcon from "../../images/icons/arrange.svg"
 import PianoIcon from "../../images/icons/piano.svg"
 import TempoIcon from "../../images/icons/tempo.svg"
-import Logo from "../../images/logo-circle.svg"
 import { envString } from "../../localize/envString"
 import { Localized } from "../../localize/useLocalization"
 import { Tooltip } from "../ui/Tooltip"
-import { FileMenuButton } from "./FileMenuButton"
 import { EditMenuButton } from "./EditMenuButton"
+import { FileMenuButton } from "./FileMenuButton"
 import { UserButton } from "./UserButton"
-
-const BannerContainer = styled.div`
-  background: ${({ theme }) => theme.themeColor};
-  padding: 0 16px;
-  height: 3rem;
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-
-  a {
-    display: flex;
-  }
-`
-
-const LogoIcon = styled(Logo)`
-  width: 1.5rem;
-`
 
 const Container = styled.div`
   display: flex;
@@ -207,7 +188,11 @@ export const Navigation: FC = observer(() => {
           <Tab>
             <Forum style={IconStyle} />
             <TabTitle>
-              <a href="https://discord.gg/XQxzNdDJse" target="_blank">
+              <a
+                href="https://discord.gg/XQxzNdDJse"
+                target="_blank"
+                rel="noreferrer"
+              >
                 Discord
               </a>
             </TabTitle>

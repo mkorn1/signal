@@ -283,7 +283,7 @@ export const PianoKeys: FC = observer(() => {
             setTouchingKeys(new Set([noteNumber]))
           }
         },
-        onMouseUp(_) {
+        onMouseUp() {
           player.sendEvent(noteOffMidiEvent(0, channel, prevNoteNumber, 0))
           setTouchingKeys(new Set())
         },

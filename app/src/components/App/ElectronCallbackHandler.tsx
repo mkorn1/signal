@@ -174,7 +174,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
           try {
             await signInWithCredential(auth, credential)
           } catch (e) {
-            toast.error("Failed to sign in")
+            toast.error("Failed to sign in: " + (e as Error).message)
           }
         },
       ),
@@ -207,12 +207,13 @@ function createCredential(credential: FirebaseCredential) {
       )
     case "github.com":
       return GithubAuthProvider.credential(credential.accessToken)
-    case "apple.com":
-      let provider = new OAuthProvider("apple.com")
+    case "apple.com": {
+      const provider = new OAuthProvider("apple.com")
       return provider.credential({
         idToken: credential.idToken,
         accessToken: credential.accessToken,
       })
+    }
     default:
       throw new Error("Invalid provider")
   }

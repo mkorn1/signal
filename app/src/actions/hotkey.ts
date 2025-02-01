@@ -90,7 +90,7 @@ export const usePasteSelectionGlobal = () => {
 
   return () => {
     switch (router.path) {
-      case "/track":
+      case "/track": {
         const text = Clipboard.readText()
         if (!text || text.length === 0) {
           return
@@ -102,6 +102,7 @@ export const usePasteSelectionGlobal = () => {
           pasteControlSelection()
         }
         break
+      }
       case "/arrange":
         arrangePasteSelection()
         break

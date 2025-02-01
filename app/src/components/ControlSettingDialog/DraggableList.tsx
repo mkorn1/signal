@@ -51,7 +51,7 @@ export interface DraggableListProps<T, ID extends string | number> {
   onItemMoved: (oldId: ID, newId: ID) => void
 }
 
-export const DraggableList = <T extends {}, ID extends string | number>({
+export const DraggableList = <T extends object, ID extends string | number>({
   items: _items,
   render,
   getItemId,
@@ -84,7 +84,7 @@ export const DraggableList = <T extends {}, ID extends string | number>({
       modifiers={[restrictToVerticalAxis]}
     >
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
-        {items.map((item, i) => (
+        {items.map((item) => (
           <SortableItem key={item.id} id={item.id}>
             {render(item.item)}
           </SortableItem>

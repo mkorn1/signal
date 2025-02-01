@@ -114,10 +114,11 @@ export class SoundFontStore {
       case "remote":
         await this.synth.loadSoundFontFromURL(soundfont.url)
         break
-      case "file":
+      case "file": {
         const data = await window.electronAPI.readFile(soundfont.path)
         await this.synth.loadSoundFont(data)
         break
+      }
     }
 
     this.selectedSoundFontId = id
@@ -162,7 +163,7 @@ export class SoundFontStore {
     const list = await this.storage.list()
     const itemsInScanPaths = Object.entries(list)
       .filter(
-        ([_, f]) =>
+        ([, f]) =>
           f.scanPath !== undefined && this.scanPaths.includes(f.scanPath),
       )
       .map(([id]) => Number(id))

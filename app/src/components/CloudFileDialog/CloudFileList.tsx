@@ -170,6 +170,7 @@ export const CloudFileList = observer(() => {
       <Body>
         {files.map((song) => (
           <CloudFileRow
+            key={song.id}
             song={song}
             dateType={dateType}
             onClick={() => onClickSong(song)}

@@ -21,7 +21,9 @@ export const ActionDialog = (props: DialogProps<any>) => {
       {props.message && <DialogContent>{props.message}</DialogContent>}
       <DialogActions>
         {props.actions.map((action) => (
-          <Button onClick={() => close(action.key)}>{action.title}</Button>
+          <Button key={action.key} onClick={() => close(action.key)}>
+            {action.title}
+          </Button>
         ))}
       </DialogActions>
     </Dialog>

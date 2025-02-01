@@ -14,7 +14,7 @@ const Container = styled.div`
   overflow: hidden;
 `
 
-export const DropZone: FC<PropsWithChildren<{}>> = observer(({ children }) => {
+export const DropZone: FC<PropsWithChildren> = observer(({ children }) => {
   const { song } = useStores()
   const localized = useLocalization()
   const setSong = useSetSong()

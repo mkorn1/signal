@@ -238,7 +238,7 @@ export default class PianoRollStore {
   }
 
   toggleTool() {
-    this.mouseMode === "pencil" ? "selection" : "pencil"
+    this.mouseMode = this.mouseMode === "pencil" ? "selection" : "pencil"
   }
 
   resetSelection() {
@@ -419,7 +419,7 @@ export default class PianoRollStore {
 
   getDraggablePosition(draggable: PianoRollDraggable): NotePoint | null {
     switch (draggable.type) {
-      case "note":
+      case "note": {
         const { selectedTrack } = this
         if (selectedTrack === undefined) {
           return null
@@ -439,7 +439,9 @@ export default class PianoRollStore {
               noteNumber: note.noteNumber,
             }
         }
-      case "selection":
+        break
+      }
+      case "selection": {
         const { selection } = this
         if (selection === null) {
           return null
@@ -452,12 +454,14 @@ export default class PianoRollStore {
           case "right":
             return Selection.getTo(selection)
         }
+        break
+      }
     }
   }
 
   updateDraggable(draggable: PianoRollDraggable, position: Partial<NotePoint>) {
     switch (draggable.type) {
-      case "note":
+      case "note": {
         const { selectedTrack } = this
         if (selectedTrack === undefined) {
           return
@@ -492,7 +496,8 @@ export default class PianoRollStore {
           }
         }
         break
-      case "selection":
+      }
+      case "selection": {
         const { selection } = this
         if (selection === null) {
           return
@@ -531,6 +536,7 @@ export default class PianoRollStore {
           }
         }
         break
+      }
     }
   }
 
@@ -583,6 +589,7 @@ export default class PianoRollStore {
               noteNumberRange: Range.point(note.noteNumber), // allow to move only vertically
             }
         }
+        break
       }
       case "selection": {
         const { selection } = this
@@ -597,12 +604,13 @@ export default class PianoRollStore {
         // The length of the note that protrudes from the left end of the selection
         const tickOffset = selection.fromTick - minTick
         switch (draggable.position) {
-          case "center":
+          case "center": {
             const height = selection.fromNoteNumber - selection.toNoteNumber
             return {
               tickRange: Range.create(tickOffset, Infinity),
               noteNumberRange: Range.create(height - 1, MaxNoteNumber + 1),
             }
+          }
           case "left": {
             // Limit the movement of the left end of the selection
             // - Within the screen range

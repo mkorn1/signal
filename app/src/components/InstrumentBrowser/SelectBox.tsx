@@ -47,7 +47,7 @@ const Option: FC<
   )
 }
 
-export const SelectBox = <T extends {}>({
+export const SelectBox = <T extends object>({
   items,
   selectedValue,
   onChange,
