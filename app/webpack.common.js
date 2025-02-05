@@ -1,5 +1,6 @@
 const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
 const webpack = require("webpack")
 const Dotenv = require("dotenv-webpack")
 
@@ -47,6 +48,9 @@ module.exports = {
       filename: "community.html",
       chunks: ["browserCommunity"],
       template: path.join(__dirname, "public", "community.html"),
+    }),
+    new ForkTsCheckerWebpackPlugin({
+      formatter: { type: "codeframe", pathType: "absolute" },
     }),
   ],
 }
