@@ -54,6 +54,62 @@ export default {
       "We use Google Analytics to track usage of our website. We also use Sentry to collect error reports when the app crashes.",
     "privacy-updated": "Last updated: ",
   },
+  fr: {
+    "landing-title": "signal - Éditeur MIDI en ligne",
+    "app-intro": "Éditeur MIDI en ligne complètement open-source",
+    "app-desc": "Commencez à créer de la musique sans rien installer",
+    launch: "Lancer",
+    "supported-browsers-label": "Fonctionne sur les navigateurs:",
+    "supported-browsers-body": "Google Chrome / Firefox / Safari",
+    "store-intro": "Une version en ligne?",
+    features: "Fonctionnalités",
+    "feature-midi-file": "Éditeur MIDI complet",
+    "feature-midi-file-description":
+      "Orchestrez librement avec l'éditeur rouleau de piano multi-piste. Vous pouvez bien sûr utiliser la vélocité, le modulateur de hauteur, l'expression, et la modulation pour créer un son expressif.",
+    "feature-soundfont": "Supporte les Banques de Son",
+    "feature-soundfont-description":
+      "Avec notre module de son hautement performant, vous pouvez charger vos banques de son et l'utiliser facilement.",
+    "feature-time-signature":
+      "Mesures 4/4 et autres ainsi qu'une vitesse pouvant aller à plus de 300 pulsations par minutes",
+    "feature-time-signature-description":
+      "Changez le tempo et les indications de mesure partout dans le morceaux avec l'éditeur graphique.",
+    "feature-pwa": 'Support de l\'option "application web progressive"',
+    "feature-pwa-description":
+      "Voulez-vous cacher la barre d'adresse? Vous pouvez installer signal sur votre bureau et l'utiliser comme une application.",
+    "feature-export-audio": "Exportation audio ultra rapide",
+    "feature-export-audio-description":
+      "Vous pouvez enregistrer votre musique sur un ficher WAV et l'écouter sur votre téléphone, la mêttre dans vos vidéos, ou l'importer dans votre station de travail audionumérique.",
+    "feature-midi-io": "Support des entrées/sorties MIDI",
+    "feature-midi-io-description":
+      "Avec un navigateur supportant l'API Web MIDI, vous pouvez enregistrer un clavier midi connecté à votre ordinateur, ou jouer des sons avec un sythetiseur physique.",
+    support: "Aide",
+    "sponsor-intro":
+      "signal est une application que j'ai fait pendant mes week-ends pour m'amuser. Si vous aimez le concept d'un logiciel de composition en ligne, aidez-moi.",
+    "support-github-desctiption":
+      "Reporter un bug et proposer des fonctionnalités sur GitHub",
+    "become-sponsor": "Devenir un sponsor",
+    "open-github-sponsors": "Ouvrir GitHub Sponsors",
+    "follow-twitter": "Suivez-nous sur Twitter pour avoir des informations",
+    "bug-report": "Reporter un bug / Proposer des fonctionnalités",
+    "bug-report-description":
+      "Les reports de bugs et propositions de fonctionnalités sont acceptés GitHub Issues.",
+    "open-github-issues": "Ouvrir GitHub Issues",
+    community: "Communauté",
+    "community-description":
+      "Pôsez des questions sur comment utiliser signal, partagez votre musique, et plus sur la communauté Discord officielle.",
+    "join-discord": "Rejoindre Discord",
+    twitter: "Twitter",
+    "privacy-policy-title": "Politique de confidentialité",
+    "privacy-policy-description":
+      "Nous respectons votre vie privée et ne collectons pas de données au-delà de ce qui est décrit ci-dessous. Notre approche consiste à collecter la quantité minimale de données personnelles nécessaire à la fourniture de nos services.",
+    "privacy-data-title": "Collection des Données sur le Cloud",
+    "privacy-data-description":
+      "Lorsque vous vous inscrivez à notre service cloud à l'aide de vos comptes Google ou GitHub, nous collectons des informations telles que votre nom d'utilisateur et votre adresse e-mail associés à ces comptes.",
+    "privacy-analytics-title": "Analytiques et Report de bugs",
+    "privacy-analytics-description":
+      "Nous utilisons Google Analytics pour traquer l'utilisation de ce site. Nous utilisons aussi Sentry pour faire des rapports d'érreur quand l'application buggue.",
+    "privacy-updated": "Dernière mise à jour: ",
+  },
   ja: {
     "landing-title": "signal - オンラインMIDIシーケンサ",
     "app-intro": "ブラウザで音楽が作れる",

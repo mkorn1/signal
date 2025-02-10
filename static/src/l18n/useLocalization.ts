@@ -8,6 +8,7 @@ export const {
   useLocalization,
   Localized: LocalizedInternal,
 } = createLocalization(localization, "en", [
+  [/^fr/, "fr"],
   [/^zh-Hans/, "zh-Hans"],
   [/^zh-Hant/, "zh-Hant"],
   [/^zh$/, "zh-Hans"],
