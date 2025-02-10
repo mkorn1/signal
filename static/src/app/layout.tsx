@@ -29,6 +29,11 @@ export default function RootLayout({
           />
           <link
             rel="alternate"
+            hrefLang="fr"
+            href="https://signal.vercel.app/?lang=fr"
+          />
+          <link
+            rel="alternate"
             hrefLang="ja"
             href="https://signal.vercel.app/?lang=ja"
           />

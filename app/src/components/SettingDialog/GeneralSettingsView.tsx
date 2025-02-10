@@ -23,6 +23,7 @@ const LanguageSelect: FC = observer(() => {
   const language = useCurrentLanguage()
   const items: LanguageItem[] = [
     { label: "English", language: "en" },
+    { label: "French", language: "fr" },
     { label: "Japanese", language: "ja" },
     { label: "Chinese (Simplified)", language: "zh-Hans" },
     { label: "Chinese (Traditional)", language: "zh-Hant" },
