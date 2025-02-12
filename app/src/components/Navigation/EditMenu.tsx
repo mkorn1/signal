@@ -97,14 +97,14 @@ export const EditMenu: FC<{ close: () => void }> = observer(({ close }) => {
     await transposeSelection(-12)
   }
 
-  const onClickTransposeUp = async () => {
+  const onClickTranspose = () => {
     close()
-    await transposeSelection(1)
+    pianoRollStore.openTransposeDialog = true
   }
 
-  const onClickTransposeDown = async () => {
+  const onClickVelocity = () => {
     close()
-    await transposeSelection(-1)
+    pianoRollStore.openVelocityDialog = true
   }
 
   return (
@@ -158,21 +158,6 @@ export const EditMenu: FC<{ close: () => void }> = observer(({ close }) => {
 
       <MenuDivider />
 
-      <MenuItem
-        onClick={onClickQuantizeSelectedNotes}
-        disabled={!anySelectedNotes}
-      >
-        <Localized name="quantize" />
-      </MenuItem>
-
-      <MenuItem onClick={onClickTransposeUp} disabled={!anySelectedNotes}>
-        <Localized name="transpose-up" />
-      </MenuItem>
-
-      <MenuItem onClick={onClickTransposeDown} disabled={!anySelectedNotes}>
-        <Localized name="transpose-down" />
-      </MenuItem>
-
       <MenuItem onClick={onClickTransposeUpOctave} disabled={!anySelectedNotes}>
         <Localized name="transpose-up-octave" />
       </MenuItem>
@@ -182,6 +167,23 @@ export const EditMenu: FC<{ close: () => void }> = observer(({ close }) => {
         disabled={!anySelectedNotes}
       >
         <Localized name="transpose-down-octave" />
+      </MenuItem>
+
+      <MenuItem onClick={onClickTranspose} disabled={!anySelectedNotes}>
+        <Localized name="transpose" />
+      </MenuItem>
+
+      <MenuDivider />
+
+      <MenuItem
+        onClick={onClickQuantizeSelectedNotes}
+        disabled={!anySelectedNotes}
+      >
+        <Localized name="quantize" />
+      </MenuItem>
+
+      <MenuItem onClick={onClickVelocity} disabled={!anySelectedNotes}>
+        <Localized name="velocity" />
       </MenuItem>
     </>
   )
