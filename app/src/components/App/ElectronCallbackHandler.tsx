@@ -9,7 +9,16 @@ import { observer } from "mobx-react-lite"
 import { FC } from "react"
 import { FirebaseCredential } from "../../../../electron/src/FirebaseCredential"
 import { auth } from "../.././firebase/firebase"
-import { useSetSong } from "../../actions"
+import {
+  useDeleteSelection,
+  useDuplicateSelection,
+  useQuantizeSelectedNotes,
+  useSelectAllNotes,
+  useSelectNextNote,
+  useSelectPreviousNote,
+  useSetSong,
+  useTransposeSelection,
+} from "../../actions"
 import { songFromArrayBuffer } from "../../actions/file"
 import { useRedo, useUndo } from "../../actions/history"
 import {
@@ -30,6 +39,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
     authStore: { isLoggedIn },
     exportStore,
     rootViewStore,
+    pianoRollStore,
   } = useStores()
   const localized = useLocalization()
   const localSongFile = useSongFile()
@@ -38,6 +48,13 @@ export const ElectronCallbackHandler: FC = observer(() => {
   const cutSelectionGlobal = useCutSelectionGlobal()
   const copySelectionGlobal = useCopySelectionGlobal()
   const pasteSelectionGlobal = usePasteSelectionGlobal()
+  const deleteSelection = useDeleteSelection()
+  const duplicateSelection = useDuplicateSelection()
+  const selectAllNotes = useSelectAllNotes()
+  const selectNextNote = useSelectNextNote()
+  const selectPreviousNote = useSelectPreviousNote()
+  const quantizeSelectedNotes = useQuantizeSelectedNotes()
+  const transposeSelection = useTransposeSelection()
   const undo = useUndo()
   const redo = useRedo()
   const setSong = useSetSong()
@@ -138,6 +155,20 @@ export const ElectronCallbackHandler: FC = observer(() => {
       onCut={cutSelectionGlobal}
       onCopy={copySelectionGlobal}
       onPaste={pasteSelectionGlobal}
+      onDuplicate={duplicateSelection}
+      onDelete={deleteSelection}
+      onSelectAll={selectAllNotes}
+      onSelectNextNote={selectNextNote}
+      onSelectPreviousNote={selectPreviousNote}
+      onTransposeUpOctave={() => transposeSelection(12)}
+      onTransposeDownOctave={() => transposeSelection(-12)}
+      onTranspose={() => {
+        pianoRollStore.openTransposeDialog = true
+      }}
+      onQuantize={quantizeSelectedNotes}
+      onVelocity={() => {
+        pianoRollStore.openVelocityDialog = true
+      }}
       onOpenSetting={() => {
         rootViewStore.openSettingDialog = true
       }}

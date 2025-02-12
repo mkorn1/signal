@@ -22,6 +22,16 @@ export interface ElectronCallbackProps {
   onCut: () => void
   onCopy: () => void
   onPaste: () => void
+  onDuplicate: () => void
+  onDelete: () => void
+  onSelectAll: () => void
+  onSelectNextNote: () => void
+  onSelectPreviousNote: () => void
+  onTransposeUpOctave: () => void
+  onTransposeDownOctave: () => void
+  onTranspose: () => void
+  onQuantize: () => void
+  onVelocity: () => void
   onOpenSetting: () => void
   onOpenHelp: () => void
   onBrowserSignInCompleted: (param: { credential: FirebaseCredential }) => void
@@ -41,6 +51,16 @@ export const ElectronCallback: FC<ElectronCallbackProps> = ({
   onCut,
   onCopy,
   onPaste,
+  onDuplicate,
+  onDelete,
+  onSelectAll,
+  onSelectNextNote,
+  onSelectPreviousNote,
+  onTransposeUpOctave,
+  onTransposeDownOctave,
+  onTranspose,
+  onQuantize,
+  onVelocity,
   onOpenSetting,
   onOpenHelp,
   onBrowserSignInCompleted,
@@ -63,6 +83,28 @@ export const ElectronCallback: FC<ElectronCallbackProps> = ({
   useEffect(() => window.electronAPI.onCut(onCut), [onCut])
   useEffect(() => window.electronAPI.onCopy(onCopy), [onCopy])
   useEffect(() => window.electronAPI.onPaste(onPaste), [onPaste])
+  useEffect(() => window.electronAPI.onDuplicate(onDuplicate), [onDuplicate])
+  useEffect(() => window.electronAPI.onDelete(onDelete), [onDelete])
+  useEffect(() => window.electronAPI.onSelectAll(onSelectAll), [onSelectAll])
+  useEffect(
+    () => window.electronAPI.onSelectNextNote(onSelectNextNote),
+    [onSelectNextNote],
+  )
+  useEffect(
+    () => window.electronAPI.onSelectPreviousNote(onSelectPreviousNote),
+    [onSelectPreviousNote],
+  )
+  useEffect(
+    () => window.electronAPI.onTransposeUpOctave(onTransposeUpOctave),
+    [onTransposeUpOctave],
+  )
+  useEffect(
+    () => window.electronAPI.onTransposeDownOctave(onTransposeDownOctave),
+    [onTransposeDownOctave],
+  )
+  useEffect(() => window.electronAPI.onTranspose(onTranspose), [onTranspose])
+  useEffect(() => window.electronAPI.onQuantize(onQuantize), [onQuantize])
+  useEffect(() => window.electronAPI.onVelocity(onVelocity), [onVelocity])
   useEffect(
     () => window.electronAPI.onOpenSetting(onOpenSetting),
     [onOpenSetting],

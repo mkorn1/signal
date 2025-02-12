@@ -16,6 +16,16 @@ export type ElectronAPI = {
   onCut: (callback: () => void) => Unsubscribe
   onCopy: (callback: () => void) => Unsubscribe
   onPaste: (callback: () => void) => Unsubscribe
+  onDuplicate: (callback: () => void) => Unsubscribe
+  onDelete: (callback: () => void) => Unsubscribe
+  onSelectAll: (callback: () => void) => Unsubscribe
+  onSelectNextNote: (callback: () => void) => Unsubscribe
+  onSelectPreviousNote: (callback: () => void) => Unsubscribe
+  onTransposeUpOctave: (callback: () => void) => Unsubscribe
+  onTransposeDownOctave: (callback: () => void) => Unsubscribe
+  onTranspose: (callback: () => void) => Unsubscribe
+  onQuantize: (callback: () => void) => Unsubscribe
+  onVelocity: (callback: () => void) => Unsubscribe
   onOpenSetting: (callback: () => void) => Unsubscribe
   onOpenHelp: (callback: () => void) => Unsubscribe
   onBrowserSignInCompleted: (
@@ -29,10 +39,7 @@ export type ElectronAPI = {
     buttons: string[]
     type?: "none" | "info" | "error" | "question" | "warning"
   }) => Promise<number>
-  showOpenDialog: () => Promise<{
-    path: string
-    content: ArrayBuffer
-  } | null>
+  showOpenDialog: () => Promise<{ path: string; content: ArrayBuffer } | null>
   showOpenDirectoryDialog: () => Promise<string | null>
   showSaveDialog: () => Promise<{ path: string } | null>
   saveFile: (path: string, data: ArrayBuffer) => Promise<void>

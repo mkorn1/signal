@@ -14,6 +14,16 @@ export type IpcEvent =
   | { name: "onCut" }
   | { name: "onCopy" }
   | { name: "onPaste" }
+  | { name: "onDuplicate" }
+  | { name: "onDelete" }
+  | { name: "onSelectAll" }
+  | { name: "onSelectNextNote" }
+  | { name: "onSelectPreviousNote" }
+  | { name: "onTransposeUpOctave" }
+  | { name: "onTransposeDownOctave" }
+  | { name: "onTranspose" }
+  | { name: "onQuantize" }
+  | { name: "onVelocity" }
   | { name: "onOpenSetting" }
   | { name: "onOpenHelp" }
   | { name: "onOpenFile"; params: { filePath: string } }

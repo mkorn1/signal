@@ -108,7 +108,7 @@ export const Navigation: FC = observer(() => {
   return (
     <Container>
       {!isRunningInElectron() && <FileMenuButton />}
-      <EditMenuButton />
+      {!isRunningInElectron() && <EditMenuButton />}
 
       <Tooltip
         title={
