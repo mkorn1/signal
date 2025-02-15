@@ -686,7 +686,7 @@ export default {
     "add-time-signature": "拍子を追加",
     "remove-time-signature": "拍子を削除",
     file: "ファイル",
-    edit: "Edit",
+    edit: "編集",
     "new-song": "新規作成",
     "open-song": "開く",
     "save-song": "保存",
