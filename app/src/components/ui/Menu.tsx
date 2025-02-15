@@ -18,6 +18,7 @@ export type MenuProps = PropsWithChildren<{
 }>
 
 const StyledContent = styled(Content)`
+  min-width: 8rem;
   background: ${({ theme }) => theme.secondaryBackgroundColor};
   border-radius: 0.5rem;
   box-shadow: 0 1rem 3rem ${({ theme }) => theme.shadowColor};

@@ -159,14 +159,14 @@ export const EditMenu: FC<{ close: () => void }> = observer(({ close }) => {
       <MenuDivider />
 
       <MenuItem onClick={onClickTransposeUpOctave} disabled={!anySelectedNotes}>
-        <Localized name="transpose-up-octave" />
+        <Localized name="one-octave-up" />
       </MenuItem>
 
       <MenuItem
         onClick={onClickTransposeDownOctave}
         disabled={!anySelectedNotes}
       >
-        <Localized name="transpose-down-octave" />
+        <Localized name="one-octave-down" />
       </MenuItem>
 
       <MenuItem onClick={onClickTranspose} disabled={!anySelectedNotes}>
