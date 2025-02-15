@@ -178,3 +178,11 @@ export const SubMenu: FC<Pick<MenuProps, "trigger" | "children">> = ({
     </Sub>
   )
 }
+
+export const MenuHotKey = styled.div`
+  font-size: 0.9em;
+  flex-grow: 1;
+  text-align: right;
+  color: ${({ theme }) => theme.secondaryTextColor};
+  margin-left: 2em;
+`
