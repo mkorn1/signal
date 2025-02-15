@@ -9,6 +9,7 @@ export type IpcEvent =
   | { name: "onRename" }
   | { name: "onImport" }
   | { name: "onExportWav" }
+  | { name: "onExportMp3" }
   | { name: "onUndo" }
   | { name: "onRedo" }
   | { name: "onCut" }

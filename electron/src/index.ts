@@ -49,6 +49,7 @@ function updateMainMenu(isLoggedIn: boolean) {
       onClickRename: () => ipc.send("onRename"),
       onClickImport: () => ipc.send("onImport"),
       onClickExportWav: () => ipc.send("onExportWav"),
+      onClickExportMp3: () => ipc.send("onExportMp3"),
       onClickUndo: () => ipc.send("onUndo"),
       onClickRedo: () => ipc.send("onRedo"),
       onClickCut: () => ipc.send("onCut"),

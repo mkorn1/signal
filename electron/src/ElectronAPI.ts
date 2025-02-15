@@ -11,6 +11,7 @@ export type ElectronAPI = {
   onRename: (callback: () => void) => Unsubscribe
   onImport: (callback: () => void) => Unsubscribe
   onExportWav: (callback: () => void) => Unsubscribe
+  onExportMp3: (callback: () => void) => Unsubscribe
   onUndo: (callback: () => void) => Unsubscribe
   onRedo: (callback: () => void) => Unsubscribe
   onCut: (callback: () => void) => Unsubscribe

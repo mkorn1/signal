@@ -1,11 +1,14 @@
+import { useTheme } from "@emotion/react"
+import ChevronRight from "mdi-react/ChevronRightIcon"
 import CloudOutlined from "mdi-react/CloudOutlineIcon"
 import KeyboardArrowDown from "mdi-react/KeyboardArrowDownIcon"
 import { observer } from "mobx-react-lite"
 import { FC, useCallback, useRef } from "react"
+import { useExportSong } from "../../actions"
 import { hasFSAccess } from "../../actions/file"
 import { useStores } from "../../hooks/useStores"
 import { Localized } from "../../localize/useLocalization"
-import { Menu, MenuDivider, MenuItem } from "../ui/Menu"
+import { Menu, MenuDivider, MenuItem, SubMenu } from "../ui/Menu"
 import { CloudFileMenu } from "./CloudFileMenu"
 import { FileMenu } from "./FileMenu"
 import { LegacyFileMenu } from "./LegacyFileMenu"
@@ -14,15 +17,21 @@ import { Tab } from "./Navigation"
 export const FileMenuButton: FC = observer(() => {
   const {
     rootViewStore,
-    exportStore,
     authStore: { authUser: user },
   } = useStores()
   const isOpen = rootViewStore.openFileDrawer
   const handleClose = () => (rootViewStore.openFileDrawer = false)
+  const exportSong = useExportSong()
+  const theme = useTheme()
 
-  const onClickExport = () => {
+  const onClickExportWav = () => {
     handleClose()
-    exportStore.openExportDialog = true
+    exportSong("WAV")
+  }
+
+  const onClickExportMp3 = () => {
+    handleClose()
+    exportSong("MP3")
   }
 
   const ref = useRef<HTMLDivElement>(null)
@@ -67,9 +76,19 @@ export const FileMenuButton: FC = observer(() => {
 
       <MenuDivider />
 
-      <MenuItem onClick={onClickExport}>
-        <Localized name="export-audio" />
-      </MenuItem>
+      <SubMenu
+        trigger={
+          <MenuItem>
+            <Localized name="export" />
+            <ChevronRight
+              style={{ marginLeft: "auto", fill: theme.tertiaryTextColor }}
+            />
+          </MenuItem>
+        }
+      >
+        <MenuItem onClick={onClickExportWav}>WAV</MenuItem>
+        <MenuItem onClick={onClickExportMp3}>MP3</MenuItem>
+      </SubMenu>
     </Menu>
   )
 })

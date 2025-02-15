@@ -12,6 +12,7 @@ import { auth } from "../.././firebase/firebase"
 import {
   useDeleteSelection,
   useDuplicateSelection,
+  useExportSong,
   useQuantizeSelectedNotes,
   useSelectAllNotes,
   useSelectNextNote,
@@ -37,7 +38,6 @@ export const ElectronCallbackHandler: FC = observer(() => {
   const {
     songStore: { song },
     authStore: { isLoggedIn },
-    exportStore,
     rootViewStore,
     pianoRollStore,
   } = useStores()
@@ -58,6 +58,7 @@ export const ElectronCallbackHandler: FC = observer(() => {
   const undo = useUndo()
   const redo = useRedo()
   const setSong = useSetSong()
+  const exportSong = useExportSong()
 
   const saveFileAs = async () => {
     try {
@@ -148,7 +149,10 @@ export const ElectronCallbackHandler: FC = observer(() => {
         await cloudSongFile.importSong()
       }}
       onExportWav={() => {
-        exportStore.openExportDialog = true
+        exportSong("WAV")
+      }}
+      onExportMp3={() => {
+        exportSong("MP3")
       }}
       onUndo={undo}
       onRedo={redo}

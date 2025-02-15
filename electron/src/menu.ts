@@ -11,6 +11,7 @@ export interface MenuTemplateProps {
   onClickRename: () => void
   onClickImport: () => void
   onClickExportWav: () => void
+  onClickExportMp3: () => void
   onClickUndo: () => void
   onClickRedo: () => void
   onClickCut: () => void
@@ -40,6 +41,7 @@ export const menuTemplate = ({
   onClickRename,
   onClickImport,
   onClickExportWav,
+  onClickExportMp3,
   onClickUndo,
   onClickRedo,
   onClickCut,
@@ -95,7 +97,13 @@ export const menuTemplate = ({
       ...(isLoggedIn ? [{ label: "Rename", click: onClickRename }] : []),
       { type: "separator" },
       ...(isLoggedIn ? [{ label: "Import", click: onClickImport }] : []),
-      { label: "Export", submenu: [{ label: "WAV", click: onClickExportWav }] },
+      {
+        label: "Export",
+        submenu: [
+          { label: "WAV", click: onClickExportWav },
+          { label: "MP3", click: onClickExportMp3 },
+        ],
+      },
       { type: "separator" },
       { label: "Settings", click: onClickSetting },
       { type: "separator" },

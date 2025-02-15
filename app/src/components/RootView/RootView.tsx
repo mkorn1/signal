@@ -6,7 +6,6 @@ import { ArrangeEditor } from "../ArrangeView/ArrangeEditor"
 import { BuildInfo } from "../BuildInfo"
 import { CloudFileDialog } from "../CloudFileDialog/CloudFileDialog"
 import { ControlSettingDialog } from "../ControlSettingDialog/ControlSettingDialog"
-import { ExportDialog } from "../ExportDialog/ExportDialog"
 import { ExportProgressDialog } from "../ExportDialog/ExportProgressDialog"
 import { Head } from "../Head/Head"
 import { HelpDialog } from "../Help/HelpDialog"
@@ -63,7 +62,6 @@ export const RootView: FC = () => (
       </Column>
     </DropZone>
     <HelpDialog />
-    <ExportDialog />
     <ExportProgressDialog />
     <Head />
     <SignInDialog />

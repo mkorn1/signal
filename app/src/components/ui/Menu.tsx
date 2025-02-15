@@ -1,5 +1,14 @@
+import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
-import { Content, Portal, Root, Trigger } from "@radix-ui/react-dropdown-menu"
+import {
+  Content,
+  Portal,
+  Root,
+  Sub,
+  SubContent,
+  SubTrigger,
+  Trigger,
+} from "@radix-ui/react-dropdown-menu"
 import React, { FC, PropsWithChildren } from "react"
 
 export type MenuProps = PropsWithChildren<{
@@ -73,3 +82,98 @@ export const MenuDivider = styled.hr`
   border: none;
   border-top: 1px solid ${({ theme }) => theme.dividerColor};
 `
+
+const slideUpAndFade = keyframes`
+	from {
+		opacity: 0;
+		transform: translateY(2px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+`
+
+const slideRightAndFade = keyframes`
+	from {
+		opacity: 0;
+		transform: translateX(-2px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+`
+
+const slideDownAndFade = keyframes`
+	from {
+		opacity: 0;
+		transform: translateY(-2px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+`
+
+const slideLeftAndFade = keyframes`
+	from {
+		opacity: 0;
+		transform: translateX(2px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+`
+
+const StyledSubContent = styled(SubContent)`
+  min-width: 8rem;
+  border-radius: 6px;
+  box-shadow:
+    0px 10px 38px -10px rgba(22, 23, 24, 0.35),
+    0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+
+  &[data-side="top"] {
+    animation-name: ${slideDownAndFade};
+  }
+  &[data-side="bottom"] {
+    animation-name: ${slideUpAndFade};
+  }
+  $[data-side="left"] {
+    animation-name: ${slideRightAndFade};
+  }
+  &[data-side="right"] {
+    animation-name: ${slideLeftAndFade};
+  }
+
+  background: ${({ theme }) => theme.secondaryBackgroundColor};
+  border-radius: 0.5rem;
+  box-shadow: 0 1rem 3rem ${({ theme }) => theme.shadowColor};
+  border: 1px solid ${({ theme }) => theme.popupBorderColor};
+  padding: 0.5rem 0;
+`
+
+const StyledSubTrigger = styled(SubTrigger)`
+  outline: none;
+`
+
+// New SubMenu component using Radix's Sub, SubTrigger, and SubContent
+export const SubMenu: FC<Pick<MenuProps, "trigger" | "children">> = ({
+  trigger,
+  children,
+}) => {
+  return (
+    <Sub>
+      <StyledSubTrigger>{trigger}</StyledSubTrigger>
+      <Portal>
+        <StyledSubContent sideOffset={-4} alignOffset={-4}>
+          <List>{children}</List>
+        </StyledSubContent>
+      </Portal>
+    </Sub>
+  )
+}

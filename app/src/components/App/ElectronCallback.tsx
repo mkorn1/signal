@@ -17,6 +17,7 @@ export interface ElectronCallbackProps {
   onRename: () => void
   onImport: () => void
   onExportWav: () => void
+  onExportMp3: () => void
   onUndo: () => void
   onRedo: () => void
   onCut: () => void
@@ -46,6 +47,7 @@ export const ElectronCallback: FC<ElectronCallbackProps> = ({
   onRename,
   onImport,
   onExportWav,
+  onExportMp3,
   onUndo,
   onRedo,
   onCut,
@@ -78,6 +80,7 @@ export const ElectronCallback: FC<ElectronCallbackProps> = ({
   useEffect(() => window.electronAPI.onRename(onRename), [onRename])
   useEffect(() => window.electronAPI.onImport(onImport), [onImport])
   useEffect(() => window.electronAPI.onExportWav(onExportWav), [onExportWav])
+  useEffect(() => window.electronAPI.onExportMp3(onExportMp3), [onExportMp3])
   useEffect(() => window.electronAPI.onUndo(onUndo), [onUndo])
   useEffect(() => window.electronAPI.onRedo(onRedo), [onRedo])
   useEffect(() => window.electronAPI.onCut(onCut), [onCut])

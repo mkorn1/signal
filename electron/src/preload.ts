@@ -34,6 +34,7 @@ const api: ElectronAPI = {
   onRename: register("onRename"),
   onImport: register("onImport"),
   onExportWav: register("onExportWav"),
+  onExportMp3: register("onExportMp3"),
   onUndo: register("onUndo"),
   onRedo: register("onRedo"),
   onCut: register("onCut"),
