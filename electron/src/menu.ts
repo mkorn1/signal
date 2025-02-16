@@ -11,11 +11,22 @@ export interface MenuTemplateProps {
   onClickRename: () => void
   onClickImport: () => void
   onClickExportWav: () => void
+  onClickExportMp3: () => void
   onClickUndo: () => void
   onClickRedo: () => void
   onClickCut: () => void
   onClickCopy: () => void
   onClickPaste: () => void
+  onClickDuplicate: () => void
+  onClickDelete: () => void
+  onClickSelectAll: () => void
+  onClickSelectNextNote: () => void
+  onClickSelectPreviousNote: () => void
+  onClickTransposeUpOctave: () => void
+  onClickTransposeDownOctave: () => void
+  onClickTranspose: () => void
+  onClickQuantize: () => void
+  onClickVelocity: () => void
   onClickSetting: () => void
   onClickHelp: () => void
   onClickSupport: () => void
@@ -30,11 +41,22 @@ export const menuTemplate = ({
   onClickRename,
   onClickImport,
   onClickExportWav,
+  onClickExportMp3,
   onClickUndo,
   onClickRedo,
   onClickCut,
   onClickCopy,
   onClickPaste,
+  onClickDuplicate,
+  onClickDelete,
+  onClickSelectAll,
+  onClickSelectNextNote,
+  onClickSelectPreviousNote,
+  onClickTransposeUpOctave,
+  onClickTransposeDownOctave,
+  onClickTranspose,
+  onClickQuantize,
+  onClickVelocity,
   onClickSetting,
   onClickHelp,
   onClickSupport,
@@ -47,10 +69,7 @@ export const menuTemplate = ({
           submenu: [
             { role: "about" },
             { type: "separator" },
-            {
-              label: "Settings",
-              click: onClickSetting,
-            },
+            { label: "Settings", click: onClickSetting },
             { type: "separator" },
             { role: "services" },
             { type: "separator" },
@@ -78,12 +97,15 @@ export const menuTemplate = ({
       ...(isLoggedIn ? [{ label: "Rename", click: onClickRename }] : []),
       { type: "separator" },
       ...(isLoggedIn ? [{ label: "Import", click: onClickImport }] : []),
-      { label: "Export", submenu: [{ label: "WAV", click: onClickExportWav }] },
-      { type: "separator" },
       {
-        label: "Settings",
-        click: onClickSetting,
+        label: "Export",
+        submenu: [
+          { label: "WAV", click: onClickExportWav },
+          { label: "MP3", click: onClickExportMp3 },
+        ],
       },
+      { type: "separator" },
+      { label: "Settings", click: onClickSetting },
       { type: "separator" },
       isMac ? { role: "close" } : { role: "quit" },
     ] as MenuItemConstructorOptions[],
@@ -98,6 +120,35 @@ export const menuTemplate = ({
       { label: "Cut", accelerator: "CmdOrCtrl+X", click: onClickCut },
       { label: "Copy", accelerator: "CmdOrCtrl+C", click: onClickCopy },
       { label: "Paste", accelerator: "CmdOrCtrl+V", click: onClickPaste },
+      {
+        label: "Duplicate",
+        accelerator: "CmdOrCtrl+D",
+        click: onClickDuplicate,
+      },
+      { label: "Delete", accelerator: "Delete", click: onClickDelete },
+      { type: "separator" },
+      {
+        label: "Select All",
+        accelerator: "CmdOrCtrl+A",
+        click: onClickSelectAll,
+      },
+      {
+        label: "Select Next Note",
+        accelerator: "CmdOrCtrl+Shift+Down",
+        click: onClickSelectNextNote,
+      },
+      {
+        label: "Select Previous Note",
+        accelerator: "CmdOrCtrl+Shift+Up",
+        click: onClickSelectPreviousNote,
+      },
+      { type: "separator" },
+      { label: "Octave Up", click: onClickTransposeUpOctave },
+      { label: "Octave Down", click: onClickTransposeDownOctave },
+      { label: "Transpose", accelerator: "T", click: onClickTranspose },
+      { type: "separator" },
+      { label: "Quantize", accelerator: "Q", click: onClickQuantize },
+      { label: "Velocity", click: onClickVelocity },
     ],
   },
   // { role: 'viewMenu' }
@@ -134,14 +185,8 @@ export const menuTemplate = ({
   {
     role: "help",
     submenu: [
-      {
-        label: "Help",
-        click: onClickHelp,
-      },
-      {
-        label: "Support",
-        click: onClickSupport,
-      },
+      { label: "Help", click: onClickHelp },
+      { label: "Support", click: onClickSupport },
     ],
   },
 ]

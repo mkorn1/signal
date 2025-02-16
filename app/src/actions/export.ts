@@ -1,7 +1,9 @@
 import { renderAudio } from "@signal-app/player"
+import { useDialog } from "dialog-hooks"
 import { downloadBlob } from "../helpers/Downloader"
 import { encodeMp3, encodeWAV } from "../helpers/encodeAudio"
 import { useStores } from "../hooks/useStores"
+import { useLocalization } from "../localize/useLocalization"
 import Song from "../song"
 
 const waitForAnimationFrame = () =>
@@ -9,8 +11,19 @@ const waitForAnimationFrame = () =>
 
 export const useExportSong = () => {
   const { song, synth, exportStore } = useStores()
+  const localized = useLocalization()
+  const dialog = useDialog()
 
-  return async () => {
+  return async (format: "WAV" | "MP3") => {
+    if (!canExport(song)) {
+      await dialog.show({
+        title: localized["export"],
+        message: localized["export-error-too-short"],
+        actions: [{ title: "OK", key: "ok" }],
+      })
+      return
+    }
+
     const soundFontData = synth.loadedSoundFontData
     if (soundFontData === null) {
       return
@@ -39,7 +52,7 @@ export const useExportSong = () => {
 
       exportStore.progress = 1
 
-      const encoder = getEncoder(exportStore.exportMode)
+      const encoder = getEncoder(format)
       const audioData = await encoder.encode(audioBuffer)
 
       const blob = new Blob([audioData], { type: encoder.mimeType })
@@ -62,8 +75,8 @@ export const useCancelExport = () => {
 export const canExport = (song: Song) =>
   song.allEvents.some((e) => e.tick >= 120)
 
-const getEncoder = (mode: "WAV" | "MP3") => {
-  switch (mode) {
+const getEncoder = (format: "WAV" | "MP3") => {
+  switch (format) {
     case "WAV":
       return {
         encode: encodeWAV,

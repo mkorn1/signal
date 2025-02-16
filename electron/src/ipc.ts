@@ -9,11 +9,22 @@ export type IpcEvent =
   | { name: "onRename" }
   | { name: "onImport" }
   | { name: "onExportWav" }
+  | { name: "onExportMp3" }
   | { name: "onUndo" }
   | { name: "onRedo" }
   | { name: "onCut" }
   | { name: "onCopy" }
   | { name: "onPaste" }
+  | { name: "onDuplicate" }
+  | { name: "onDelete" }
+  | { name: "onSelectAll" }
+  | { name: "onSelectNextNote" }
+  | { name: "onSelectPreviousNote" }
+  | { name: "onTransposeUpOctave" }
+  | { name: "onTransposeDownOctave" }
+  | { name: "onTranspose" }
+  | { name: "onQuantize" }
+  | { name: "onVelocity" }
   | { name: "onOpenSetting" }
   | { name: "onOpenHelp" }
   | { name: "onOpenFile"; params: { filePath: string } }
