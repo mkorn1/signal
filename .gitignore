@@ -61,3 +61,6 @@ venv/
 env/
 ENV/
 .env.venv
+
+# Large soundfont files (too large for GitHub)
+electron/assets/soundfonts/Timbres of Heaven (XGM) 4.00(G).sf2
