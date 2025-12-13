@@ -13,6 +13,28 @@ from langgraph.prebuilt import create_react_agent
 from langgraph.types import Command
 from app.config import get_settings
 
+
+def format_api_error(error: Exception) -> dict:
+    """Format API errors with user-friendly messages."""
+    error_msg = str(error)
+    error_code = None
+    
+    # Check for HTTP error codes in the error message
+    if "402" in error_msg or "Payment Required" in error_msg or "payment" in error_msg.lower():
+        error_code = 402
+        error_msg = "OpenRouter API billing error: Your account requires payment or has insufficient credits. Please check your OpenRouter account balance."
+    elif "401" in error_msg or "Unauthorized" in error_msg:
+        error_code = 401
+        error_msg = "OpenRouter API authentication error: Please check your OPENROUTER_API_KEY in the .env file."
+    elif "429" in error_msg or "rate limit" in error_msg.lower():
+        error_code = 429
+        error_msg = "OpenRouter API rate limit exceeded: Please wait a moment and try again."
+    
+    return {
+        "error": error_msg,
+        "error_code": error_code,
+    }
+
 settings = get_settings()
 
 # Initialize LLM
@@ -40,6 +62,7 @@ You have access to tools that manipulate a MIDI sequencer:
 - addNotes: Add notes to an existing track
 - setTempo: Set the tempo in BPM
 - setTimeSignature: Set the time signature
+- addEffects: Add effects to a track (volume, pan, program_change, expression, pitch_bend, sustain)
 
 IMPORTANT: When calling tools, you must use the exact parameter names and formats specified.
 
@@ -50,7 +73,9 @@ You will receive the current song state before each request. This tells you:
 - Track [0] is usually the conductor track (tempo/time signature only)
 
 Use this context to:
-- Reference existing tracks by their ID when adding notes
+- Reference existing tracks by their ID when adding notes or effects
+- Find tracks by name: Look at the track details to match names like "lead guitar", "piano", "drums" to track IDs
+- Example: If context shows "[2] Lead Guitar - channel 1, 32 notes", use trackId=2 for that track
 - Avoid creating duplicate tracks (e.g., if a piano track exists, use it)
 - Understand what's already in the song before making changes
 
@@ -73,6 +98,31 @@ MIDI REFERENCE:
 - Velocity: 1-127 (loudness), typical range 60-100
 - Common scales from C: Major [60,62,64,65,67,69,71,72], Minor [60,62,63,65,67,68,70,72]
 
+EFFECTS REFERENCE:
+- Volume: 0-127 (100 = default, 127 = maximum) - CC7
+- Pan: 0-127 (64 = center, 0 = hard left, 127 = hard right) - CC10
+- Program change: 0-127 (changes instrument on the track)
+- Expression: 0-127 (127 = full, 0 = muted) - CC11, dynamic control
+- Pitch bend: 0-16384 (8192 = center/no bend, 0 = max down, 16384 = max up) - for vibrato/bends
+- Sustain: 0-127 (0 = off, 127 = on) - CC64, hold pedal
+- Effects can be applied at specific tick positions for automation over time
+
+Examples:
+- Make track 1 quieter and pan it left:
+  addEffects(trackId=1, effects=[
+    {"effect_type": "volume", "value": 70, "tick": 0},
+    {"effect_type": "pan", "value": 32, "tick": 0}
+  ])
+- Add expression and pitch bend for vibrato:
+  addEffects(trackId=1, effects=[
+    {"effect_type": "expression", "value": 100, "tick": 0},
+    {"effect_type": "pitch_bend", "value": 8500, "tick": 0}  # slight upward bend
+  ])
+- Add sustain pedal:
+  addEffects(trackId=1, effects=[
+    {"effect_type": "sustain", "value": 127, "tick": 0}  # pedal on
+  ])
+
 WORKFLOW:
 1. Check the song state to see what exists
 2. For simple requests, call tools directly
@@ -80,7 +130,46 @@ WORKFLOW:
 4. Only set tempo/time signature if needed (check current values first)
 5. Reuse existing tracks when appropriate instead of creating new ones
 
-Be concise in your responses. Focus on executing the user's request efficiently."""
+PROACTIVE FX USAGE - Apply effects automatically for realistic mixes:
+- After creating tracks: Set appropriate volume based on instrument role:
+  * Drums: 100-110 (foundation, needs to be prominent)
+  * Bass: 90-100 (rhythm foundation, slightly below drums)
+  * Lead/Melody: 85-95 (main focus, but not overpowering)
+  * Rhythm guitars/keys: 80-90 (supporting elements)
+  * Pads/background: 70-85 (texture, should sit back)
+- After creating tracks: Pan instruments for stereo width:
+  * Drums: center (64) - foundation stays centered
+  * Bass: center (64) - low frequencies centered
+  * Rhythm guitars: left (32-48) or right (80-96) - create width
+  * Lead instruments: slightly off-center (40-50 or 74-84)
+  * Pads: wide stereo (20-30 and 98-108) or center
+- When creating multi-track songs: Automatically balance the mix - don't leave all tracks at default
+- For realistic arrangements: Create depth by varying volumes - rhythm section loud, pads quiet
+- Use program_change when switching instruments mid-song or for variation
+- Use expression (CC11) for dynamic control - lower in verses, full in chorus
+- Use pitch_bend for vibrato, bends, and expressive playing (subtle: 8000-8400, moderate: 7500-8700)
+- Use sustain for piano/keyboard tracks to create legato and sustain notes
+- Combine createTrack → addEffects → addNotes in sequence for complete, realistic tracks
+
+REACTIVE FX USAGE - Also use addEffects when the user explicitly requests:
+- Volume adjustments: "make it louder", "turn down the bass", "fade in", "fade out"
+- Panning: "pan left", "pan right", "center the drums", "spread the mix"
+- Instrument changes: "change the piano to electric piano", "switch to strings"
+- Mixing/balance: "balance the mix", "make drums quieter", "bring up the vocals"
+- Automation: "gradually increase volume", "pan from left to right"
+
+COMBINING TOOLS - You can call multiple tools in sequence:
+1. createTrack → get trackId
+2. addEffects → set volume/pan for the track
+3. addNotes → add musical content
+4. addEffects again → adjust if needed or add automation
+
+Example workflow for creating a balanced track:
+- createTrack("piano") → trackId: 1
+- addEffects(trackId=1, effects=[{"effect_type": "volume", "value": 90, "tick": 0}, {"effect_type": "pan", "value": 64, "tick": 0}])
+- addNotes(trackId=1, notes=[...])
+
+Be concise in your responses. Focus on executing the user's request efficiently while creating realistic, well-balanced mixes."""
 
 
 # Tool definitions that match the frontend schemas
@@ -144,8 +233,27 @@ def setTimeSignature(numerator: int, denominator: int, tick: int = 0) -> str:
     return '{"status": "pending_frontend_execution"}'
 
 
+@tool
+def addEffects(trackId: int, effects: list[dict]) -> str:
+    """Adds effects to an existing track.
+
+    Args:
+        trackId: The track ID returned from createTrack
+        effects: Array of effect objects, each with:
+            - effect_type: "volume", "pan", "program_change", "expression", "pitch_bend", or "sustain"
+            - value: 
+              * volume/pan/program_change/expression/sustain: 0-127
+              * pitch_bend: 0-16384 (8192 = center/no bend, 0 = max down, 16384 = max up)
+            - tick: Position in ticks where effect takes effect (default: 0)
+
+    Returns:
+        JSON with trackId and effectsAdded count
+    """
+    return '{"status": "pending_frontend_execution"}'
+
+
 # All available tools
-TOOLS = [createTrack, addNotes, setTempo, setTimeSignature]
+TOOLS = [createTrack, addNotes, setTempo, setTimeSignature, addEffects]
 
 
 def create_agent():
@@ -405,7 +513,12 @@ async def stream_agent_step(prompt: str, thread_id: Optional[str] = None, contex
             }
 
     except Exception as e:
-        yield {"type": "error", "thread_id": thread_id, "error": str(e)}
+        error_info = format_api_error(e)
+        yield {
+            "type": "error",
+            "thread_id": thread_id,
+            **error_info,
+        }
 
 
 async def stream_agent_resume(thread_id: str, tool_results: list[dict]):
@@ -509,4 +622,9 @@ async def stream_agent_resume(thread_id: str, tool_results: list[dict]):
             }
 
     except Exception as e:
-        yield {"type": "error", "thread_id": thread_id, "error": str(e)}
+        error_info = format_api_error(e)
+        yield {
+            "type": "error",
+            "thread_id": thread_id,
+            **error_info,
+        }
