@@ -107,7 +107,8 @@ export class SoundFontStore {
 
     this.isLoading = true
     try {
-      await this.synth.loadSoundFont(await loadSoundFont(soundfont))
+      const sf = await loadSoundFont(soundfont)
+      await this.synth.loadSoundFont(sf)
       this.selectedSoundFontId = id
     } catch (error) {
       console.error("Failed to load SoundFont:", error)

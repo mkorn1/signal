@@ -1,4 +1,4 @@
-import { SynthEvent } from "@ryohey/wavelet"
+import { SynthEvent } from "@signal-app/wavelet"
 import { SoundFont } from "./SoundFont.js"
 import { SendableEvent, SynthOutput } from "./SynthOutput.js"
 
@@ -28,7 +28,10 @@ export class SoundFontSynth implements SynthOutput {
   constructor(private readonly context: AudioContext) {}
 
   async setup() {
-    const url = new URL("@ryohey/wavelet/dist/processor.js", import.meta.url)
+    const url = new URL(
+      "@signal-app/wavelet/dist/processor.js",
+      import.meta.url,
+    )
     await this.context.audioWorklet.addModule(url)
   }
 

@@ -1,4 +1,4 @@
-import { getSampleEventsFromSoundFont } from "@ryohey/wavelet"
+import { getSampleEventsFromSoundFont } from "@signal-app/wavelet"
 
 interface PresetMeta {
   name: string

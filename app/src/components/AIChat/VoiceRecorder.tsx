@@ -142,7 +142,7 @@ function frequencyToMidiNote(frequency: number): number {
  */
 function detectPitch(
   audioBuffer: Float32Array,
-  sampleRate: number
+  sampleRate: number,
 ): number | null {
   const minPeriod = Math.floor(sampleRate / 2000) // Max frequency ~2000 Hz
   const maxPeriod = Math.floor(sampleRate / 80) // Min frequency ~80 Hz
@@ -289,12 +289,16 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
   const waveformCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const recordingStartTimeRef = useRef<number>(0)
   const notesRef = useRef<DetectedNote[]>([])
-  const currentNoteRef = useRef<{ pitch: number; startTime: number } | null>(null)
+  const currentNoteRef = useRef<{ pitch: number; startTime: number } | null>(
+    null,
+  )
   const animationFrameRef = useRef<number | null>(null)
-  const onNotesDetectedRef = useRef<((notes: DetectedNote[]) => void) | null>(null)
+  const onNotesDetectedRef = useRef<((notes: DetectedNote[]) => void) | null>(
+    null,
+  )
   const isRecordingRef = useRef<boolean>(false) // Use ref to track recording state immediately
   const { currentTempo } = useConductorTrack()
-  
+
   // Store callback in ref to avoid dependency issues
   useEffect(() => {
     onNotesDetectedRef.current = onNotesDetected || null
@@ -303,7 +307,7 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
   const TICKS_PER_QUARTER = 480
   const ANALYSIS_INTERVAL_MS = 100 // Analyze every 100ms
   const MIN_NOTE_DURATION_TICKS = 120 // Minimum 16th note
-  
+
   // Get current tempo or use default
   const tempo = currentTempo ?? DEFAULT_TEMPO
 
@@ -394,7 +398,9 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
     const currentTime = Date.now()
     const elapsedMs = currentTime - recordingStartTimeRef.current
     // Convert milliseconds to ticks: (ms / 1000) * (BPM / 60) * TICKS_PER_QUARTER
-    const elapsedTicks = Math.floor((elapsedMs / 1000) * (tempo / 60) * TICKS_PER_QUARTER)
+    const elapsedTicks = Math.floor(
+      (elapsedMs / 1000) * (tempo / 60) * TICKS_PER_QUARTER,
+    )
 
     if (frequency && frequency > 0) {
       const midiNote = frequencyToMidiNote(frequency)
@@ -513,8 +519,9 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
       mediaStreamRef.current = stream
 
       // Create audio context
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-      
+      const audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)()
+
       // Resume audio context if suspended (required in some browsers)
       if (audioContext.state === "suspended") {
         await audioContext.resume()
@@ -580,7 +587,7 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
           ? "Microphone permission denied"
           : err.name === "NotFoundError"
             ? "No microphone found"
-            : `Error: ${err.message || "Failed to start recording"}`
+            : `Error: ${err.message || "Failed to start recording"}`,
       )
       await stopRecording()
     }
@@ -593,7 +600,9 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
       // Finalize the last note if exists
       if (currentNoteRef.current) {
         const elapsedMs = Date.now() - recordingStartTimeRef.current
-        const elapsedTicks = Math.floor((elapsedMs / 1000) * (tempo / 60) * TICKS_PER_QUARTER)
+        const elapsedTicks = Math.floor(
+          (elapsedMs / 1000) * (tempo / 60) * TICKS_PER_QUARTER,
+        )
         const noteDuration = elapsedTicks - currentNoteRef.current.startTime
         if (noteDuration >= MIN_NOTE_DURATION_TICKS) {
           notesRef.current.push({
@@ -607,8 +616,10 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
 
       // Pass notes to agent via callback
       if (notesRef.current.length > 0) {
-        setStatus(`Detected ${notesRef.current.length} notes, sending to chat...`)
-        
+        setStatus(
+          `Detected ${notesRef.current.length} notes, sending to agent...`,
+        )
+
         // Call the callback to pass notes to parent (AIChat)
         if (onNotesDetectedRef.current) {
           onNotesDetectedRef.current(notesRef.current)
@@ -669,4 +680,3 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
     </Container>
   )
 }
-
