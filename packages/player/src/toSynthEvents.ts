@@ -1,4 +1,4 @@
-import { SynthEvent } from "@ryohey/wavelet"
+import { SynthEvent } from "@signal-app/wavelet"
 import { PlayerEvent } from "./PlayerEvent.js"
 import { tickToMillisec } from "./tick.js"
 

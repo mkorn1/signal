@@ -1,7 +1,7 @@
 import {
   getSampleEventsFromSoundFont,
   renderAudio as render,
-} from "@ryohey/wavelet"
+} from "@signal-app/wavelet"
 import { PlayerEvent } from "./PlayerEvent.js"
 import { toSynthEvents } from "./toSynthEvents.js"
 
