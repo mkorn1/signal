@@ -17,6 +17,9 @@ from app.models.schemas import (
     AgentStepRequest,
     AgentStepResponse,
     ToolCall,
+    CohesionSpec,
+    StrengthProfile,
+    CohesionValidationResult,
 )
 from app.services.composition_agent import (
     generate_midi_code as generate_midi_code_composition,
@@ -894,6 +897,43 @@ class AudioToAudioRequest(BaseModel):
     cfg_scale: float = 12.0  # Prompt adherence (1-25, recommended 7-15)
     steps: int = 80  # Denoising steps for quality (30-100, recommended 50-80)
     seed: Optional[int] = None  # Optional seed for reproducibility
+    
+    # Cohesion settings (for constraining to existing tracks)
+    target_tempo: Optional[int] = None  # Target BPM - enables pre/post processing
+    style: Optional[str] = None  # Style context to add to prompt (e.g., "dark synthwave")
+    mood: Optional[str] = None  # Mood keywords (e.g., "moody, atmospheric")
+    
+    # Processing options (enabled when target_tempo is set)
+    preprocess_input: bool = True  # Time-stretch user recording to target tempo
+    postprocess_output: bool = True  # Time-stretch output & trim to exact duration
+    max_bpm_drift: int = 10  # Max BPM drift before post-processing corrects it
+
+
+class CohesionGenerateRequest(BaseModel):
+    """Request for generating a track with cohesion constraints."""
+    instrument: str  # Instrument to generate (e.g., "bass", "drums", "synth")
+    prompt: str  # Style/mood description
+    reference_audio: str  # Base64 encoded reference track (anchor)
+    
+    # Cohesion constraints
+    style: str  # Locked style for consistency (e.g., "dark synthwave")
+    tempo: int = 120  # Target BPM
+    duration: int = 20  # Track duration
+    strength_profile: str = "medium"  # "tight", "medium", "loose"
+    mood: Optional[str] = None  # Additional mood keywords
+    
+    # Validation
+    validate_bpm: bool = True  # Validate output matches tempo
+    max_bpm_drift: int = 10  # Max allowed BPM difference
+    max_retries: int = 2  # Retry on validation failure
+
+
+class CohesionGenerateResponse(BaseModel):
+    """Response from cohesion-constrained generation."""
+    audio_data: str  # Base64 encoded WAV output
+    name: str  # Track name
+    duration: float
+    validation: Optional[CohesionValidationResult] = None
 
 
 async def build_audio_to_audio_prompt(user_prompt: str) -> str:
@@ -967,43 +1007,78 @@ class AudioToAudioResponse(BaseModel):
     audio_data: str  # Base64 encoded WAV output
     name: str  # Track name
     duration: float  # Duration in seconds
+    
+    # Processing metadata (when cohesion is enabled)
+    source_bpm: Optional[float] = None  # Detected BPM of user input
+    output_bpm: Optional[float] = None  # Detected BPM of generated audio
+    was_input_stretched: bool = False  # Whether input was time-stretched
+    was_output_stretched: bool = False  # Whether output was time-stretched
 
 
 @router.post("/audio-to-audio/generate", response_model=AudioToAudioResponse)
 async def audio_to_audio_generate(request: AudioToAudioRequest):
     """
-    One-shot audio-to-audio generation.
+    Audio-to-audio generation with optional cohesion processing.
     
-    Takes a text prompt and microphone audio input, transforms it using
-    Stable Audio 2's audio-to-audio model, and returns the generated audio.
+    Takes a user recording (hum, beatbox, etc.) and transforms it into
+    the requested instrument. When target_tempo is provided, pre-processes
+    the input and post-processes the output to ensure it fits with existing tracks.
     
-    Example use cases:
-    - Beatbox -> Drum beat: prompt="punchy drum beat", audio=*beatbox recording*
-    - Hum -> Synth lead: prompt="synthwave lead melody", audio=*humming*
-    - Voice -> Bass: prompt="deep bass line", audio=*singing bass notes*
+    **Basic mode** (no target_tempo):
+    - User recording → Stable Audio → generated instrument
+    
+    **Cohesion mode** (target_tempo provided):
+    - User recording → detect BPM → stretch to target → Stable Audio → 
+      detect output BPM → stretch to target → trim to duration → output
     
     Args:
-        prompt: Text description of the desired output sound/instrument
-        audio_data: Base64 encoded WAV audio from microphone
-        duration: Output duration in seconds (1-190, default 20)
-        strength: Transformation strength (0-1, default 0.5)
-        cfg_scale: Prompt adherence (1-25, default 12) - higher = follows prompt more closely
-        steps: Quality steps (30-100, default 60) - higher = better quality
-        seed: Optional seed for reproducible results
+        prompt: What instrument to generate (e.g., "drums", "bass")
+        audio_data: Base64 WAV of user recording
+        duration: Output duration in seconds
+        strength: Transformation amount (0=keep original, 1=ignore original)
+        target_tempo: Target BPM (enables cohesion processing)
+        style: Style context added to prompt
+        mood: Mood keywords added to prompt
+        preprocess_input: Stretch user recording to target tempo
+        postprocess_output: Stretch output to target tempo & trim duration
     
     Returns:
-        Generated audio as base64 WAV with metadata
+        Generated audio with processing metadata
     """
     from app.services.audio_renderer import generate_audio_to_audio
+    from app.services.audio_processing import (
+        preprocess_user_recording,
+        postprocess_generated_audio,
+    )
     
     try:
         # Decode the base64 audio
         audio_bytes = base64.b64decode(request.audio_data)
         
-        # Build an optimized prompt using LLM + Stable Audio guide patterns
-        enhanced_prompt = await build_audio_to_audio_prompt(request.prompt)
+        source_bpm = None
+        was_input_stretched = False
         
-        # Generate using Stable Audio's audio-to-audio with full parameters
+        # PRE-PROCESSING: Stretch user input to target tempo
+        if request.target_tempo and request.preprocess_input:
+            audio_bytes, source_bpm = preprocess_user_recording(
+                audio_bytes,
+                target_bpm=request.target_tempo,
+            )
+            was_input_stretched = source_bpm is not None and abs(source_bpm - request.target_tempo) > 2
+        
+        # Build prompt with style/mood context
+        prompt_parts = [request.prompt]
+        if request.style:
+            prompt_parts.append(request.style)
+        if request.mood:
+            prompt_parts.append(request.mood)
+        if request.target_tempo:
+            prompt_parts.append(f"{request.target_tempo} BPM")
+        
+        full_prompt = ", ".join(prompt_parts)
+        enhanced_prompt = await build_audio_to_audio_prompt(full_prompt)
+        
+        # Generate using Stable Audio
         generated_audio = await generate_audio_to_audio(
             reference_audio=audio_bytes,
             prompt=enhanced_prompt,
@@ -1014,10 +1089,23 @@ async def audio_to_audio_generate(request: AudioToAudioRequest):
             seed=request.seed,
         )
         
-        # Encode result as base64
+        output_bpm = None
+        was_output_stretched = False
+        
+        # POST-PROCESSING: Stretch output to target tempo & trim
+        if request.target_tempo and request.postprocess_output:
+            generated_audio, metadata = postprocess_generated_audio(
+                generated_audio,
+                target_bpm=request.target_tempo,
+                target_duration=float(request.duration),
+                max_bpm_drift=request.max_bpm_drift,
+            )
+            output_bpm = metadata.get("detected_bpm")
+            was_output_stretched = metadata.get("was_stretched", False)
+        
+        # Encode result
         audio_b64 = base64.b64encode(generated_audio).decode()
         
-        # Generate a name based on the prompt
         name = request.prompt[:30].strip()
         if len(request.prompt) > 30:
             name += "..."
@@ -1026,6 +1114,10 @@ async def audio_to_audio_generate(request: AudioToAudioRequest):
             audio_data=audio_b64,
             name=name,
             duration=request.duration,
+            source_bpm=source_bpm,
+            output_bpm=output_bpm,
+            was_input_stretched=was_input_stretched,
+            was_output_stretched=was_output_stretched,
         )
         
     except Exception as e:
@@ -1035,30 +1127,57 @@ async def audio_to_audio_generate(request: AudioToAudioRequest):
 @router.post("/audio-to-audio/generate/stream")
 async def audio_to_audio_generate_stream(request: AudioToAudioRequest, req: Request):
     """
-    One-shot audio-to-audio generation with SSE streaming for progress updates.
+    Audio-to-audio generation with SSE streaming and optional cohesion processing.
     
     Same as /audio-to-audio/generate but streams progress events.
     
     Returns Server-Sent Events:
-    - stage: "processing" | "generating" | "complete" | "error"
+    - stage: "preprocessing" | "generating" | "postprocessing" | "complete" | "error"
     - message: Progress message
-    - result: Final audio data (on complete)
+    - result: Final audio data with metadata (on complete)
     """
     from app.services.audio_renderer import generate_audio_to_audio
+    from app.services.audio_processing import (
+        preprocess_user_recording,
+        postprocess_generated_audio,
+    )
     
     async def event_generator():
         try:
+            source_bpm = None
+            was_input_stretched = False
+            output_bpm = None
+            was_output_stretched = False
+            
             yield f"data: {json.dumps({'stage': 'processing', 'message': 'Decoding audio input...'})}\n\n"
             
             # Decode the base64 audio
             audio_bytes = base64.b64decode(request.audio_data)
             
-            # Build an optimized prompt using LLM + Stable Audio guide patterns
-            enhanced_prompt = await build_audio_to_audio_prompt(request.prompt)
+            # PRE-PROCESSING
+            if request.target_tempo and request.preprocess_input:
+                yield f"data: {json.dumps({'stage': 'preprocessing', 'message': f'Aligning to {request.target_tempo} BPM...'})}\n\n"
+                audio_bytes, source_bpm = preprocess_user_recording(
+                    audio_bytes,
+                    target_bpm=request.target_tempo,
+                )
+                was_input_stretched = source_bpm is not None and abs(source_bpm - request.target_tempo) > 2
+            
+            # Build prompt with style/mood context
+            prompt_parts = [request.prompt]
+            if request.style:
+                prompt_parts.append(request.style)
+            if request.mood:
+                prompt_parts.append(request.mood)
+            if request.target_tempo:
+                prompt_parts.append(f"{request.target_tempo} BPM")
+            
+            full_prompt = ", ".join(prompt_parts)
+            enhanced_prompt = await build_audio_to_audio_prompt(full_prompt)
             
             yield f"data: {json.dumps({'stage': 'generating', 'message': f'Generating: {enhanced_prompt[:60]}...'})}\n\n"
             
-            # Generate using Stable Audio with full parameters
+            # Generate using Stable Audio
             generated_audio = await generate_audio_to_audio(
                 reference_audio=audio_bytes,
                 prompt=enhanced_prompt,
@@ -1069,6 +1188,18 @@ async def audio_to_audio_generate_stream(request: AudioToAudioRequest, req: Requ
                 seed=request.seed,
             )
             
+            # POST-PROCESSING
+            if request.target_tempo and request.postprocess_output:
+                yield f"data: {json.dumps({'stage': 'postprocessing', 'message': 'Aligning output to target tempo...'})}\n\n"
+                generated_audio, metadata = postprocess_generated_audio(
+                    generated_audio,
+                    target_bpm=request.target_tempo,
+                    target_duration=float(request.duration),
+                    max_bpm_drift=request.max_bpm_drift,
+                )
+                output_bpm = metadata.get("detected_bpm")
+                was_output_stretched = metadata.get("was_stretched", False)
+            
             # Encode result
             audio_b64 = base64.b64encode(generated_audio).decode()
             
@@ -1076,7 +1207,17 @@ async def audio_to_audio_generate_stream(request: AudioToAudioRequest, req: Requ
             if len(request.prompt) > 30:
                 name += "..."
             
-            yield f"data: {json.dumps({'stage': 'complete', 'message': 'Generation complete!', 'result': {'audio_data': audio_b64, 'name': name, 'duration': request.duration}})}\n\n"
+            result = {
+                'audio_data': audio_b64,
+                'name': name,
+                'duration': request.duration,
+                'source_bpm': source_bpm,
+                'output_bpm': output_bpm,
+                'was_input_stretched': was_input_stretched,
+                'was_output_stretched': was_output_stretched,
+            }
+            
+            yield f"data: {json.dumps({'stage': 'complete', 'message': 'Generation complete!', 'result': result})}\n\n"
             
         except asyncio.CancelledError:
             raise
@@ -1092,3 +1233,85 @@ async def audio_to_audio_generate_stream(request: AudioToAudioRequest, req: Requ
             "X-Accel-Buffering": "no",
         },
     )
+
+
+# ============================================================================
+# Cohesion-Constrained Generation Endpoint
+# ============================================================================
+
+
+@router.post("/audio-to-audio/generate/cohesion", response_model=CohesionGenerateResponse)
+async def audio_to_audio_generate_with_cohesion(request: CohesionGenerateRequest):
+    """
+    Generate a new instrument track constrained to match existing tracks.
+    
+    This endpoint uses CohesionSpec to ensure the new track fits with
+    previously generated audio. It:
+    
+    1. Uses the reference_audio as a guide for audio-to-audio generation
+    2. Applies strength profile based on instrument type (tight/medium/loose)
+    3. Validates output BPM matches target tempo
+    4. Retries if validation fails (up to max_retries)
+    
+    Use this when adding new instruments to an existing song to ensure
+    all tracks play well together.
+    
+    Args:
+        instrument: What instrument to generate (e.g., "bass", "drums")
+        prompt: Additional style guidance
+        reference_audio: Base64 WAV of existing track to match
+        style: Locked style/genre (e.g., "dark synthwave")
+        tempo: Target BPM (used for validation)
+        duration: Output duration in seconds
+        strength_profile: How closely to match reference ("tight"/"medium"/"loose")
+        mood: Optional mood keywords
+        validate_bpm: Whether to check output BPM
+        max_bpm_drift: Max allowed BPM difference from target
+        max_retries: Retry attempts on validation failure
+    
+    Returns:
+        Generated audio with validation results
+    """
+    from app.services.per_instrument_agent import generate_single_instrument
+    
+    try:
+        # Parse strength profile
+        try:
+            profile = StrengthProfile(request.strength_profile.lower())
+        except ValueError:
+            profile = StrengthProfile.MEDIUM
+        
+        # Build cohesion spec
+        cohesion_spec = CohesionSpec(
+            style=request.style,
+            tempo=request.tempo,
+            duration=request.duration,
+            reference_audio=request.reference_audio,
+            strength_profile=profile,
+            max_bpm_drift=request.max_bpm_drift,
+            mood=request.mood,
+        )
+        
+        # Generate with cohesion constraints
+        audio_bytes, validation_result = await generate_single_instrument(
+            instrument=request.instrument,
+            prompt=request.prompt,
+            cohesion_spec=cohesion_spec,
+            validate_cohesion=request.validate_bpm,
+            max_retries=request.max_retries,
+        )
+        
+        # Encode result
+        audio_b64 = base64.b64encode(audio_bytes).decode()
+        
+        return CohesionGenerateResponse(
+            audio_data=audio_b64,
+            name=request.instrument,
+            duration=request.duration,
+            validation=validation_result,
+        )
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Cohesion generation failed: {str(e)}")

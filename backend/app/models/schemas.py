@@ -203,3 +203,94 @@ class AgentStepResponse(BaseModel):
     tool_calls: list[ToolCall]
     done: bool
     message: Optional[str] = None
+
+
+# ============================================================================
+# Cohesion Models (for audio-to-audio track alignment)
+# ============================================================================
+
+
+class StrengthProfile(str, Enum):
+    """How closely new tracks should match the reference audio."""
+    TIGHT = "tight"    # Low strength values, stays very close to reference
+    MEDIUM = "medium"  # Balanced transformation
+    LOOSE = "loose"    # Higher strength, more creative freedom
+
+
+# Strength values per instrument for each profile
+STRENGTH_PROFILES = {
+    StrengthProfile.TIGHT: {
+        "drums": 0.50,
+        "bass": 0.30,
+        "guitar": 0.35,
+        "keys": 0.35,
+        "piano": 0.35,
+        "synth": 0.40,
+        "strings": 0.35,
+        "pad": 0.40,
+        "melody": 0.35,
+        "lead": 0.35,
+        "default": 0.35,
+    },
+    StrengthProfile.MEDIUM: {
+        "drums": 0.65,
+        "bass": 0.45,
+        "guitar": 0.50,
+        "keys": 0.50,
+        "piano": 0.50,
+        "synth": 0.55,
+        "strings": 0.50,
+        "pad": 0.55,
+        "melody": 0.45,
+        "lead": 0.45,
+        "default": 0.50,
+    },
+    StrengthProfile.LOOSE: {
+        "drums": 0.80,
+        "bass": 0.60,
+        "guitar": 0.65,
+        "keys": 0.65,
+        "piano": 0.65,
+        "synth": 0.70,
+        "strings": 0.65,
+        "pad": 0.70,
+        "melody": 0.60,
+        "lead": 0.60,
+        "default": 0.65,
+    },
+}
+
+
+class CohesionSpec(BaseModel):
+    """
+    Specification for ensuring cohesion between generated audio tracks.
+    
+    Pass this to track generation to constrain new instruments to fit
+    with previously generated clips.
+    """
+    
+    style: str  # Locked style/genre for all tracks (e.g., "dark synthwave")
+    tempo: int = Field(ge=40, le=240)  # Target BPM for validation
+    duration: int = Field(ge=5, le=180, default=20)  # All tracks same duration
+    
+    # Reference audio (base64 encoded) - anchor for audio-to-audio
+    reference_audio: Optional[str] = None
+    
+    # How closely to match the reference
+    strength_profile: StrengthProfile = StrengthProfile.MEDIUM
+    
+    # Validation thresholds
+    max_bpm_drift: int = Field(ge=1, le=30, default=10)  # Reject if output BPM differs by more
+    
+    # Optional mood/texture keywords to maintain across all tracks
+    mood: Optional[str] = None  # e.g., "moody, atmospheric, dark"
+
+
+class CohesionValidationResult(BaseModel):
+    """Result of validating a generated track against cohesion spec."""
+    
+    passed: bool
+    detected_bpm: Optional[float] = None
+    bpm_drift: Optional[float] = None  # Difference from target
+    issues: list[str] = []
+    suggestions: list[str] = []

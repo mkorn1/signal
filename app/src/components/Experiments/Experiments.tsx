@@ -1,10 +1,12 @@
 import styled from "@emotion/styled"
+import DeleteSweep from "mdi-react/DeleteSweepIcon"
 import FastForward from "mdi-react/FastForwardIcon"
 import FastRewind from "mdi-react/FastRewindIcon"
 import Microphone from "mdi-react/MicrophoneIcon"
 import MicrophoneOff from "mdi-react/MicrophoneOffIcon"
 import Pause from "mdi-react/PauseIcon"
 import PlayArrow from "mdi-react/PlayArrowIcon"
+import Refresh from "mdi-react/RefreshIcon"
 import Stop from "mdi-react/StopIcon"
 import VolumeHigh from "mdi-react/VolumeHighIcon"
 import VolumeMute from "mdi-react/VolumeMuteIcon"
@@ -77,6 +79,16 @@ const loadTracksFromIDB = async (): Promise<AudioTrack[]> => {
 
 type AgentType = "conversational_stem" | "audio_to_audio"
 
+// Parameters used to generate a track (for regeneration)
+interface GenerationParams {
+  prompt: string
+  audioData: string // base64 WAV of user recording
+  duration: number
+  strength: number
+  cfgScale: number
+  steps: number
+}
+
 interface AudioTrack {
   name: string
   audioData: string // base64 WAV
@@ -85,6 +97,7 @@ interface AudioTrack {
   muted: boolean
   solo: boolean
   volume: number
+  generationParams?: GenerationParams // params used to generate this track
 }
 
 // Styled Components
@@ -161,6 +174,27 @@ const StatusBadge = styled.span<{ status: "idle" | "loading" | "done" | "error" 
           ? "#ef4444"
           : "#6b7280"};
   color: white;
+`
+
+const ClearAllButton = styled.button<{ disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid ${({ theme }) => theme.dividerColor};
+  background: transparent;
+  color: ${({ theme }) => theme.secondaryTextColor};
+  font-size: 12px;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: #ef444420;
+    border-color: #ef4444;
+    color: #ef4444;
+  }
 `
 
 const MainContent = styled.div`
@@ -441,6 +475,43 @@ const VolumeSlider = styled.input`
   width: 60px;
   height: 4px;
   cursor: pointer;
+`
+
+const RegenerateButton = styled.button<{ disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 3px;
+  border: 1px solid ${({ theme }) => theme.dividerColor};
+  background: ${({ theme }) => theme.secondaryBackgroundColor};
+  color: ${({ theme }) => theme.textColor};
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+  opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
+
+  &:hover:not(:disabled) {
+    background: ${({ theme }) => theme.themeColor};
+    color: white;
+    border-color: ${({ theme }) => theme.themeColor};
+  }
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  &.spinning svg {
+    animation: spin 1s linear infinite;
+  }
 `
 
 const WaveformArea = styled.div`
@@ -1306,7 +1377,7 @@ export const Experiments: FC = () => {
               try {
                 const data = JSON.parse(line.slice(6))
 
-                if (data.stage === "processing" || data.stage === "generating") {
+                if (data.stage === "processing" || data.stage === "generating" || data.stage === "preprocessing" || data.stage === "postprocessing") {
                   appendLog(data.message)
                 } else if (data.stage === "complete" && data.result) {
                   // Validate result has required fields
@@ -1316,13 +1387,21 @@ export const Experiments: FC = () => {
 
                   appendLog("Generation complete!")
 
-                  // Add track to timeline
+                  // Add track to timeline with generation params for regeneration
                   const track: AudioTrack = {
                     name: data.result.name || prompt.trim().slice(0, 30),
                     audioData: data.result.audio_data,
                     muted: false,
                     solo: false,
                     volume: 1,
+                    generationParams: {
+                      prompt: prompt.trim(),
+                      audioData: base64Audio,
+                      duration: outputDuration,
+                      strength: transformStrength,
+                      cfgScale: cfgScale,
+                      steps: steps,
+                    },
                   }
                   setAudioTracks((prev) => [...prev, track])
                   generationCompleted = true
@@ -1525,6 +1604,64 @@ export const Experiments: FC = () => {
     audioUrlsRef.current = []
   }
 
+  // Clear all - clears everything including IndexedDB, localStorage, and recorded audio
+  const handleClearAll = async () => {
+    if (!confirm("Clear all generated audio, chat history, and start fresh?")) {
+      return
+    }
+
+    // Stop any playback
+    handleStop()
+
+    // Clear IndexedDB audio tracks
+    try {
+      const deleteRequest = indexedDB.deleteDatabase(DB_NAME)
+      deleteRequest.onerror = () => console.error("Failed to clear audio database")
+      deleteRequest.onsuccess = () => console.log("Audio database cleared")
+    } catch (err) {
+      console.error("Error clearing IndexedDB:", err)
+    }
+
+    // Clear all localStorage keys
+    Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key))
+
+    // Clear recorded audio
+    if (recordedAudioUrl) {
+      URL.revokeObjectURL(recordedAudioUrl)
+    }
+    setRecordedAudio(null)
+    setRecordedAudioUrl(null)
+    setRecordingDuration(0)
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause()
+      previewAudioRef.current = null
+    }
+
+    // Reset all state
+    setThreadId(null)
+    setConversationMode(false)
+    setStreamLog([])
+    setChatMessages([])
+    setStreamingMessage("")
+    setAudioTracks([])
+    setStatus("idle")
+    setError(null)
+    setPrompt("")
+    setTransformStrength(0.25)
+    setOutputDuration(20)
+    setCfgScale(12)
+    setSteps(80)
+    setCurrentTime(0)
+    setDuration(0)
+    setIsPlaying(false)
+
+    // Clear blob URLs
+    audioUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
+    audioUrlsRef.current = []
+
+    appendLog("Cleared all data")
+  }
+
   // Transport controls
   const handlePlay = useCallback(() => {
     if (audioRefs.current.length === 0) return
@@ -1589,6 +1726,102 @@ export const Experiments: FC = () => {
     )
   }, [])
 
+  // Regenerate a track using its stored generation params
+  const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null)
+
+  const handleRegenerateTrack = useCallback(async (index: number) => {
+    const track = audioTracks[index]
+    if (!track.generationParams) {
+      appendLog("Cannot regenerate: no generation params stored")
+      return
+    }
+
+    setRegeneratingIndex(index)
+    appendLog(`Regenerating ${track.name}...`)
+
+    try {
+      const { prompt, audioData, duration, strength, cfgScale, steps } = track.generationParams
+
+      const response = await fetch(`http://localhost:8000/api/audio-to-audio/generate/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          audio_data: audioData,
+          duration,
+          strength,
+          cfg_scale: cfgScale,
+          steps,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const reader = response.body?.getReader()
+      if (!reader) throw new Error("No response body")
+
+      const decoder = new TextDecoder()
+      let buffer = ""
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split("\n")
+          buffer = lines.pop() || ""
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6))
+
+                if (data.stage === "processing" || data.stage === "generating" || data.stage === "preprocessing" || data.stage === "postprocessing") {
+                  appendLog(data.message)
+                } else if (data.stage === "complete" && data.result) {
+                  if (!data.result.audio_data) {
+                    throw new Error("Server returned empty audio data")
+                  }
+
+                  appendLog(`Regenerated ${track.name}!`)
+
+                  // Update the track in place with new audio but keep same params
+                  setAudioTracks((prev) =>
+                    prev.map((t, i) =>
+                      i === index
+                        ? {
+                          ...t,
+                          audioData: data.result.audio_data,
+                          audioUrl: undefined, // Clear cached URL so it gets regenerated
+                        }
+                        : t
+                    )
+                  )
+                } else if (data.stage === "error") {
+                  throw new Error(data.error || "Regeneration failed")
+                }
+              } catch (parseErr) {
+                if (!(parseErr instanceof SyntaxError)) {
+                  throw parseErr
+                }
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock()
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      appendLog(`Regeneration error: ${msg}`)
+    } finally {
+      setRegeneratingIndex(null)
+    }
+  }, [audioTracks])
+
   // Zoom controls
   const zoomIn = useCallback(() => {
     setPixelsPerSecond((prev) => Math.min(prev * 1.5, 400))
@@ -1626,6 +1859,12 @@ export const Experiments: FC = () => {
           <ChatButton variant="secondary" onClick={handleNewChat} disabled={status === "loading"}>
             New Chat
           </ChatButton>
+        )}
+        {agentType === "audio_to_audio" && (
+          <ClearAllButton onClick={handleClearAll} disabled={status === "loading"}>
+            <DeleteSweep style={{ width: 16, height: 16 }} />
+            Clear All
+          </ClearAllButton>
         )}
         <StatusBadge status={status}>
           {status === "idle"
@@ -1864,6 +2103,19 @@ export const Experiments: FC = () => {
                         <SmallButton active={track.solo} onClick={() => toggleSolo(i)}>
                           S
                         </SmallButton>
+                        {track.generationParams && (
+                          <RegenerateButton
+                            className={regeneratingIndex === i ? "spinning" : ""}
+                            disabled={regeneratingIndex !== null}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleRegenerateTrack(i)
+                            }}
+                            title="Regenerate this track"
+                          >
+                            <Refresh />
+                          </RegenerateButton>
+                        )}
                         {track.muted ? (
                           <VolumeMute style={{ width: 14, height: 14, opacity: 0.5 }} />
                         ) : (

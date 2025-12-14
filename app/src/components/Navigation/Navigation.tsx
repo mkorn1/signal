@@ -1,9 +1,11 @@
 import styled from "@emotion/styled"
 import CodeTags from "mdi-react/CodeTagsIcon"
+import DeleteSweep from "mdi-react/DeleteSweepIcon"
 import Help from "mdi-react/HelpCircleIcon"
 import Robot from "mdi-react/RobotIcon"
 import Settings from "mdi-react/SettingsIcon"
 import { CSSProperties, FC, MouseEvent, useCallback } from "react"
+import { useCreateSong } from "../../actions/song"
 import { getPlatform, isRunningInElectron } from "../../helpers/platform"
 import { useAIChat } from "../../hooks/useAIChat"
 import { useEditorMode } from "../../hooks/useEditorMode"
@@ -17,6 +19,9 @@ import { Tooltip } from "../ui/Tooltip"
 import { EditMenuButton } from "./EditMenuButton"
 import { FileMenuButton } from "./FileMenuButton"
 import { UserButton } from "./UserButton"
+
+// IndexedDB constants for clearing audio tracks
+const DB_NAME = "experiments_audio_db"
 
 const Container = styled.div`
   display: flex;
@@ -91,8 +96,22 @@ export const IconStyle: CSSProperties = {
 export const Navigation: FC = () => {
   const { setOpenSettingDialog, setOpenHelpDialog } = useRootView()
   const { path, setPath } = useRouter()
-  const { isOpen: isAIChatOpen, toggle: toggleAIChat } = useAIChat()
+  const {
+    isOpen: isAIChatOpen,
+    toggle: toggleAIChat,
+    setMessages,
+    setIsLoading,
+    setStreamingThinking,
+    setStreamingToolCalls,
+    setExecutedToolIds,
+    setGenerationStage,
+    setGenerationProgress,
+    setCurrentAttempt,
+    setStreamingMessageIndex,
+    setActiveThreadId,
+  } = useAIChat()
   const { mode, toggle: toggleEditorMode, isAdvanced } = useEditorMode()
+  const createSong = useCreateSong()
 
   const onClickPianoRollTab = useCallback(
     (e: MouseEvent) => {
@@ -140,6 +159,53 @@ export const Navigation: FC = () => {
       toggleEditorMode()
     },
     [toggleEditorMode],
+  )
+
+  const onClickClearProject = useCallback(
+    async (e: MouseEvent) => {
+      e.preventDefault()
+
+      if (!confirm("Clear all generated audio, chat history, and start fresh?")) {
+        return
+      }
+
+      // Clear IndexedDB audio tracks
+      try {
+        const deleteRequest = indexedDB.deleteDatabase(DB_NAME)
+        deleteRequest.onerror = () => console.error("Failed to clear audio database")
+        deleteRequest.onsuccess = () => console.log("Audio database cleared")
+      } catch (err) {
+        console.error("Error clearing IndexedDB:", err)
+      }
+
+      // Clear AI chat state
+      setMessages([])
+      setIsLoading(false)
+      setStreamingThinking("")
+      setStreamingToolCalls([])
+      setExecutedToolIds(new Set())
+      setGenerationStage(null)
+      setGenerationProgress("")
+      setCurrentAttempt(0)
+      setStreamingMessageIndex(-1)
+      setActiveThreadId(null)
+
+      // Create fresh empty song
+      createSong()
+    },
+    [
+      createSong,
+      setMessages,
+      setIsLoading,
+      setStreamingThinking,
+      setStreamingToolCalls,
+      setExecutedToolIds,
+      setGenerationStage,
+      setGenerationProgress,
+      setCurrentAttempt,
+      setStreamingMessageIndex,
+      setActiveThreadId,
+    ],
   )
 
   return (
@@ -201,6 +267,13 @@ export const Navigation: FC = () => {
         <Tab isActive={isAIChatOpen} onClick={onClickAI}>
           <Robot style={IconStyle} />
           <TabTitle>AI</TabTitle>
+        </Tab>
+      </Tooltip>
+
+      <Tooltip title="Clear all generated audio and chat history" delayDuration={500}>
+        <Tab onClick={onClickClearProject}>
+          <DeleteSweep style={IconStyle} />
+          <TabTitle>Clear Project</TabTitle>
         </Tab>
       </Tooltip>
 

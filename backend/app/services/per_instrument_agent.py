@@ -9,14 +9,25 @@ Strategy:
 
 The audio-to-audio feature guides new generations using the reference audio,
 so subsequent instruments will naturally match the key, tempo, and feel of the first.
+
+Cohesion System:
+- CohesionSpec defines constraints for track alignment (style, tempo, duration, strength)
+- Post-generation validation checks BPM drift
+- Strength profiles (tight/medium/loose) control how closely tracks match
 """
 
 import asyncio
-import inspect
+import base64
 import logging
 from typing import Callable, Coroutine, Dict, List, Optional, Union
 
 from app.services.audio_renderer import generate_audio_for_instrument, generate_audio_to_audio
+from app.models.schemas import CohesionSpec, StrengthProfile, CohesionValidationResult
+from app.services.cohesion_validator import (
+    get_strength_for_instrument,
+    validate_track_cohesion,
+    build_cohesion_prompt_context,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -192,6 +203,9 @@ async def generate_per_instrument(
     key: str = "Am",
     progress_callback: Optional[ProgressCallback] = None,
     use_audio_to_audio: bool = True,
+    cohesion_spec: Optional[CohesionSpec] = None,
+    validate_cohesion: bool = False,
+    max_retries: int = 2,
 ) -> Dict[str, bytes]:
     """
     Generate audio for each instrument sequentially using Stable Audio.
@@ -206,6 +220,9 @@ async def generate_per_instrument(
         key: Musical key (kept for API compat, not used in prompts)
         progress_callback: Optional callback for progress updates (instrument_name, status)
         use_audio_to_audio: If True, use audio-to-audio for subsequent instruments (default: True)
+        cohesion_spec: Optional cohesion constraints for track alignment
+        validate_cohesion: If True, validate BPM after generation (requires librosa)
+        max_retries: Max regeneration attempts if validation fails
 
     Returns:
         Dict mapping instrument names to audio bytes (WAV)
@@ -214,91 +231,209 @@ async def generate_per_instrument(
     instruments = _detect_instruments_from_prompt(prompt)
     logger.info(f"Generating {len(instruments)} instruments sequentially: {instruments}")
 
+    # Extract cohesion settings
+    strength_profile = cohesion_spec.strength_profile if cohesion_spec else None
+    duration = cohesion_spec.duration if cohesion_spec else 20
+    target_tempo = cohesion_spec.tempo if cohesion_spec else tempo
+    
+    # Build style context from cohesion spec if provided
+    style_context = prompt
+    if cohesion_spec:
+        style_context = build_cohesion_prompt_context(cohesion_spec)
+        logger.info(f"Using cohesion style context: {style_context}")
+
     audio_files: Dict[str, bytes] = {}
-    reference_audio: Optional[bytes] = None  # First generated track becomes reference
+    validation_results: Dict[str, CohesionValidationResult] = {}
+    
+    # Use provided reference audio or None (first generated becomes reference)
+    reference_audio: Optional[bytes] = None
+    if cohesion_spec and cohesion_spec.reference_audio:
+        reference_audio = base64.b64decode(cohesion_spec.reference_audio)
+        logger.info("Using provided reference audio from cohesion spec")
 
     # Generate each instrument sequentially, starting with melody
     for i, instrument in enumerate(instruments):
         await _call_progress(progress_callback, instrument, "generating")
 
-        # Build context-aware prompt
+        # Build context-aware prompt with cohesion context
         instrument_prompt = _get_instrument_context_prompt(
             instrument=instrument,
-            style=prompt,
-            tempo=tempo,
+            style=style_context,
+            tempo=target_tempo,
             key=key,
             previous_instruments=list(audio_files.keys()),
         )
 
         logger.info(f"Generating {instrument} track (#{i+1}/{len(instruments)})")
 
-        try:
-            if i == 0 or not use_audio_to_audio or reference_audio is None:
-                # First instrument: use text-to-audio
-                logger.info(f"Using text-to-audio for {instrument}: {instrument_prompt[:80]}...")
-                audio = await generate_audio_for_instrument(
-                    instrument=instrument,
-                    style=instrument_prompt,
-                    duration=20,
-                    tempo=tempo,
-                    key=key,
-                    use_raw_style=True,
-                )
-                # Store as reference for subsequent tracks
-                reference_audio = audio
-            else:
-                # Subsequent instruments: use audio-to-audio with reference
-                # Lower strength = closer to reference's harmony/rhythm
-                # 0.4-0.5 works well for matching while changing instrument
-                strength = _get_audio_to_audio_strength(instrument)
-                logger.info(f"Using audio-to-audio for {instrument} (strength={strength}): {instrument_prompt[:80]}...")
-                audio = await generate_audio_to_audio(
-                    reference_audio=reference_audio,
-                    prompt=instrument_prompt,
-                    duration=20,
-                    strength=strength,
-                )
-
-            audio_files[instrument] = audio
-            await _call_progress(progress_callback, instrument, "complete")
-            logger.info(f"Generated {instrument} track: {len(audio)} bytes")
-
-        except Exception as e:
-            logger.error(f"Failed to generate {instrument}: {e}")
-            await _call_progress(progress_callback, instrument, f"error: {e}")
-            # If audio-to-audio fails, try falling back to text-to-audio
-            if i > 0 and use_audio_to_audio:
-                logger.info(f"Falling back to text-to-audio for {instrument}")
-                try:
+        # Retry loop for validation failures
+        for attempt in range(max_retries + 1):
+            try:
+                if (i == 0 and reference_audio is None) or not use_audio_to_audio:
+                    # First instrument (no reference): use text-to-audio
+                    logger.info(f"Using text-to-audio for {instrument}: {instrument_prompt[:80]}...")
                     audio = await generate_audio_for_instrument(
                         instrument=instrument,
                         style=instrument_prompt,
-                        duration=20,
-                        tempo=tempo,
+                        duration=duration,
+                        tempo=target_tempo,
                         key=key,
                         use_raw_style=True,
                     )
-                    audio_files[instrument] = audio
-                    await _call_progress(progress_callback, instrument, "complete (fallback)")
-                    logger.info(f"Fallback succeeded for {instrument}: {len(audio)} bytes")
-                except Exception as e2:
-                    logger.error(f"Fallback also failed for {instrument}: {e2}")
-                    continue
-            else:
-                continue
+                    # Store as reference for subsequent tracks (if no external reference)
+                    if reference_audio is None:
+                        reference_audio = audio
+                else:
+                    # Subsequent instruments: use audio-to-audio with reference
+                    strength = _get_audio_to_audio_strength(instrument, strength_profile)
+                    logger.info(f"Using audio-to-audio for {instrument} (strength={strength}): {instrument_prompt[:80]}...")
+                    audio = await generate_audio_to_audio(
+                        reference_audio=reference_audio,
+                        prompt=instrument_prompt,
+                        duration=duration,
+                        strength=strength,
+                    )
+
+                # Validate cohesion if enabled
+                if validate_cohesion and cohesion_spec:
+                    await _call_progress(progress_callback, instrument, "validating")
+                    validation = validate_track_cohesion(audio, cohesion_spec)
+                    validation_results[instrument] = validation
+                    
+                    if not validation.passed:
+                        logger.warning(f"Cohesion validation failed for {instrument}: {validation.issues}")
+                        if attempt < max_retries:
+                            logger.info(f"Retrying {instrument} (attempt {attempt + 2}/{max_retries + 1})")
+                            await _call_progress(progress_callback, instrument, f"retry ({attempt + 2})")
+                            continue
+                        else:
+                            logger.warning(f"Max retries reached for {instrument}, keeping last result")
+
+                audio_files[instrument] = audio
+                await _call_progress(progress_callback, instrument, "complete")
+                logger.info(f"Generated {instrument} track: {len(audio)} bytes")
+                break  # Success, exit retry loop
+
+            except Exception as e:
+                logger.error(f"Failed to generate {instrument}: {e}")
+                await _call_progress(progress_callback, instrument, f"error: {e}")
+                
+                # If audio-to-audio fails, try falling back to text-to-audio
+                if reference_audio is not None and use_audio_to_audio:
+                    logger.info(f"Falling back to text-to-audio for {instrument}")
+                    try:
+                        audio = await generate_audio_for_instrument(
+                            instrument=instrument,
+                            style=instrument_prompt,
+                            duration=duration,
+                            tempo=target_tempo,
+                            key=key,
+                            use_raw_style=True,
+                        )
+                        audio_files[instrument] = audio
+                        await _call_progress(progress_callback, instrument, "complete (fallback)")
+                        logger.info(f"Fallback succeeded for {instrument}: {len(audio)} bytes")
+                        break
+                    except Exception as e2:
+                        logger.error(f"Fallback also failed for {instrument}: {e2}")
+                break  # Exit retry loop on error
 
     return audio_files
 
 
-def _get_audio_to_audio_strength(instrument: str) -> float:
+async def generate_single_instrument(
+    instrument: str,
+    prompt: str,
+    cohesion_spec: CohesionSpec,
+    progress_callback: Optional[ProgressCallback] = None,
+    validate_cohesion: bool = True,
+    max_retries: int = 2,
+) -> tuple[bytes, Optional[CohesionValidationResult]]:
+    """
+    Generate a single instrument track with cohesion constraints.
+    
+    Use this for adding a new instrument to an existing song.
+    
+    Args:
+        instrument: Instrument to generate (e.g., "bass", "drums")
+        prompt: Additional style context
+        cohesion_spec: Cohesion constraints (must include reference_audio)
+        progress_callback: Optional progress callback
+        validate_cohesion: Whether to validate BPM alignment
+        max_retries: Max regeneration attempts
+        
+    Returns:
+        Tuple of (audio_bytes, validation_result)
+    """
+    if not cohesion_spec.reference_audio:
+        raise ValueError("cohesion_spec.reference_audio is required for single instrument generation")
+    
+    reference_audio = base64.b64decode(cohesion_spec.reference_audio)
+    style_context = build_cohesion_prompt_context(cohesion_spec)
+    
+    # Merge user prompt with cohesion context
+    if prompt:
+        full_style = f"{prompt}, {style_context}"
+    else:
+        full_style = style_context
+    
+    instrument_prompt = _get_instrument_context_prompt(
+        instrument=instrument,
+        style=full_style,
+        tempo=cohesion_spec.tempo,
+        key="",  # Not used
+        previous_instruments=[],
+    )
+    
+    strength = _get_audio_to_audio_strength(instrument, cohesion_spec.strength_profile)
+    validation_result = None
+    
+    for attempt in range(max_retries + 1):
+        await _call_progress(progress_callback, instrument, "generating")
+        
+        audio = await generate_audio_to_audio(
+            reference_audio=reference_audio,
+            prompt=instrument_prompt,
+            duration=cohesion_spec.duration,
+            strength=strength,
+        )
+        
+        if validate_cohesion:
+            await _call_progress(progress_callback, instrument, "validating")
+            validation_result = validate_track_cohesion(audio, cohesion_spec)
+            
+            if not validation_result.passed and attempt < max_retries:
+                logger.warning(f"Validation failed, retrying: {validation_result.issues}")
+                continue
+        
+        await _call_progress(progress_callback, instrument, "complete")
+        return audio, validation_result
+    
+    # Return last attempt even if validation failed
+    return audio, validation_result
+
+
+def _get_audio_to_audio_strength(
+    instrument: str,
+    strength_profile: Optional[StrengthProfile] = None,
+) -> float:
     """
     Get the appropriate audio-to-audio strength for each instrument type.
     
     Lower strength = stays closer to reference (better for harmonic instruments)
     Higher strength = more transformation (better for rhythmic instruments)
+    
+    Args:
+        instrument: Instrument name
+        strength_profile: Optional profile override (tight/medium/loose)
+        
+    Returns:
+        Strength value (0.0-1.0)
     """
-    # Drums need higher strength - they should follow rhythm but not pitch
-    # Bass/harmony instruments need lower strength to match the reference's key
+    if strength_profile is not None:
+        return get_strength_for_instrument(instrument, strength_profile)
+    
+    # Legacy default behavior (equivalent to MEDIUM profile)
     strength_map = {
         "drums": 0.65,      # Higher - focus on rhythm/groove, not pitch
         "bass": 0.40,       # Lower - needs to match harmonic content
