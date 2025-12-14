@@ -1,6 +1,8 @@
 import styled from "@emotion/styled"
 import FastForward from "mdi-react/FastForwardIcon"
 import FastRewind from "mdi-react/FastRewindIcon"
+import Microphone from "mdi-react/MicrophoneIcon"
+import MicrophoneOff from "mdi-react/MicrophoneOffIcon"
 import Pause from "mdi-react/PauseIcon"
 import PlayArrow from "mdi-react/PlayArrowIcon"
 import Stop from "mdi-react/StopIcon"
@@ -8,7 +10,72 @@ import VolumeHigh from "mdi-react/VolumeHighIcon"
 import VolumeMute from "mdi-react/VolumeMuteIcon"
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-type AgentType = "per_instrument" | "stem_separation" | "conversational_stem"
+// IndexedDB helpers for storing large audio data (localStorage has 5-10MB limit)
+const DB_NAME = "experiments_audio_db"
+const DB_VERSION = 1
+const STORE_NAME = "audio_tracks"
+
+const openDB = (): Promise<IDBDatabase> => {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION)
+    request.onerror = () => reject(request.error)
+    request.onsuccess = () => resolve(request.result)
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: "id" })
+      }
+    }
+  })
+}
+
+const saveTracksToIDB = async (tracks: AudioTrack[]): Promise<void> => {
+  try {
+    const db = await openDB()
+    const tx = db.transaction(STORE_NAME, "readwrite")
+    const store = tx.objectStore(STORE_NAME)
+    // Clear existing and save new
+    store.clear()
+    tracks.forEach((track, i) => {
+      if (track.audioData) {
+        store.put({ id: i, ...track })
+      }
+    })
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
+    })
+    db.close()
+  } catch (e) {
+    console.error("Failed to save tracks to IndexedDB:", e)
+  }
+}
+
+const loadTracksFromIDB = async (): Promise<AudioTrack[]> => {
+  try {
+    const db = await openDB()
+    const tx = db.transaction(STORE_NAME, "readonly")
+    const store = tx.objectStore(STORE_NAME)
+    const request = store.getAll()
+    const tracks = await new Promise<AudioTrack[]>((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result || [])
+      request.onerror = () => reject(request.error)
+    })
+    db.close()
+    // Filter out corrupted tracks and sort by id
+    // IndexedDB stores tracks with an auto-increment id field
+    type StoredTrack = AudioTrack & { id?: number }
+    return (tracks as StoredTrack[])
+      .filter((t) => t && t.audioData && t.audioData.length > 0)
+      .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
+      .map(({ id, ...track }) => track as AudioTrack)
+  } catch (e) {
+    console.error("Failed to load tracks from IndexedDB:", e)
+    return []
+  }
+}
+
+type AgentType = "conversational_stem" | "audio_to_audio"
 
 interface AudioTrack {
   name: string
@@ -433,6 +500,184 @@ const EmptyState = styled.div`
   font-size: 14px;
 `
 
+// Audio-to-Audio Input Panel
+const AudioToAudioPanel = styled.div`
+  padding: 20px;
+  border-bottom: 2px solid ${({ theme }) => theme.dividerColor};
+  background: ${({ theme }) => theme.backgroundColor};
+`
+
+const AudioToAudioTitle = styled.h3`
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.textColor};
+`
+
+const AudioToAudioRow = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+`
+
+const AudioToAudioInput = styled.input`
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.dividerColor};
+  background: ${({ theme }) => theme.secondaryBackgroundColor};
+  color: ${({ theme }) => theme.textColor};
+  font-size: 14px;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.themeColor};
+  }
+`
+
+const RecordButton = styled.button<{ isRecording?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  background: ${({ isRecording }) => (isRecording ? "#ef4444" : "#10b981")};
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 140px;
+  transition: all 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+`
+
+const GenerateButton = styled.button`
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  background: ${({ theme }) => theme.themeColor};
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`
+
+const AddInstrumentButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 4px;
+  border-radius: 6px;
+  border: 1px dashed ${({ theme }) => theme.dividerColor};
+  background: transparent;
+  color: ${({ theme }) => theme.secondaryTextColor};
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.themeColor};
+    color: ${({ theme }) => theme.themeColor};
+    background: ${({ theme }) => theme.themeColor}10;
+  }
+`
+
+const RecordingStatus = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: ${({ theme }) => theme.secondaryBackgroundColor};
+  font-size: 13px;
+`
+
+const RecordingIndicator = styled.div<{ active?: boolean }>`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: ${({ active }) => (active ? "#ef4444" : "#6b7280")};
+  animation: ${({ active }) => (active ? "pulse 1s infinite" : "none")};
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+`
+
+const AudioPreview = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: ${({ theme }) => theme.secondaryBackgroundColor};
+  margin-top: 12px;
+`
+
+const AudioPreviewButton = styled.button`
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid ${({ theme }) => theme.dividerColor};
+  background: transparent;
+  color: ${({ theme }) => theme.textColor};
+  font-size: 12px;
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ theme }) => theme.highlightColor};
+  }
+`
+
+const SliderGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`
+
+const SliderLabel = styled.label`
+  font-size: 11px;
+  color: ${({ theme }) => theme.secondaryTextColor};
+`
+
+const Slider = styled.input`
+  width: 120px;
+  cursor: pointer;
+`
+
 // Helper to format time
 const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60)
@@ -446,16 +691,54 @@ interface ChatMessageData {
   content: string
 }
 
+// LocalStorage keys
+const STORAGE_KEYS = {
+  AGENT_TYPE: "experiments_agent_type",
+  // AUDIO_TRACKS moved to IndexedDB - too large for localStorage
+  CHAT_MESSAGES: "experiments_chat_messages",
+  STREAM_LOG: "experiments_stream_log",
+  THREAD_ID: "experiments_thread_id",
+  CONVERSATION_MODE: "experiments_conversation_mode",
+}
+
+// Clean up old localStorage audio data (migrated to IndexedDB)
+if (localStorage.getItem("experiments_audio_tracks")) {
+  localStorage.removeItem("experiments_audio_tracks")
+}
+
 export const Experiments: FC = () => {
-  const [agentType, setAgentType] = useState<AgentType>("conversational_stem")
+  // Load persisted state from localStorage
+  const [agentType, setAgentType] = useState<AgentType>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.AGENT_TYPE)
+    return (saved as AgentType) || "audio_to_audio"
+  })
   const [prompt, setPrompt] = useState("")
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle")
-  const [streamLog, setStreamLog] = useState<string[]>([])
+  const [streamLog, setStreamLog] = useState<string[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.STREAM_LOG)
+    return saved ? JSON.parse(saved) : []
+  })
   const [audioTracks, setAudioTracks] = useState<AudioTrack[]>([])
+  const [tracksLoaded, setTracksLoaded] = useState(false)
+
+  // Load tracks from IndexedDB on mount
+  useEffect(() => {
+    loadTracksFromIDB().then((tracks) => {
+      setAudioTracks(tracks)
+      setTracksLoaded(true)
+    })
+  }, [])
   const [error, setError] = useState<string | null>(null)
-  const [threadId, setThreadId] = useState<string | null>(null)
-  const [conversationMode, setConversationMode] = useState(false)
-  const [chatMessages, setChatMessages] = useState<ChatMessageData[]>([])
+  const [threadId, setThreadId] = useState<string | null>(() => {
+    return localStorage.getItem(STORAGE_KEYS.THREAD_ID)
+  })
+  const [conversationMode, setConversationMode] = useState(() => {
+    return localStorage.getItem(STORAGE_KEYS.CONVERSATION_MODE) === "true"
+  })
+  const [chatMessages, setChatMessages] = useState<ChatMessageData[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.CHAT_MESSAGES)
+    return saved ? JSON.parse(saved) : []
+  })
   const [streamingMessage, setStreamingMessage] = useState("")
   const logRef = useRef<HTMLDivElement>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
@@ -474,6 +757,21 @@ export const Experiments: FC = () => {
   const waveformAreaRef = useRef<HTMLDivElement>(null)
   const rulerCanvasRef = useRef<HTMLCanvasElement>(null)
 
+  // Audio-to-audio recording state
+  const [isRecording, setIsRecording] = useState(false)
+  const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null)
+  const [recordedAudioUrl, setRecordedAudioUrl] = useState<string | null>(null)
+  const [recordingDuration, setRecordingDuration] = useState(0)
+  const [transformStrength, setTransformStrength] = useState(0.25)
+  const [outputDuration, setOutputDuration] = useState(20)
+  const [cfgScale, setCfgScale] = useState(12) // Prompt adherence (1-25)
+  const [steps, setSteps] = useState(80) // Quality steps (30-100)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
+  const recordingTimerRef = useRef<number | null>(null)
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null)
+  const promptInputRef = useRef<HTMLInputElement>(null)
+
   // Cleanup blob URLs on unmount
   useEffect(() => {
     return () => {
@@ -481,7 +779,44 @@ export const Experiments: FC = () => {
     }
   }, [])
 
-  const base64ToAudioUrl = (base64: string): string => {
+  // Persist state to localStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.AGENT_TYPE, agentType)
+  }, [agentType])
+
+  useEffect(() => {
+    // Only save after initial load to avoid overwriting with empty array
+    if (!tracksLoaded) return
+    // Save to IndexedDB (handles large audio data)
+    const validTracks = audioTracks.filter((t) => t.audioData && t.audioData.length > 0)
+    saveTracksToIDB(validTracks)
+  }, [audioTracks, tracksLoaded])
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.CHAT_MESSAGES, JSON.stringify(chatMessages))
+  }, [chatMessages])
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.STREAM_LOG, JSON.stringify(streamLog))
+  }, [streamLog])
+
+  useEffect(() => {
+    if (threadId) {
+      localStorage.setItem(STORAGE_KEYS.THREAD_ID, threadId)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.THREAD_ID)
+    }
+  }, [threadId])
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.CONVERSATION_MODE, String(conversationMode))
+  }, [conversationMode])
+
+  const base64ToAudioUrl = (base64: string | undefined): string => {
+    if (!base64) {
+      console.error("base64ToAudioUrl: No audio data provided")
+      return ""
+    }
     try {
       const binary = atob(base64)
       const bytes = new Uint8Array(binary.length)
@@ -508,7 +843,10 @@ export const Experiments: FC = () => {
 
   // Setup audio elements
   useEffect(() => {
-    audioRefs.current = playableTracks.map((track, i) => {
+    // Filter out tracks with invalid audioUrls
+    const validTracks = playableTracks.filter((t) => t.audioUrl)
+
+    audioRefs.current = validTracks.map((track, i) => {
       const existing = audioRefs.current[i]
       if (existing && existing.src === track.audioUrl) {
         return existing
@@ -625,14 +963,6 @@ export const Experiments: FC = () => {
     // Stop any current playback
     handleStop()
 
-    // For non-conversational agents, cleanup and reset
-    if (agentType !== "conversational_stem") {
-      audioUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
-      audioUrlsRef.current = []
-      setAudioTracks([])
-      setStreamLog([])
-    }
-
     setStatus("loading")
     setError(null)
 
@@ -642,77 +972,9 @@ export const Experiments: FC = () => {
       return
     }
 
-    const endpoint =
-      agentType === "per_instrument"
-        ? "/api/generate/per-instrument/stream"
-        : "/api/generate/stem-separation/stream"
-
-    appendLog(`Starting generation with ${agentType} agent`)
-
-    try {
-      const response = await fetch(`http://localhost:8000${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-      }
-
-      appendLog("Connected to stream...")
-
-      const reader = response.body?.getReader()
-      if (!reader) throw new Error("No response body")
-
-      const decoder = new TextDecoder()
-      let buffer = ""
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split("\n")
-        buffer = lines.pop() || ""
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6))
-              appendLog(`${data.stage}: ${data.message || ""}`)
-
-              if (data.stage === "complete" && data.result) {
-                const tracks: AudioTrack[] = data.result.tracks.map(
-                  (t: { name: string; audio_data: string }) => ({
-                    name: t.name,
-                    audioData: t.audio_data,
-                    muted: false,
-                    solo: false,
-                    volume: 1,
-                  }),
-                )
-                appendLog(`Received ${tracks.length} tracks`)
-                setAudioTracks(tracks)
-                setStatus("done")
-              } else if (data.stage === "error") {
-                throw new Error(data.error || "Generation failed")
-              }
-            } catch (parseErr) {
-              if (!(parseErr instanceof SyntaxError)) {
-                throw parseErr
-              }
-            }
-          }
-        }
-      }
-
-      reader.releaseLock()
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Unknown error"
-      appendLog(`Error: ${msg}`)
-      setError(msg)
-      setStatus("error")
+    // Audio-to-audio has its own generate button, skip here
+    if (agentType === "audio_to_audio") {
+      return
     }
   }
 
@@ -828,6 +1090,272 @@ export const Experiments: FC = () => {
     }
   }
 
+  // Audio-to-audio: Start recording from microphone
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" })
+      mediaRecorderRef.current = mediaRecorder
+      audioChunksRef.current = []
+      setRecordingDuration(0)
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data)
+        }
+      }
+
+      mediaRecorder.onstop = async () => {
+        // Stop all tracks
+        stream.getTracks().forEach((track) => track.stop())
+
+        // Combine chunks into a blob
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" })
+
+        // Convert webm to wav using AudioContext
+        const arrayBuffer = await audioBlob.arrayBuffer()
+        const audioContext = new AudioContext()
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+
+        // Convert to WAV
+        const wavBlob = await audioBufferToWav(audioBuffer)
+        setRecordedAudio(wavBlob)
+
+        // Create URL for preview
+        if (recordedAudioUrl) {
+          URL.revokeObjectURL(recordedAudioUrl)
+        }
+        const url = URL.createObjectURL(wavBlob)
+        setRecordedAudioUrl(url)
+
+        // Clear timer
+        if (recordingTimerRef.current) {
+          clearInterval(recordingTimerRef.current)
+          recordingTimerRef.current = null
+        }
+      }
+
+      // Start recording
+      mediaRecorder.start(100) // Collect data every 100ms
+      setIsRecording(true)
+
+      // Start duration timer
+      const startTime = Date.now()
+      recordingTimerRef.current = window.setInterval(() => {
+        setRecordingDuration(Math.floor((Date.now() - startTime) / 1000))
+      }, 1000)
+
+      appendLog("Recording started...")
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to access microphone"
+      setError(msg)
+      appendLog(`Recording error: ${msg}`)
+    }
+  }
+
+  // Audio-to-audio: Stop recording
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop()
+      setIsRecording(false)
+      appendLog("Recording stopped")
+    }
+  }
+
+  // Convert AudioBuffer to WAV Blob
+  const audioBufferToWav = async (audioBuffer: AudioBuffer): Promise<Blob> => {
+    const numChannels = audioBuffer.numberOfChannels
+    const sampleRate = audioBuffer.sampleRate
+    const format = 1 // PCM
+    const bitDepth = 16
+
+    const bytesPerSample = bitDepth / 8
+    const blockAlign = numChannels * bytesPerSample
+    const dataLength = audioBuffer.length * blockAlign
+    const buffer = new ArrayBuffer(44 + dataLength)
+    const view = new DataView(buffer)
+
+    // WAV header
+    const writeString = (offset: number, str: string) => {
+      for (let i = 0; i < str.length; i++) {
+        view.setUint8(offset + i, str.charCodeAt(i))
+      }
+    }
+
+    writeString(0, "RIFF")
+    view.setUint32(4, 36 + dataLength, true)
+    writeString(8, "WAVE")
+    writeString(12, "fmt ")
+    view.setUint32(16, 16, true) // fmt chunk size
+    view.setUint16(20, format, true)
+    view.setUint16(22, numChannels, true)
+    view.setUint32(24, sampleRate, true)
+    view.setUint32(28, sampleRate * blockAlign, true)
+    view.setUint16(32, blockAlign, true)
+    view.setUint16(34, bitDepth, true)
+    writeString(36, "data")
+    view.setUint32(40, dataLength, true)
+
+    // Interleave channels and write samples
+    const channels: Float32Array[] = []
+    for (let i = 0; i < numChannels; i++) {
+      channels.push(audioBuffer.getChannelData(i))
+    }
+
+    let offset = 44
+    for (let i = 0; i < audioBuffer.length; i++) {
+      for (let ch = 0; ch < numChannels; ch++) {
+        const sample = Math.max(-1, Math.min(1, channels[ch][i]))
+        const intSample = sample < 0 ? sample * 0x8000 : sample * 0x7fff
+        view.setInt16(offset, intSample, true)
+        offset += 2
+      }
+    }
+
+    return new Blob([buffer], { type: "audio/wav" })
+  }
+
+  // Audio-to-audio: Play preview of recorded audio
+  const playPreview = () => {
+    if (recordedAudioUrl) {
+      if (previewAudioRef.current) {
+        previewAudioRef.current.pause()
+      }
+      previewAudioRef.current = new Audio(recordedAudioUrl)
+      previewAudioRef.current.play()
+    }
+  }
+
+  // Audio-to-audio: Clear recorded audio
+  const clearRecording = () => {
+    if (recordedAudioUrl) {
+      URL.revokeObjectURL(recordedAudioUrl)
+    }
+    setRecordedAudio(null)
+    setRecordedAudioUrl(null)
+    setRecordingDuration(0)
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause()
+      previewAudioRef.current = null
+    }
+  }
+
+  // Audio-to-audio: Add another instrument (clear input and focus)
+  const handleAddInstrument = () => {
+    setPrompt("")
+    clearRecording()
+    promptInputRef.current?.focus()
+  }
+
+  // Handle audio-to-audio one-shot generation
+  const handleAudioToAudio = async () => {
+    if (!recordedAudio || !prompt.trim()) {
+      setError("Please record audio and enter a prompt")
+      return
+    }
+
+    setStatus("loading")
+    setError(null)
+    setStreamLog([])
+    appendLog("Starting audio-to-audio generation...")
+
+    try {
+      // Convert recorded audio blob to base64
+      const arrayBuffer = await recordedAudio.arrayBuffer()
+      const base64Audio = btoa(
+        new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), ""),
+      )
+
+      appendLog(`Sending ${Math.round(arrayBuffer.byteLength / 1024)}KB audio | cfg=${cfgScale}, steps=${steps}`)
+
+      const response = await fetch(`http://localhost:8000/api/audio-to-audio/generate/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: prompt.trim(),
+          audio_data: base64Audio,
+          duration: outputDuration,
+          strength: transformStrength,
+          cfg_scale: cfgScale,
+          steps: steps,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+
+      const reader = response.body?.getReader()
+      if (!reader) throw new Error("No response body")
+
+      const decoder = new TextDecoder()
+      let buffer = ""
+      let generationCompleted = false
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split("\n")
+          buffer = lines.pop() || ""
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6))
+
+                if (data.stage === "processing" || data.stage === "generating") {
+                  appendLog(data.message)
+                } else if (data.stage === "complete" && data.result) {
+                  // Validate result has required fields
+                  if (!data.result.audio_data) {
+                    throw new Error("Server returned empty audio data")
+                  }
+
+                  appendLog("Generation complete!")
+
+                  // Add track to timeline
+                  const track: AudioTrack = {
+                    name: data.result.name || prompt.trim().slice(0, 30),
+                    audioData: data.result.audio_data,
+                    muted: false,
+                    solo: false,
+                    volume: 1,
+                  }
+                  setAudioTracks((prev) => [...prev, track])
+                  generationCompleted = true
+                  setStatus("done")
+                } else if (data.stage === "error") {
+                  throw new Error(data.error || "Generation failed")
+                }
+              } catch (parseErr) {
+                if (!(parseErr instanceof SyntaxError)) {
+                  throw parseErr
+                }
+                // Log malformed SSE data for debugging
+                console.warn("Malformed SSE data:", line)
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock()
+      }
+
+      // If stream ended without completion, treat as error
+      if (!generationCompleted) {
+        throw new Error("Generation stream ended without completing - please try again")
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      appendLog(`Error: ${msg}`)
+      setError(msg)
+      setStatus("error")
+    }
+  }
+
   // Execute the generateStems tool call
   const executeGenerateStems = async (
     toolCall: { id: string; name: string; args: Record<string, unknown> },
@@ -922,7 +1450,7 @@ export const Experiments: FC = () => {
     }
   }
 
-  // Resume agent conversation after tool execution
+  // Resume agent conversation after tool execution (for conversational_stem)
   const resumeAgentWithResults = async (
     currentThreadId: string,
     toolCallId: string,
@@ -1092,8 +1620,7 @@ export const Experiments: FC = () => {
           }}
         >
           <option value="conversational_stem">Conversational Stem</option>
-          <option value="per_instrument">Per-Instrument (Direct)</option>
-          <option value="stem_separation">Stem Separation (Direct)</option>
+          <option value="audio_to_audio">Audio to Audio</option>
         </Select>
         {conversationMode && (
           <ChatButton variant="secondary" onClick={handleNewChat} disabled={status === "loading"}>
@@ -1112,8 +1639,118 @@ export const Experiments: FC = () => {
       </Header>
 
       <MainContent>
-        {/* Chat Panel - Top Half (for conversational mode) */}
-        {agentType === "conversational_stem" ? (
+        {/* Audio-to-Audio Panel - Mic input + text prompt */}
+        {agentType === "audio_to_audio" ? (
+          <AudioToAudioPanel>
+            <AudioToAudioTitle>
+              🎤 Record your sound (beatbox, hum, etc.) and describe what you want to create
+            </AudioToAudioTitle>
+
+            <AudioToAudioRow>
+              <AudioToAudioInput
+                ref={promptInputRef}
+                placeholder="e.g., 'punchy drum beat', 'synthwave lead melody', 'deep bass line'..."
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                disabled={status === "loading"}
+              />
+              <RecordButton
+                isRecording={isRecording}
+                onClick={isRecording ? stopRecording : startRecording}
+                disabled={status === "loading"}
+              >
+                {isRecording ? (
+                  <>
+                    <MicrophoneOff /> Stop ({recordingDuration}s)
+                  </>
+                ) : (
+                  <>
+                    <Microphone /> Record
+                  </>
+                )}
+              </RecordButton>
+            </AudioToAudioRow>
+
+            {recordedAudio && (
+              <AudioPreview>
+                <RecordingIndicator />
+                <span style={{ flex: 1 }}>
+                  Recorded: {recordingDuration}s ({Math.round(recordedAudio.size / 1024)}KB)
+                </span>
+                <AudioPreviewButton onClick={playPreview}>▶ Preview</AudioPreviewButton>
+                <AudioPreviewButton onClick={clearRecording}>✕ Clear</AudioPreviewButton>
+              </AudioPreview>
+            )}
+
+            <AudioToAudioRow style={{ marginTop: "16px" }}>
+              <SliderGroup>
+                <SliderLabel>Strength: {Math.round(transformStrength * 100)}%</SliderLabel>
+                <Slider
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={transformStrength}
+                  onChange={(e) => setTransformStrength(parseFloat(e.target.value))}
+                  disabled={status === "loading"}
+                  title="How much to transform from input (0=keep original, 1=ignore input)"
+                />
+              </SliderGroup>
+              <SliderGroup>
+                <SliderLabel>Duration: {outputDuration}s</SliderLabel>
+                <Slider
+                  type="range"
+                  min="5"
+                  max="60"
+                  step="5"
+                  value={outputDuration}
+                  onChange={(e) => setOutputDuration(parseInt(e.target.value))}
+                  disabled={status === "loading"}
+                  title="Output audio duration in seconds"
+                />
+              </SliderGroup>
+              <SliderGroup>
+                <SliderLabel>Prompt: {cfgScale}</SliderLabel>
+                <Slider
+                  type="range"
+                  min="1"
+                  max="25"
+                  step="1"
+                  value={cfgScale}
+                  onChange={(e) => setCfgScale(parseInt(e.target.value))}
+                  disabled={status === "loading"}
+                  title="How closely to follow your prompt (7-15 recommended)"
+                />
+              </SliderGroup>
+              <SliderGroup>
+                <SliderLabel>Quality: {steps}</SliderLabel>
+                <Slider
+                  type="range"
+                  min="30"
+                  max="100"
+                  step="10"
+                  value={steps}
+                  onChange={(e) => setSteps(parseInt(e.target.value))}
+                  disabled={status === "loading"}
+                  title="More steps = better quality but slower (50-80 recommended)"
+                />
+              </SliderGroup>
+              <GenerateButton
+                onClick={handleAudioToAudio}
+                disabled={status === "loading" || !recordedAudio || !prompt.trim()}
+              >
+                {status === "loading" ? "Generating..." : "Generate"}
+              </GenerateButton>
+            </AudioToAudioRow>
+
+            <StreamLog ref={logRef} style={{ marginTop: "12px" }}>
+              {streamLog.length === 0
+                ? "Record audio → describe what you want → generate"
+                : streamLog.join("\n")}
+            </StreamLog>
+          </AudioToAudioPanel>
+        ) : agentType === "conversational_stem" ? (
+          /* Chat Panel - Conversational mode */
           <ChatPanel>
             <ChatMessages>
               {chatMessages.length === 0 && !streamingMessage && (
@@ -1243,6 +1880,11 @@ export const Experiments: FC = () => {
                       </TrackControls>
                     </TrackHeader>
                   ))}
+                  {agentType === "audio_to_audio" && (
+                    <AddInstrumentButton onClick={handleAddInstrument}>
+                      + Add instrument
+                    </AddInstrumentButton>
+                  )}
                 </TrackList>
 
                 <WaveformArea ref={waveformAreaRef} onClick={handleSeek}>

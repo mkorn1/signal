@@ -477,7 +477,7 @@ function getStageProgress(stage: GenerationStage): number {
 
 const AGENT_TYPE_STORAGE_KEY = "ai_chat_agent_type"
 
-type AgentType = "llm" | "hybrid" | "per_instrument" | "stem_separation" | "conversational_stem"
+type AgentType = "llm" | "hybrid" | "conversational_stem" | "audio_to_audio"
 
 export interface AIChatProps {
   standalone?: boolean
@@ -509,9 +509,8 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
     const stored = localStorage.getItem(AGENT_TYPE_STORAGE_KEY)
     return stored === "llm" ||
       stored === "hybrid" ||
-      stored === "per_instrument" ||
-      stored === "stem_separation" ||
-      stored === "conversational_stem"
+      stored === "conversational_stem" ||
+      stored === "audio_to_audio"
       ? (stored as AgentType)
       : "hybrid" // Default to hybrid agent
   })
@@ -1114,7 +1113,7 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
       })
       streamingMessageIndexRef.current = -1
       setStreamingMessageIndex(-1)
-    } else if ((agentType === "per_instrument" || agentType === "stem_separation" || agentType === "llm" || agentType === "conversational_stem") && isLoading) {
+    } else if ((agentType === "llm" || agentType === "conversational_stem") && isLoading) {
       // Non-hybrid agent mode: just stop and clean up
       setIsLoading(false)
       setGenerationStage(null)
@@ -1199,9 +1198,8 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
           >
             <option value="hybrid">Hybrid Agent</option>
             <option value="conversational_stem">Conversational Stem</option>
+            <option value="audio_to_audio">Audio to Audio</option>
             <option value="llm">LLM Direct</option>
-            <option value="per_instrument">Per-Instrument Track</option>
-            <option value="stem_separation">Stem Separation</option>
           </Select>
         </HeaderLeft>
         {activeThreadId && (

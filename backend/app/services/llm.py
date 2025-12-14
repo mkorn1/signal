@@ -33,6 +33,17 @@ client = openai.OpenAI(
     api_key=settings.openrouter_api_key,
 )
 
+# Async client for async operations
+async_client = openai.AsyncOpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=settings.openrouter_api_key,
+)
+
+
+def get_openrouter_client():
+    """Get the async OpenRouter client for use in async functions."""
+    return async_client
+
 SYSTEM_PROMPT = """You are a music composition assistant.
 
 When asked to generate music, respond with ONLY valid Python code that creates MIDI files.

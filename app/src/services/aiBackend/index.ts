@@ -1,13 +1,13 @@
 import type { ProgressEvent as AIProgressEvent } from "./types"
 import {
-  AIBackendError,
-  AttemptLog,
-  DeepGenerateResponse,
-  GenerateRequest,
-  GenerateResponse,
-  GenerationStage,
-  RegenerateRequest,
-  RegenerateResponse,
+    AIBackendError,
+    AttemptLog,
+    DeepGenerateResponse,
+    GenerateRequest,
+    GenerateResponse,
+    GenerationStage,
+    RegenerateRequest,
+    RegenerateResponse,
 } from "./types"
 
 const API_BASE_URL =
@@ -206,12 +206,7 @@ class AIBackendService {
     onProgress: (event: AIProgressEvent) => void,
   ): Promise<DeepGenerateResponse> {
     // Route to appropriate endpoint based on agent type
-    let endpoint = "/api/generate/stream"
-    if (request.agentType === "per_instrument") {
-      endpoint = "/api/generate/per-instrument/stream"
-    } else if (request.agentType === "stem_separation") {
-      endpoint = "/api/generate/stem-separation/stream"
-    }
+    const endpoint = "/api/generate/stream"
 
     // Convert camelCase to snake_case for backend
     const requestBody = {

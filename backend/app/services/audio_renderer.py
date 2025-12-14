@@ -12,6 +12,7 @@ Setup:
 
 import os
 import io
+import struct
 import tempfile
 import logging
 from typing import Dict, Optional
@@ -22,6 +23,83 @@ logger = logging.getLogger(__name__)
 
 STABILITY_TEXT_TO_AUDIO_URL = "https://api.stability.ai/v2beta/audio/stable-audio-2/text-to-audio"
 STABILITY_AUDIO_TO_AUDIO_URL = "https://api.stability.ai/v2beta/audio/stable-audio-2/audio-to-audio"
+
+
+def _generate_mock_wav(duration: int = 7, sample_rate: int = 44100) -> bytes:
+    """Generate a mock guitar-like WAV file for testing without API calls.
+    
+    Creates a simple plucked-string sound with harmonics and decay envelope.
+    Default 7 seconds to simulate a typical generated audio clip.
+    
+    Args:
+        duration: Duration in seconds (default 7)
+        sample_rate: Sample rate in Hz
+        
+    Returns:
+        WAV file bytes
+    """
+    import math
+    
+    num_channels = 2  # Stereo
+    bits_per_sample = 16
+    num_samples = sample_rate * duration
+    
+    # Guitar-like frequencies (E major chord notes)
+    frequencies = [329.63, 415.30, 493.88]  # E4, G#4, B4
+    amplitude = 8000  # Moderate volume
+    
+    samples = []
+    for i in range(num_samples):
+        t = i / sample_rate
+        
+        # Decay envelope - plucked string sound
+        # Quick attack, slow decay over the duration
+        decay = math.exp(-t * 0.5)
+        
+        # Mix multiple frequencies for richer sound
+        value = 0
+        for freq in frequencies:
+            # Add fundamental and harmonics
+            value += math.sin(2 * math.pi * freq * t)
+            value += 0.5 * math.sin(2 * math.pi * freq * 2 * t)  # 2nd harmonic
+            value += 0.25 * math.sin(2 * math.pi * freq * 3 * t)  # 3rd harmonic
+        
+        # Apply envelope and amplitude
+        value = int(amplitude * decay * value / len(frequencies))
+        value = max(-32767, min(32767, value))  # Clamp to 16-bit range
+        
+        samples.append(value)
+        samples.append(value)  # Stereo - duplicate for right channel
+    
+    # Build WAV file
+    byte_rate = sample_rate * num_channels * bits_per_sample // 8
+    block_align = num_channels * bits_per_sample // 8
+    data_size = num_samples * num_channels * bits_per_sample // 8
+    
+    buffer = io.BytesIO()
+    
+    # RIFF header
+    buffer.write(b'RIFF')
+    buffer.write(struct.pack('<I', 36 + data_size))
+    buffer.write(b'WAVE')
+    
+    # fmt chunk
+    buffer.write(b'fmt ')
+    buffer.write(struct.pack('<I', 16))  # Chunk size
+    buffer.write(struct.pack('<H', 1))   # Audio format (PCM)
+    buffer.write(struct.pack('<H', num_channels))
+    buffer.write(struct.pack('<I', sample_rate))
+    buffer.write(struct.pack('<I', byte_rate))
+    buffer.write(struct.pack('<H', block_align))
+    buffer.write(struct.pack('<H', bits_per_sample))
+    
+    # data chunk
+    buffer.write(b'data')
+    buffer.write(struct.pack('<I', data_size))
+    for sample in samples:
+        buffer.write(struct.pack('<h', sample))
+    
+    return buffer.getvalue()
 
 
 def _get_stability_key() -> Optional[str]:
@@ -58,6 +136,12 @@ async def generate_audio_for_instrument(
     Returns:
         Audio bytes (WAV format)
     """
+    # Check for mock audio mode
+    settings = get_settings()
+    if settings.use_mock_audio:
+        logger.info(f"[MOCK] Generating {instrument} (mock mode): style={style[:50]}...")
+        return _generate_mock_wav(duration=duration)
+    
     api_key = _get_stability_key()
     if not api_key:
         raise ValueError("STABILITY_API_KEY not set - cannot generate audio")
@@ -104,7 +188,10 @@ async def generate_audio_to_audio(
     reference_audio: bytes,
     prompt: str,
     duration: int = 20,
-    strength: float = 0.5,
+    strength: float = 0.25,
+    cfg_scale: float = 12.0,
+    steps: int = 80,
+    seed: Optional[int] = None,
 ) -> bytes:
     """
     Generate audio using Stable Audio 2's audio-to-audio feature.
@@ -115,21 +202,48 @@ async def generate_audio_to_audio(
     Args:
         reference_audio: Reference audio bytes (WAV format) to guide generation
         prompt: Text prompt describing what to generate
-        duration: Duration in seconds (5-180)
+        duration: Duration in seconds (5-190)
         strength: How much to transform from reference (0=identical, 1=ignore reference)
                   Lower values stay closer to the reference's harmonic/rhythmic content.
-                  Recommended: 0.3-0.6 for matching harmony while changing instrument.
+                  Recommended: 0.3-0.7 for best results.
+        cfg_scale: How closely to follow the prompt (1-25, recommended 7-15, default 12)
+                   Higher = more prompt adherence
+        steps: Denoising steps for quality (30-100, recommended 50-80, default 60)
+               Higher = better quality but slower
+        seed: Optional seed for reproducible results (0-4294967294)
         
     Returns:
         Audio bytes (WAV format)
     """
+    # Check for mock audio mode
+    settings = get_settings()
+    if settings.use_mock_audio:
+        logger.info(f"[MOCK] Audio-to-audio generation (mock mode): prompt={prompt[:100]}...")
+        return _generate_mock_wav(duration=duration)
+    
     api_key = _get_stability_key()
     if not api_key:
         raise ValueError("STABILITY_API_KEY not set - cannot generate audio")
     
-    logger.info(f"Audio-to-audio generation with strength={strength}: {prompt[:100]}...")
+    logger.info(f"Audio-to-audio generation: strength={strength}, cfg_scale={cfg_scale}, steps={steps}, prompt={prompt[:100]}...")
     
     try:
+        # Build request files/data
+        files = {
+            "audio": ("reference.wav", reference_audio, "audio/wav"),
+            "prompt": (None, prompt),
+            "duration": (None, str(min(max(duration, 1), 190))),
+            "strength": (None, str(min(max(strength, 0.0), 1.0))),
+            "cfg_scale": (None, str(min(max(cfg_scale, 1.0), 25.0))),
+            "steps": (None, str(min(max(steps, 30), 100))),
+            "output_format": (None, "wav"),
+        }
+        
+        # Add seed if provided (for reproducibility)
+        if seed is not None:
+            files["seed"] = (None, str(min(max(seed, 0), 4294967294)))
+            files["random_seed"] = (None, "false")
+        
         async with httpx.AsyncClient(timeout=180.0) as client:
             response = await client.post(
                 STABILITY_AUDIO_TO_AUDIO_URL,
@@ -137,13 +251,7 @@ async def generate_audio_to_audio(
                     "Authorization": f"Bearer {api_key}",
                     "Accept": "audio/*",
                 },
-                files={
-                    "audio": ("reference.wav", reference_audio, "audio/wav"),
-                    "prompt": (None, prompt),
-                    "duration": (None, str(min(max(duration, 5), 180))),
-                    "strength": (None, str(strength)),
-                    "output_format": (None, "wav"),
-                },
+                files=files,
             )
             
             if response.status_code == 200:

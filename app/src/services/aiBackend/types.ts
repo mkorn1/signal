@@ -15,7 +15,7 @@ export interface SongMetadata {
 
 export interface GenerateRequest {
   prompt: string
-  agentType?: "llm" | "composition_agent" | "hybrid" | "per_instrument" | "stem_separation" | "conversational_stem"
+  agentType?: "llm" | "composition_agent" | "hybrid" | "conversational_stem" | "audio_to_audio" | "per_instrument"
 }
 
 export interface GenerateResponse {

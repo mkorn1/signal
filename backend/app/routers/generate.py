@@ -661,179 +661,6 @@ async def generate_song_stream(request: GenerateRequest, req: Request):
 
 
 # ============================================================================
-# Per-Instrument Generation Endpoint
-# ============================================================================
-
-
-@router.post("/generate/per-instrument/stream")
-async def generate_per_instrument_stream(request: GenerateRequest, req: Request):
-    """Generate audio tracks per instrument sequentially (melody first)."""
-    params = parse_prompt(request.prompt)
-
-    async def event_generator():
-        progress_queue: asyncio.Queue = asyncio.Queue()
-
-        async def progress_callback(instrument: str, status: str):
-            """Callback to emit progress for each instrument."""
-            await progress_queue.put({
-                "stage": "instrument_progress",
-                "instrument": instrument,
-                "status": status,
-                "message": f"{'Generating' if status == 'generating' else 'Completed'} {instrument} track..."
-            })
-
-        async def run_generation():
-            try:
-                await progress_queue.put({
-                    "stage": "generating",
-                    "message": "Starting sequential generation (melody first)..."
-                })
-                
-                audio_files = await generate_per_instrument(
-                    prompt=params["style"],
-                    tempo=params["tempo"],
-                    key=params["key"],
-                    progress_callback=progress_callback,
-                )
-                
-                if len(audio_files) > MAX_TRACKS:
-                    audio_files = dict(list(audio_files.items())[:MAX_TRACKS])
-                
-                tracks = []
-                for index, (name, audio_bytes) in enumerate(audio_files.items()):
-                    config = get_track_config(name, index)
-                    tracks.append({
-                        "name": name,
-                        "audio_data": base64.b64encode(audio_bytes).decode("utf-8"),
-                        "channel": config["channel"],
-                        "program_number": config["program"],
-                        "data_type": "audio",
-                    })
-                
-                await progress_queue.put({
-                    "stage": "complete",
-                    "result": {
-                        "tracks": tracks,
-                        "metadata": {
-                            "tempo": params["tempo"],
-                            "key": params["key"],
-                            "time_signature": "4/4",
-                        },
-                        "message": f"Generated {len(tracks)} per-instrument track(s)",
-                    },
-                    "attempt_logs": [],
-                })
-            except Exception as e:
-                await progress_queue.put({"stage": "error", "error": str(e)})
-            finally:
-                await progress_queue.put(None)
-
-        task = asyncio.create_task(run_generation())
-
-        try:
-            while True:
-                if await req.is_disconnected():
-                    task.cancel()
-                    break
-                try:
-                    event = await asyncio.wait_for(progress_queue.get(), timeout=1.0)
-                except asyncio.TimeoutError:
-                    yield ": keepalive\n\n"
-                    continue
-                if event is None:
-                    break
-                yield f"data: {json.dumps(event)}\n\n"
-        except asyncio.CancelledError:
-            task.cancel()
-            raise
-
-    return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
-    )
-
-
-# ============================================================================
-# Stem Separation Generation Endpoint
-# ============================================================================
-
-
-@router.post("/generate/stem-separation/stream")
-async def generate_stem_separation_stream(request: GenerateRequest, req: Request):
-    """Generate full track then separate into stems using Demucs."""
-    params = parse_prompt(request.prompt)
-
-    async def event_generator():
-        progress_queue: asyncio.Queue = asyncio.Queue()
-
-        async def run_generation():
-            try:
-                await progress_queue.put({"stage": "generating", "message": "Generating full track then separating stems..."})
-                
-                audio_files = await generate_with_stem_separation(
-                    prompt=params["style"], tempo=params["tempo"], key=params["key"]
-                )
-                
-                if len(audio_files) > MAX_TRACKS:
-                    audio_files = dict(list(audio_files.items())[:MAX_TRACKS])
-                
-                tracks = []
-                for index, (name, audio_bytes) in enumerate(audio_files.items()):
-                    config = get_track_config(name, index)
-                    tracks.append({
-                        "name": name,
-                        "audio_data": base64.b64encode(audio_bytes).decode("utf-8"),
-                        "channel": config["channel"],
-                        "program_number": config["program"],
-                        "data_type": "audio",
-                    })
-                
-                await progress_queue.put({
-                    "stage": "complete",
-                    "result": {
-                        "tracks": tracks,
-                        "metadata": {
-                            "tempo": params["tempo"],
-                            "key": params["key"],
-                            "time_signature": "4/4",
-                        },
-                        "message": f"Generated {len(tracks)} stem-separated track(s)",
-                    },
-                    "attempt_logs": [],
-                })
-            except Exception as e:
-                await progress_queue.put({"stage": "error", "error": str(e)})
-            finally:
-                await progress_queue.put(None)
-
-        task = asyncio.create_task(run_generation())
-
-        try:
-            while True:
-                if await req.is_disconnected():
-                    task.cancel()
-                    break
-                try:
-                    event = await asyncio.wait_for(progress_queue.get(), timeout=1.0)
-                except asyncio.TimeoutError:
-                    yield ": keepalive\n\n"
-                    continue
-                if event is None:
-                    break
-                yield f"data: {json.dumps(event)}\n\n"
-        except asyncio.CancelledError:
-            task.cancel()
-            raise
-
-    return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
-    )
-
-
-# ============================================================================
 # Hybrid Agent Endpoint (frontend tool execution)
 # ============================================================================
 
@@ -1041,6 +868,220 @@ async def stem_agent_step_stream(request: AgentStepRequest, req: Request):
             raise
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+    
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+# ============================================================================
+# Audio-to-Audio One-Shot Endpoint (mic input + text prompt -> generated audio)
+# ============================================================================
+
+
+class AudioToAudioRequest(BaseModel):
+    """Request for audio-to-audio generation."""
+    prompt: str  # Text description of what to generate (e.g., "drum beat", "synthwave lead")
+    audio_data: str  # Base64 encoded WAV audio from microphone
+    duration: int = 20  # Output duration in seconds (1-190)
+    strength: float = 0.25  # How much to transform (0=keep original, 1=ignore original)
+    cfg_scale: float = 12.0  # Prompt adherence (1-25, recommended 7-15)
+    steps: int = 80  # Denoising steps for quality (30-100, recommended 50-80)
+    seed: Optional[int] = None  # Optional seed for reproducibility
+
+
+async def build_audio_to_audio_prompt(user_prompt: str) -> str:
+    """
+    Use LLM to build an optimized prompt for Stable Audio's audio-to-audio model.
+    
+    Based on patterns from: https://stableaudio.com/user-guide/audio-to-audio
+    """
+    from app.services.llm import get_openrouter_client
+    
+    system_prompt = """You are a prompt engineer for Stable Audio's audio-to-audio model. Enhance user prompts following these EXACT patterns from the official Stable Audio guide.
+
+REAL EXAMPLES FROM STABLE AUDIO GUIDE (https://stableaudio.com/user-guide/audio-to-audio):
+
+Simple (these work great):
+- "Drums"
+- "Bass guitar"
+- "Heavy metal guitar"
+- "Upright bass"
+- "Guitar"
+- "Choir"
+- "Racecar"
+- "Racing car"
+
+Structured format:
+- "format: solo | instruments: vibraphone"
+- "Genre: UK Bass | Instruments: 707 Drum Machine, Strings, 808 bass stabs, Beautiful Synths"
+- "Instruments: Strings, Drum Kit, Electric Bass, Choir, String Section, Flute, Harp"
+
+Descriptive (genre + instruments + mood words):
+- "Post rock, guitars, bass, strings, euphoric, up-lifting, moody, flowing, raw, epic"
+- "Lofi hip hop beat, chillhop"
+- "Electronic, orchestral, relaxed, synth, soft, piano, bass, 808 bass stabs"
+
+MOOD WORDS THAT WORK WELL:
+euphoric, up-lifting, moody, flowing, raw, epic, relaxed, soft, beautiful, chillhop
+
+RULES:
+1. Match the user's intent exactly - if they say "drums", output might just be "Drums" or "Drums, punchy, tight"
+2. Simple prompts are often better - don't over-complicate
+3. If adding descriptors, use mood words from the guide: euphoric, moody, raw, soft, relaxed, etc.
+4. For structured output, use "format: X | instruments: Y" or "Genre: X | Instruments: Y"
+5. NO quality suffixes like "high fidelity" or "studio quality" - the guide doesn't use these
+6. Keep under 30 words unless listing multiple instruments
+7. Works for anything: instruments, SFX, vocals, nature sounds
+
+OUTPUT: Return ONLY the enhanced prompt, nothing else. No quotes."""
+
+    try:
+        client = get_openrouter_client()
+        response = await client.chat.completions.create(
+            model="openai/gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"Enhance this prompt: {user_prompt}"}
+            ],
+            max_tokens=100,
+            temperature=0.3,
+        )
+        enhanced = response.choices[0].message.content.strip()
+        # Remove any quotes the LLM might add
+        enhanced = enhanced.strip('"\'')
+        return enhanced
+    except Exception as e:
+        # Fallback to user prompt as-is if LLM fails (simple prompts work fine per the guide)
+        return user_prompt
+
+
+class AudioToAudioResponse(BaseModel):
+    """Response from audio-to-audio generation."""
+    audio_data: str  # Base64 encoded WAV output
+    name: str  # Track name
+    duration: float  # Duration in seconds
+
+
+@router.post("/audio-to-audio/generate", response_model=AudioToAudioResponse)
+async def audio_to_audio_generate(request: AudioToAudioRequest):
+    """
+    One-shot audio-to-audio generation.
+    
+    Takes a text prompt and microphone audio input, transforms it using
+    Stable Audio 2's audio-to-audio model, and returns the generated audio.
+    
+    Example use cases:
+    - Beatbox -> Drum beat: prompt="punchy drum beat", audio=*beatbox recording*
+    - Hum -> Synth lead: prompt="synthwave lead melody", audio=*humming*
+    - Voice -> Bass: prompt="deep bass line", audio=*singing bass notes*
+    
+    Args:
+        prompt: Text description of the desired output sound/instrument
+        audio_data: Base64 encoded WAV audio from microphone
+        duration: Output duration in seconds (1-190, default 20)
+        strength: Transformation strength (0-1, default 0.5)
+        cfg_scale: Prompt adherence (1-25, default 12) - higher = follows prompt more closely
+        steps: Quality steps (30-100, default 60) - higher = better quality
+        seed: Optional seed for reproducible results
+    
+    Returns:
+        Generated audio as base64 WAV with metadata
+    """
+    from app.services.audio_renderer import generate_audio_to_audio
+    
+    try:
+        # Decode the base64 audio
+        audio_bytes = base64.b64decode(request.audio_data)
+        
+        # Build an optimized prompt using LLM + Stable Audio guide patterns
+        enhanced_prompt = await build_audio_to_audio_prompt(request.prompt)
+        
+        # Generate using Stable Audio's audio-to-audio with full parameters
+        generated_audio = await generate_audio_to_audio(
+            reference_audio=audio_bytes,
+            prompt=enhanced_prompt,
+            duration=request.duration,
+            strength=request.strength,
+            cfg_scale=request.cfg_scale,
+            steps=request.steps,
+            seed=request.seed,
+        )
+        
+        # Encode result as base64
+        audio_b64 = base64.b64encode(generated_audio).decode()
+        
+        # Generate a name based on the prompt
+        name = request.prompt[:30].strip()
+        if len(request.prompt) > 30:
+            name += "..."
+        
+        return AudioToAudioResponse(
+            audio_data=audio_b64,
+            name=name,
+            duration=request.duration,
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Audio-to-audio generation failed: {str(e)}")
+
+
+@router.post("/audio-to-audio/generate/stream")
+async def audio_to_audio_generate_stream(request: AudioToAudioRequest, req: Request):
+    """
+    One-shot audio-to-audio generation with SSE streaming for progress updates.
+    
+    Same as /audio-to-audio/generate but streams progress events.
+    
+    Returns Server-Sent Events:
+    - stage: "processing" | "generating" | "complete" | "error"
+    - message: Progress message
+    - result: Final audio data (on complete)
+    """
+    from app.services.audio_renderer import generate_audio_to_audio
+    
+    async def event_generator():
+        try:
+            yield f"data: {json.dumps({'stage': 'processing', 'message': 'Decoding audio input...'})}\n\n"
+            
+            # Decode the base64 audio
+            audio_bytes = base64.b64decode(request.audio_data)
+            
+            # Build an optimized prompt using LLM + Stable Audio guide patterns
+            enhanced_prompt = await build_audio_to_audio_prompt(request.prompt)
+            
+            yield f"data: {json.dumps({'stage': 'generating', 'message': f'Generating: {enhanced_prompt[:60]}...'})}\n\n"
+            
+            # Generate using Stable Audio with full parameters
+            generated_audio = await generate_audio_to_audio(
+                reference_audio=audio_bytes,
+                prompt=enhanced_prompt,
+                duration=request.duration,
+                strength=request.strength,
+                cfg_scale=request.cfg_scale,
+                steps=request.steps,
+                seed=request.seed,
+            )
+            
+            # Encode result
+            audio_b64 = base64.b64encode(generated_audio).decode()
+            
+            name = request.prompt[:30].strip()
+            if len(request.prompt) > 30:
+                name += "..."
+            
+            yield f"data: {json.dumps({'stage': 'complete', 'message': 'Generation complete!', 'result': {'audio_data': audio_b64, 'name': name, 'duration': request.duration}})}\n\n"
+            
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:
+            yield f"data: {json.dumps({'stage': 'error', 'error': str(e)})}\n\n"
     
     return StreamingResponse(
         event_generator(),
