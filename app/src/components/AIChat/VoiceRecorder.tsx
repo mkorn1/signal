@@ -86,7 +86,9 @@ const LevelBar = styled.div<{ level: number }>`
     if (level > 0.4) return theme.yellowColor || "#ffc107"
     return theme.themeColor
   }};
-  transition: width 0.1s ease-out, background 0.1s ease-out;
+  transition:
+    width 0.1s ease-out,
+    background 0.1s ease-out;
   border-radius: 4px;
 `
 
@@ -120,6 +122,36 @@ const WaveformCanvas = styled.canvas`
   height: 100%;
 `
 
+const RecordingTimer = styled.div`
+  font-size: 12px;
+  color: ${({ theme }) => theme.secondaryTextColor};
+  margin-left: 8px;
+  font-family: monospace;
+`
+
+const MicrophoneSelect = styled.select`
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid ${({ theme }) => theme.dividerColor};
+  background: ${({ theme }) => theme.secondaryBackgroundColor};
+  color: ${({ theme }) => theme.textColor};
+  max-width: 180px;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.themeColor};
+  }
+`
+
+const MicSelectorRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+`
+
 export interface DetectedNote {
   pitch: number // MIDI note number (0-127)
   start: number // Start time in ticks
@@ -142,7 +174,7 @@ function frequencyToMidiNote(frequency: number): number {
  */
 function detectPitch(
   audioBuffer: Float32Array,
-  sampleRate: number
+  sampleRate: number,
 ): number | null {
   const minPeriod = Math.floor(sampleRate / 2000) // Max frequency ~2000 Hz
   const maxPeriod = Math.floor(sampleRate / 80) // Min frequency ~80 Hz
@@ -175,12 +207,12 @@ function detectPitch(
   }
 
   const frequency = sampleRate / bestPeriod
-  
+
   // Validate frequency is in a reasonable range for voice/music
   if (frequency < 80 || frequency > 2000) {
     return null
   }
-  
+
   return frequency
 }
 
@@ -195,7 +227,20 @@ function quantizeToNearestNote(midiNote: number): number {
  * Convert MIDI note number to note name
  */
 function midiNoteToName(midiNote: number): string {
-  const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+  const noteNames = [
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B",
+  ]
   const octave = Math.floor(midiNote / 12) - 1
   const noteName = noteNames[midiNote % 12]
   return `${noteName}${octave}`
@@ -223,22 +268,22 @@ function drawWaveform(
   canvas: HTMLCanvasElement,
   buffer: Float32Array,
   width: number,
-  height: number
+  height: number,
 ) {
   const ctx = canvas.getContext("2d")
   if (!ctx) return
 
   ctx.clearRect(0, 0, width, height)
-  
+
   // Find max amplitude for scaling
   let maxAmplitude = 0
   for (let i = 0; i < buffer.length; i++) {
     maxAmplitude = Math.max(maxAmplitude, Math.abs(buffer[i]))
   }
-  
+
   // Scale factor to make waveform more visible (amplify low signals)
   const scaleFactor = maxAmplitude > 0 ? Math.min(10, 0.1 / maxAmplitude) : 1
-  
+
   ctx.strokeStyle = "#4caf50"
   ctx.lineWidth = 2
   ctx.beginPath()
@@ -250,7 +295,7 @@ function drawWaveform(
   for (let i = 0; i < buffer.length; i++) {
     // Center the waveform and scale it
     const v = buffer[i] * scaleFactor
-    const y = centerY - (v * centerY)
+    const y = centerY - v * centerY
 
     if (i === 0) {
       ctx.moveTo(x, y)
@@ -262,7 +307,7 @@ function drawWaveform(
   }
 
   ctx.stroke()
-  
+
   // Draw center line
   ctx.strokeStyle = "rgba(255, 255, 255, 0.2)"
   ctx.lineWidth = 1
@@ -274,14 +319,20 @@ function drawWaveform(
 
 interface VoiceRecorderProps {
   onNotesDetected?: (notes: DetectedNote[]) => void
+  onAudioCaptured?: (audioBlob: Blob, notes: DetectedNote[]) => void
 }
 
-export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
+export const VoiceRecorder: FC<VoiceRecorderProps> = ({
+  onNotesDetected,
+  onAudioCaptured,
+}) => {
   const [isRecording, setIsRecording] = useState(false)
   const [status, setStatus] = useState<string>("")
   const [audioLevel, setAudioLevel] = useState<number>(0)
   const [currentFrequency, setCurrentFrequency] = useState<number | null>(null)
   const [currentNoteName, setCurrentNoteName] = useState<string | null>(null)
+  const [availableMics, setAvailableMics] = useState<MediaDeviceInfo[]>([])
+  const [selectedMicId, setSelectedMicId] = useState<string>("")
   const mediaStreamRef = useRef<MediaStream | null>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
@@ -289,25 +340,95 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
   const waveformCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const recordingStartTimeRef = useRef<number>(0)
   const notesRef = useRef<DetectedNote[]>([])
-  const currentNoteRef = useRef<{ pitch: number; startTime: number } | null>(null)
+  const currentNoteRef = useRef<{ pitch: number; startTime: number } | null>(
+    null,
+  )
   const animationFrameRef = useRef<number | null>(null)
-  const onNotesDetectedRef = useRef<((notes: DetectedNote[]) => void) | null>(null)
+  const onNotesDetectedRef = useRef<((notes: DetectedNote[]) => void) | null>(
+    null,
+  )
   const isRecordingRef = useRef<boolean>(false) // Use ref to track recording state immediately
+  // Audio recording for CREPE processing
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
+  const [recordingDuration, setRecordingDuration] = useState(0)
+  const recordingTimerRef = useRef<number | null>(null)
+  const MAX_RECORDING_DURATION = 30 // seconds
+  const onAudioCapturedRef = useRef<
+    ((audioBlob: Blob, notes: DetectedNote[]) => void) | null
+  >(null)
   const { currentTempo } = useConductorTrack()
-  
-  // Store callback in ref to avoid dependency issues
+
+  // Store callbacks in refs to avoid dependency issues
   useEffect(() => {
     onNotesDetectedRef.current = onNotesDetected || null
   }, [onNotesDetected])
 
+  useEffect(() => {
+    onAudioCapturedRef.current = onAudioCaptured || null
+  }, [onAudioCaptured])
+
+  // Enumerate available microphones on mount
+  useEffect(() => {
+    const enumerateMics = async () => {
+      try {
+        // Request permission first to get proper device labels
+        await navigator.mediaDevices.getUserMedia({ audio: true })
+          .then(stream => stream.getTracks().forEach(t => t.stop()))
+          .catch(() => {}) // Ignore permission errors, we'll still enumerate
+
+        const devices = await navigator.mediaDevices.enumerateDevices()
+        const mics = devices.filter(d => d.kind === "audioinput")
+        setAvailableMics(mics)
+
+        // Try to find a real microphone (not virtual)
+        const realMic = mics.find(m =>
+          !m.label.toLowerCase().includes('blackhole') &&
+          !m.label.toLowerCase().includes('virtual') &&
+          !m.label.toLowerCase().includes('soundflower')
+        )
+        if (realMic) {
+          setSelectedMicId(realMic.deviceId)
+        } else if (mics.length > 0) {
+          setSelectedMicId(mics[0].deviceId)
+        }
+      } catch (err) {
+        console.error('[VoiceRecorder] Error enumerating devices:', err)
+      }
+    }
+    enumerateMics()
+
+    // Re-enumerate when devices change
+    navigator.mediaDevices.addEventListener('devicechange', enumerateMics)
+    return () => navigator.mediaDevices.removeEventListener('devicechange', enumerateMics)
+  }, [])
+
   const TICKS_PER_QUARTER = 480
   const ANALYSIS_INTERVAL_MS = 100 // Analyze every 100ms
   const MIN_NOTE_DURATION_TICKS = 120 // Minimum 16th note
-  
+
   // Get current tempo or use default
   const tempo = currentTempo ?? DEFAULT_TEMPO
 
+  const getAudioBlob = useCallback((): Blob | null => {
+    if (audioChunksRef.current.length === 0) return null
+    return new Blob(audioChunksRef.current, { type: "audio/webm" })
+  }, [])
+
   const stopRecording = useCallback(async () => {
+    // Stop MediaRecorder and collect audio blob
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
+      mediaRecorderRef.current.stop()
+    }
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current)
+      recordingTimerRef.current = null
+    }
+    setRecordingDuration(0)
+
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach((track) => track.stop())
       mediaStreamRef.current = null
@@ -334,7 +455,11 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
 
   const processAudio = useCallback(() => {
     // Use ref instead of state to avoid closure issues
-    if (!analyserRef.current || !dataArrayRef.current || !isRecordingRef.current) {
+    if (
+      !analyserRef.current ||
+      !dataArrayRef.current ||
+      !isRecordingRef.current
+    ) {
       return
     }
 
@@ -343,7 +468,7 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
     if (!audioContext || audioContext.state === "closed") {
       return
     }
-    
+
     if (audioContext.state === "suspended") {
       audioContext.resume()
     }
@@ -352,100 +477,103 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
     if (!mediaStreamRef.current) {
       return
     }
-    
+
     const tracks = mediaStreamRef.current.getAudioTracks()
-    const activeTrack = tracks.find(t => t.readyState === "live")
+    const activeTrack = tracks.find((t) => t.readyState === "live")
     if (!activeTrack) {
       return
     }
 
     try {
       analyserRef.current.getFloatTimeDomainData(dataArrayRef.current)
-      
+
       // Calculate audio level (RMS)
       const rms = calculateRMS(dataArrayRef.current)
       setAudioLevel(rms)
-      
-      // Visual feedback only - no console logging
 
-    // Draw waveform
-    if (waveformCanvasRef.current) {
-      const canvas = waveformCanvasRef.current
-      drawWaveform(canvas, dataArrayRef.current, canvas.width, canvas.height)
-    }
+      // Draw waveform
+      if (waveformCanvasRef.current) {
+        const canvas = waveformCanvasRef.current
+        drawWaveform(canvas, dataArrayRef.current, canvas.width, canvas.height)
+      }
 
-    const frequency = detectPitch(dataArrayRef.current, audioContext.sampleRate)
-    
-    // Update frequency display
-    if (frequency && frequency > 0) {
-      setCurrentFrequency(frequency)
-      const midiNote = frequencyToMidiNote(frequency)
-      const quantizedNote = quantizeToNearestNote(midiNote)
-      if (quantizedNote >= 0 && quantizedNote <= 127) {
-        setCurrentNoteName(midiNoteToName(quantizedNote))
+      const frequency = detectPitch(
+        dataArrayRef.current,
+        audioContext.sampleRate,
+      )
+
+      // Update frequency display
+      if (frequency && frequency > 0) {
+        setCurrentFrequency(frequency)
+        const midiNote = frequencyToMidiNote(frequency)
+        const quantizedNote = quantizeToNearestNote(midiNote)
+        if (quantizedNote >= 0 && quantizedNote <= 127) {
+          setCurrentNoteName(midiNoteToName(quantizedNote))
+        } else {
+          setCurrentNoteName(null)
+        }
       } else {
+        setCurrentFrequency(null)
         setCurrentNoteName(null)
       }
-    } else {
-      setCurrentFrequency(null)
-      setCurrentNoteName(null)
-    }
 
-    const currentTime = Date.now()
-    const elapsedMs = currentTime - recordingStartTimeRef.current
-    // Convert milliseconds to ticks: (ms / 1000) * (BPM / 60) * TICKS_PER_QUARTER
-    const elapsedTicks = Math.floor((elapsedMs / 1000) * (tempo / 60) * TICKS_PER_QUARTER)
+      const currentTime = Date.now()
+      const elapsedMs = currentTime - recordingStartTimeRef.current
+      // Convert milliseconds to ticks: (ms / 1000) * (BPM / 60) * TICKS_PER_QUARTER
+      const elapsedTicks = Math.floor(
+        (elapsedMs / 1000) * (tempo / 60) * TICKS_PER_QUARTER,
+      )
 
-    if (frequency && frequency > 0) {
-      const midiNote = frequencyToMidiNote(frequency)
-      const quantizedNote = quantizeToNearestNote(midiNote)
+      if (frequency && frequency > 0) {
+        const midiNote = frequencyToMidiNote(frequency)
+        const quantizedNote = quantizeToNearestNote(midiNote)
 
-      if (quantizedNote >= 0 && quantizedNote <= 127) {
-        // Check if we have a current note
-        if (currentNoteRef.current) {
-          // If pitch changed significantly, end the previous note
-          if (Math.abs(currentNoteRef.current.pitch - quantizedNote) > 2) {
-            // End previous note
-            const noteDuration = elapsedTicks - currentNoteRef.current.startTime
-            if (noteDuration >= MIN_NOTE_DURATION_TICKS) {
-              notesRef.current.push({
-                pitch: currentNoteRef.current.pitch,
-                start: currentNoteRef.current.startTime,
-                duration: noteDuration,
-                velocity: 100,
-              })
+        if (quantizedNote >= 0 && quantizedNote <= 127) {
+          // Check if we have a current note
+          if (currentNoteRef.current) {
+            // If pitch changed significantly, end the previous note
+            if (Math.abs(currentNoteRef.current.pitch - quantizedNote) > 2) {
+              // End previous note
+              const noteDuration =
+                elapsedTicks - currentNoteRef.current.startTime
+              if (noteDuration >= MIN_NOTE_DURATION_TICKS) {
+                notesRef.current.push({
+                  pitch: currentNoteRef.current.pitch,
+                  start: currentNoteRef.current.startTime,
+                  duration: noteDuration,
+                  velocity: 100,
+                })
+              }
+              // Start new note
+              currentNoteRef.current = {
+                pitch: quantizedNote,
+                startTime: elapsedTicks,
+              }
             }
-            // Start new note
+            // Otherwise, continue the current note
+          } else {
+            // Start a new note
             currentNoteRef.current = {
               pitch: quantizedNote,
               startTime: elapsedTicks,
             }
           }
-          // Otherwise, continue the current note
-        } else {
-          // Start a new note
-          currentNoteRef.current = {
-            pitch: quantizedNote,
-            startTime: elapsedTicks,
+        }
+      } else {
+        // No pitch detected - end current note if exists
+        if (currentNoteRef.current) {
+          const noteDuration = elapsedTicks - currentNoteRef.current.startTime
+          if (noteDuration >= MIN_NOTE_DURATION_TICKS) {
+            notesRef.current.push({
+              pitch: currentNoteRef.current.pitch,
+              start: currentNoteRef.current.startTime,
+              duration: noteDuration,
+              velocity: 100,
+            })
           }
+          currentNoteRef.current = null
         }
       }
-    } else {
-      // No pitch detected - end current note if exists
-      if (currentNoteRef.current) {
-        const noteDuration = elapsedTicks - currentNoteRef.current.startTime
-        if (noteDuration >= MIN_NOTE_DURATION_TICKS) {
-          notesRef.current.push({
-            pitch: currentNoteRef.current.pitch,
-            start: currentNoteRef.current.startTime,
-            duration: noteDuration,
-            velocity: 100,
-          })
-        }
-        currentNoteRef.current = null
-      }
-    }
-
     } catch (error) {
       console.error("Error in processAudio:", error)
     }
@@ -466,25 +594,41 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
       }
 
       setStatus("Requesting microphone access...")
-      
+
       // Request microphone with better error handling
+      // Use selected device if available
       let stream: MediaStream
+      const audioConstraints: MediaTrackConstraints = {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+      }
+      if (selectedMicId) {
+        audioConstraints.deviceId = { exact: selectedMicId }
+      }
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          audio: {
-            echoCancellation: false,
-            noiseSuppression: false,
-            autoGainControl: false,
-          } 
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: audioConstraints,
         })
       } catch (err) {
         const error = err as Error
         console.error("getUserMedia error:", error)
-        if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
-          setStatus("Microphone permission denied. Please allow microphone access.")
-        } else if (error.name === "NotFoundError" || error.name === "DevicesNotFoundError") {
+        if (
+          error.name === "NotAllowedError" ||
+          error.name === "PermissionDeniedError"
+        ) {
+          setStatus(
+            "Microphone permission denied. Please allow microphone access.",
+          )
+        } else if (
+          error.name === "NotFoundError" ||
+          error.name === "DevicesNotFoundError"
+        ) {
           setStatus("No microphone found. Please connect a microphone.")
-        } else if (error.name === "NotReadableError" || error.name === "TrackStartError") {
+        } else if (
+          error.name === "NotReadableError" ||
+          error.name === "TrackStartError"
+        ) {
           setStatus("Microphone is being used by another application.")
         } else {
           setStatus(`Microphone error: ${error.message}`)
@@ -496,15 +640,17 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
       const audioTracks = stream.getAudioTracks()
       if (audioTracks.length === 0) {
         setStatus("No audio tracks found in stream")
-        stream.getTracks().forEach(track => track.stop())
+        stream.getTracks().forEach((track) => track.stop())
         return
       }
 
       // Check if tracks are active
-      const activeTrack = audioTracks.find(track => track.readyState === "live")
+      const activeTrack = audioTracks.find(
+        (track) => track.readyState === "live",
+      )
       if (!activeTrack) {
         setStatus("Audio tracks are not active")
-        stream.getTracks().forEach(track => track.stop())
+        stream.getTracks().forEach((track) => track.stop())
         return
       }
 
@@ -512,15 +658,25 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
 
       mediaStreamRef.current = stream
 
-      // Create audio context
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-      
-      // Resume audio context if suspended (required in some browsers)
+      // Create audio context with explicit sample rate
+      const audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)({
+        sampleRate: 44100, // Standard sample rate
+      })
+      audioContextRef.current = audioContext
+
+      // Resume AudioContext if suspended (required by browser autoplay policies)
       if (audioContext.state === "suspended") {
         await audioContext.resume()
       }
 
-      audioContextRef.current = audioContext
+      // Wait a moment for context to fully initialize
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Double-check context is running
+      if (audioContext.state !== "running") {
+        await audioContext.resume()
+      }
 
       const source = audioContext.createMediaStreamSource(stream)
       const analyser = audioContext.createAnalyser()
@@ -532,6 +688,42 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
 
       analyserRef.current = analyser
       dataArrayRef.current = new Float32Array(analyser.fftSize)
+
+      // Set up MediaRecorder for audio capture
+      try {
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: "audio/webm;codecs=opus",
+        })
+        mediaRecorderRef.current = mediaRecorder
+        audioChunksRef.current = []
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data)
+          }
+        }
+
+        mediaRecorder.start(1000) // Collect data every second
+
+        // Start recording timer
+        setRecordingDuration(0)
+        recordingTimerRef.current = window.setInterval(() => {
+          setRecordingDuration((prev) => {
+            if (prev >= MAX_RECORDING_DURATION - 1) {
+              // Auto-stop at max duration - use timeout to avoid setState during render
+              setTimeout(() => {
+                if (isRecordingRef.current) {
+                  stopRecording()
+                }
+              }, 0)
+              return prev
+            }
+            return prev + 1
+          })
+        }, 1000)
+      } catch (err) {
+        console.warn("MediaRecorder not supported, pitch detection only:", err)
+      }
 
       // Monitor track state changes
       activeTrack.addEventListener("ended", () => {
@@ -547,31 +739,31 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
         setStatus("Recording... Hum or sing a melody!")
       })
 
-    // Setup waveform canvas
-    if (waveformCanvasRef.current) {
-      const canvas = waveformCanvasRef.current
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio
-      canvas.height = canvas.offsetHeight * window.devicePixelRatio
-      const ctx = canvas.getContext("2d")
-      if (ctx) {
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
+      // Setup waveform canvas
+      if (waveformCanvasRef.current) {
+        const canvas = waveformCanvasRef.current
+        canvas.width = canvas.offsetWidth * window.devicePixelRatio
+        canvas.height = canvas.offsetHeight * window.devicePixelRatio
+        const ctx = canvas.getContext("2d")
+        if (ctx) {
+          ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
+        }
       }
-    }
 
-    recordingStartTimeRef.current = Date.now()
-    notesRef.current = []
-    currentNoteRef.current = null
-    setAudioLevel(0)
-    setCurrentFrequency(null)
-    setCurrentNoteName(null)
+      recordingStartTimeRef.current = Date.now()
+      notesRef.current = []
+      currentNoteRef.current = null
+      setAudioLevel(0)
+      setCurrentFrequency(null)
+      setCurrentNoteName(null)
 
-    // Set recording state in both ref and state
-    isRecordingRef.current = true
-    setIsRecording(true)
-    setStatus("Recording... Hum or sing a melody!")
-    
-    // Start the audio processing loop
-    processAudio()
+      // Set recording state in both ref and state
+      isRecordingRef.current = true
+      setIsRecording(true)
+      setStatus("Recording... Hum or sing a melody!")
+
+      // Start the audio processing loop
+      processAudio()
     } catch (error) {
       console.error("Error starting recording:", error)
       const err = error as Error
@@ -580,11 +772,11 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
           ? "Microphone permission denied"
           : err.name === "NotFoundError"
             ? "No microphone found"
-            : `Error: ${err.message || "Failed to start recording"}`
+            : `Error: ${err.message || "Failed to start recording"}`,
       )
       await stopRecording()
     }
-  }, [processAudio, stopRecording])
+  }, [processAudio, stopRecording, selectedMicId])
 
   const handleToggleRecording = useCallback(async () => {
     if (isRecording) {
@@ -593,7 +785,9 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
       // Finalize the last note if exists
       if (currentNoteRef.current) {
         const elapsedMs = Date.now() - recordingStartTimeRef.current
-        const elapsedTicks = Math.floor((elapsedMs / 1000) * (tempo / 60) * TICKS_PER_QUARTER)
+        const elapsedTicks = Math.floor(
+          (elapsedMs / 1000) * (tempo / 60) * TICKS_PER_QUARTER,
+        )
         const noteDuration = elapsedTicks - currentNoteRef.current.startTime
         if (noteDuration >= MIN_NOTE_DURATION_TICKS) {
           notesRef.current.push({
@@ -605,10 +799,30 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
         }
       }
 
-      // Pass notes to agent via callback
-      if (notesRef.current.length > 0) {
-        setStatus(`Detected ${notesRef.current.length} notes, sending to chat...`)
-        
+      // After finalizing notes, also pass audio blob for CREPE processing
+      const audioBlob = getAudioBlob()
+      if (audioBlob) {
+        console.log(
+          `Audio blob captured: ${(audioBlob.size / 1024).toFixed(1)} KB`,
+        )
+      }
+      if (audioBlob && onAudioCapturedRef.current) {
+        setStatus(`Processing ${notesRef.current.length} notes with CREPE...`)
+        onAudioCapturedRef.current(audioBlob, notesRef.current)
+        setStatus(`✅ Audio captured! Processing melody...`)
+        setTimeout(() => setStatus(""), 3000)
+      } else if (audioBlob) {
+        // Audio blob captured but no handler - still show success
+        setStatus(
+          `✅ Audio captured (${(audioBlob.size / 1024).toFixed(1)} KB)`,
+        )
+        setTimeout(() => setStatus(""), 3000)
+      } else if (notesRef.current.length > 0) {
+        // Fallback to original note detection if no audio blob
+        setStatus(
+          `Detected ${notesRef.current.length} notes, sending to agent...`,
+        )
+
         // Call the callback to pass notes to parent (AIChat)
         if (onNotesDetectedRef.current) {
           onNotesDetectedRef.current(notesRef.current)
@@ -624,7 +838,7 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
     } else {
       await startRecording()
     }
-  }, [isRecording, startRecording, stopRecording, tempo])
+  }, [isRecording, startRecording, stopRecording, tempo, getAudioBlob])
 
   useEffect(() => {
     return () => {
@@ -634,6 +848,21 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
 
   return (
     <Container>
+      {!isRecording && availableMics.length > 1 && (
+        <MicSelectorRow>
+          <MicrophoneSelect
+            value={selectedMicId}
+            onChange={(e) => setSelectedMicId(e.target.value)}
+            title="Select microphone"
+          >
+            {availableMics.map((mic) => (
+              <option key={mic.deviceId} value={mic.deviceId}>
+                {mic.label || `Microphone ${mic.deviceId.slice(0, 8)}`}
+              </option>
+            ))}
+          </MicrophoneSelect>
+        </MicSelectorRow>
+      )}
       <MicButton
         isRecording={isRecording}
         onClick={handleToggleRecording}
@@ -641,6 +870,11 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
       >
         {isRecording ? "⏹" : "🎤"}
       </MicButton>
+      {isRecording && (
+        <RecordingTimer>
+          {recordingDuration}s / {MAX_RECORDING_DURATION}s
+        </RecordingTimer>
+      )}
       {isRecording && (
         <AudioVisualizer>
           <LevelMeter>
@@ -651,9 +885,7 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
               <FrequencyDisplay>
                 {currentFrequency.toFixed(1)} Hz
               </FrequencyDisplay>
-              {currentNoteName && (
-                <NoteName>{currentNoteName}</NoteName>
-              )}
+              {currentNoteName && <NoteName>{currentNoteName}</NoteName>}
             </>
           ) : (
             <FrequencyDisplay style={{ color: "rgba(255,255,255,0.5)" }}>
@@ -669,4 +901,3 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({ onNotesDetected }) => {
     </Container>
   )
 }
-

@@ -4,9 +4,37 @@ import { useLoadAISong } from "../../actions/aiGeneration"
 import { useStores } from "../../hooks/useStores"
 import { aiBackend, GenerationStage } from "../../services/aiBackend"
 import type { ProgressEvent } from "../../services/aiBackend/types"
-import { runAgentLoop, runAgentStreamLoop, type ToolCall } from "../../services/hybridAgent"
+import {
+  runAgentLoop,
+  runAgentStreamLoop,
+  type ToolCall,
+} from "../../services/hybridAgent"
 import type { ToolResult } from "../../services/hybridAgent/toolExecutor"
 import { VoiceRecorder, type DetectedNote } from "./VoiceRecorder"
+import { processVoiceToMidi } from "../../services/voiceToMidi"
+import { emptyTrack } from "@signal-app/core"
+import { useSong } from "../../hooks/useSong"
+import { useConductorTrack } from "../../hooks/useConductorTrack"
+import { getInstrumentProgramNumber } from "../../agent/instrumentMapping"
+
+const KEY_NAMES = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+]
+
+function getKeyDisplayName(key: number, scale: "major" | "minor"): string {
+  return `${KEY_NAMES[key]} ${scale}`
+}
 
 const Container = styled.div`
   display: flex;
@@ -44,19 +72,21 @@ const Select = styled.select`
   font-size: 0.75rem;
   font-family: inherit;
   cursor: pointer;
-  
+
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.themeColor};
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 `
 
-const StatusDot = styled.span<{ status: "connected" | "disconnected" | "checking" }>`
+const StatusDot = styled.span<{
+  status: "connected" | "disconnected" | "checking"
+}>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -90,7 +120,9 @@ const Message = styled.div<{ role: "user" | "assistant" | "error" }>`
         ? theme.redColor
         : theme.secondaryBackgroundColor};
   color: ${({ role, theme }) =>
-    role === "user" || role === "error" ? theme.onSurfaceColor : theme.textColor};
+    role === "user" || role === "error"
+      ? theme.onSurfaceColor
+      : theme.textColor};
   font-size: 0.875rem;
   line-height: 1.4;
   user-select: text;
@@ -245,6 +277,34 @@ const ProgressFill = styled.div<{ width: number }>`
   width: ${({ width }) => width}%;
 `
 
+const VoiceProcessingIndicator = styled.div`
+  padding: 8px 12px;
+  background: ${({ theme }) => theme.secondaryBackgroundColor};
+  border-radius: 4px;
+  font-size: 13px;
+  color: ${({ theme }) => theme.textColor};
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  &::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`
+
 // Streaming progress styled components (for hybrid agent)
 const StreamingContainer = styled.div`
   padding: 0.75rem 1rem;
@@ -268,7 +328,9 @@ const StreamingHeader = styled.div<{ expanded: boolean }>`
 
 const StreamingIcon = styled.span<{ isAnimated?: boolean }>`
   font-size: 1rem;
-  ${({ isAnimated }) => isAnimated && `
+  ${({ isAnimated }) =>
+    isAnimated &&
+    `
     animation: pulse 1.5s infinite;
     @keyframes pulse {
       0%, 100% { opacity: 1; }
@@ -287,15 +349,18 @@ const StreamingTitle = styled.span`
 const ExpandIcon = styled.span<{ expanded: boolean }>`
   font-size: 0.75rem;
   color: ${({ theme }) => theme.secondaryTextColor};
-  transform: ${({ expanded }) => expanded ? 'rotate(180deg)' : 'rotate(0deg)'};
+  transform: ${({ expanded }) =>
+    expanded ? "rotate(180deg)" : "rotate(0deg)"};
   transition: transform 0.2s ease;
 `
 
 const StreamingContent = styled.div<{ expanded: boolean }>`
-  margin-top: ${({ expanded }) => expanded ? '0.75rem' : '0'};
-  max-height: ${({ expanded }) => expanded ? '200px' : '0'};
+  margin-top: ${({ expanded }) => (expanded ? "0.75rem" : "0")};
+  max-height: ${({ expanded }) => (expanded ? "200px" : "0")};
   overflow: hidden;
-  transition: max-height 0.3s ease, margin-top 0.3s ease;
+  transition:
+    max-height 0.3s ease,
+    margin-top 0.3s ease;
 `
 
 const ThinkingText = styled.div`
@@ -319,7 +384,7 @@ const ToolCallsList = styled.div`
   margin-top: 0.5rem;
 `
 
-const ToolCallItem = styled.div<{ status: 'pending' | 'executing' | 'done' }>`
+const ToolCallItem = styled.div<{ status: "pending" | "executing" | "done" }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -328,9 +393,11 @@ const ToolCallItem = styled.div<{ status: 'pending' | 'executing' | 'done' }>`
   border-radius: 0.25rem;
   font-size: 0.8rem;
   color: ${({ theme, status }) =>
-    status === 'done' ? theme.themeColor :
-    status === 'executing' ? theme.yellowColor || '#ffc107' :
-    theme.secondaryTextColor};
+    status === "done"
+      ? theme.themeColor
+      : status === "executing"
+        ? theme.yellowColor || "#ffc107"
+        : theme.secondaryTextColor};
 `
 
 const ToolCallName = styled.span`
@@ -383,7 +450,20 @@ const NoteItem = styled.div`
 const NotesDisplay: FC<{ notes: DetectedNote[] }> = ({ notes }) => {
   // Convert MIDI note number to note name
   const midiNoteToName = (midiNote: number): string => {
-    const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    const noteNames = [
+      "C",
+      "C#",
+      "D",
+      "D#",
+      "E",
+      "F",
+      "F#",
+      "G",
+      "G#",
+      "A",
+      "A#",
+      "B",
+    ]
     const octave = Math.floor(midiNote / 12) - 1
     const noteName = noteNames[midiNote % 12]
     return `${noteName}${octave}`
@@ -395,22 +475,42 @@ const NotesDisplay: FC<{ notes: DetectedNote[] }> = ({ notes }) => {
       <NotesList>
         {notes.map((note, i) => (
           <NoteItem key={i}>
-            {midiNoteToName(note.pitch)} - pitch: {note.pitch}, start: {note.start} ticks, duration: {note.duration} ticks, velocity: {note.velocity}
+            {midiNoteToName(note.pitch)} - pitch: {note.pitch}, start:{" "}
+            {note.start} ticks, duration: {note.duration} ticks, velocity:{" "}
+            {note.velocity}
           </NoteItem>
         ))}
       </NotesList>
-      <div style={{ marginTop: "0.5rem", fontSize: "0.7rem", color: "rgba(255,255,255,0.6)", fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
-        <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>addNotes tool format:</div>
-        <div style={{ background: "rgba(0,0,0,0.2)", padding: "0.5rem", borderRadius: "0.25rem", overflowX: "auto" }}>
-          {JSON.stringify({
-            trackId: 0, // User will specify track
-            notes: notes.map(n => ({
+      <div
+        style={{
+          marginTop: "0.5rem",
+          fontSize: "0.7rem",
+          color: "rgba(255,255,255,0.6)",
+          fontFamily: "monospace",
+          whiteSpace: "pre-wrap",
+        }}
+      >
+        <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
+          Tool format (for addNotes):
+        </div>
+        <div
+          style={{
+            background: "rgba(0,0,0,0.2)",
+            padding: "0.5rem",
+            borderRadius: "0.25rem",
+            overflowX: "auto",
+          }}
+        >
+          {JSON.stringify(
+            notes.map((n) => ({
               pitch: n.pitch,
               start: n.start,
               duration: n.duration,
-              velocity: n.velocity
-            }))
-          }, null, 2)}
+              velocity: n.velocity,
+            })),
+            null,
+            2,
+          )}
         </div>
       </div>
     </NotesContainer>
@@ -499,13 +599,18 @@ export const AIChat: FC = () => {
   const [agentType, setAgentType] = useState<AgentType>(() => {
     // Load from localStorage or default to hybrid
     const stored = localStorage.getItem(AGENT_TYPE_STORAGE_KEY)
-    return (stored === "llm" || stored === "composition_agent" || stored === "hybrid")
+    return stored === "llm" ||
+      stored === "composition_agent" ||
+      stored === "hybrid"
       ? (stored as AgentType)
       : "hybrid" // Default to hybrid agent
   })
   const { songStore } = useStores()
+  const { addTrack, tracks, timebase } = useSong()
+  const { currentTempo } = useConductorTrack()
   // Deep agent progress state
-  const [generationStage, setGenerationStage] = useState<GenerationStage | null>(null)
+  const [generationStage, setGenerationStage] =
+    useState<GenerationStage | null>(null)
   const [generationProgress, setGenerationProgress] = useState<string>("")
   const [currentAttempt, setCurrentAttempt] = useState<number>(0)
   // Streaming agent state (for hybrid agent)
@@ -514,6 +619,9 @@ export const AIChat: FC = () => {
   const [executedToolIds, setExecutedToolIds] = useState<Set<string>>(new Set())
   const [thinkingExpanded, setThinkingExpanded] = useState(false)
   const [useStreaming, setUseStreaming] = useState(true) // Toggle for streaming vs non-streaming
+  // Voice-to-MIDI state
+  const [voiceProcessing, setVoiceProcessing] = useState(false)
+  const [voiceProgress, setVoiceProgress] = useState("")
 
   const loadAISong = useLoadAISong()
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -540,416 +648,447 @@ export const AIChat: FC = () => {
     return () => clearInterval(interval)
   }, [])
 
-  const handleSubmit = useCallback(async (overrideInput?: string) => {
-    const messageToSubmit = overrideInput || input.trim()
-    if (!messageToSubmit || isLoading) return
+  const handleSubmit = useCallback(
+    async (overrideInput?: string) => {
+      const messageToSubmit = overrideInput || input.trim()
+      if (!messageToSubmit || isLoading) return
 
-    // Find if there are notes in recent messages that should be included as context
-    const recentMessageWithNotes = messages
-      .slice()
-      .reverse()
-      .find((msg) => msg.role === "user" && msg.notes && msg.notes.length > 0)
+      // Find if there are notes in recent messages that should be included as context
+      const recentMessageWithNotes = messages
+        .slice()
+        .reverse()
+        .find((msg) => msg.role === "user" && msg.notes && msg.notes.length > 0)
 
-    let userMessage = messageToSubmit
-    
-    // If there are notes in a recent message, include them in the exact addNotes tool format
-    if (recentMessageWithNotes?.notes) {
-      const notesData = {
-        trackId: 0, // User will specify which track
-        notes: recentMessageWithNotes.notes.map((n) => ({
-          pitch: n.pitch,
-          start: n.start,
-          duration: n.duration,
-          velocity: n.velocity,
-        })),
+      let userMessage = messageToSubmit
+
+      // If there are notes in a recent message, include them in the prompt
+      if (recentMessageWithNotes?.notes) {
+        const notesJson = JSON.stringify(
+          recentMessageWithNotes.notes.map((n) => ({
+            pitch: n.pitch,
+            start: n.start,
+            duration: n.duration,
+            velocity: n.velocity,
+          })),
+          null,
+          2,
+        )
+        userMessage = `${messageToSubmit}\n\nHere are the notes to add (in addNotes tool format):\n\`\`\`json\n${notesJson}\n\`\`\``
       }
-      const notesJson = JSON.stringify(notesData, null, 2)
-      userMessage = `${messageToSubmit}\n\nHere are the notes to add (in addNotes tool format):\n\`\`\`json\n${notesJson}\n\`\`\``
-    }
 
-    if (!overrideInput) {
-      setInput("")
-    }
-    
-    // Add user message and create placeholder for assistant response
-    setMessages((prev) => {
-      const newMessages = [...prev, { role: "user" as const, content: messageToSubmit }]
-      const assistantIndex = newMessages.length
-      streamingMessageRef.current = assistantIndex
-      return [...newMessages, { role: "assistant" as const, content: "" }]
-    })
-    
-    setIsLoading(true)
+      if (!overrideInput) {
+        setInput("")
+      }
 
-    // Branch based on agent type
-    if (agentType === "hybrid") {
-      // Hybrid Agent mode: Run agent loop with frontend tool execution
-      const abortController = new AbortController()
-      abortControllerRef.current = abortController
+      // Add user message and create placeholder for assistant response
+      setMessages((prev) => {
+        const newMessages = [
+          ...prev,
+          { role: "user" as const, content: messageToSubmit },
+        ]
+        const assistantIndex = newMessages.length
+        streamingMessageRef.current = assistantIndex
+        return [...newMessages, { role: "assistant" as const, content: "" }]
+      })
 
-      // Reset streaming state
-      setStreamingThinking("")
-      setStreamingToolCalls([])
-      setExecutedToolIds(new Set())
+      setIsLoading(true)
 
-      try {
-        if (useStreaming) {
-          // Use streaming agent loop
-          const result = await runAgentStreamLoop(
-            userMessage,
-            songStore.song,
-            {
-              onThinking: (content: string) => {
-                setStreamingThinking((prev) => prev + content)
-              },
-              onToolCalls: (toolCalls: ToolCall[]) => {
-                setStreamingToolCalls(toolCalls)
-              },
-              onToolsExecuted: (toolCalls: ToolCall[], results: ToolResult[]) => {
-                // Mark tools as executed
-                setExecutedToolIds((prev) => {
-                  const newSet = new Set(prev)
-                  toolCalls.forEach((tc) => newSet.add(tc.id))
-                  return newSet
-                })
-                // Update message to show tools executed
-                setMessages((prev) => {
-                  const updated = [...prev]
-                  const index = streamingMessageRef.current
-                  if (index >= 0 && index < updated.length) {
-                    const toolNames = toolCalls.map((tc) => tc.name).join(", ")
-                    const successCount = results.filter((r) => {
-                      try {
-                        const parsed = JSON.parse(r.result)
-                        return !parsed.error
-                      } catch {
-                        return true
-                      }
-                    }).length
-                    updated[index] = {
-                      ...updated[index],
-                      content: updated[index].content + `\n🔧 Executed: ${toolNames} (${successCount}/${results.length} succeeded)`,
-                    }
-                  }
-                  return updated
-                })
-                // Reset for next round
-                setStreamingThinking("")
-                setStreamingToolCalls([])
-              },
-              onMessage: (message: string) => {
-                setMessages((prev) => {
-                  const updated = [...prev]
-                  const index = streamingMessageRef.current
-                  if (index >= 0 && index < updated.length) {
-                    updated[index] = {
-                      ...updated[index],
-                      content: updated[index].content + `\n\n${message}`,
-                    }
-                  }
-                  return updated
-                })
-              },
-              onError: (error: Error) => {
-                setMessages((prev) => {
-                  const updated = [...prev]
-                  const index = streamingMessageRef.current
-                  if (index >= 0 && index < updated.length) {
-                    updated[index] = {
-                      role: "error",
-                      content: error.message,
-                    }
-                  }
-                  return updated
-                })
-              },
-              onComplete: () => {
-                setStreamingThinking("")
-                setStreamingToolCalls([])
-                setExecutedToolIds(new Set())
-              },
-            },
-            abortController.signal
-          )
+      // Branch based on agent type
+      if (agentType === "hybrid") {
+        // Hybrid Agent mode: Run agent loop with frontend tool execution
+        const abortController = new AbortController()
+        abortControllerRef.current = abortController
 
-          if (result.success) {
-            setMessages((prev) => {
-              const updated = [...prev]
-              const index = streamingMessageRef.current
-              if (index >= 0 && index < updated.length) {
-                updated[index] = {
-                  role: "assistant",
-                  content: updated[index].content + "\n\n✅ Done! The changes have been applied to your song.",
-                }
-              }
-              return updated
-            })
-          }
-        } else {
-          // Use non-streaming agent loop (fallback)
-          const result = await runAgentLoop(
-            userMessage,
-            songStore.song,
-            {
-              onToolsExecuted: (toolCalls: ToolCall[], results: ToolResult[]) => {
-                // Update message to show tools executed
-                setMessages((prev) => {
-                  const updated = [...prev]
-                  const index = streamingMessageRef.current
-                  if (index >= 0 && index < updated.length) {
-                    const toolNames = toolCalls.map((tc) => tc.name).join(", ")
-                    const successCount = results.filter((r) => {
-                      try {
-                        const parsed = JSON.parse(r.result)
-                        return !parsed.error
-                      } catch {
-                        return true
-                      }
-                    }).length
-                    updated[index] = {
-                      ...updated[index],
-                      content: updated[index].content + `\n🔧 Executed: ${toolNames} (${successCount}/${results.length} succeeded)`,
-                    }
-                  }
-                  return updated
-                })
-              },
-              onMessage: (message: string) => {
-                setMessages((prev) => {
-                  const updated = [...prev]
-                  const index = streamingMessageRef.current
-                  if (index >= 0 && index < updated.length) {
-                    updated[index] = {
-                      ...updated[index],
-                      content: updated[index].content + `\n\n${message}`,
-                    }
-                  }
-                  return updated
-                })
-              },
-              onError: (error: Error) => {
-                setMessages((prev) => {
-                  const updated = [...prev]
-                  const index = streamingMessageRef.current
-                  if (index >= 0 && index < updated.length) {
-                    updated[index] = {
-                      role: "error",
-                      content: error.message,
-                    }
-                  }
-                  return updated
-                })
-              },
-            },
-            abortController.signal
-          )
-
-          if (result.success) {
-            setMessages((prev) => {
-              const updated = [...prev]
-              const index = streamingMessageRef.current
-              if (index >= 0 && index < updated.length) {
-                updated[index] = {
-                  role: "assistant",
-                  content: updated[index].content + "\n\n✅ Done! The changes have been applied to your song.",
-                }
-              }
-              return updated
-            })
-          }
-        }
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Generation failed"
-        setMessages((prev) => {
-          const updated = [...prev]
-          const index = streamingMessageRef.current
-          if (index >= 0 && index < updated.length) {
-            updated[index] = { role: "error", content: errorMessage }
-          }
-          return updated
-        })
-      } finally {
-        streamingMessageRef.current = -1
-        setIsLoading(false)
-        abortControllerRef.current = null
+        // Reset streaming state
         setStreamingThinking("")
         setStreamingToolCalls([])
         setExecutedToolIds(new Set())
-      }
-    } else if (agentType === "llm") {
-      // LLM Direct mode: Use streaming with abort controller
-      const abortController = new AbortController()
-      abortControllerRef.current = abortController
 
-      try {
-        await aiBackend.generateStream(
-          { prompt: userMessage, agentType: agentType },
-          (content: string) => {
-            // Update the streaming message
-            setMessages((prev) => {
-              const updated = [...prev]
-              const index = streamingMessageRef.current
-              if (index >= 0 && index < updated.length) {
-                updated[index] = {
-                  ...updated[index],
-                  content: updated[index].content + content,
+        try {
+          if (useStreaming) {
+            // Use streaming agent loop
+            const result = await runAgentStreamLoop(
+              userMessage,
+              songStore.song,
+              {
+                onThinking: (content: string) => {
+                  setStreamingThinking((prev) => prev + content)
+                },
+                onToolCalls: (toolCalls: ToolCall[]) => {
+                  setStreamingToolCalls(toolCalls)
+                },
+                onToolsExecuted: (
+                  toolCalls: ToolCall[],
+                  results: ToolResult[],
+                ) => {
+                  // Mark tools as executed
+                  setExecutedToolIds((prev) => {
+                    const newSet = new Set(prev)
+                    toolCalls.forEach((tc) => newSet.add(tc.id))
+                    return newSet
+                  })
+                  // Update message to show tools executed
+                  setMessages((prev) => {
+                    const updated = [...prev]
+                    const index = streamingMessageRef.current
+                    if (index >= 0 && index < updated.length) {
+                      const toolNames = toolCalls
+                        .map((tc) => tc.name)
+                        .join(", ")
+                      const successCount = results.filter((r) => {
+                        try {
+                          const parsed = JSON.parse(r.result)
+                          return !parsed.error
+                        } catch {
+                          return true
+                        }
+                      }).length
+                      updated[index] = {
+                        ...updated[index],
+                        content:
+                          updated[index].content +
+                          `\n🔧 Executed: ${toolNames} (${successCount}/${results.length} succeeded)`,
+                      }
+                    }
+                    return updated
+                  })
+                  // Reset for next round
+                  setStreamingThinking("")
+                  setStreamingToolCalls([])
+                },
+                onMessage: (message: string) => {
+                  setMessages((prev) => {
+                    const updated = [...prev]
+                    const index = streamingMessageRef.current
+                    if (index >= 0 && index < updated.length) {
+                      updated[index] = {
+                        ...updated[index],
+                        content: updated[index].content + `\n\n${message}`,
+                      }
+                    }
+                    return updated
+                  })
+                },
+                onError: (error: Error) => {
+                  setMessages((prev) => {
+                    const updated = [...prev]
+                    const index = streamingMessageRef.current
+                    if (index >= 0 && index < updated.length) {
+                      updated[index] = {
+                        role: "error",
+                        content: error.message,
+                      }
+                    }
+                    return updated
+                  })
+                },
+                onComplete: () => {
+                  setStreamingThinking("")
+                  setStreamingToolCalls([])
+                  setExecutedToolIds(new Set())
+                },
+              },
+              abortController.signal,
+            )
+
+            if (result.success) {
+              setMessages((prev) => {
+                const updated = [...prev]
+                const index = streamingMessageRef.current
+                if (index >= 0 && index < updated.length) {
+                  updated[index] = {
+                    role: "assistant",
+                    content:
+                      updated[index].content +
+                      "\n\n✅ Done! The changes have been applied to your song.",
+                  }
                 }
-              }
-              return updated
-            })
-          },
-          (response) => {
-            // Load the generated song
-            loadAISong(response)
-
-            // Update the final message
-            setMessages((prev) => {
-              const updated = [...prev]
-              const index = streamingMessageRef.current
-              if (index >= 0 && index < updated.length) {
-                updated[index] = {
-                  role: "assistant",
-                  content:
-                    prev[index].content +
-                    `\n\n✅ Generated ${response.tracks.length} tracks: ${response.tracks.map((t) => t.name).join(", ")}. Press play to listen!`,
-                }
-              }
-              return updated
-            })
-            streamingMessageRef.current = -1
-            setIsLoading(false)
-            abortControllerRef.current = null
-          },
-          (error) => {
-            const errorMessage =
-              error instanceof Error ? error.message : "Generation failed"
-
-            // Provide user-friendly error messages
-            let friendlyMessage = errorMessage
-            if (errorMessage.includes("fetch") || errorMessage.includes("network")) {
-              friendlyMessage =
-                "Cannot connect to AI backend. Make sure it's running on http://localhost:8000"
-            } else if (errorMessage.includes("timeout")) {
-              friendlyMessage =
-                "Generation took too long. Try a simpler prompt or try again."
-            } else if (errorMessage.includes("syntax error")) {
-              friendlyMessage =
-                "The AI generated invalid code. Please try again with a different prompt."
+                return updated
+              })
             }
+          } else {
+            // Use non-streaming agent loop (fallback)
+            const result = await runAgentLoop(
+              userMessage,
+              songStore.song,
+              {
+                onToolsExecuted: (
+                  toolCalls: ToolCall[],
+                  results: ToolResult[],
+                ) => {
+                  // Update message to show tools executed
+                  setMessages((prev) => {
+                    const updated = [...prev]
+                    const index = streamingMessageRef.current
+                    if (index >= 0 && index < updated.length) {
+                      const toolNames = toolCalls
+                        .map((tc) => tc.name)
+                        .join(", ")
+                      const successCount = results.filter((r) => {
+                        try {
+                          const parsed = JSON.parse(r.result)
+                          return !parsed.error
+                        } catch {
+                          return true
+                        }
+                      }).length
+                      updated[index] = {
+                        ...updated[index],
+                        content:
+                          updated[index].content +
+                          `\n🔧 Executed: ${toolNames} (${successCount}/${results.length} succeeded)`,
+                      }
+                    }
+                    return updated
+                  })
+                },
+                onMessage: (message: string) => {
+                  setMessages((prev) => {
+                    const updated = [...prev]
+                    const index = streamingMessageRef.current
+                    if (index >= 0 && index < updated.length) {
+                      updated[index] = {
+                        ...updated[index],
+                        content: updated[index].content + `\n\n${message}`,
+                      }
+                    }
+                    return updated
+                  })
+                },
+                onError: (error: Error) => {
+                  setMessages((prev) => {
+                    const updated = [...prev]
+                    const index = streamingMessageRef.current
+                    if (index >= 0 && index < updated.length) {
+                      updated[index] = {
+                        role: "error",
+                        content: error.message,
+                      }
+                    }
+                    return updated
+                  })
+                },
+              },
+              abortController.signal,
+            )
 
-            setMessages((prev) => {
-              const updated = [...prev]
-              const index = streamingMessageRef.current
-              // Replace the streaming message with error
-              if (index >= 0 && index < updated.length) {
-                updated[index] = {
-                  role: "error",
-                  content: friendlyMessage,
+            if (result.success) {
+              setMessages((prev) => {
+                const updated = [...prev]
+                const index = streamingMessageRef.current
+                if (index >= 0 && index < updated.length) {
+                  updated[index] = {
+                    role: "assistant",
+                    content:
+                      updated[index].content +
+                      "\n\n✅ Done! The changes have been applied to your song.",
+                  }
                 }
-              }
-              return updated
-            })
-            streamingMessageRef.current = -1
-            setIsLoading(false)
-            abortControllerRef.current = null
-          },
-          abortController.signal,
-        )
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Generation failed"
-
-        setMessages((prev) => {
-          const updated = [...prev]
-          const index = streamingMessageRef.current
-          if (index >= 0 && index < updated.length) {
-            updated[index] = {
-              role: "error",
-              content: errorMessage,
+                return updated
+              })
             }
           }
-          return updated
-        })
-        streamingMessageRef.current = -1
-        setIsLoading(false)
-        abortControllerRef.current = null
-      }
-    } else {
-      // Composition Agent mode: Use progress tracking
-      setGenerationStage("planning")
-      setGenerationProgress("Starting generation...")
-      setCurrentAttempt(0)
-
-      try {
-        const response = await aiBackend.generateWithProgress(
-          { prompt: userMessage, agentType: agentType },
-          ((event: ProgressEvent) => {
-            setGenerationStage(event.stage)
-            setGenerationProgress(event.message || "")
-            if (event.attempt) {
-              setCurrentAttempt(event.attempt)
+        } catch (err) {
+          const errorMessage =
+            err instanceof Error ? err.message : "Generation failed"
+          setMessages((prev) => {
+            const updated = [...prev]
+            const index = streamingMessageRef.current
+            if (index >= 0 && index < updated.length) {
+              updated[index] = { role: "error", content: errorMessage }
             }
-          }) as Parameters<typeof aiBackend.generateWithProgress>[1],
-        )
-
-        // Load the generated song
-        loadAISong(response)
-
-        const attemptInfo =
-          response.attemptLogs.length > 1
-            ? ` (after ${response.attemptLogs.length} attempts)`
-            : ""
-
-        // Remove the placeholder message and add final result
-        setMessages((prev) => {
-          const updated = prev.slice(0, -1) // Remove placeholder
-          return [
-            ...updated,
-            {
-              role: "assistant",
-              content: `Generated ${response.tracks.length} tracks: ${response.tracks.map((t: { name: string }) => t.name).join(", ")}${attemptInfo}. Press play to listen!`,
-            },
-          ]
-        })
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Generation failed"
-
-        // Provide user-friendly error messages
-        let friendlyMessage = errorMessage
-        if (errorMessage.includes("fetch") || errorMessage.includes("network")) {
-          friendlyMessage =
-            "Cannot connect to AI backend. Make sure it's running on http://localhost:8000"
-        } else if (errorMessage.includes("timeout")) {
-          friendlyMessage =
-            "Generation took too long. Try a simpler prompt or try again."
-        } else if (errorMessage.includes("syntax error")) {
-          friendlyMessage =
-            "The AI generated invalid code. Please try again with a different prompt."
-        } else if (errorMessage.includes("5 attempts")) {
-          friendlyMessage =
-            "Generation failed after multiple attempts. Try a different prompt or simpler request."
+            return updated
+          })
+        } finally {
+          streamingMessageRef.current = -1
+          setIsLoading(false)
+          abortControllerRef.current = null
+          setStreamingThinking("")
+          setStreamingToolCalls([])
+          setExecutedToolIds(new Set())
         }
+      } else if (agentType === "llm") {
+        // LLM Direct mode: Use streaming with abort controller
+        const abortController = new AbortController()
+        abortControllerRef.current = abortController
 
-        // Remove placeholder and add error message
-        setMessages((prev) => {
-          const updated = prev.slice(0, -1) // Remove placeholder
-          return [
-            ...updated,
-            {
-              role: "error",
-              content: friendlyMessage,
+        try {
+          await aiBackend.generateStream(
+            { prompt: userMessage, agentType: agentType },
+            (content: string) => {
+              // Update the streaming message
+              setMessages((prev) => {
+                const updated = [...prev]
+                const index = streamingMessageRef.current
+                if (index >= 0 && index < updated.length) {
+                  updated[index] = {
+                    ...updated[index],
+                    content: updated[index].content + content,
+                  }
+                }
+                return updated
+              })
             },
-          ]
-        })
-      } finally {
-        setIsLoading(false)
-        setGenerationStage(null)
-        setGenerationProgress("")
-        streamingMessageRef.current = -1
+            (response) => {
+              // Load the generated song
+              loadAISong(response)
+
+              // Update the final message
+              setMessages((prev) => {
+                const updated = [...prev]
+                const index = streamingMessageRef.current
+                if (index >= 0 && index < updated.length) {
+                  updated[index] = {
+                    role: "assistant",
+                    content:
+                      prev[index].content +
+                      `\n\n✅ Generated ${response.tracks.length} tracks: ${response.tracks.map((t) => t.name).join(", ")}. Press play to listen!`,
+                  }
+                }
+                return updated
+              })
+              streamingMessageRef.current = -1
+              setIsLoading(false)
+              abortControllerRef.current = null
+            },
+            (error) => {
+              const errorMessage =
+                error instanceof Error ? error.message : "Generation failed"
+
+              // Provide user-friendly error messages
+              let friendlyMessage = errorMessage
+              if (
+                errorMessage.includes("fetch") ||
+                errorMessage.includes("network")
+              ) {
+                friendlyMessage =
+                  "Cannot connect to AI backend. Make sure it's running on http://localhost:8000"
+              } else if (errorMessage.includes("timeout")) {
+                friendlyMessage =
+                  "Generation took too long. Try a simpler prompt or try again."
+              } else if (errorMessage.includes("syntax error")) {
+                friendlyMessage =
+                  "The AI generated invalid code. Please try again with a different prompt."
+              }
+
+              setMessages((prev) => {
+                const updated = [...prev]
+                const index = streamingMessageRef.current
+                // Replace the streaming message with error
+                if (index >= 0 && index < updated.length) {
+                  updated[index] = {
+                    role: "error",
+                    content: friendlyMessage,
+                  }
+                }
+                return updated
+              })
+              streamingMessageRef.current = -1
+              setIsLoading(false)
+              abortControllerRef.current = null
+            },
+            abortController.signal,
+          )
+        } catch (err) {
+          const errorMessage =
+            err instanceof Error ? err.message : "Generation failed"
+
+          setMessages((prev) => {
+            const updated = [...prev]
+            const index = streamingMessageRef.current
+            if (index >= 0 && index < updated.length) {
+              updated[index] = {
+                role: "error",
+                content: errorMessage,
+              }
+            }
+            return updated
+          })
+          streamingMessageRef.current = -1
+          setIsLoading(false)
+          abortControllerRef.current = null
+        }
+      } else {
+        // Composition Agent mode: Use progress tracking
+        setGenerationStage("planning")
+        setGenerationProgress("Starting generation...")
+        setCurrentAttempt(0)
+
+        try {
+          const response = await aiBackend.generateWithProgress(
+            { prompt: userMessage, agentType: agentType },
+            ((event: ProgressEvent) => {
+              setGenerationStage(event.stage)
+              setGenerationProgress(event.message || "")
+              if (event.attempt) {
+                setCurrentAttempt(event.attempt)
+              }
+            }) as Parameters<typeof aiBackend.generateWithProgress>[1],
+          )
+
+          // Load the generated song
+          loadAISong(response)
+
+          const attemptInfo =
+            response.attemptLogs.length > 1
+              ? ` (after ${response.attemptLogs.length} attempts)`
+              : ""
+
+          // Remove the placeholder message and add final result
+          setMessages((prev) => {
+            const updated = prev.slice(0, -1) // Remove placeholder
+            return [
+              ...updated,
+              {
+                role: "assistant",
+                content: `Generated ${response.tracks.length} tracks: ${response.tracks.map((t: { name: string }) => t.name).join(", ")}${attemptInfo}. Press play to listen!`,
+              },
+            ]
+          })
+        } catch (err) {
+          const errorMessage =
+            err instanceof Error ? err.message : "Generation failed"
+
+          // Provide user-friendly error messages
+          let friendlyMessage = errorMessage
+          if (
+            errorMessage.includes("fetch") ||
+            errorMessage.includes("network")
+          ) {
+            friendlyMessage =
+              "Cannot connect to AI backend. Make sure it's running on http://localhost:8000"
+          } else if (errorMessage.includes("timeout")) {
+            friendlyMessage =
+              "Generation took too long. Try a simpler prompt or try again."
+          } else if (errorMessage.includes("syntax error")) {
+            friendlyMessage =
+              "The AI generated invalid code. Please try again with a different prompt."
+          } else if (errorMessage.includes("5 attempts")) {
+            friendlyMessage =
+              "Generation failed after multiple attempts. Try a different prompt or simpler request."
+          }
+
+          // Remove placeholder and add error message
+          setMessages((prev) => {
+            const updated = prev.slice(0, -1) // Remove placeholder
+            return [
+              ...updated,
+              {
+                role: "error",
+                content: friendlyMessage,
+              },
+            ]
+          })
+        } finally {
+          setIsLoading(false)
+          setGenerationStage(null)
+          setGenerationProgress("")
+          streamingMessageRef.current = -1
+        }
       }
-    }
-  }, [input, isLoading, loadAISong, agentType, songStore.song, messages])
+    },
+    [input, isLoading, loadAISong, agentType, songStore.song, messages],
+  )
 
   const handleInterrupt = useCallback(() => {
     if (abortControllerRef.current) {
@@ -1005,30 +1144,180 @@ export const AIChat: FC = () => {
     [handleSubmit],
   )
 
-  const handleAgentTypeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newAgentType = e.target.value as AgentType
-    setAgentType(newAgentType)
-    localStorage.setItem(AGENT_TYPE_STORAGE_KEY, newAgentType)
+  const handleAgentTypeChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const newAgentType = e.target.value as AgentType
+      setAgentType(newAgentType)
+      localStorage.setItem(AGENT_TYPE_STORAGE_KEY, newAgentType)
+    },
+    [],
+  )
+
+  // Handle notes detected from voice recorder (fallback)
+  const handleNotesDetected = useCallback((notes: DetectedNote[]) => {
+    if (notes.length === 0) return
+
+    // Add a message to the chat with the notes displayed
+    const messageContent = `🎤 Recorded ${notes.length} notes. Specify which track to add them to, or ask me to create a new track.`
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "user" as const,
+        content: messageContent,
+        notes: notes, // Store notes in the message for display and context
+      },
+    ])
   }, [])
 
-  // Handle notes detected from voice recorder
-  const handleNotesDetected = useCallback(
-    (notes: DetectedNote[]) => {
-      if (notes.length === 0) return
+  // Handle audio captured for CREPE processing
+  const handleAudioCaptured = useCallback(
+    async (audioBlob: Blob, fallbackNotes: DetectedNote[]) => {
+      if (voiceProcessing) return
 
-      // Add a message to the chat with the notes displayed
-      const messageContent = `🎤 Recorded ${notes.length} notes. Specify which track to add them to, or ask me to create a new track.`
-      
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "user" as const,
-          content: messageContent,
-          notes: notes, // Store notes in the message for display and context
-        },
-      ])
+      setVoiceProcessing(true)
+      setVoiceProgress("Starting pitch detection...")
+
+      try {
+        // Get current song key signature if set
+        // For now, we'll leave this undefined and rely on detection
+        // TODO: Get key signature from song state if available
+        const keyHint: number | undefined = undefined
+        const scaleHint: "major" | "minor" | undefined = undefined
+
+        // Process through CREPE + LLM pipeline
+        const result = await processVoiceToMidi(audioBlob, {
+          quantizeValue: 8, // Default to eighth notes
+          timebase: timebase,
+          projectTempo: currentTempo ?? 120,
+          onProgress: (stage, _progress) => {
+            setVoiceProgress(stage)
+          },
+          keyHint,
+          scaleHint,
+        })
+
+        if (result.notes.length === 0) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "error" as const,
+              content:
+                "No melody detected. Try humming or singing more clearly.",
+            },
+          ])
+          return
+        }
+
+        // Create a new track with the melody
+        const leadInfo = getInstrumentProgramNumber("lead")
+        const channel = tracks.length < 9 ? tracks.length - 1 : tracks.length
+        const newTrack = emptyTrack(channel)
+        newTrack.setName("Voice Melody")
+        if (leadInfo) {
+          newTrack.setProgramNumber(leadInfo.programNumber)
+        }
+
+        // Add notes to the track
+        const noteEvents = result.notes.map((note) => ({
+          type: "channel" as const,
+          subtype: "note" as const,
+          noteNumber: note.note_number,
+          tick: note.tick,
+          duration: note.duration,
+          velocity: note.velocity,
+        }))
+        newTrack.addEvents(noteEvents)
+
+        // Add the track to the song
+        addTrack(newTrack)
+
+        // Build success message with key and tempo info
+        const noteCount = result.notes.length
+        const keyName = getKeyDisplayName(
+          result.detectedKey,
+          result.detectedScale,
+        )
+
+        // Key info based on source
+        let keyInfo = ""
+        if (result.keySource === "user_provided") {
+          keyInfo = `Using your song's key: ${keyName}.`
+        } else if (result.keySource === "detected_confident") {
+          keyInfo = `Detected key: ${keyName} (high confidence).`
+        } else {
+          keyInfo = `Detected key: ${keyName} (low confidence - you may want to adjust notes or set a key signature).`
+        }
+
+        // Pitch offset info
+        let offsetInfo = ""
+        if (Math.abs(result.pitchOffsetCents) > 10) {
+          const direction = result.pitchOffsetCents < 0 ? "flat" : "sharp"
+          offsetInfo = ` Your pitch was ${Math.abs(result.pitchOffsetCents).toFixed(0)} cents ${direction} overall - I've corrected for this.`
+        }
+
+        // Tempo info
+        const tempoInfo =
+          result.tempoConfidence === "high"
+            ? ` Detected tempo: ${result.detectedTempo} BPM.`
+            : result.tempoConfidence === "medium"
+              ? ` I detected a tempo of ${result.detectedTempo} BPM, but I'm not entirely sure - you can adjust the project tempo if it doesn't feel right.`
+              : ""
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant" as const,
+            content: `Created "Voice Melody" track with ${noteCount} notes using Lead synth.
+
+**Key:** ${keyInfo}${offsetInfo}
+**Tempo:**${tempoInfo}
+
+**Next steps:**
+1. Open the piano roll to view and edit your melody
+2. Adjust any notes that don't sound right
+3. When ready, ask me to "generate accompaniment around the Voice Melody track"
+
+I'll create drums, bass, chords, and other instruments that complement your melody!`,
+          },
+        ])
+      } catch (error) {
+        console.error("Voice-to-MIDI error:", error)
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error"
+
+        // Fall back to simple notes if CREPE/LLM fails
+        if (fallbackNotes.length > 0) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "error" as const,
+              content: `CREPE processing failed: ${errorMessage}. Using browser pitch detection instead.`,
+            },
+          ])
+          handleNotesDetected(fallbackNotes)
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "error" as const,
+              content: `Voice processing failed: ${errorMessage}`,
+            },
+          ])
+        }
+      } finally {
+        setVoiceProcessing(false)
+        setVoiceProgress("")
+      }
     },
-    []
+    [
+      voiceProcessing,
+      timebase,
+      currentTempo,
+      tracks,
+      addTrack,
+      handleNotesDetected,
+    ],
   )
 
   return (
@@ -1098,45 +1387,50 @@ export const AIChat: FC = () => {
           </ProgressContainer>
         )}
         {/* Show streaming progress UI for hybrid agent */}
-        {isLoading && agentType === "hybrid" && useStreaming && (streamingThinking || streamingToolCalls.length > 0) && (
-          <StreamingContainer>
-            <StreamingHeader
-              expanded={thinkingExpanded}
-              onClick={() => setThinkingExpanded(!thinkingExpanded)}
-            >
-              <StreamingIcon isAnimated={streamingToolCalls.length === 0}>
-                {streamingToolCalls.length > 0 ? "🔧" : "💭"}
-              </StreamingIcon>
-              <StreamingTitle>
-                {streamingToolCalls.length > 0
-                  ? `Executing ${streamingToolCalls.length} tool${streamingToolCalls.length > 1 ? "s" : ""}...`
-                  : "Thinking..."}
-              </StreamingTitle>
-              <ExpandIcon expanded={thinkingExpanded}>▼</ExpandIcon>
-            </StreamingHeader>
-            <StreamingContent expanded={thinkingExpanded}>
-              {streamingThinking && (
-                <ThinkingText>{streamingThinking}</ThinkingText>
-              )}
-              {streamingToolCalls.length > 0 && (
-                <ToolCallsList>
-                  {streamingToolCalls.map((tc) => (
-                    <ToolCallItem
-                      key={tc.id}
-                      status={executedToolIds.has(tc.id) ? "done" : "executing"}
-                    >
-                      <ToolCallName>{tc.name}</ToolCallName>
-                      <ToolCallArgs>
-                        {JSON.stringify(tc.args).slice(0, 50)}
-                        {JSON.stringify(tc.args).length > 50 ? "..." : ""}
-                      </ToolCallArgs>
-                    </ToolCallItem>
-                  ))}
-                </ToolCallsList>
-              )}
-            </StreamingContent>
-          </StreamingContainer>
-        )}
+        {isLoading &&
+          agentType === "hybrid" &&
+          useStreaming &&
+          (streamingThinking || streamingToolCalls.length > 0) && (
+            <StreamingContainer>
+              <StreamingHeader
+                expanded={thinkingExpanded}
+                onClick={() => setThinkingExpanded(!thinkingExpanded)}
+              >
+                <StreamingIcon isAnimated={streamingToolCalls.length === 0}>
+                  {streamingToolCalls.length > 0 ? "🔧" : "💭"}
+                </StreamingIcon>
+                <StreamingTitle>
+                  {streamingToolCalls.length > 0
+                    ? `Executing ${streamingToolCalls.length} tool${streamingToolCalls.length > 1 ? "s" : ""}...`
+                    : "Thinking..."}
+                </StreamingTitle>
+                <ExpandIcon expanded={thinkingExpanded}>▼</ExpandIcon>
+              </StreamingHeader>
+              <StreamingContent expanded={thinkingExpanded}>
+                {streamingThinking && (
+                  <ThinkingText>{streamingThinking}</ThinkingText>
+                )}
+                {streamingToolCalls.length > 0 && (
+                  <ToolCallsList>
+                    {streamingToolCalls.map((tc) => (
+                      <ToolCallItem
+                        key={tc.id}
+                        status={
+                          executedToolIds.has(tc.id) ? "done" : "executing"
+                        }
+                      >
+                        <ToolCallName>{tc.name}</ToolCallName>
+                        <ToolCallArgs>
+                          {JSON.stringify(tc.args).slice(0, 50)}
+                          {JSON.stringify(tc.args).length > 50 ? "..." : ""}
+                        </ToolCallArgs>
+                      </ToolCallItem>
+                    ))}
+                  </ToolCallsList>
+                )}
+              </StreamingContent>
+            </StreamingContainer>
+          )}
         <div ref={messagesEndRef} />
       </MessageList>
       <InputContainer>
@@ -1149,8 +1443,14 @@ export const AIChat: FC = () => {
             disabled={isLoading || backendStatus === "disconnected"}
             style={{ flex: 1 }}
           />
-          <VoiceRecorder onNotesDetected={handleNotesDetected} />
+          <VoiceRecorder
+            onNotesDetected={handleNotesDetected}
+            onAudioCaptured={handleAudioCaptured}
+          />
         </InputRow>
+        {voiceProcessing && voiceProgress && (
+          <VoiceProcessingIndicator>{voiceProgress}</VoiceProcessingIndicator>
+        )}
         {isLoading ? (
           <InterruptButton onClick={handleInterrupt}>
             Stop Generation
@@ -1158,9 +1458,7 @@ export const AIChat: FC = () => {
         ) : (
           <Button
             onClick={() => handleSubmit()}
-            disabled={
-              !input.trim() || backendStatus === "disconnected"
-            }
+            disabled={!input.trim() || backendStatus === "disconnected"}
           >
             Generate Song
           </Button>

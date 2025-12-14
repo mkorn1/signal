@@ -6,8 +6,15 @@
  */
 
 import type { Song } from "@signal-app/core"
-import { executeToolCalls, type ToolCall, type ToolResult } from "./toolExecutor"
-import { serializeSongState, formatSongStateForPrompt } from "./songStateSerializer"
+import {
+  executeToolCalls,
+  type ToolCall,
+  type ToolResult,
+} from "./toolExecutor"
+import {
+  serializeSongState,
+  formatSongStateForPrompt,
+} from "./songStateSerializer"
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
 
@@ -73,7 +80,7 @@ function parseSSEEvents(text: string): SSEEvent[] {
  */
 async function* consumeSSEStream(
   response: Response,
-  abortSignal?: AbortSignal
+  abortSignal?: AbortSignal,
 ): AsyncGenerator<SSEEvent> {
   const reader = response.body?.getReader()
   if (!reader) {
@@ -125,7 +132,7 @@ async function startStreamRequest(
   prompt: string,
   context: string,
   threadId?: string,
-  abortSignal?: AbortSignal
+  abortSignal?: AbortSignal,
 ): Promise<Response> {
   const response = await fetch(`${API_BASE}/api/agent/step/stream`, {
     method: "POST",
@@ -152,7 +159,7 @@ async function startStreamRequest(
 async function resumeStreamRequest(
   threadId: string,
   toolResults: ToolResult[],
-  abortSignal?: AbortSignal
+  abortSignal?: AbortSignal,
 ): Promise<Response> {
   const response = await fetch(`${API_BASE}/api/agent/step/stream`, {
     method: "POST",
@@ -182,7 +189,7 @@ export async function runAgentStreamLoop(
   prompt: string,
   song: Song,
   callbacks?: StreamingCallbacks,
-  abortSignal?: AbortSignal
+  abortSignal?: AbortSignal,
 ): Promise<{ success: boolean; message?: string }> {
   let threadId: string | null = null
   let thinkingBuffer = ""
@@ -194,7 +201,12 @@ export async function runAgentStreamLoop(
     console.log(`[AgentStream] Starting with context:`, context)
 
     // Start initial stream
-    let response = await startStreamRequest(prompt, context, undefined, abortSignal)
+    let response = await startStreamRequest(
+      prompt,
+      context,
+      undefined,
+      abortSignal,
+    )
 
     while (true) {
       if (abortSignal?.aborted) {
@@ -230,7 +242,9 @@ export async function runAgentStreamLoop(
             break
 
           case "tool_results_received":
-            console.log(`[AgentStream] Tool results acknowledged: ${event.count}`)
+            console.log(
+              `[AgentStream] Tool results acknowledged: ${event.count}`,
+            )
             break
 
           case "message":
@@ -259,7 +273,9 @@ export async function runAgentStreamLoop(
 
       if (pendingToolCalls && pendingToolCalls.length > 0 && threadId) {
         // Execute tools and resume stream
-        console.log(`[AgentStream] Executing ${pendingToolCalls.length} tool calls`)
+        console.log(
+          `[AgentStream] Executing ${pendingToolCalls.length} tool calls`,
+        )
         const toolResults = executeToolCalls(song, pendingToolCalls)
         console.log(`[AgentStream] Tool results:`, toolResults)
         callbacks?.onToolsExecuted?.(pendingToolCalls, toolResults)
