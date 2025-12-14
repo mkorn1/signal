@@ -36,6 +36,9 @@ export default defineConfig(({ mode }) => {
             if (req.url?.startsWith("/songs/")) {
               req.url = "/community"
             }
+            if (req.url === "/experiments") {
+              req.url = "/experiments.html"
+            }
             next()
           })
         },
@@ -44,9 +47,11 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         input: {
+          index: path.resolve(__dirname, "index.html"),
           main: path.resolve(__dirname, "edit.html"),
           auth: path.resolve(__dirname, "auth.html"),
           community: path.resolve(__dirname, "community.html"),
+          experiments: path.resolve(__dirname, "experiments.html"),
         },
       },
     },

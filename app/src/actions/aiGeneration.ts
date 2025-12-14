@@ -1,9 +1,9 @@
+import { conductorTrack, Song, songFromMidi } from "@signal-app/core"
 import { useCallback } from "react"
-import { Song, songFromMidi, conductorTrack } from "@signal-app/core"
-import { useSetSong } from "./song"
-import { useStores } from "../hooks/useStores"
 import { usePlayer } from "../hooks/usePlayer"
+import { useStores } from "../hooks/useStores"
 import { GenerateResponse, TrackData } from "../services/aiBackend/types"
+import { useSetSong } from "./song"
 
 /**
  * Decode base64 MIDI data to Uint8Array
@@ -23,7 +23,7 @@ const DEFAULT_TEMPO = 120
 /**
  * Convert API track data to Signal Song
  */
-function apiResponseToSong(response: GenerateResponse): Song {
+async function apiResponseToSong(response: GenerateResponse): Promise<Song> {
   // Create a new song
   const song = new Song()
   song.name = "AI Generated Song"
@@ -45,52 +45,80 @@ function apiResponseToSong(response: GenerateResponse): Song {
     conductor.setTempo(DEFAULT_TEMPO, 0)
   }
 
-  // Load each track's MIDI and extract events
+  // Load each track's MIDI or audio data
   for (const trackData of response.tracks) {
-    const midiBytes = base64ToUint8Array(trackData.midiData)
+    const dataType = trackData.dataType || (trackData.audioData ? "audio" : "midi")
+    
+    if (dataType === "audio" && trackData.audioData) {
+      // Handle audio tracks - create empty track with audio data stored
+      const { Track } = await import("@signal-app/core")
+      const audioTrack = new Track()
+      audioTrack.setName(trackData.name)
+      audioTrack.channel = trackData.channel >= 0 && trackData.channel <= 15 
+        ? trackData.channel 
+        : 0
+      audioTrack.setProgramNumber(trackData.programNumber)
+      
+      // Store audio data in track metadata (using a custom property)
+      // For minimal implementation, we'll store it in a way we can access later
+      ;(audioTrack as any).audioData = trackData.audioData
+      ;(audioTrack as any).isAudioTrack = true
+      
+      // Set endOfTrack to a reasonable duration (10 seconds default, will be updated when audio loads)
+      audioTrack.endOfTrack = song.timebase * 10 * 4 // 10 bars at 4/4
+      
+      song.addTrack(audioTrack)
+    } else if (trackData.midiData) {
+      // Handle MIDI tracks (existing logic)
+      const midiBytes = base64ToUint8Array(trackData.midiData)
 
-    // Parse the MIDI file
-    const trackSong = songFromMidi(midiBytes)
+      // Parse the MIDI file
+      const trackSong = songFromMidi(midiBytes)
 
-    // Get the first non-conductor track (the actual notes)
-    const sourceTrack = trackSong.tracks.find((t) => !t.isConductorTrack)
+      // Get the first non-conductor track (the actual notes)
+      const sourceTrack = trackSong.tracks.find((t) => !t.isConductorTrack)
 
-    if (sourceTrack) {
-      // Set track metadata
-      sourceTrack.setName(trackData.name)
+      if (sourceTrack) {
+        // Set track metadata
+        sourceTrack.setName(trackData.name)
 
-      // Ensure channel is set (required for playback)
-      // Channel 9 is reserved for drums in General MIDI
-      if (
-        trackData.channel === undefined ||
-        trackData.channel < 0 ||
-        trackData.channel > 15
-      ) {
-        console.warn(
-          `AI Generation: Invalid channel ${trackData.channel} for track "${trackData.name}", using channel 0`,
+        // Ensure channel is set (required for playback)
+        // Channel 9 is reserved for drums in General MIDI
+        if (
+          trackData.channel === undefined ||
+          trackData.channel < 0 ||
+          trackData.channel > 15
+        ) {
+          console.warn(
+            `AI Generation: Invalid channel ${trackData.channel} for track "${trackData.name}", using channel 0`,
+          )
+          sourceTrack.channel = 0
+        } else {
+          sourceTrack.channel = trackData.channel
+        }
+
+        sourceTrack.setProgramNumber(trackData.programNumber)
+
+        // Verify track has note events
+        const hasNotes = sourceTrack.events.some(
+          (e) => "subtype" in e && e.subtype === "note",
         )
-        sourceTrack.channel = 0
+        if (!hasNotes) {
+          console.warn(
+            `AI Generation: Track "${trackData.name}" has no note events - it will be silent`,
+          )
+        }
+
+        // Add to our song
+        song.addTrack(sourceTrack)
       } else {
-        sourceTrack.channel = trackData.channel
-      }
-
-      sourceTrack.setProgramNumber(trackData.programNumber)
-
-      // Verify track has note events
-      const hasNotes = sourceTrack.events.some(
-        (e) => "subtype" in e && e.subtype === "note",
-      )
-      if (!hasNotes) {
         console.warn(
-          `AI Generation: Track "${trackData.name}" has no note events - it will be silent`,
+          `AI Generation: Could not extract track data for "${trackData.name}" - MIDI may be malformed`,
         )
       }
-
-      // Add to our song
-      song.addTrack(sourceTrack)
     } else {
       console.warn(
-        `AI Generation: Could not extract track data for "${trackData.name}" - MIDI may be malformed`,
+        `AI Generation: Track "${trackData.name}" has no MIDI or audio data`,
       )
     }
   }
@@ -116,12 +144,12 @@ export function useLoadAISong() {
   const { stop } = usePlayer()
 
   return useCallback(
-    (response: GenerateResponse) => {
+    async (response: GenerateResponse) => {
       // Stop playback
       stop()
 
       // Convert API response to Song
-      const song = apiResponseToSong(response)
+      const song = await apiResponseToSong(response)
 
       // Load into Signal
       setSong(song)
@@ -150,6 +178,14 @@ export function useRegenerateTrack() {
       if (!existingTrack) {
         console.warn(
           `AI Generation: Track "${trackData.name}" not found in song`,
+        )
+        return
+      }
+
+      // Audio tracks cannot be regenerated with MIDI
+      if (!trackData.midiData) {
+        console.warn(
+          `AI Generation: Track "${trackData.name}" has no MIDI data - cannot regenerate`,
         )
         return
       }

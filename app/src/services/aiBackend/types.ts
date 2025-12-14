@@ -1,8 +1,10 @@
 export interface TrackData {
   name: string
-  midiData: string // base64 encoded
+  midiData?: string // base64 encoded MIDI (for MIDI-based agents)
+  audioData?: string // base64 encoded audio (WAV) (for audio-based agents)
   channel: number
   programNumber: number
+  dataType?: "midi" | "audio" // defaults to "midi" for backward compatibility
 }
 
 export interface SongMetadata {
@@ -13,7 +15,7 @@ export interface SongMetadata {
 
 export interface GenerateRequest {
   prompt: string
-  agentType?: "llm" | "composition_agent"
+  agentType?: "llm" | "composition_agent" | "hybrid" | "per_instrument" | "stem_separation" | "conversational_stem"
 }
 
 export interface GenerateResponse {

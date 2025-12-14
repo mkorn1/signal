@@ -1,6 +1,7 @@
 import re
 import json
 import asyncio
+import base64
 from typing import Optional
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, Request
@@ -37,6 +38,14 @@ from app.services.hybrid_agent import (
     resume_agent_step,
     stream_agent_step,
     stream_agent_resume,
+)
+from app.services.per_instrument_agent import generate_per_instrument
+from app.services.stem_separation_agent import generate_with_stem_separation
+from app.services.conversational_stem_agent import (
+    start_stem_agent_step,
+    resume_stem_agent_step,
+    stream_stem_agent_step,
+    stream_stem_agent_resume,
 )
 
 router = APIRouter()
@@ -109,6 +118,78 @@ async def generate_song(request: GenerateRequest):
     agent_type = request.agent_type or "composition_agent"
     last_error = None
 
+    # Handle audio-based agents
+    if agent_type == "per_instrument":
+        try:
+            audio_files = await generate_per_instrument(
+                prompt=params["style"], tempo=params["tempo"], key=params["key"]
+            )
+            
+            if len(audio_files) > MAX_TRACKS:
+                audio_files = dict(list(audio_files.items())[:MAX_TRACKS])
+            
+            if len(audio_files) == 0:
+                raise HTTPException(status_code=422, detail="No tracks were generated")
+            
+            tracks = []
+            for index, (name, audio_bytes) in enumerate(audio_files.items()):
+                config = get_track_config(name, index)
+                tracks.append(
+                    TrackData(
+                        name=name,
+                        audio_data=base64.b64encode(audio_bytes).decode("utf-8"),
+                        channel=config["channel"],
+                        program_number=config["program"],
+                        data_type="audio",
+                    )
+                )
+            
+            return GenerateResponse(
+                tracks=tracks,
+                metadata=SongMetadata(
+                    tempo=params["tempo"], key=params["key"], time_signature="4/4"
+                ),
+                message=f"Generated {len(tracks)} track(s)",
+            )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
+    
+    elif agent_type == "stem_separation":
+        try:
+            audio_files = await generate_with_stem_separation(
+                prompt=params["style"], tempo=params["tempo"], key=params["key"]
+            )
+            
+            if len(audio_files) > MAX_TRACKS:
+                audio_files = dict(list(audio_files.items())[:MAX_TRACKS])
+            
+            if len(audio_files) == 0:
+                raise HTTPException(status_code=422, detail="No tracks were generated")
+            
+            tracks = []
+            for index, (name, audio_bytes) in enumerate(audio_files.items()):
+                config = get_track_config(name, index)
+                tracks.append(
+                    TrackData(
+                        name=name,
+                        audio_data=base64.b64encode(audio_bytes).decode("utf-8"),
+                        channel=config["channel"],
+                        program_number=config["program"],
+                        data_type="audio",
+                    )
+                )
+            
+            return GenerateResponse(
+                tracks=tracks,
+                metadata=SongMetadata(
+                    tempo=params["tempo"], key=params["key"], time_signature="4/4"
+                ),
+                message=f"Generated {len(tracks)} track(s)",
+            )
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
+
+    # MIDI-based agents (existing logic)
     # Select the appropriate generation function based on agent_type
     if agent_type == "llm":
         generate_func = generate_midi_code_llm
@@ -146,6 +227,7 @@ async def generate_song(request: GenerateRequest):
                         midi_data=midi_to_base64(midi_bytes),
                         channel=config["channel"],
                         program_number=config["program"],
+                        data_type="midi",
                     )
                 )
 
@@ -431,6 +513,7 @@ async def generate_song_stream(request: GenerateRequest, req: Request):
     - error: Generation failed
     """
     params = parse_prompt(request.prompt)
+    agent_type = request.agent_type or "composition_agent"
 
     async def event_generator():
         progress_queue: asyncio.Queue = asyncio.Queue()
@@ -441,6 +524,50 @@ async def generate_song_stream(request: GenerateRequest, req: Request):
         # Start generation in background
         async def run_generation():
             try:
+                # Handle audio-based agents
+                if agent_type == "per_instrument" or agent_type == "stem_separation":
+                    # For minimal implementation, use simple progress updates
+                    await progress_queue.put({"stage": "generating", "message": "Generating audio tracks..."})
+                    
+                    if agent_type == "per_instrument":
+                        audio_files = await generate_per_instrument(
+                            prompt=params["style"], tempo=params["tempo"], key=params["key"]
+                        )
+                    else:
+                        audio_files = await generate_with_stem_separation(
+                            prompt=params["style"], tempo=params["tempo"], key=params["key"]
+                        )
+                    
+                    if len(audio_files) > MAX_TRACKS:
+                        audio_files = dict(list(audio_files.items())[:MAX_TRACKS])
+                    
+                    tracks = []
+                    for index, (name, audio_bytes) in enumerate(audio_files.items()):
+                        config = get_track_config(name, index)
+                        tracks.append({
+                            "name": name,
+                            "audio_data": base64.b64encode(audio_bytes).decode("utf-8"),
+                            "channel": config["channel"],
+                            "program_number": config["program"],
+                            "data_type": "audio",
+                        })
+                    
+                    await progress_queue.put({
+                        "stage": "complete",
+                        "result": {
+                            "tracks": tracks,
+                            "metadata": {
+                                "tempo": params["tempo"],
+                                "key": params["key"],
+                                "time_signature": "4/4",
+                            },
+                            "message": f"Generated {len(tracks)} track(s)",
+                        },
+                        "attempt_logs": [],
+                    })
+                    return
+                
+                # MIDI-based agents (existing logic)
                 result = await generate_song_deep(
                     prompt=params["style"],
                     tempo=params["tempo"],
@@ -530,6 +657,179 @@ async def generate_song_stream(request: GenerateRequest, req: Request):
             "Connection": "keep-alive",
             "X-Accel-Buffering": "no",
         },
+    )
+
+
+# ============================================================================
+# Per-Instrument Generation Endpoint
+# ============================================================================
+
+
+@router.post("/generate/per-instrument/stream")
+async def generate_per_instrument_stream(request: GenerateRequest, req: Request):
+    """Generate audio tracks per instrument sequentially (melody first)."""
+    params = parse_prompt(request.prompt)
+
+    async def event_generator():
+        progress_queue: asyncio.Queue = asyncio.Queue()
+
+        async def progress_callback(instrument: str, status: str):
+            """Callback to emit progress for each instrument."""
+            await progress_queue.put({
+                "stage": "instrument_progress",
+                "instrument": instrument,
+                "status": status,
+                "message": f"{'Generating' if status == 'generating' else 'Completed'} {instrument} track..."
+            })
+
+        async def run_generation():
+            try:
+                await progress_queue.put({
+                    "stage": "generating",
+                    "message": "Starting sequential generation (melody first)..."
+                })
+                
+                audio_files = await generate_per_instrument(
+                    prompt=params["style"],
+                    tempo=params["tempo"],
+                    key=params["key"],
+                    progress_callback=progress_callback,
+                )
+                
+                if len(audio_files) > MAX_TRACKS:
+                    audio_files = dict(list(audio_files.items())[:MAX_TRACKS])
+                
+                tracks = []
+                for index, (name, audio_bytes) in enumerate(audio_files.items()):
+                    config = get_track_config(name, index)
+                    tracks.append({
+                        "name": name,
+                        "audio_data": base64.b64encode(audio_bytes).decode("utf-8"),
+                        "channel": config["channel"],
+                        "program_number": config["program"],
+                        "data_type": "audio",
+                    })
+                
+                await progress_queue.put({
+                    "stage": "complete",
+                    "result": {
+                        "tracks": tracks,
+                        "metadata": {
+                            "tempo": params["tempo"],
+                            "key": params["key"],
+                            "time_signature": "4/4",
+                        },
+                        "message": f"Generated {len(tracks)} per-instrument track(s)",
+                    },
+                    "attempt_logs": [],
+                })
+            except Exception as e:
+                await progress_queue.put({"stage": "error", "error": str(e)})
+            finally:
+                await progress_queue.put(None)
+
+        task = asyncio.create_task(run_generation())
+
+        try:
+            while True:
+                if await req.is_disconnected():
+                    task.cancel()
+                    break
+                try:
+                    event = await asyncio.wait_for(progress_queue.get(), timeout=1.0)
+                except asyncio.TimeoutError:
+                    yield ": keepalive\n\n"
+                    continue
+                if event is None:
+                    break
+                yield f"data: {json.dumps(event)}\n\n"
+        except asyncio.CancelledError:
+            task.cancel()
+            raise
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
+    )
+
+
+# ============================================================================
+# Stem Separation Generation Endpoint
+# ============================================================================
+
+
+@router.post("/generate/stem-separation/stream")
+async def generate_stem_separation_stream(request: GenerateRequest, req: Request):
+    """Generate full track then separate into stems using Demucs."""
+    params = parse_prompt(request.prompt)
+
+    async def event_generator():
+        progress_queue: asyncio.Queue = asyncio.Queue()
+
+        async def run_generation():
+            try:
+                await progress_queue.put({"stage": "generating", "message": "Generating full track then separating stems..."})
+                
+                audio_files = await generate_with_stem_separation(
+                    prompt=params["style"], tempo=params["tempo"], key=params["key"]
+                )
+                
+                if len(audio_files) > MAX_TRACKS:
+                    audio_files = dict(list(audio_files.items())[:MAX_TRACKS])
+                
+                tracks = []
+                for index, (name, audio_bytes) in enumerate(audio_files.items()):
+                    config = get_track_config(name, index)
+                    tracks.append({
+                        "name": name,
+                        "audio_data": base64.b64encode(audio_bytes).decode("utf-8"),
+                        "channel": config["channel"],
+                        "program_number": config["program"],
+                        "data_type": "audio",
+                    })
+                
+                await progress_queue.put({
+                    "stage": "complete",
+                    "result": {
+                        "tracks": tracks,
+                        "metadata": {
+                            "tempo": params["tempo"],
+                            "key": params["key"],
+                            "time_signature": "4/4",
+                        },
+                        "message": f"Generated {len(tracks)} stem-separated track(s)",
+                    },
+                    "attempt_logs": [],
+                })
+            except Exception as e:
+                await progress_queue.put({"stage": "error", "error": str(e)})
+            finally:
+                await progress_queue.put(None)
+
+        task = asyncio.create_task(run_generation())
+
+        try:
+            while True:
+                if await req.is_disconnected():
+                    task.cancel()
+                    break
+                try:
+                    event = await asyncio.wait_for(progress_queue.get(), timeout=1.0)
+                except asyncio.TimeoutError:
+                    yield ": keepalive\n\n"
+                    continue
+                if event is None:
+                    break
+                yield f"data: {json.dumps(event)}\n\n"
+        except asyncio.CancelledError:
+            task.cancel()
+            raise
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
     )
 
 
@@ -629,6 +929,119 @@ async def agent_step_stream(request: AgentStepRequest, req: Request):
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
 
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+# ============================================================================
+# Conversational Stem Agent Endpoint (chat-based audio generation)
+# ============================================================================
+
+
+@router.post("/agent/stem/step", response_model=AgentStepResponse)
+async def stem_agent_step(request: AgentStepRequest):
+    """
+    Execute a single step of the conversational stem agent.
+    
+    This agent has a conversation to gather user preferences before generating
+    audio stems. It will ask questions about style, tempo, key, instruments,
+    and references before triggering generation.
+    
+    Supports two modes:
+    1. Start new conversation: Send { prompt: "..." }
+    2. Resume after tool execution: Send { thread_id: "...", tool_results: [...] }
+    
+    When the agent needs to execute tools (generateStems), it returns:
+    - done: false
+    - tool_calls: Array with generateStems tool and parameters
+    
+    When the agent is still gathering info:
+    - done: true
+    - message: Agent's question or confirmation request
+    """
+    try:
+        if request.tool_results and request.thread_id:
+            # Resume mode: continue after stem generation
+            result = await resume_stem_agent_step(
+                thread_id=request.thread_id,
+                tool_results=[{"id": tr.id, "result": tr.result} for tr in request.tool_results],
+            )
+        elif request.prompt:
+            # Start mode: new conversation or continue existing
+            result = await start_stem_agent_step(
+                prompt=request.prompt,
+                thread_id=request.thread_id,
+                context=request.context,
+            )
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Must provide either 'prompt' (to start) or 'tool_results' (to resume)",
+            )
+        
+        return AgentStepResponse(
+            thread_id=result["thread_id"],
+            tool_calls=[ToolCall(**tc) for tc in result["tool_calls"]],
+            done=result["done"],
+            message=result["message"],
+        )
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Stem agent step failed: {str(e)}")
+
+
+@router.post("/agent/stem/step/stream")
+async def stem_agent_step_stream(request: AgentStepRequest, req: Request):
+    """
+    Execute a conversational stem agent step with real-time SSE streaming.
+    
+    This agent has a conversation to gather user preferences before generating
+    audio stems. It streams its thinking process and questions in real-time.
+    
+    Supports two modes:
+    1. Start new conversation: Send { prompt: "..." }
+    2. Resume after tool execution: Send { thread_id: "...", tool_results: [...] }
+    
+    Returns Server-Sent Events with the following event types:
+    - thinking: Agent reasoning/questions (streamed tokens)
+    - tool_calls: generateStems tool to execute with gathered parameters
+    - tool_results_received: Acknowledgment after frontend sends generation results
+    - message: Final response from agent
+    - error: Any errors that occurred
+    """
+    
+    async def event_generator():
+        try:
+            if request.tool_results and request.thread_id:
+                # Resume mode: continue after stem generation completed
+                async for event in stream_stem_agent_resume(
+                    thread_id=request.thread_id,
+                    tool_results=[{"id": tr.id, "result": tr.result} for tr in request.tool_results],
+                ):
+                    yield f"data: {json.dumps(event)}\n\n"
+            elif request.prompt:
+                # Start mode: new conversation or continue existing
+                async for event in stream_stem_agent_step(
+                    prompt=request.prompt,
+                    thread_id=request.thread_id,
+                    context=request.context,
+                ):
+                    yield f"data: {json.dumps(event)}\n\n"
+            else:
+                yield f"data: {json.dumps({'type': 'error', 'error': 'Must provide either prompt (to start) or tool_results (to resume)'})}\n\n"
+        
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:
+            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+    
     return StreamingResponse(
         event_generator(),
         media_type="text/event-stream",

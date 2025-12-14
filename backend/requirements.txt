@@ -11,3 +11,9 @@ langchain>=0.3.0
 langchain-openai>=0.2.0
 langchain-anthropic>=0.2.0
 langgraph>=0.2.0
+
+# Audio generation and stem separation (optional - uses Replicate API as fallback)
+# Uncomment for local GPU-accelerated processing:
+# demucs>=4.0.0
+# torch>=2.0.0
+# torchaudio>=2.0.0

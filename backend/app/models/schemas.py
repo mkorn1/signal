@@ -70,9 +70,11 @@ class SongSpec(BaseModel):
 
 class TrackData(BaseModel):
     name: str
-    midi_data: str  # base64 encoded
+    midi_data: Optional[str] = None  # base64 encoded MIDI (for MIDI-based agents)
+    audio_data: Optional[str] = None  # base64 encoded audio (WAV) (for audio-based agents)
     channel: int
     program_number: int
+    data_type: str = "midi"  # "midi" or "audio"
 
 
 class SongMetadata(BaseModel):

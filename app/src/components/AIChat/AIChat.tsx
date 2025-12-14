@@ -8,6 +8,11 @@ import { aiBackend, GenerationStage } from "../../services/aiBackend"
 import type { ProgressEvent } from "../../services/aiBackend/types"
 import { runAgentLoop, type ToolCall } from "../../services/hybridAgent"
 import type { ToolResult } from "../../services/hybridAgent/toolExecutor"
+import {
+  runStemAgentLoop,
+  type GeneratedStem,
+  type StemToolCall,
+} from "../../services/stemAgent"
 import { VoiceRecorder, type DetectedNote } from "./VoiceRecorder"
 
 const Container = styled.div<{ standalone?: boolean }>`
@@ -472,7 +477,7 @@ function getStageProgress(stage: GenerationStage): number {
 
 const AGENT_TYPE_STORAGE_KEY = "ai_chat_agent_type"
 
-type AgentType = "llm" | "composition_agent" | "hybrid"
+type AgentType = "llm" | "hybrid" | "per_instrument" | "stem_separation" | "conversational_stem"
 
 export interface AIChatProps {
   standalone?: boolean
@@ -503,8 +508,10 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
     // Load from localStorage or default to hybrid
     const stored = localStorage.getItem(AGENT_TYPE_STORAGE_KEY)
     return stored === "llm" ||
-      stored === "composition_agent" ||
-      stored === "hybrid"
+      stored === "hybrid" ||
+      stored === "per_instrument" ||
+      stored === "stem_separation" ||
+      stored === "conversational_stem"
       ? (stored as AgentType)
       : "hybrid" // Default to hybrid agent
   })
@@ -709,6 +716,162 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
           setIsLoading(false)
           abortControllerRef.current = null
         }
+      } else if (agentType === "conversational_stem") {
+        // Conversational Stem Agent: Chat to gather preferences, then generate audio
+        const abortController = new AbortController()
+        abortControllerRef.current = abortController
+
+        console.log(`[AIChat] Stem agent - activeThreadId: ${activeThreadId}`)
+
+        try {
+          const result = await runStemAgentLoop(userMessage, {
+            threadId: activeThreadId ?? undefined,
+            abortSignal: abortController.signal,
+            callbacks: {
+              onThinking: (content: string) => {
+                // Stream thinking/conversation content
+                const index = streamingMessageIndexRef.current
+                setMessages((prev) => {
+                  const updated = [...prev]
+                  if (index >= 0 && index < updated.length) {
+                    updated[index] = {
+                      ...updated[index],
+                      content: updated[index].content + content,
+                    }
+                  }
+                  return updated
+                })
+              },
+              onToolCalls: (toolCalls: StemToolCall[]) => {
+                // Show that generation is starting
+                const index = streamingMessageIndexRef.current
+                setMessages((prev) => {
+                  const updated = [...prev]
+                  if (index >= 0 && index < updated.length) {
+                    const instruments = toolCalls[0]?.args?.instruments || []
+                    updated[index] = {
+                      ...updated[index],
+                      content:
+                        updated[index].content +
+                        `\n\n🎵 Generating stems: ${instruments.join(", ")}...`,
+                    }
+                  }
+                  return updated
+                })
+              },
+              onStemsGenerated: (stems: GeneratedStem[]) => {
+                // Navigate to arrange view when stems are generated
+                if (!hasNavigatedRef.current) {
+                  setPath("/arrange")
+                  hasNavigatedRef.current = true
+                }
+
+                // Load the stems into the song
+                const index = streamingMessageIndexRef.current
+                setMessages((prev) => {
+                  const updated = [...prev]
+                  if (index >= 0 && index < updated.length) {
+                    updated[index] = {
+                      ...updated[index],
+                      content:
+                        updated[index].content +
+                        `\n\n✅ Generated ${stems.length} stems: ${stems.map((s) => s.name).join(", ")}`,
+                    }
+                  }
+                  return updated
+                })
+
+                // Load stems into the song
+                const tracks = stems.map((stem) => ({
+                  name: stem.name,
+                  audioData: stem.audioData,
+                  audio_data: stem.audioData,
+                  channel: stem.channel,
+                  programNumber: stem.programNumber,
+                  program_number: stem.programNumber,
+                  dataType: "audio" as const,
+                  data_type: "audio" as const,
+                }))
+
+                loadAISong({
+                  tracks,
+                  metadata: {
+                    tempo: 120, // Will be updated by agent context
+                    key: "Am",
+                    timeSignature: "4/4",
+                  },
+                  message: `Generated ${stems.length} stems`,
+                })
+              },
+              onMessage: (message: string) => {
+                // Final message from agent
+                const index = streamingMessageIndexRef.current
+                setMessages((prev) => {
+                  const updated = [...prev]
+                  if (index >= 0 && index < updated.length) {
+                    // If content is empty, replace with message, otherwise append
+                    updated[index] = {
+                      ...updated[index],
+                      content: updated[index].content
+                        ? updated[index].content + `\n\n${message}`
+                        : message,
+                    }
+                  }
+                  return updated
+                })
+              },
+              onError: (error: Error) => {
+                const index = streamingMessageIndexRef.current
+                console.error("[AIChat] Stem agent error:", error)
+                setMessages((prev) => {
+                  const updated = [...prev]
+                  if (index >= 0 && index < updated.length) {
+                    updated[index] = {
+                      role: "error",
+                      content: error.message,
+                    }
+                  }
+                  return updated
+                })
+              },
+            },
+          })
+
+          // Save thread ID for multi-turn conversation
+          if (result.threadId) {
+            setActiveThreadId(result.threadId)
+          }
+
+          // Handle error result
+          if (!result.success) {
+            const index = streamingMessageIndexRef.current
+            setMessages((prev) => {
+              const updated = [...prev]
+              if (index >= 0 && index < updated.length) {
+                updated[index] = {
+                  role: "error",
+                  content: result.message || "An error occurred",
+                }
+              }
+              return updated
+            })
+          }
+        } catch (err) {
+          const errorMessage =
+            err instanceof Error ? err.message : "Generation failed"
+          const index = streamingMessageIndexRef.current
+          setMessages((prev) => {
+            const updated = [...prev]
+            if (index >= 0 && index < updated.length) {
+              updated[index] = { role: "error", content: errorMessage }
+            }
+            return updated
+          })
+        } finally {
+          streamingMessageIndexRef.current = -1
+          setIsLoading(false)
+          abortControllerRef.current = null
+        }
       } else if (agentType === "llm") {
         // LLM Direct mode: Use streaming with abort controller
         const abortController = new AbortController()
@@ -737,9 +900,9 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
                 return updated
               })
             },
-            (response) => {
+            async (response) => {
               // Load the generated song
-              loadAISong(response)
+              await loadAISong(response)
 
               // Capture index from ref BEFORE setMessages
               const index = streamingMessageIndexRef.current
@@ -848,7 +1011,7 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
           )
 
           // Load the generated song
-          loadAISong(response)
+          await loadAISong(response)
 
           const attemptInfo =
             response.attemptLogs.length > 1
@@ -951,8 +1114,8 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
       })
       streamingMessageIndexRef.current = -1
       setStreamingMessageIndex(-1)
-    } else if (agentType === "composition_agent" && isLoading) {
-      // Composition agent mode: just stop and clean up
+    } else if ((agentType === "per_instrument" || agentType === "stem_separation" || agentType === "llm" || agentType === "conversational_stem") && isLoading) {
+      // Non-hybrid agent mode: just stop and clean up
       setIsLoading(false)
       setGenerationStage(null)
       setGenerationProgress("")
@@ -1035,8 +1198,10 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
             title="Select AI agent type"
           >
             <option value="hybrid">Hybrid Agent</option>
-            <option value="composition_agent">Deep Agent</option>
+            <option value="conversational_stem">Conversational Stem</option>
             <option value="llm">LLM Direct</option>
+            <option value="per_instrument">Per-Instrument Track</option>
+            <option value="stem_separation">Stem Separation</option>
           </Select>
         </HeaderLeft>
         {activeThreadId && (
@@ -1080,8 +1245,8 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
             )}
           </Message>
         ))}
-        {/* Show progress UI only for composition_agent mode */}
-        {isLoading && agentType === "composition_agent" && generationStage && (
+        {/* Show progress UI for non-hybrid streaming modes */}
+        {isLoading && agentType !== "hybrid" && generationStage && (
           <ProgressContainer>
             <ProgressStage>
               <StageIcon>{getStageIcon(generationStage)}</StageIcon>

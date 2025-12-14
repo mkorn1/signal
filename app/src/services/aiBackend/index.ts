@@ -45,8 +45,10 @@ class AIBackendService {
       tracks: data.tracks.map((t: Record<string, unknown>) => ({
         name: t.name,
         midiData: t.midi_data,
+        audioData: t.audio_data,
         channel: t.channel,
         programNumber: t.program_number,
+        dataType: t.data_type || "midi",
       })),
       metadata: {
         tempo: data.metadata.tempo,
@@ -118,8 +120,10 @@ class AIBackendService {
                   tracks: data.tracks.map((t: Record<string, unknown>) => ({
                     name: t.name,
                     midiData: t.midi_data,
+                    audioData: t.audio_data,
                     channel: t.channel,
                     programNumber: t.program_number,
+                    dataType: t.data_type || "midi",
                   })),
                   metadata: {
                     tempo: data.metadata.tempo,
@@ -201,12 +205,25 @@ class AIBackendService {
     request: GenerateRequest,
     onProgress: (event: AIProgressEvent) => void,
   ): Promise<DeepGenerateResponse> {
-    const response = await fetch(`${this.baseUrl}/api/generate/stream`, {
+    // Route to appropriate endpoint based on agent type
+    let endpoint = "/api/generate/stream"
+    if (request.agentType === "per_instrument") {
+      endpoint = "/api/generate/per-instrument/stream"
+    } else if (request.agentType === "stem_separation") {
+      endpoint = "/api/generate/stem-separation/stream"
+    }
+
+    // Convert camelCase to snake_case for backend
+    const requestBody = {
+      prompt: request.prompt,
+      agent_type: request.agentType || "composition_agent",
+    }
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(request),
+      body: JSON.stringify(requestBody),
     })
 
     if (!response.ok) {
@@ -295,9 +312,11 @@ class AIBackendService {
     return {
       tracks: (data.tracks as Record<string, unknown>[]).map((t) => ({
         name: t.name as string,
-        midiData: t.midi_data as string,
+        midiData: t.midi_data as string | undefined,
+        audioData: t.audio_data as string | undefined,
         channel: t.channel as number,
         programNumber: t.program_number as number,
+        dataType: (t.data_type as "midi" | "audio" | undefined) || "midi",
       })),
       metadata: {
         tempo: (data.metadata as Record<string, unknown>).tempo as number,

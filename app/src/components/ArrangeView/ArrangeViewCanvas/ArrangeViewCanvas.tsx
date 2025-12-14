@@ -9,6 +9,7 @@ import { useTrackScroll } from "../../../hooks/useTrackScroll"
 import { Beats } from "../../GLNodes/Beats"
 import { Cursor } from "../../GLNodes/Cursor"
 import { ArrangeViewSelection } from "./ArrangeViewSelection"
+import { AudioClips } from "./AudioClips"
 import { Lines } from "./Lines"
 import { Notes } from "./Notes"
 import { useDragScrollGesture } from "./gestures/useDragScrollGesture"
@@ -82,6 +83,7 @@ export const ArrangeViewCanvas: FC<ArrangeViewCanvasProps> = ({
       </Transform>
       <Transform matrix={scrollXYMatrix}>
         <Notes zIndex={2} />
+        <AudioClips zIndex={2} />
         <ArrangeViewSelection zIndex={3} />
       </Transform>
     </GLCanvas>
