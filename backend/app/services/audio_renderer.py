@@ -29,8 +29,14 @@ def get_soundfont_path(soundfont_name: str | None = None) -> Path:
     path = SOUNDFONT_DIR / name
 
     if not path.exists():
+        # Search recursively in subdirectories
+        if SOUNDFONT_DIR.exists():
+            found = list(SOUNDFONT_DIR.rglob(name))
+            if found:
+                return found[0]
+        
         # List available soundfonts for error message
-        available = list(SOUNDFONT_DIR.glob("*.sf2")) if SOUNDFONT_DIR.exists() else []
+        available = list(SOUNDFONT_DIR.rglob("*.sf2")) if SOUNDFONT_DIR.exists() else []
         available_names = [f.name for f in available]
         raise AudioRenderError(
             f"Soundfont not found: {path}. "
@@ -141,4 +147,5 @@ def list_soundfonts() -> list[str]:
     """List available soundfont files."""
     if not SOUNDFONT_DIR.exists():
         return []
-    return [f.name for f in SOUNDFONT_DIR.glob("*.sf2")]
+    # Search recursively for .sf2 files
+    return [f.name for f in SOUNDFONT_DIR.rglob("*.sf2")]

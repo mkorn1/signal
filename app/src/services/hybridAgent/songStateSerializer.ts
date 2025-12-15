@@ -7,6 +7,10 @@
 import type { Song } from "@signal-app/core"
 import { isNoteEvent, isTimeSignatureEvent } from "@signal-app/core"
 import { getInstrumentName } from "../../agent/instrumentMapping"
+import {
+  getCompositionContextState,
+  type CompositionContext,
+} from "./toolExecutor"
 
 const NOTE_NAMES = [
   "C",
@@ -59,6 +63,7 @@ export interface SongState {
   timeSignature: { numerator: number; denominator: number }
   timebase: number
   tracks: TrackSummary[]
+  compositionContext: CompositionContext | null
 }
 
 /**
@@ -124,6 +129,7 @@ export function serializeSongState(song: Song): SongState {
     timeSignature,
     timebase: song.timebase,
     tracks,
+    compositionContext: getCompositionContextState(),
   }
 }
 
@@ -133,6 +139,28 @@ export function serializeSongState(song: Song): SongState {
  */
 export function formatSongStateForPrompt(state: SongState): string {
   const lines: string[] = []
+
+  // Include composition context if set
+  if (state.compositionContext) {
+    const ctx = state.compositionContext
+    lines.push(`COMPOSITION CONTEXT (established for this session):`)
+    lines.push(`- Key: ${ctx.key} ${ctx.scale}`)
+    lines.push(`- Chord progression: ${ctx.chordProgression.join(" - ")}`)
+    if (ctx.style) lines.push(`- Style: ${ctx.style}`)
+    if (ctx.tempo) lines.push(`- Target tempo: ${ctx.tempo} BPM`)
+    if (ctx.timeSignature) lines.push(`- Time signature: ${ctx.timeSignature}`)
+    if (ctx.sections && ctx.sections.length > 0) {
+      lines.push(`- Sections:`)
+      for (const section of ctx.sections) {
+        lines.push(
+          `    ${section.name}: bars ${section.startBar}-${section.startBar + section.bars - 1}`,
+        )
+      }
+    }
+    lines.push(``)
+    lines.push(`** Follow this context when adding notes! **`)
+    lines.push(``)
+  }
 
   lines.push(`Current song state:`)
   lines.push(`- Tempo: ${state.tempo} BPM`)

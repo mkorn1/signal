@@ -597,6 +597,39 @@ function executeToolCall(song: Song, toolCall: ToolCall): string {
       })
     }
 
+    // ========================================================================
+    // COMPOSITIONAL MEMORY TOOLS
+    // ========================================================================
+
+    case "setCompositionContext": {
+      const context: CompositionContext = {
+        key: args.key as string,
+        scale: args.scale as string,
+        chordProgression: args.chordProgression as string[],
+        style: args.style as string | undefined,
+        tempo: args.tempo as number | undefined,
+        timeSignature: args.timeSignature as string | undefined,
+        sections: args.sections as Array<{
+          name: string
+          startBar: number
+          bars: number
+        }> | undefined,
+      }
+
+      // Store in the composition context (module-level state)
+      setCompositionContextState(context)
+
+      return JSON.stringify({
+        stored: true,
+        context,
+      })
+    }
+
+    case "getCompositionContext": {
+      const context = getCompositionContextState()
+      return JSON.stringify(context ?? { empty: true })
+    }
+
     default:
       return JSON.stringify({
         error: `Unknown tool: ${name}`,
@@ -615,4 +648,39 @@ export function executeToolCalls(
     id: tc.id,
     result: executeToolCall(song, tc),
   }))
+}
+
+// ============================================================================
+// COMPOSITIONAL MEMORY STATE
+// ============================================================================
+
+export interface CompositionContext {
+  key: string
+  scale: string
+  chordProgression: string[]
+  style?: string
+  tempo?: number
+  timeSignature?: string
+  sections?: Array<{
+    name: string
+    startBar: number
+    bars: number
+  }>
+}
+
+// Module-level state for composition context (persists across tool calls within a session)
+let _compositionContext: CompositionContext | null = null
+
+export function setCompositionContextState(context: CompositionContext): void {
+  _compositionContext = context
+  console.log("[CompositionContext] Set:", context)
+}
+
+export function getCompositionContextState(): CompositionContext | null {
+  return _compositionContext
+}
+
+export function clearCompositionContextState(): void {
+  _compositionContext = null
+  console.log("[CompositionContext] Cleared")
 }
