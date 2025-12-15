@@ -78,10 +78,10 @@ Harmony: 12+ notes
 Pads: 8+ notes
 
 Song length:
-- "song"/"full song": 32+ bars, 6+ tracks
-- "piece"/"composition": 24+ bars, 5+ tracks
-- "something in X style": 16+ bars, 5+ tracks
-- "simple"/"short": 8+ bars, 2-3 tracks
+- "song"/"full song": 32 bars, 6+ tracks
+- "piece"/"composition": 24 bars, 6+ tracks
+- "something in X style": 16 bars, 6+ tracks
+- "simple"/"short": 8 bars, 6+ tracks
 
 === CHORD VOCABULARY (use 3+ per song) ===
 
