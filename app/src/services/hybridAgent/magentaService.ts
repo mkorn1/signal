@@ -103,7 +103,7 @@ async function getModel<T>(
 
   // Start loading
   const loadPromise = loader().then((model) => {
-    modelCache[key] = model as ModelCache[keyof ModelCache]
+    ;(modelCache as Record<string, unknown>)[key] = model
     loadingPromises.delete(key)
     return model
   })
@@ -249,64 +249,184 @@ export function noteSequenceToNotes(
 // DRUM PATTERN GENERATION
 // ============================================================================
 
-// GM Drum map for seeds
-const DRUM_SEED_NOTES = {
+// GM Drum map for seeds - comprehensive style patterns
+const DRUM_SEED_NOTES: Record<string, Array<{ pitch: number; step: number; velocity?: number }>> = {
+  // Standard rock - driving 8th note feel
   rock: [
-    { pitch: 36, step: 0 }, // Kick on 1
+    { pitch: 36, step: 0, velocity: 100 }, // Kick on 1
     { pitch: 42, step: 0 }, // HH
-    { pitch: 38, step: 4 }, // Snare on 2
+    { pitch: 42, step: 2 },
+    { pitch: 38, step: 4, velocity: 100 }, // Snare on 2
     { pitch: 42, step: 4 },
+    { pitch: 42, step: 6 },
     { pitch: 36, step: 8 }, // Kick on 3
     { pitch: 42, step: 8 },
-    { pitch: 38, step: 12 }, // Snare on 4
+    { pitch: 42, step: 10 },
+    { pitch: 38, step: 12, velocity: 100 }, // Snare on 4
     { pitch: 42, step: 12 },
+    { pitch: 42, step: 14 },
   ],
+  // Pop-punk / Blink-182 style - fast, driving
+  punk: [
+    { pitch: 36, step: 0, velocity: 110 }, // Kick
+    { pitch: 42, step: 0 },
+    { pitch: 42, step: 1 },
+    { pitch: 42, step: 2 },
+    { pitch: 42, step: 3 },
+    { pitch: 38, step: 4, velocity: 110 }, // Snare
+    { pitch: 42, step: 4 },
+    { pitch: 42, step: 5 },
+    { pitch: 42, step: 6 },
+    { pitch: 36, step: 7 },
+    { pitch: 36, step: 8, velocity: 100 },
+    { pitch: 42, step: 8 },
+    { pitch: 42, step: 9 },
+    { pitch: 42, step: 10 },
+    { pitch: 42, step: 11 },
+    { pitch: 38, step: 12, velocity: 110 },
+    { pitch: 42, step: 12 },
+    { pitch: 42, step: 13 },
+    { pitch: 42, step: 14 },
+    { pitch: 36, step: 15 },
+  ],
+  // Metal - double kick, aggressive
+  metal: [
+    { pitch: 36, step: 0, velocity: 120 },
+    { pitch: 49, step: 0, velocity: 100 }, // Crash
+    { pitch: 36, step: 2 },
+    { pitch: 38, step: 4, velocity: 120 },
+    { pitch: 36, step: 4 },
+    { pitch: 36, step: 6 },
+    { pitch: 36, step: 8, velocity: 110 },
+    { pitch: 42, step: 8 },
+    { pitch: 36, step: 10 },
+    { pitch: 38, step: 12, velocity: 120 },
+    { pitch: 36, step: 12 },
+    { pitch: 36, step: 14 },
+  ],
+  // Jazz - swing feel with ride
   jazz: [
-    { pitch: 51, step: 0 }, // Ride
-    { pitch: 51, step: 3 }, // Swung
+    { pitch: 51, step: 0, velocity: 70 }, // Ride
+    { pitch: 51, step: 3 }, // Swung 8th
     { pitch: 51, step: 4 },
     { pitch: 51, step: 7 },
     { pitch: 51, step: 8 },
     { pitch: 51, step: 11 },
     { pitch: 51, step: 12 },
     { pitch: 51, step: 15 },
+    { pitch: 44, step: 4, velocity: 60 }, // Hi-hat pedal on 2
+    { pitch: 44, step: 12, velocity: 60 }, // Hi-hat pedal on 4
   ],
+  // Funk - syncopated, ghost notes
   funk: [
-    { pitch: 36, step: 0 }, // Kick
+    { pitch: 36, step: 0, velocity: 100 }, // Kick
+    { pitch: 42, step: 0 },
     { pitch: 42, step: 2 },
-    { pitch: 38, step: 4 }, // Snare
-    { pitch: 42, step: 6 },
+    { pitch: 38, step: 4, velocity: 100 }, // Snare
+    { pitch: 42, step: 4 },
+    { pitch: 38, step: 6, velocity: 50 }, // Ghost snare
     { pitch: 36, step: 7 },
+    { pitch: 42, step: 8 },
+    { pitch: 38, step: 10, velocity: 50 }, // Ghost
     { pitch: 42, step: 10 },
-    { pitch: 38, step: 12 },
+    { pitch: 38, step: 12, velocity: 100 },
+    { pitch: 42, step: 12 },
+    { pitch: 42, step: 14 },
+    { pitch: 36, step: 15 },
+  ],
+  // Hip-hop / trap style
+  hiphop: [
+    { pitch: 36, step: 0, velocity: 110 },
+    { pitch: 42, step: 2 },
+    { pitch: 38, step: 4, velocity: 100 },
+    { pitch: 42, step: 6 },
+    { pitch: 42, step: 8 },
+    { pitch: 36, step: 10 },
+    { pitch: 38, step: 12, velocity: 100 },
     { pitch: 42, step: 14 },
   ],
-  hiphop: [
-    { pitch: 36, step: 0 },
+  // Electronic / EDM - four on the floor
+  electronic: [
+    { pitch: 36, step: 0, velocity: 120 }, // Kick on every beat
     { pitch: 42, step: 2 },
-    { pitch: 38, step: 4 },
+    { pitch: 36, step: 4, velocity: 120 },
+    { pitch: 46, step: 4 }, // Open HH
     { pitch: 42, step: 6 },
-    { pitch: 36, step: 10 },
-    { pitch: 38, step: 12 },
+    { pitch: 36, step: 8, velocity: 120 },
+    { pitch: 42, step: 10 },
+    { pitch: 36, step: 12, velocity: 120 },
+    { pitch: 46, step: 12 },
+    { pitch: 42, step: 14 },
+  ],
+  // Latin / Bossa
+  latin: [
+    { pitch: 36, step: 0 },
+    { pitch: 37, step: 3, velocity: 70 }, // Side stick
+    { pitch: 36, step: 6 },
+    { pitch: 37, step: 7, velocity: 70 },
+    { pitch: 37, step: 10, velocity: 70 },
+    { pitch: 36, step: 12 },
+    { pitch: 37, step: 15, velocity: 70 },
+  ],
+  // Ballad - sparse, emotional
+  ballad: [
+    { pitch: 36, step: 0, velocity: 70 },
+    { pitch: 42, step: 4, velocity: 60 },
+    { pitch: 38, step: 8, velocity: 75 },
+    { pitch: 42, step: 12, velocity: 60 },
+  ],
+  // Country - train beat
+  country: [
+    { pitch: 36, step: 0 },
+    { pitch: 42, step: 0 },
+    { pitch: 37, step: 2 }, // Side stick
+    { pitch: 42, step: 2 },
+    { pitch: 36, step: 4 },
+    { pitch: 42, step: 4 },
+    { pitch: 37, step: 6 },
+    { pitch: 42, step: 6 },
+    { pitch: 36, step: 8 },
+    { pitch: 42, step: 8 },
+    { pitch: 37, step: 10 },
+    { pitch: 42, step: 10 },
+    { pitch: 36, step: 12 },
+    { pitch: 42, step: 12 },
+    { pitch: 37, step: 14 },
     { pitch: 42, step: 14 },
   ],
 }
 
+// Map style keywords to drum patterns
+function getDrumStyleKey(style: string): string {
+  const s = style.toLowerCase()
+  if (s.includes("punk") || s.includes("blink") || s.includes("pop-punk") || s.includes("pop punk")) return "punk"
+  if (s.includes("metal") || s.includes("heavy")) return "metal"
+  if (s.includes("jazz") || s.includes("swing")) return "jazz"
+  if (s.includes("funk") || s.includes("groove")) return "funk"
+  if (s.includes("hip") || s.includes("hop") || s.includes("trap") || s.includes("rap")) return "hiphop"
+  if (s.includes("electro") || s.includes("edm") || s.includes("house") || s.includes("techno")) return "electronic"
+  if (s.includes("latin") || s.includes("bossa") || s.includes("samba")) return "latin"
+  if (s.includes("ballad") || s.includes("slow") || s.includes("soft")) return "ballad"
+  if (s.includes("country") || s.includes("folk")) return "country"
+  if (s.includes("rock")) return "rock"
+  return "rock" // Default
+}
+
 /**
- * Create a seed sequence for drum generation.
+ * Create a seed sequence for drum generation based on style.
  */
-function createDrumSeed(
-  style: string,
-): mm.INoteSequence {
-  const seedNotes = DRUM_SEED_NOTES[style as keyof typeof DRUM_SEED_NOTES] ??
-    DRUM_SEED_NOTES.rock
+function createDrumSeed(style: string): mm.INoteSequence {
+  const styleKey = getDrumStyleKey(style)
+  const seedNotes = DRUM_SEED_NOTES[styleKey] ?? DRUM_SEED_NOTES.rock
+
+  logGenerate(`Using drum seed pattern: ${styleKey} (${seedNotes.length} hits)`)
 
   return {
     notes: seedNotes.map((n) => ({
       pitch: n.pitch,
       quantizedStartStep: n.step,
       quantizedEndStep: n.step + 1,
-      velocity: 80 + Math.floor(Math.random() * 20),
+      velocity: n.velocity ?? (80 + Math.floor(Math.random() * 20)),
       isDrum: true,
     })),
     totalQuantizedSteps: 16,
@@ -339,18 +459,30 @@ export async function generateDrumPatternMagenta(
   logGenerate(`Seed created with ${seed.notes?.length ?? 0} notes, generating ${stepsToGenerate} steps...`)
 
   const startTime = performance.now()
-  const sequence = await model.continueSequence(
-    seed,
-    stepsToGenerate,
-    temperature,
-  )
-  const genTime = ((performance.now() - startTime) / 1000).toFixed(2)
+  try {
+    const sequence = await model.continueSequence(
+      seed,
+      stepsToGenerate,
+      temperature,
+    )
+    const genTime = ((performance.now() - startTime) / 1000).toFixed(2)
 
-  const notes = noteSequenceToNotes(sequence, startTick)
-  logGenerate(`Generated ${notes.length} drum notes in ${genTime}s`)
-  logGenerate("Sample notes:", notes.slice(0, 5).map(n => `pitch:${n.pitch}@${n.start}`))
+    logGenerate(`Raw DrumsRNN output: ${sequence.notes?.length ?? 0} notes, ${sequence.totalQuantizedSteps} steps`)
 
-  return notes
+    if (!sequence.notes || sequence.notes.length === 0) {
+      logWarn(`DrumsRNN returned 0 notes!`)
+      return []
+    }
+
+    const notes = noteSequenceToNotes(sequence, startTick)
+    logGenerate(`Generated ${notes.length} drum notes in ${genTime}s`)
+    logGenerate("Sample notes:", notes.slice(0, 5).map(n => `pitch:${n.pitch}@${n.start}`))
+
+    return notes
+  } catch (error) {
+    logError(`DrumsRNN generation failed: ${error}`)
+    return []
+  }
 }
 
 /**
@@ -364,31 +496,39 @@ export async function generateDrumPatternVAE(
   logGenerate("=== DRUM PATTERN (MusicVAE) ===")
   logGenerate(`Style hint: ${style}, Bars: ${bars}, Temperature: ${temperature}, StartTick: ${startTick}`)
 
-  const model = await getMusicVaeDrums()
-  const numSamples = Math.ceil(bars / 4) // VAE generates 4 bars at a time
+  try {
+    const model = await getMusicVaeDrums()
+    const numSamples = Math.ceil(bars / 4) // VAE generates 4 bars at a time
 
-  logGenerate(`Sampling ${numSamples} x 4-bar patterns from latent space...`)
+    logGenerate(`Sampling ${numSamples} x 4-bar patterns from latent space...`)
 
-  const startTime = performance.now()
-  const sequences = await model.sample(numSamples, temperature)
-  const genTime = ((performance.now() - startTime) / 1000).toFixed(2)
+    const startTime = performance.now()
+    const sequences = await model.sample(numSamples, temperature)
+    const genTime = ((performance.now() - startTime) / 1000).toFixed(2)
 
-  const allNotes: AppNote[] = []
+    logGenerate(`MusicVAE returned ${sequences.length} sequences`)
 
-  sequences.forEach((seq, i) => {
-    const offset = startTick + i * 4 * TICKS_PER_QUARTER * 4 // 4 bars offset
-    const notes = noteSequenceToNotes(seq, offset)
-    logGenerate(`Sample ${i + 1}: ${notes.length} notes`)
-    allNotes.push(...notes)
-  })
+    const allNotes: AppNote[] = []
 
-  // Trim to requested bars
-  const maxTick = startTick + bars * TICKS_PER_QUARTER * 4
-  const trimmedNotes = allNotes.filter((n) => n.start < maxTick)
+    sequences.forEach((seq, i) => {
+      logGenerate(`Sequence ${i + 1}: ${seq.notes?.length ?? 0} raw notes`)
+      const offset = startTick + i * 4 * TICKS_PER_QUARTER * 4 // 4 bars offset
+      const notes = noteSequenceToNotes(seq, offset)
+      logGenerate(`Sample ${i + 1}: ${notes.length} converted notes`)
+      allNotes.push(...notes)
+    })
 
-  logGenerate(`Generated ${trimmedNotes.length} drum notes total in ${genTime}s (VAE)`)
+    // Trim to requested bars
+    const maxTick = startTick + bars * TICKS_PER_QUARTER * 4
+    const trimmedNotes = allNotes.filter((n) => n.start < maxTick)
 
-  return trimmedNotes
+    logGenerate(`Generated ${trimmedNotes.length} drum notes total in ${genTime}s (VAE)`)
+
+    return trimmedNotes
+  } catch (error) {
+    logError(`MusicVAE drums generation failed: ${error}`)
+    return []
+  }
 }
 
 // ============================================================================
@@ -402,45 +542,176 @@ export interface MelodyGenerationOptions {
   startTick: number
   rangeLow: number
   rangeHigh: number
+  style?: string // Genre hint for seed generation
+}
+
+// Style-specific melody seed patterns (scale degrees and rhythmic patterns)
+// Format: { degrees: scale degrees to use, rhythm: step positions, velocities: optional velocity curve }
+const MELODY_SEED_PATTERNS: Record<string, {
+  degrees: number[]
+  steps: number[]
+  durations: number[]
+  velocities?: number[]
+}> = {
+  // Rock - strong, rhythmic, power chord feel
+  rock: {
+    degrees: [0, 0, 4, 4, 5, 5, 4, -1], // Power chord movement
+    steps: [0, 2, 4, 6, 8, 10, 12, 14],
+    durations: [2, 2, 2, 2, 2, 2, 2, 2],
+    velocities: [100, 80, 100, 80, 100, 80, 100, 70],
+  },
+  // Punk - fast, aggressive, simple
+  punk: {
+    degrees: [0, 2, 4, 5, 4, 2, 0, 0],
+    steps: [0, 1, 2, 3, 4, 5, 6, 7],
+    durations: [1, 1, 1, 1, 1, 1, 1, 1],
+    velocities: [110, 100, 110, 100, 110, 100, 110, 100],
+  },
+  // Metal - dark, aggressive
+  metal: {
+    degrees: [0, 0, -1, 0, 3, 0, -1, -2],
+    steps: [0, 2, 4, 6, 8, 10, 12, 14],
+    durations: [2, 2, 2, 2, 2, 2, 2, 2],
+    velocities: [120, 110, 120, 110, 120, 110, 120, 110],
+  },
+  // Jazz - chromatic, complex rhythm
+  jazz: {
+    degrees: [0, 2, 4, 6, 5, 4, 3, 2],
+    steps: [0, 3, 4, 7, 8, 10, 12, 15],
+    durations: [3, 1, 3, 1, 2, 2, 3, 1],
+    velocities: [70, 60, 75, 65, 70, 60, 75, 60],
+  },
+  // Pop - catchy, melodic
+  pop: {
+    degrees: [0, 2, 4, 2, 0, 4, 5, 4],
+    steps: [0, 2, 4, 6, 8, 10, 12, 14],
+    durations: [2, 2, 2, 2, 2, 2, 2, 2],
+    velocities: [90, 80, 95, 80, 90, 85, 95, 80],
+  },
+  // Ballad - slow, expressive
+  ballad: {
+    degrees: [0, 2, 4, 5, 4, 2, 0, -1],
+    steps: [0, 4, 8, 10, 12, 14, 16, 20],
+    durations: [4, 4, 2, 2, 2, 2, 4, 4],
+    velocities: [70, 75, 80, 85, 80, 75, 70, 65],
+  },
+  // Electronic - repetitive, arpeggiated
+  electronic: {
+    degrees: [0, 4, 7, 4, 0, 4, 7, 11],
+    steps: [0, 2, 4, 6, 8, 10, 12, 14],
+    durations: [2, 2, 2, 2, 2, 2, 2, 2],
+    velocities: [100, 90, 100, 90, 100, 90, 100, 95],
+  },
+  // Funk - syncopated, groovy
+  funk: {
+    degrees: [0, -1, 0, 3, 4, -1, 4, 3],
+    steps: [0, 3, 4, 6, 8, 11, 12, 14],
+    durations: [3, 1, 2, 2, 3, 1, 2, 2],
+    velocities: [100, 70, 90, 80, 100, 70, 90, 80],
+  },
+  // Hip-hop - sparse, rhythmic
+  hiphop: {
+    degrees: [0, 0, 3, 0, 0, 3, 5, 3],
+    steps: [0, 4, 6, 8, 12, 14, 16, 18],
+    durations: [4, 2, 2, 4, 2, 2, 2, 6],
+    velocities: [100, 80, 90, 100, 80, 90, 95, 85],
+  },
+  // Latin - rhythmic, syncopated
+  latin: {
+    degrees: [0, 2, 4, 5, 4, 2, 3, 2],
+    steps: [0, 3, 4, 6, 8, 11, 12, 14],
+    durations: [3, 1, 2, 2, 3, 1, 2, 2],
+    velocities: [90, 70, 85, 80, 90, 70, 85, 75],
+  },
+  // Country - twangy, melodic
+  country: {
+    degrees: [0, 2, 4, 5, 7, 5, 4, 2],
+    steps: [0, 2, 4, 6, 8, 10, 12, 14],
+    durations: [2, 2, 2, 2, 2, 2, 2, 2],
+    velocities: [85, 75, 90, 80, 95, 80, 85, 75],
+  },
+}
+
+// Map style keywords to melody patterns
+function getMelodyStyleKey(style?: string): string {
+  if (!style) return "rock"
+  const s = style.toLowerCase()
+  if (s.includes("punk") || s.includes("blink") || s.includes("pop-punk") || s.includes("pop punk")) return "punk"
+  if (s.includes("metal") || s.includes("heavy")) return "metal"
+  if (s.includes("jazz") || s.includes("swing")) return "jazz"
+  if (s.includes("funk") || s.includes("groove")) return "funk"
+  if (s.includes("hip") || s.includes("hop") || s.includes("trap") || s.includes("rap")) return "hiphop"
+  if (s.includes("electro") || s.includes("edm") || s.includes("house") || s.includes("techno")) return "electronic"
+  if (s.includes("latin") || s.includes("bossa") || s.includes("samba")) return "latin"
+  if (s.includes("ballad") || s.includes("slow") || s.includes("soft")) return "ballad"
+  if (s.includes("country") || s.includes("folk")) return "country"
+  if (s.includes("pop")) return "pop"
+  if (s.includes("rock")) return "rock"
+  return "rock" // Default
+}
+
+const NOTE_MAP: Record<string, number> = {
+  C: 0, "C#": 1, Db: 1, D: 2, "D#": 3, Eb: 3, E: 4, F: 5,
+  "F#": 6, Gb: 6, G: 7, "G#": 8, Ab: 8, A: 9, "A#": 10, Bb: 10, B: 11,
 }
 
 /**
- * Create a seed melody in a given scale.
+ * Create a seed melody based on scale and style.
  */
 function createMelodySeed(
   scale: string,
   rangeLow: number,
+  style?: string,
 ): mm.INoteSequence {
   // Extract root from scale name (e.g., "C major" -> C, "Am" -> A)
   const rootMatch = scale.match(/^([A-G][#b]?)/)
   const rootName = rootMatch ? rootMatch[1] : "C"
 
-  const noteMap: Record<string, number> = {
-    C: 0, "C#": 1, Db: 1, D: 2, "D#": 3, Eb: 3, E: 4, F: 5,
-    "F#": 6, Gb: 6, G: 7, "G#": 8, Ab: 8, A: 9, "A#": 10, Bb: 10, B: 11,
-  }
-
-  const rootPitch = noteMap[rootName] ?? 0
+  const rootPitch = NOTE_MAP[rootName] ?? 0
   const basePitch = Math.max(rangeLow, 60 + rootPitch - 12)
 
   // Determine scale intervals
   const isMinor = scale.toLowerCase().includes("minor") ||
-    scale.toLowerCase().includes("m") && !scale.toLowerCase().includes("maj")
+    (scale.toLowerCase().includes("m") && !scale.toLowerCase().includes("maj"))
   const intervals = isMinor
     ? [0, 2, 3, 5, 7, 8, 10] // Natural minor
     : [0, 2, 4, 5, 7, 9, 11] // Major
 
-  // Create simple ascending seed
-  const seedNotes = [0, 2, 4, 2].map((degree, i) => ({
-    pitch: basePitch + intervals[degree % intervals.length],
-    quantizedStartStep: i * 4,
-    quantizedEndStep: i * 4 + 4,
-    velocity: 80,
-  }))
+  // Get style-specific pattern
+  const styleKey = getMelodyStyleKey(style)
+  const pattern = MELODY_SEED_PATTERNS[styleKey] ?? MELODY_SEED_PATTERNS.rock
+
+  logGenerate(`Using melody seed pattern: ${styleKey}`)
+
+  // Convert scale degrees to pitches
+  const seedNotes = pattern.degrees.map((degree, i) => {
+    // Handle negative degrees (going below root)
+    let pitch: number
+    if (degree < 0) {
+      // Go down from root by the interval
+      const absDegree = Math.abs(degree)
+      const intervalFromOctaveBelow = intervals[intervals.length - absDegree] ?? 0
+      pitch = basePitch - (12 - intervalFromOctaveBelow)
+    } else {
+      // Normal scale degree
+      const octave = Math.floor(degree / 7)
+      const degreeInOctave = degree % 7
+      pitch = basePitch + octave * 12 + (intervals[degreeInOctave] ?? 0)
+    }
+
+    return {
+      pitch,
+      quantizedStartStep: pattern.steps[i] ?? i * 2,
+      quantizedEndStep: (pattern.steps[i] ?? i * 2) + (pattern.durations[i] ?? 2),
+      velocity: pattern.velocities?.[i] ?? 80,
+    }
+  })
+
+  const totalSteps = Math.max(...seedNotes.map(n => n.quantizedEndStep), 16)
 
   return {
     notes: seedNotes,
-    totalQuantizedSteps: 16,
+    totalQuantizedSteps: totalSteps,
     quantizationInfo: { stepsPerQuarter: MAGENTA_STEPS_PER_QUARTER },
   }
 }
@@ -451,35 +722,48 @@ function createMelodySeed(
 export async function generateMelodyMagenta(
   options: MelodyGenerationOptions,
 ): Promise<AppNote[]> {
-  const { scale, bars, temperature, startTick, rangeLow, rangeHigh } = options
+  const { scale, bars, temperature, startTick, rangeLow, rangeHigh, style } = options
 
   logGenerate("=== MELODY (MelodyRNN) ===")
-  logGenerate(`Scale: ${scale}, Bars: ${bars}, Temperature: ${temperature}`)
+  logGenerate(`Scale: ${scale}, Style: ${style ?? 'default'}, Bars: ${bars}, Temperature: ${temperature}`)
   logGenerate(`Range: ${rangeLow}-${rangeHigh}, StartTick: ${startTick}`)
 
   const model = await getMelodyRnn()
-  const seed = createMelodySeed(scale, rangeLow)
+  const seed = createMelodySeed(scale, rangeLow, style)
   const stepsToGenerate = bars * 16
 
   logGenerate(`Seed created with ${seed.notes?.length ?? 0} notes, generating ${stepsToGenerate} steps...`)
+  logGenerate(`Seed notes: ${JSON.stringify(seed.notes?.slice(0, 3))}`)
 
   const startTime = performance.now()
-  const sequence = await model.continueSequence(
-    seed,
-    stepsToGenerate,
-    temperature,
-  )
-  const genTime = ((performance.now() - startTime) / 1000).toFixed(2)
+  try {
+    const sequence = await model.continueSequence(
+      seed,
+      stepsToGenerate,
+      temperature,
+    )
+    const genTime = ((performance.now() - startTime) / 1000).toFixed(2)
 
-  // Filter notes to requested range
-  let notes = noteSequenceToNotes(sequence, startTick)
-  const beforeFilter = notes.length
-  notes = notes.filter((n) => n.pitch >= rangeLow && n.pitch <= rangeHigh)
+    logGenerate(`Raw MelodyRNN output: ${sequence.notes?.length ?? 0} notes, ${sequence.totalQuantizedSteps} steps`)
+    
+    if (!sequence.notes || sequence.notes.length === 0) {
+      logWarn(`MelodyRNN returned 0 notes!`)
+      return []
+    }
 
-  logGenerate(`Generated ${notes.length} melody notes in ${genTime}s (${beforeFilter - notes.length} filtered out of range)`)
-  logGenerate("Sample notes:", notes.slice(0, 5).map(n => `pitch:${n.pitch}@${n.start}`))
+    // Filter notes to requested range
+    let notes = noteSequenceToNotes(sequence, startTick)
+    const beforeFilter = notes.length
+    notes = notes.filter((n) => n.pitch >= rangeLow && n.pitch <= rangeHigh)
 
-  return notes
+    logGenerate(`Generated ${notes.length} melody notes in ${genTime}s (${beforeFilter - notes.length} filtered out of range)`)
+    logGenerate("Sample notes:", notes.slice(0, 5).map(n => `pitch:${n.pitch}@${n.start}`))
+
+    return notes
+  } catch (error) {
+    logError(`MelodyRNN generation failed: ${error}`)
+    return []
+  }
 }
 
 /**
@@ -488,39 +772,47 @@ export async function generateMelodyMagenta(
 export async function generateMelodyVAE(
   options: MelodyGenerationOptions,
 ): Promise<AppNote[]> {
-  const { bars, temperature, startTick, rangeLow, rangeHigh, scale } = options
+  const { bars, temperature, startTick, rangeLow, rangeHigh, scale, style } = options
 
   logGenerate("=== MELODY (MusicVAE) ===")
-  logGenerate(`Scale hint: ${scale}, Bars: ${bars}, Temperature: ${temperature}`)
+  logGenerate(`Scale hint: ${scale}, Style: ${style ?? 'default'}, Bars: ${bars}, Temperature: ${temperature}`)
   logGenerate(`Range: ${rangeLow}-${rangeHigh}, StartTick: ${startTick}`)
 
-  const model = await getMusicVaeMelody()
-  const numSamples = Math.ceil(bars / 4)
+  try {
+    const model = await getMusicVaeMelody()
+    const numSamples = Math.ceil(bars / 4)
 
-  logGenerate(`Sampling ${numSamples} x 4-bar patterns from latent space...`)
+    logGenerate(`Sampling ${numSamples} x 4-bar patterns from latent space...`)
 
-  const startTime = performance.now()
-  const sequences = await model.sample(numSamples, temperature)
-  const genTime = ((performance.now() - startTime) / 1000).toFixed(2)
+    const startTime = performance.now()
+    const sequences = await model.sample(numSamples, temperature)
+    const genTime = ((performance.now() - startTime) / 1000).toFixed(2)
 
-  const allNotes: AppNote[] = []
+    logGenerate(`MusicVAE returned ${sequences.length} sequences`)
 
-  sequences.forEach((seq, i) => {
-    const offset = startTick + i * 4 * TICKS_PER_QUARTER * 4
-    const notes = noteSequenceToNotes(seq, offset)
-    logGenerate(`Sample ${i + 1}: ${notes.length} notes`)
-    allNotes.push(...notes)
-  })
+    const allNotes: AppNote[] = []
 
-  // Trim and filter
-  const maxTick = startTick + bars * TICKS_PER_QUARTER * 4
-  const trimmedNotes = allNotes
-    .filter((n) => n.start < maxTick)
-    .filter((n) => n.pitch >= rangeLow && n.pitch <= rangeHigh)
+    sequences.forEach((seq, i) => {
+      logGenerate(`Sequence ${i + 1}: ${seq.notes?.length ?? 0} raw notes`)
+      const offset = startTick + i * 4 * TICKS_PER_QUARTER * 4
+      const notes = noteSequenceToNotes(seq, offset)
+      logGenerate(`Sample ${i + 1}: ${notes.length} converted notes`)
+      allNotes.push(...notes)
+    })
 
-  logGenerate(`Generated ${trimmedNotes.length} melody notes total in ${genTime}s (VAE)`)
+    // Trim and filter
+    const maxTick = startTick + bars * TICKS_PER_QUARTER * 4
+    const trimmedNotes = allNotes
+      .filter((n) => n.start < maxTick)
+      .filter((n) => n.pitch >= rangeLow && n.pitch <= rangeHigh)
 
-  return trimmedNotes
+    logGenerate(`Generated ${trimmedNotes.length} melody notes total in ${genTime}s (VAE)`)
+
+    return trimmedNotes
+  } catch (error) {
+    logError(`MusicVAE melody generation failed: ${error}`)
+    return []
+  }
 }
 
 // ============================================================================
@@ -549,43 +841,86 @@ export async function generateImprovMagenta(
 
   const model = await getImprovRnn()
 
-  // Create chord sequence in Magenta format
-  const stepsPerChord = ticksToSteps(ticksPerChord)
-  const chordSequence = chordProgression.flatMap((chord) => {
-    // Repeat chord for each step it spans
-    return Array(stepsPerChord).fill(chord)
-  })
+  // ImprovRNN needs one chord per step
+  // 4 steps per beat, 4 beats per bar
+  const stepsPerBar = 16
+  const totalSteps = bars * stepsPerBar
+  const stepsPerChord = Math.floor(totalSteps / chordProgression.length)
+  
+  // Build chord sequence: one chord symbol per step
+  const chordSequence: string[] = []
+  for (const chord of chordProgression) {
+    for (let i = 0; i < stepsPerChord; i++) {
+      chordSequence.push(chord)
+    }
+  }
+  // Pad to exact length if needed
+  while (chordSequence.length < totalSteps) {
+    chordSequence.push(chordProgression[chordProgression.length - 1])
+  }
 
   logGenerate(`Chord sequence: ${stepsPerChord} steps per chord, ${chordSequence.length} total steps`)
 
-  // Create minimal seed
+  // Create a proper seed with the model's expected structure
   const seed: mm.INoteSequence = {
     notes: [
-      { pitch: 60, quantizedStartStep: 0, quantizedEndStep: 4, velocity: 80 },
+      { pitch: 60, quantizedStartStep: 0, quantizedEndStep: 2, velocity: 80 },
+      { pitch: 62, quantizedStartStep: 2, quantizedEndStep: 4, velocity: 80 },
     ],
     totalQuantizedSteps: 4,
-    quantizationInfo: { stepsPerQuarter: MAGENTA_STEPS_PER_QUARTER },
+    quantizationInfo: { stepsPerQuarter: 4 },
   }
 
-  const stepsToGenerate = bars * 16
-
-  logGenerate(`Generating ${stepsToGenerate} steps of melody over chords...`)
+  logGenerate(`Generating ${totalSteps} steps of melody over ${chordSequence.length} chord steps...`)
 
   const startTime = performance.now()
-  const sequence = await model.continueSequence(
-    seed,
-    stepsToGenerate,
-    temperature,
-    chordSequence.slice(0, stepsToGenerate),
-  )
-  const genTime = ((performance.now() - startTime) / 1000).toFixed(2)
+  
+  try {
+    // Log the full input for debugging
+    logGenerate(`Seed notes: ${seed.notes?.length}, chords sample: ${chordSequence.slice(0, 5).join(', ')}...`)
+    
+    const sequence = await model.continueSequence(
+      seed,
+      totalSteps,
+      temperature,
+      chordSequence,
+    )
+    const genTime = ((performance.now() - startTime) / 1000).toFixed(2)
 
-  const notes = noteSequenceToNotes(sequence, startTick)
-
-  logGenerate(`Generated ${notes.length} improv notes in ${genTime}s`)
-  logGenerate("Sample notes:", notes.slice(0, 5).map(n => `pitch:${n.pitch}@${n.start}`))
-
-  return notes
+    // Debug: log the raw sequence completely
+    logGenerate(`Raw sequence totalQuantizedSteps: ${sequence.totalQuantizedSteps}`)
+    logGenerate(`Raw sequence notes: ${JSON.stringify(sequence.notes?.slice(0, 3))}`)
+    
+    if (sequence.notes && sequence.notes.length > 0) {
+      logGenerate(`First note: pitch=${sequence.notes[0].pitch}, start=${sequence.notes[0].quantizedStartStep}, end=${sequence.notes[0].quantizedEndStep}`)
+      const notes = noteSequenceToNotes(sequence, startTick)
+      logGenerate(`Generated ${notes.length} improv notes in ${genTime}s`)
+      return notes
+    }
+    
+    // ImprovRNN returned no notes - try basic MelodyRNN instead
+    logWarn(`ImprovRNN returned 0 notes, trying MelodyRNN...`)
+    return generateMelodyMagenta({
+      scale: "C major",
+      bars,
+      temperature,
+      startTick,
+      rangeLow: 48,
+      rangeHigh: 84,
+    })
+  } catch (error) {
+    logError(`ImprovRNN generation failed: ${error}`)
+    // Fallback to basic melody generation
+    logGenerate("Falling back to basic melody RNN...")
+    return generateMelodyMagenta({
+      scale: "C major",
+      bars,
+      temperature,
+      startTick,
+      rangeLow: 48,
+      rangeHigh: 84,
+    })
+  }
 }
 
 // ============================================================================

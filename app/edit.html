@@ -33,6 +33,28 @@
 
 <body>
   <div id="root"></div>
+  <script>
+    // Polyfills for @magenta/music Node.js dependencies
+    window.global = globalThis;
+    window.global.process = window.global.process || {
+      env: {},
+      hrtime: function(previousTimestamp) {
+        const now = performance.now() * 1e-3;
+        const seconds = Math.floor(now);
+        const nanoseconds = Math.floor((now % 1) * 1e9);
+        if (previousTimestamp) {
+          let diffSeconds = seconds - previousTimestamp[0];
+          let diffNanoseconds = nanoseconds - previousTimestamp[1];
+          if (diffNanoseconds < 0) {
+            diffSeconds--;
+            diffNanoseconds += 1e9;
+          }
+          return [diffSeconds, diffNanoseconds];
+        }
+        return [seconds, nanoseconds];
+      }
+    };
+  </script>
   <script type="module" src="/src/index.tsx"></script>
 </body>
 

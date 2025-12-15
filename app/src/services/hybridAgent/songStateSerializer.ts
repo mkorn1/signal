@@ -144,10 +144,10 @@ export function formatSongStateForPrompt(state: SongState): string {
 
   if (state.tracks.length > 0) {
     lines.push(``)
-    lines.push(`Track details:`)
+    lines.push(`Track details (IMPORTANT: Track 0 is always the conductor track - DO NOT add notes to it):`)
     for (const track of state.tracks) {
       if (track.isConductor) {
-        lines.push(`  [${track.id}] Conductor track (tempo/time signature)`)
+        lines.push(`  [${track.id}] Conductor track (tempo/time signature only - NO NOTES)`)
       } else {
         const instrument = track.instrumentName ?? track.name ?? "Unknown"
         const drums = track.isDrums ? " (drums)" : ""

@@ -61,12 +61,13 @@ These tools use Google Magenta AI for realistic, human-like musical output.
   Styles: "root", "fifth", "walking", "arpeggiated", "syncopated", "octave", "pedal"
   Example: generateBassline(3, ["Cmaj7", "Am7"], style="walking")
 
-- generateMelody: AI-powered melody generation (Magenta MelodyRNN/ImprovRNN/MusicVAE)
+- generateMelody: AI-powered melody generation (Magenta MelodyRNN/MusicVAE)
   Scales: "C major", "A minor", "D dorian", etc.
   Temperature: 0.5 (conservative) to 2.0 (experimental), default 1.0
-  chordProgression: Optional - melody will follow these chords (uses ImprovRNN)
-  useVAE: true for more varied melodies
-  Example: generateMelody(1, "A minor", bars=8, temperature=1.2, chordProgression=["Am", "F", "C", "G"])
+  style: Genre hint for better results - "rock", "punk", "metal", "jazz", "pop", "ballad", "electronic", "funk", "hiphop", "latin", "country"
+  chordProgression: Optional - melody will follow these chords
+  IMPORTANT: Always pass the style parameter matching the song genre!
+  Example: generateMelody(1, "A minor", bars=8, temperature=1.2, style="punk")
 
 - createArpeggio: Generate arpeggio patterns from chords
   Patterns: "up", "down", "updown", "downup", "random"
@@ -634,13 +635,14 @@ def generateMelody(
     temperature: float = 1.0,
     useMagenta: bool = True,
     useVAE: bool = False,
-    chordProgression: Optional[list[str]] = None
+    chordProgression: Optional[list[str]] = None,
+    style: Optional[str] = None
 ) -> str:
-    """Generates a melodic line using AI (Magenta) or preset patterns.
+    """Generates a melodic line using AI (Magenta) with style-aware patterns.
 
     This tool creates melodies using Google's Magenta AI models trained on
-    real music. Can generate melodies that follow chord progressions using
-    ImprovRNN. Falls back to preset generation if needed.
+    real music. Uses style-specific seed patterns for better genre-appropriate
+    output. Can generate melodies that follow chord progressions.
 
     Args:
         trackId: The track ID to add the melody to
@@ -666,13 +668,17 @@ def generateMelody(
         chordProgression: Optional chord progression for the melody to follow.
             When provided, uses ImprovRNN to generate melody over chords.
             Example: ["C", "Am", "F", "G"]
+        style: Genre/style hint for AI seed generation. Options:
+            - "rock", "punk", "metal", "jazz", "pop", "ballad"
+            - "electronic", "funk", "hiphop", "latin", "country"
+            Uses style-specific patterns to seed the AI for better results.
 
     Returns:
         JSON with trackId, noteCount, bars, scale, generationMethod
 
     Example:
-        generateMelody(1, "A minor", bars=8, temperature=1.2, chordProgression=["Am", "F", "C", "G"])
-        Creates an 8-bar AI melody following the chord progression
+        generateMelody(1, "A minor", bars=8, temperature=1.2, style="punk")
+        Creates an 8-bar AI melody with punk-style characteristics
     """
     return '{"status": "pending_frontend_execution"}'
 

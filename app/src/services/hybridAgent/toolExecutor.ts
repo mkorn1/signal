@@ -168,6 +168,12 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
         })
       }
 
+      if (track.isConductorTrack) {
+        return JSON.stringify({ 
+          error: `Track ${trackId} is the conductor track. Create a new track with createTrack first.` 
+        })
+      }
+
       // Validate notes array
       if (!Array.isArray(notes)) {
         return JSON.stringify({
@@ -214,12 +220,21 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
           })
         }
 
-        validatedNotes.push({
+        const validatedNote = {
           pitch: Math.round(pitch),
           start: Math.round(start),
           duration: Math.round(duration),
           velocity: Math.round(Math.max(1, Math.min(127, velocity as number))),
-        })
+        }
+        
+        // Guard against NaN values
+        if (isNaN(validatedNote.pitch) || isNaN(validatedNote.start) || 
+            isNaN(validatedNote.duration) || isNaN(validatedNote.velocity)) {
+          console.warn(`[ToolExecutor] Skipping note ${i} with NaN values:`, validatedNote)
+          continue
+        }
+        
+        validatedNotes.push(validatedNote)
       }
 
       const noteEvents = validatedNotes.map((note) => ({
@@ -231,11 +246,16 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
         velocity: note.velocity,
       }))
 
-      track.addEvents(noteEvents)
+      const addedEvents = track.addEvents(noteEvents)
+      console.log(
+        `%c${LOG_PREFIX} [addNotes] Added ${addedEvents.length} notes to track ${trackId}`,
+        "color: #4CAF50; font-weight: bold"
+      )
 
       return JSON.stringify({
         trackId,
-        noteCount: validatedNotes.length,
+        noteCount: addedEvents.length,
+        trackNoteCountAfter: track.events.filter(e => e.type === "channel" && e.subtype === "note").length,
       })
     }
 
@@ -497,6 +517,12 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
         return JSON.stringify({ error: `Track ${trackId} not found` })
       }
 
+      if (track.isConductorTrack) {
+        return JSON.stringify({ 
+          error: `Track ${trackId} is the conductor track. Create a new track with createTrack first.` 
+        })
+      }
+
       const instrumentInfo = getInstrumentProgramNumber(instrumentName)
       if (!instrumentInfo) {
         return JSON.stringify({
@@ -668,6 +694,12 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
         return JSON.stringify({ error: `Track ${trackId} not found` })
       }
 
+      if (track.isConductorTrack) {
+        return JSON.stringify({ 
+          error: `Track ${trackId} is the conductor track (tempo/time signature only). Use a different track for notes. Create a new track with createTrack first.` 
+        })
+      }
+
       if (!Array.isArray(chords) || chords.length === 0) {
         return JSON.stringify({ error: "chords must be a non-empty array" })
       }
@@ -720,7 +752,7 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
       const includeFills = (args.includeFills as boolean) ?? true
       const swing = (args.swing as number) ?? 0
       const temperature = args.temperature as number | undefined
-      const useMagenta = (args.useMagenta as boolean) ?? true // Default to Magenta
+      const useMagenta = (args.useMagenta as boolean) ?? true // Use Magenta AI
       const useVAE = (args.useVAE as boolean) ?? false
 
       logTool("generateDrumPattern", {
@@ -747,18 +779,19 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
       // Use Magenta if available and requested
       if (useMagenta && isMagentaAvailable()) {
         try {
-          console.log(`%c${LOG_PREFIX} Using Magenta AI for drum generation (${useVAE ? 'MusicVAE' : 'DrumsRNN'})`, LOG_STYLES.tool)
-          if (useVAE) {
-            // MusicVAE - more varied, samples from latent space
-            notes = await generateDrumPatternVAE({
-              style,
-              bars,
-              temperature: temperature ?? 1.0,
-              startTick,
-            })
-            generationMethod = "magenta_vae"
-          } else {
-            // DrumsRNN - continues from seed, style-specific
+          // Default to MusicVAE which is more reliable (samples from latent space)
+          console.log(`%c${LOG_PREFIX} Using Magenta MusicVAE for drum generation`, LOG_STYLES.tool)
+          notes = await generateDrumPatternVAE({
+            style,
+            bars,
+            temperature: temperature ?? 1.0,
+            startTick,
+          })
+          generationMethod = "magenta_vae"
+          
+          // If VAE failed, try RNN as fallback
+          if (notes.length === 0) {
+            console.log(`%c${LOG_PREFIX} VAE returned 0 notes, trying DrumsRNN...`, LOG_STYLES.fallback)
             notes = await generateDrumPatternMagenta({
               style,
               bars,
@@ -766,6 +799,26 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
               startTick,
             })
             generationMethod = "magenta_rnn"
+          }
+          
+          // If Magenta returned no notes, fallback to preset
+          if (notes.length === 0) {
+            logFallback(`Magenta returned 0 notes, using preset`)
+            const hits = generateDrumPatternNotes(
+              style,
+              bars,
+              startTick,
+              variation,
+              includeFills,
+              swing,
+            )
+            notes = hits.map((h) => ({
+              pitch: h.pitch,
+              start: h.tick,
+              duration: h.duration,
+              velocity: h.velocity,
+            }))
+            generationMethod = "preset_fallback"
           }
         } catch (err) {
           logFallback(`Magenta error: ${err}`)
@@ -842,6 +895,12 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
         return JSON.stringify({ error: `Track ${trackId} not found` })
       }
 
+      if (track.isConductorTrack) {
+        return JSON.stringify({ 
+          error: `Track ${trackId} is the conductor track. Create a new track with createTrack first.` 
+        })
+      }
+
       if (!Array.isArray(chordProgression) || chordProgression.length === 0) {
         return JSON.stringify({
           error: "chordProgression must be a non-empty array",
@@ -887,13 +946,14 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
       const rangeHigh = (args.range_high as number) ?? 84
       const velocity = (args.velocity as number) ?? 85
       const temperature = args.temperature as number | undefined
-      const useMagenta = (args.useMagenta as boolean) ?? true // Default to Magenta
+      const useMagenta = (args.useMagenta as boolean) ?? true // Use Magenta AI
       const useVAE = (args.useVAE as boolean) ?? false
       const chordProgression = args.chordProgression as string[] | undefined
+      const style = args.style as string | undefined // Genre/style hint for AI
 
       logTool("generateMelody", {
         trackId, scale, bars, startTick, temperature,
-        useMagenta, useVAE, chordProgression,
+        useMagenta, useVAE, chordProgression, style,
         rangeLow, rangeHigh, contour, density
       })
 
@@ -903,38 +963,36 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
         return JSON.stringify({ error: `Track ${trackId} not found` })
       }
 
+      if (track.isConductorTrack) {
+        logError("generateMelody", `Track ${trackId} is conductor track`)
+        return JSON.stringify({ 
+          error: `Track ${trackId} is the conductor track. Create a new track with createTrack first.` 
+        })
+      }
+
       let notes: AppNote[]
       let generationMethod = "preset"
 
       // Use Magenta if available and requested
       if (useMagenta && isMagentaAvailable()) {
         try {
-          if (chordProgression && chordProgression.length > 0) {
-            // Use ImprovRNN for melody over chords
-            console.log(`%c${LOG_PREFIX} Using Magenta ImprovRNN (chord-following melody)`, LOG_STYLES.tool)
-            notes = await generateImprovMagenta({
-              chordProgression,
-              bars,
-              temperature: temperature ?? 1.0,
-              startTick,
-              ticksPerChord: Math.floor((bars * 1920 * 4) / chordProgression.length),
-            })
-            generationMethod = "magenta_improv"
-          } else if (useVAE) {
-            // MusicVAE - more varied
-            console.log(`%c${LOG_PREFIX} Using Magenta MusicVAE (varied melody)`, LOG_STYLES.tool)
-            notes = await generateMelodyVAE({
-              scale,
-              bars,
-              temperature: temperature ?? 1.0,
-              startTick,
-              rangeLow,
-              rangeHigh,
-            })
-            generationMethod = "magenta_vae"
-          } else {
-            // MelodyRNN - continues from seed
-            console.log(`%c${LOG_PREFIX} Using Magenta MelodyRNN (scale-based melody)`, LOG_STYLES.tool)
+          // Default to MusicVAE which is more reliable (samples from latent space)
+          // MusicRNN continueSequence often returns 0 notes
+          console.log(`%c${LOG_PREFIX} Using Magenta MusicVAE (sampling melody, style: ${style ?? 'default'})`, LOG_STYLES.tool)
+          notes = await generateMelodyVAE({
+            scale,
+            bars,
+            temperature: temperature ?? 1.0,
+            startTick,
+            rangeLow,
+            rangeHigh,
+            style,
+          })
+          generationMethod = "magenta_vae"
+          
+          // If VAE failed, try RNN as fallback with style-aware seed
+          if (notes.length === 0) {
+            console.log(`%c${LOG_PREFIX} VAE returned 0 notes, trying MelodyRNN with style seed...`, LOG_STYLES.fallback)
             notes = await generateMelodyMagenta({
               scale,
               bars,
@@ -942,8 +1000,25 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
               startTick,
               rangeLow,
               rangeHigh,
+              style,
             })
             generationMethod = "magenta_rnn"
+          }
+          
+          // If Magenta returned no notes, fallback to preset
+          if (notes.length === 0) {
+            logFallback(`Magenta returned 0 notes, using preset`)
+            notes = generateMelodyNotes(
+              scale,
+              bars,
+              startTick,
+              contour,
+              density,
+              rangeLow,
+              rangeHigh,
+              velocity,
+            )
+            generationMethod = "preset_fallback"
           }
         } catch (err) {
           logFallback(`Magenta error: ${err}`)
@@ -1042,12 +1117,14 @@ async function executeToolCall(song: Song, toolCall: ToolCall): Promise<string> 
         swing,
       })
 
-      // Apply updates
-      const updateEvents = updates.map((u) => ({
-        id: u.id,
-        ...(u.tick !== undefined && { tick: u.tick }),
-        ...(u.velocity !== undefined && { velocity: u.velocity }),
-      }))
+      // Apply updates, filtering out any NaN values
+      const updateEvents = updates
+        .map((u) => ({
+          id: u.id,
+          ...(u.tick !== undefined && !isNaN(u.tick) && { tick: Math.round(u.tick) }),
+          ...(u.velocity !== undefined && !isNaN(u.velocity) && { velocity: Math.round(u.velocity) }),
+        }))
+        .filter(u => u.id !== undefined && !isNaN(u.id))
 
       track.updateEvents(updateEvents)
 
@@ -1123,10 +1200,20 @@ export async function executeToolCalls(
     `%c${LOG_PREFIX} ▶▶▶ EXECUTING ${toolCalls.length} TOOL CALLS ▶▶▶`,
     "color: #E91E63; font-weight: bold; font-size: 16px"
   )
+  console.log(
+    `%c${LOG_PREFIX} Tool calls to execute:`,
+    "color: #E91E63",
+    toolCalls.map(tc => `${tc.name}(${JSON.stringify(tc.args).slice(0, 100)}...)`)
+  )
   
   const results: ToolResult[] = []
   for (const tc of toolCalls) {
     const result = await executeToolCall(song, tc)
+    console.log(
+      `%c${LOG_PREFIX} Tool result for ${tc.name}:`,
+      "color: #E91E63",
+      result.slice(0, 200)
+    )
     results.push({ id: tc.id, result })
   }
   

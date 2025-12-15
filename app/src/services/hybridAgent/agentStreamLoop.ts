@@ -255,7 +255,7 @@ export async function runAgentStreamLoop(
         throw new Error("Aborted")
       }
 
-      let pendingToolCalls: ToolCall[] | null = null
+      let pendingToolCalls: ToolCall[] = []
       let finalMessage: string | null = null
       let hasError = false
 
@@ -276,7 +276,17 @@ export async function runAgentStreamLoop(
 
           case "tool_calls":
             if (event.tool_calls && event.tool_calls.length > 0) {
-              pendingToolCalls = event.tool_calls
+              // Accumulate tool calls (backend may send multiple events)
+              console.log(
+                `%c[AgentStream] Received ${event.tool_calls.length} tool calls (total pending: ${pendingToolCalls.length + event.tool_calls.length})`,
+                "color: #FF9800; font-weight: bold"
+              )
+              console.log(
+                `%c[AgentStream] New tool calls:`,
+                "color: #FF9800",
+                event.tool_calls.map(tc => tc.name)
+              )
+              pendingToolCalls.push(...event.tool_calls)
               callbacks?.onToolCalls?.(event.tool_calls)
             }
             break
@@ -308,9 +318,9 @@ export async function runAgentStreamLoop(
         return makeResult(false, "error", "Stream error")
       }
 
-      if (pendingToolCalls && pendingToolCalls.length > 0 && threadId) {
+      if (pendingToolCalls.length > 0 && threadId) {
         // Execute all tool calls
-        const toolResults = executeToolCalls(song, pendingToolCalls)
+        const toolResults = await executeToolCalls(song, pendingToolCalls)
         callbacks?.onToolsExecuted?.(pendingToolCalls, toolResults)
 
         // Reset thinking buffer for next round
