@@ -4,7 +4,13 @@ from app.services.mir.schema import StyleGuide, Section, ChordProgression
 from app.services.agents.style_agent import invoke_style_agent
 from app.services.agents.arranger_agent import invoke_arranger_agent
 from app.services.agents.harmony_agent import invoke_harmony_agent
-from app.services.mir.compiler import compile_progression_to_tool_calls
+from app.services.agents.melody_agent import invoke_melody_agent
+from app.services.agents.rhythm_agent import invoke_rhythm_agent
+from app.services.mir.compiler import (
+    compile_progression_to_tool_calls,
+    compile_melody_to_notes,
+    compile_drums_to_notes
+)
 from typing import List, Dict
 
 
@@ -15,10 +21,12 @@ async def orchestrate_composition(
     """
     Orchestrate full composition through subagents.
 
-    This is the Phase 2 orchestrator that creates:
+    This is the Phase 3 orchestrator that creates:
     1. Style guide (via Style Agent)
     2. Song structure (via Arranger Agent)
     3. Harmony for each section (via Harmony Agent)
+    4. Melody for each section (via Melody Agent) - NEW in Phase 3
+    5. Rhythm for each section (via Rhythm Agent) - NEW in Phase 3
 
     Returns compiled tool calls ready for frontend execution.
 
@@ -42,23 +50,59 @@ async def orchestrate_composition(
     sections = await invoke_arranger_agent(style_guide, target_bars)
     print(f"[ORCHESTRATOR] Created {len(sections)} sections")
 
-    # Step 3: Harmony Agent (for each section)
-    print(f"[ORCHESTRATOR] Step 3: Generating harmony for each section...")
-    all_tool_calls = []
-    track_id = 1  # Will be set dynamically when we create the track
+    # Track IDs
+    piano_track_id = 1
+    melody_track_id = 2
+    drums_track_id = 3
 
-    # First, create the piano track
+    all_tool_calls = []
+
+    # Create tracks
+    print(f"[ORCHESTRATOR] Creating tracks...")
     all_tool_calls.append({
         "name": "createTrack",
         "args": {"instrumentName": "piano", "trackName": "Piano"}
     })
+    all_tool_calls.append({
+        "name": "createTrack",
+        "args": {"instrumentName": "flute", "trackName": "Melody"}
+    })
+    all_tool_calls.append({
+        "name": "createTrack",
+        "args": {"instrumentName": "drums", "trackName": "Drums"}
+    })
 
-    # Generate harmony for each section
+    # Step 3-5: Generate content for each section
+    print(f"[ORCHESTRATOR] Generating content for each section...")
     for i, section in enumerate(sections):
-        print(f"[ORCHESTRATOR] Generating harmony for section {i+1}/{len(sections)}: {section.name}")
-        progression = await invoke_harmony_agent(style_guide, section, "piano")
-        tool_calls = compile_progression_to_tool_calls(progression, track_id)
-        all_tool_calls.extend(tool_calls)
+        print(f"[ORCHESTRATOR] Section {i+1}/{len(sections)}: {section.name}")
+
+        # Step 3: Harmony
+        print(f"[ORCHESTRATOR]   - Generating harmony...")
+        harmony = await invoke_harmony_agent(style_guide, section, "piano")
+        harmony_calls = compile_progression_to_tool_calls(harmony, piano_track_id)
+        all_tool_calls.extend(harmony_calls)
+
+        # Step 4: Melody (only in verse/chorus, not intro/outro)
+        if section.name not in ["intro", "outro"]:
+            print(f"[ORCHESTRATOR]   - Generating melody...")
+            melody = await invoke_melody_agent(style_guide, section, harmony, "flute")
+            melody_notes = compile_melody_to_notes(melody)
+            all_tool_calls.append({
+                "name": "addNotes",
+                "args": {"trackId": melody_track_id, "notes": melody_notes}
+            })
+        else:
+            print(f"[ORCHESTRATOR]   - Skipping melody for {section.name}")
+
+        # Step 5: Rhythm
+        print(f"[ORCHESTRATOR]   - Generating rhythm...")
+        rhythm = await invoke_rhythm_agent(style_guide, section)
+        drum_notes = compile_drums_to_notes(rhythm)
+        all_tool_calls.append({
+            "name": "addNotes",
+            "args": {"trackId": drums_track_id, "notes": drum_notes}
+        })
 
     print(f"[ORCHESTRATOR] Orchestration complete! Generated {len(all_tool_calls)} tool calls")
 

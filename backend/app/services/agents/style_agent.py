@@ -96,4 +96,15 @@ async def invoke_style_agent(user_style_description: str) -> StyleGuide:
     if isinstance(style_data.get("tempo_range"), list):
         style_data["tempo_range"] = tuple(style_data["tempo_range"])
 
-    return StyleGuide(**style_data)
+    # Filter to only include valid StyleGuide fields
+    valid_fields = {
+        "genre", "subgenre", "harmonic_complexity", "swing",
+        "extensions_allowed", "tempo_range", "reference_artists"
+    }
+    filtered_data = {k: v for k, v in style_data.items() if k in valid_fields}
+
+    # Set default for reference_artists if missing
+    if "reference_artists" not in filtered_data:
+        filtered_data["reference_artists"] = []
+
+    return StyleGuide(**filtered_data)

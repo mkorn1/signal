@@ -941,10 +941,15 @@ async def stream_agent_step(prompt: str, thread_id: Optional[str] = None, contex
                             "name": tc["name"],
                             "args": tc["args"],
                         })
+
+                    # Process smart tools through subagents (CRITICAL FIX for Phase 3)
+                    tool_calls, smart_tools_expanded = await process_tool_calls(tool_calls)
+
                     yield {
                         "type": "tool_calls",
                         "thread_id": thread_id,
                         "tool_calls": tool_calls,
+                        "smart_tools_expanded": smart_tools_expanded,
                         "done": False,
                     }
                     return
@@ -1045,10 +1050,15 @@ async def stream_agent_resume(thread_id: str, tool_results: list[dict]):
                             "name": tc["name"],
                             "args": tc["args"],
                         })
+
+                    # Process smart tools through subagents (CRITICAL FIX for Phase 3)
+                    tool_calls, smart_tools_expanded = await process_tool_calls(tool_calls)
+
                     yield {
                         "type": "tool_calls",
                         "thread_id": thread_id,
                         "tool_calls": tool_calls,
+                        "smart_tools_expanded": smart_tools_expanded,
                         "done": False,
                     }
                     return

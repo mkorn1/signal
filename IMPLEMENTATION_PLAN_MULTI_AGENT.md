@@ -1078,11 +1078,11 @@ async def orchestrate_composition(
 ### Success Criteria
 
 #### Automated Verification:
-- [ ] Melody Agent generates notes in valid range (C4-G5)
-- [ ] Melody notes are chord tones on strong beats (validate against harmony)
-- [ ] Rhythm Agent outputs valid drum MIDI note numbers (36-51)
-- [ ] Swing offset applied correctly to off-beat notes
-- [ ] Full orchestration produces 3 tracks (piano, melody, drums)
+- [x] Melody Agent generates notes in valid range (C4-G5)
+- [x] Melody notes are chord tones on strong beats (validate against harmony)
+- [x] Rhythm Agent outputs valid drum MIDI note numbers (36-51)
+- [x] Swing offset applied correctly to off-beat notes
+- [x] Full orchestration produces 3 tracks (piano, melody, drums)
 
 #### Manual Verification:
 - [ ] User: "Create a jazz ballad in Dm, 32 bars"

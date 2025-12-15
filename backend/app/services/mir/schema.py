@@ -59,3 +59,31 @@ class StyleGuide:
     extensions_allowed: List[str]  # ["9", "11", "13", "b9", "#11"]
     tempo_range: tuple[int, int]
     reference_artists: List[str] = field(default_factory=list)
+
+
+@dataclass
+class MelodyPhrase:
+    """Container for melody in a section."""
+    track: str  # "flute", "saxophone", "violin"
+    section: str  # "verse_A", "chorus_B"
+    notes: List[Note]
+    motif_id: Optional[str] = None  # For tracking recurring themes
+
+
+@dataclass
+class DrumHit:
+    """Single drum hit."""
+    instrument: str  # "kick", "snare", "hihat_closed", "crash"
+    bar: int
+    beat: float
+    velocity: int
+
+
+@dataclass
+class DrumPattern:
+    """Drum groove for a section."""
+    track: str  # "drums"
+    section: str  # "verse_A", "chorus_B"
+    hits: List[DrumHit]
+    swing: float
+    variation_every_n_bars: int = 4

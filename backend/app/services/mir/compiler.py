@@ -3,7 +3,7 @@
 Converts Musical Intermediate Representation objects to MIDI tool call format.
 """
 
-from app.services.mir.schema import Chord, ChordProgression, Note
+from app.services.mir.schema import Chord, ChordProgression, Note, MelodyPhrase, DrumPattern, DrumHit
 from typing import List, Dict
 
 
@@ -170,3 +170,73 @@ def compile_note_to_midi(note: Note, timebase: int = 480) -> Dict:
         "duration": duration_ticks,
         "velocity": note.velocity
     }
+
+
+def compile_melody_to_notes(phrase: MelodyPhrase, timebase: int = 480) -> List[Dict]:
+    """Compile MelodyPhrase → addNotes format.
+
+    Args:
+        phrase: MelodyPhrase object to compile
+        timebase: Ticks per quarter note (default 480)
+
+    Returns:
+        List of note dictionaries for addNotes tool
+    """
+    notes = []
+    for note in phrase.notes:
+        notes.append(compile_note_to_midi(note, timebase))
+
+    # Sort by tick position
+    notes.sort(key=lambda n: n["start"])
+
+    return notes
+
+
+def compile_drums_to_notes(pattern: DrumPattern, timebase: int = 480) -> List[Dict]:
+    """Compile DrumPattern → addNotes format.
+
+    Args:
+        pattern: DrumPattern object to compile
+        timebase: Ticks per quarter note (default 480)
+
+    Returns:
+        List of note dictionaries for addNotes tool
+    """
+    # Map drum instrument names to MIDI note numbers (General MIDI drum map)
+    drum_map = {
+        "kick": 36,
+        "snare": 38,
+        "hihat_closed": 42,
+        "hihat_open": 46,
+        "crash": 49,
+        "ride": 51,
+        "tom_low": 41,
+        "tom_mid": 47,
+        "tom_high": 50,
+        "rim": 37,
+    }
+
+    notes = []
+    for hit in pattern.hits:
+        tick = beats_to_ticks(hit.bar, hit.beat, timebase)
+
+        # Apply swing offset to off-beats
+        if pattern.swing > 0 and (hit.beat % 1) >= 0.4 and (hit.beat % 1) <= 0.6:
+            # Apply swing to notes on the "and" of the beat (x.5)
+            swing_offset = int(pattern.swing * 240)  # Swing eighth notes
+            tick += swing_offset
+
+        # Map drum instrument name to MIDI note
+        midi_pitch = drum_map.get(hit.instrument, 38)  # Default to snare if unknown
+
+        notes.append({
+            "pitch": midi_pitch,
+            "start": tick,
+            "duration": 120,  # Drums typically short (120 ticks = 1/4 of a quarter note)
+            "velocity": hit.velocity
+        })
+
+    # Sort by tick position
+    notes.sort(key=lambda n: n["start"])
+
+    return notes
