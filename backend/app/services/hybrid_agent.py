@@ -33,13 +33,53 @@ model = ChatOpenAI(
 checkpointer = MemorySaver()
 
 # System prompt for the hybrid agent
-HYBRID_SYSTEM_PROMPT = """You are a music composition assistant that creates and edits MIDI compositions by calling tools.
+HYBRID_SYSTEM_PROMPT = """You are a professional music composition assistant that creates rich, realistic MIDI compositions by calling tools.
+
+COMPOSITION PHILOSOPHY:
+- Create music that sounds like it was made by a skilled human musician
+- Use varied rhythms, dynamics, and articulations - avoid robotic, quantized patterns
+- Layer multiple instruments for depth and texture
+- Apply humanization to make parts feel alive
+- Use the high-level composition tools whenever possible for better musical results
 
 AVAILABLE TOOLS:
 
+=== HIGH-LEVEL COMPOSITION TOOLS (PREFERRED) ===
+These tools use Google Magenta AI for realistic, human-like musical output.
+
+- createChordProgression: Generate chord voicings with voice leading
+  Styles: "block", "arpeggiated", "broken", "spread"
+  Example: createChordProgression(1, ["Cmaj7", "Am7", "Dm7", "G7"], style="arpeggiated")
+
+- generateDrumPattern: AI-powered drum pattern generation (Magenta DrumsRNN/MusicVAE)
+  Styles: "rock", "pop", "jazz", "funk", "hiphop", "latin", "ballad", "metal", "electronic"
+  Temperature: 0.5 (conservative) to 2.0 (experimental), default 1.0
+  useVAE: true for more varied patterns, false for style-specific (default)
+  Example: generateDrumPattern(2, "jazz", bars=8, temperature=1.2)
+
+- generateBassline: Create bass lines following chord progressions
+  Styles: "root", "fifth", "walking", "arpeggiated", "syncopated", "octave", "pedal"
+  Example: generateBassline(3, ["Cmaj7", "Am7"], style="walking")
+
+- generateMelody: AI-powered melody generation (Magenta MelodyRNN/ImprovRNN/MusicVAE)
+  Scales: "C major", "A minor", "D dorian", etc.
+  Temperature: 0.5 (conservative) to 2.0 (experimental), default 1.0
+  chordProgression: Optional - melody will follow these chords (uses ImprovRNN)
+  useVAE: true for more varied melodies
+  Example: generateMelody(1, "A minor", bars=8, temperature=1.2, chordProgression=["Am", "F", "C", "G"])
+
+- createArpeggio: Generate arpeggio patterns from chords
+  Patterns: "up", "down", "updown", "downup", "random"
+  Example: createArpeggio(1, "Am7", pattern="updown", rate=120)
+
+- applyHumanization: Make parts sound natural and human
+  Example: applyHumanization(1, [], velocityVariation=15, swing=50)
+
+=== LOW-LEVEL TOOLS (for fine-tuning) ===
+
 Creation Tools:
 - createTrack: Create a new track with an instrument
-- addNotes: Add notes to an existing track
+- addNotes: Add individual notes (use for specific passages, not full compositions)
 - setTempo: Set the tempo in BPM
 - setTimeSignature: Set the time signature
 
@@ -111,14 +151,33 @@ CONTROLLER REFERENCE (for setController):
 - "release" (CC72): Release time, 0-127
 Or use any CC number directly: "CC1", "CC64", "7", etc.
 
-WORKFLOW:
-1. Check the song state to see what exists
-2. For simple, clear requests (e.g., "add a piano track", "transpose up an octave"), execute tools directly
-3. For complex or ambiguous requests, discuss with the user first via your response message
-4. When editing notes, always reference the note IDs from the song state
-5. Use editing tools to refine existing music rather than recreating from scratch
-6. Only set tempo/time signature if needed (check current values first)
-7. Reuse existing tracks when appropriate instead of creating new ones
+COMPOSITION WORKFLOW:
+For creating new music, follow this approach:
+
+1. PLAN THE STRUCTURE
+   - Determine the song sections (intro, verse, chorus, bridge, outro)
+   - Choose a key, tempo, and time signature
+   - Decide on instrumentation
+
+2. BUILD THE FOUNDATION
+   - Set tempo and time signature
+   - Create a drum track and use generateDrumPattern for the rhythm foundation
+   - Create a bass track and use generateBassline following your chord progression
+
+3. ADD HARMONY
+   - Create a chord instrument track (piano, guitar, or pads)
+   - Use createChordProgression for rich, properly-voiced chords
+   - Consider using createArpeggio for texture and movement
+
+4. ADD MELODY
+   - Create a lead instrument track
+   - Use generateMelody as a starting point
+   - Refine with updateNotes if needed
+
+5. HUMANIZE AND POLISH
+   - Apply applyHumanization to drum, bass, and other parts
+   - Add swing where appropriate (jazz, funk, R&B)
+   - Adjust velocities for dynamics
 
 EDITING TIPS:
 - To change wrong notes: use updateNotes to fix pitch, or deleteNotes + addNotes
@@ -133,6 +192,9 @@ CONTROLLER TIPS:
 - For vibrato: setController with "modulation", value 0-127
 - For pitch slides: use setPitchBend at different ticks (8192=center, 0=down, 16383=up)
 - Controllers can change over time: call setController at different tick positions
+
+SIMPLE REQUESTS:
+For simple requests (e.g., "add a piano track", "transpose up an octave"), execute tools directly without extensive planning.
 
 IMPORTANT - CONVERSATION MEMORY:
 - This is a multi-turn conversation. ALWAYS remember what the user told you earlier.
@@ -414,6 +476,293 @@ def setPitchBend(trackId: int, value: int, tick: int = 0) -> str:
     return '{"status": "pending_frontend_execution"}'
 
 
+# ============================================================================
+# HIGH-LEVEL COMPOSITION TOOLS
+# ============================================================================
+
+@tool
+def createChordProgression(
+    trackId: int,
+    chords: list[str],
+    startTick: int = 0,
+    ticksPerChord: int = 1920,
+    style: str = "block",
+    octave: int = 4,
+    velocity: int = 80
+) -> str:
+    """Creates a chord progression with proper voicings.
+
+    This high-level tool generates musically coherent chord voicings with
+    voice leading. Use this instead of manually adding individual notes
+    when you want professional-sounding chord progressions.
+
+    Args:
+        trackId: The track ID to add chords to
+        chords: Array of chord symbols. Supported formats:
+            - Triads: "C", "Cm", "Cdim", "Caug"
+            - Sevenths: "Cmaj7", "Cm7", "C7", "Cdim7", "Cm7b5"
+            - Extended: "Cmaj9", "C9", "Cm9", "C11", "C13"
+            - Altered: "C7#9", "C7b9", "C7#11"
+            - Slash chords: "C/E", "Am/G"
+            - Any root note: C, C#, Db, D, D#, Eb, E, F, F#, Gb, G, G#, Ab, A, A#, Bb, B
+        startTick: Starting position in ticks. Default: 0
+        ticksPerChord: Duration of each chord in ticks. Default: 1920 (1 bar in 4/4)
+        style: Voicing style:
+            - "block": All notes together (default)
+            - "arpeggiated": Notes played sequentially up
+            - "broken": Alternating bass and upper notes
+            - "spread": Wide voicing across octaves
+        octave: Base octave for the chord root (2-6). Default: 4
+        velocity: Note velocity 1-127. Default: 80
+
+    Returns:
+        JSON with trackId, noteCount, chordCount, and notes array with IDs
+
+    Example:
+        createChordProgression(1, ["Cmaj7", "Am7", "Dm7", "G7"], style="arpeggiated")
+        Creates a ii-V-I jazz progression with arpeggiated voicings
+    """
+    return '{"status": "pending_frontend_execution"}'
+
+
+@tool
+def generateDrumPattern(
+    trackId: int,
+    style: str,
+    bars: int = 4,
+    startTick: int = 0,
+    variation: str = "medium",
+    includeFills: bool = True,
+    swing: int = 0,
+    temperature: float = 1.0,
+    useMagenta: bool = True,
+    useVAE: bool = False
+) -> str:
+    """Generates a drum pattern using AI (Magenta) or preset patterns.
+
+    This tool creates complete drum patterns using Google's Magenta AI models
+    trained on real drum performances. Falls back to preset patterns if needed.
+
+    Args:
+        trackId: The drum track ID (must be a drum/rhythm track)
+        style: Drum pattern style hint for AI generation:
+            - "rock": Standard rock beat
+            - "pop": Pop/dance beat
+            - "jazz": Jazz swing pattern
+            - "funk": Syncopated funk groove
+            - "hiphop": Hip-hop/trap style
+            - "latin": Latin percussion
+            - "ballad": Slow, sparse pattern
+            - "metal": Double-kick metal
+            - "electronic": EDM style
+        bars: Number of bars to generate (1-16). Default: 4
+        startTick: Starting position in ticks. Default: 0
+        variation: Variation level for preset fallback. Default: "medium"
+        includeFills: Add fills (preset fallback only). Default: true
+        swing: Swing amount 0-100 (preset fallback only). Default: 0
+        temperature: AI creativity level 0.5-2.0. Default: 1.0
+            - 0.5: Conservative, predictable patterns
+            - 1.0: Balanced (default)
+            - 1.5: More creative, varied
+            - 2.0: Very experimental
+        useMagenta: Use Magenta AI for generation. Default: true
+        useVAE: Use MusicVAE model (more varied) vs DrumsRNN. Default: false
+
+    Returns:
+        JSON with trackId, noteCount, bars, style, generationMethod
+
+    Example:
+        generateDrumPattern(2, "jazz", bars=8, temperature=1.2)
+        Creates 8 bars of AI-generated jazz drums with moderate creativity
+    """
+    return '{"status": "pending_frontend_execution"}'
+
+
+@tool
+def generateBassline(
+    trackId: int,
+    chordProgression: list[str],
+    startTick: int = 0,
+    ticksPerChord: int = 1920,
+    style: str = "root",
+    octave: int = 2,
+    velocity: int = 90
+) -> str:
+    """Generates a bassline following a chord progression.
+
+    This high-level tool creates bass lines that follow chord roots with
+    style-appropriate patterns. Use this instead of manually programming
+    bass notes for more musical results.
+
+    Args:
+        trackId: The bass track ID
+        chordProgression: Array of chord symbols (same format as createChordProgression)
+        startTick: Starting position in ticks. Default: 0
+        ticksPerChord: Duration of each chord in ticks. Default: 1920 (1 bar)
+        style: Bassline style:
+            - "root": Simple root notes on downbeats
+            - "fifth": Root and fifth pattern
+            - "walking": Jazz walking bass (chromatic approaches)
+            - "arpeggiated": Arpeggiated chord tones
+            - "syncopated": Funk/R&B syncopated pattern
+            - "octave": Root with octave jumps
+            - "pedal": Sustained pedal tone
+        octave: Bass octave (1-3). Default: 2
+        velocity: Note velocity 1-127. Default: 90
+
+    Returns:
+        JSON with trackId, noteCount, and bassline details
+
+    Example:
+        generateBassline(3, ["Cmaj7", "Am7", "Dm7", "G7"], style="walking")
+        Creates a walking bass line over the chord changes
+    """
+    return '{"status": "pending_frontend_execution"}'
+
+
+@tool
+def generateMelody(
+    trackId: int,
+    scale: str,
+    bars: int = 4,
+    startTick: int = 0,
+    contour: str = "arch",
+    density: str = "medium",
+    range_low: int = 60,
+    range_high: int = 84,
+    velocity: int = 85,
+    temperature: float = 1.0,
+    useMagenta: bool = True,
+    useVAE: bool = False,
+    chordProgression: Optional[list[str]] = None
+) -> str:
+    """Generates a melodic line using AI (Magenta) or preset patterns.
+
+    This tool creates melodies using Google's Magenta AI models trained on
+    real music. Can generate melodies that follow chord progressions using
+    ImprovRNN. Falls back to preset generation if needed.
+
+    Args:
+        trackId: The track ID to add the melody to
+        scale: Scale hint for AI generation:
+            - Major scales: "C", "C major", "G major", etc.
+            - Minor scales: "Am", "A minor", "E minor", etc.
+            - Modes: "D dorian", "E phrygian", "F lydian", "G mixolydian"
+            - Other: "C pentatonic", "A blues"
+        bars: Number of bars to generate (1-16). Default: 4
+        startTick: Starting position in ticks. Default: 0
+        contour: Contour shape (preset fallback only). Default: "arch"
+        density: Note density (preset fallback only). Default: "medium"
+        range_low: Lowest MIDI note (default: 60 = C4)
+        range_high: Highest MIDI note (default: 84 = C6)
+        velocity: Base velocity 1-127. Default: 85
+        temperature: AI creativity level 0.5-2.0. Default: 1.0
+            - 0.5: Conservative, predictable melodies
+            - 1.0: Balanced (default)
+            - 1.5: More creative, varied
+            - 2.0: Very experimental
+        useMagenta: Use Magenta AI for generation. Default: true
+        useVAE: Use MusicVAE (more varied) vs MelodyRNN. Default: false
+        chordProgression: Optional chord progression for the melody to follow.
+            When provided, uses ImprovRNN to generate melody over chords.
+            Example: ["C", "Am", "F", "G"]
+
+    Returns:
+        JSON with trackId, noteCount, bars, scale, generationMethod
+
+    Example:
+        generateMelody(1, "A minor", bars=8, temperature=1.2, chordProgression=["Am", "F", "C", "G"])
+        Creates an 8-bar AI melody following the chord progression
+    """
+    return '{"status": "pending_frontend_execution"}'
+
+
+@tool
+def applyHumanization(
+    trackId: int,
+    noteIds: list[int],
+    velocityVariation: int = 10,
+    timingVariation: int = 10,
+    swing: int = 0
+) -> str:
+    """Applies humanization to make notes sound more natural and less robotic.
+
+    This tool adds subtle variations to velocity and timing that mimic
+    human performance. Use this on programmed parts to make them feel
+    more alive and musical.
+
+    Args:
+        trackId: The track ID containing the notes
+        noteIds: Array of note IDs to humanize (use empty array [] for all notes in track)
+        velocityVariation: Random velocity variation amount 0-30. Default: 10
+            - 0: No variation
+            - 10: Subtle, natural variation (default)
+            - 20: More dynamic, expressive
+            - 30: Very dynamic, almost random
+        timingVariation: Random timing shift in ticks 0-30. Default: 10
+            - 0: Perfectly quantized
+            - 10: Subtle timing variation (default)
+            - 20: Loose, human feel
+            - 30: Very loose timing
+        swing: Swing amount 0-100 applied to off-beat notes. Default: 0
+            - 0: Straight timing
+            - 30: Light swing
+            - 50: Medium swing (jazz feel)
+            - 70: Heavy swing
+
+    Returns:
+        JSON with trackId, humanizedCount, and variation details
+
+    Example:
+        applyHumanization(1, [], velocityVariation=15, swing=50)
+        Humanizes all notes on track 1 with medium swing feel
+    """
+    return '{"status": "pending_frontend_execution"}'
+
+
+@tool
+def createArpeggio(
+    trackId: int,
+    chord: str,
+    startTick: int = 0,
+    duration: int = 1920,
+    pattern: str = "up",
+    rate: int = 240,
+    octaves: int = 1,
+    velocity: int = 80
+) -> str:
+    """Creates an arpeggiated pattern from a chord.
+
+    This tool generates arpeggio patterns that can be used for
+    accompaniment, intros, or textural elements.
+
+    Args:
+        trackId: The track ID to add the arpeggio to
+        chord: Chord symbol (same format as createChordProgression)
+        startTick: Starting position in ticks. Default: 0
+        duration: Total duration of the arpeggio in ticks. Default: 1920 (1 bar)
+        pattern: Arpeggio pattern:
+            - "up": Ascending (default)
+            - "down": Descending
+            - "updown": Up then down
+            - "downup": Down then up
+            - "random": Random order
+            - "outside_in": Outer notes to inner
+            - "inside_out": Inner notes to outer
+        rate: Note rate in ticks (240=eighth, 120=sixteenth). Default: 240
+        octaves: Number of octaves to span (1-3). Default: 1
+        velocity: Note velocity 1-127. Default: 80
+
+    Returns:
+        JSON with trackId, noteCount, and arpeggio details
+
+    Example:
+        createArpeggio(1, "Am7", duration=3840, pattern="updown", rate=120)
+        Creates a 2-bar sixteenth-note arpeggio on Am7
+    """
+    return '{"status": "pending_frontend_execution"}'
+
+
 # All available tools
 TOOLS = [
     # Creation tools
@@ -436,6 +785,13 @@ TOOLS = [
     # Advanced controller tools
     setController,
     setPitchBend,
+    # High-level composition tools
+    createChordProgression,
+    generateDrumPattern,
+    generateBassline,
+    generateMelody,
+    applyHumanization,
+    createArpeggio,
 ]
 
 

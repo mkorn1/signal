@@ -53,15 +53,29 @@ export async function runAgentLoop(
   const { threadId: existingThreadId, callbacks, abortSignal } = options ?? {}
   let threadId: string | null = existingThreadId ?? null
 
-  console.log(`[HybridAgent] runAgentLoop called with threadId: ${threadId}`)
+  console.log(
+    `%c[AgentLoop] ╔══════════════════════════════════════════════════════════╗`,
+    "color: #3F51B5; font-weight: bold"
+  )
+  console.log(
+    `%c[AgentLoop] ║           HYBRID AGENT LOOP STARTED                      ║`,
+    "color: #3F51B5; font-weight: bold"
+  )
+  console.log(
+    `%c[AgentLoop] ╚══════════════════════════════════════════════════════════╝`,
+    "color: #3F51B5; font-weight: bold"
+  )
+  console.log(`%c[AgentLoop] Thread ID: ${threadId ?? 'NEW'}`, "color: #3F51B5")
+  console.log(`%c[AgentLoop] Prompt: "${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}"`, "color: #3F51B5")
 
   try {
     // Serialize current song state for agent context
     const songState = serializeSongState(song)
     const context = formatSongStateForPrompt(songState)
+    console.log(`%c[AgentLoop] Song state: ${songState.trackCount} tracks, ${songState.tempo} BPM`, "color: #3F51B5")
 
     // Initial request
-    console.log(`[HybridAgent] Sending request with thread_id: ${threadId}`)
+    console.log(`%c[AgentLoop] Sending initial request to backend...`, "color: #3F51B5")
     let response = await fetch(`${API_BASE}/api/agent/step`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -94,11 +108,16 @@ export async function runAgentLoop(
       }
 
       console.log(
-        `[HybridAgent] Executing ${result.tool_calls.length} tool calls`,
+        `%c[AgentLoop] ═══════════════════════════════════════════════════`,
+        "color: #3F51B5; font-weight: bold"
       )
-      // Execute tools on the frontend
-      const toolResults = executeToolCalls(song, result.tool_calls)
-      console.log(`[HybridAgent] Tool results:`, toolResults)
+      console.log(
+        `%c[AgentLoop] Executing ${result.tool_calls.length} tool call(s)...`,
+        "color: #3F51B5; font-weight: bold"
+      )
+      // Execute tools on the frontend (may use async Magenta generation)
+      const toolResults = await executeToolCalls(song, result.tool_calls)
+      console.log(`%c[AgentLoop] Tool results:`, "color: #3F51B5", toolResults)
       callbacks?.onToolsExecuted?.(result.tool_calls, toolResults)
 
       // Resume the agent with tool results
@@ -121,7 +140,20 @@ export async function runAgentLoop(
     }
 
     // Agent completed
+    console.log(
+      `%c[AgentLoop] ╔══════════════════════════════════════════════════════════╗`,
+      "color: #4CAF50; font-weight: bold"
+    )
+    console.log(
+      `%c[AgentLoop] ║           AGENT LOOP COMPLETED SUCCESSFULLY              ║`,
+      "color: #4CAF50; font-weight: bold"
+    )
+    console.log(
+      `%c[AgentLoop] ╚══════════════════════════════════════════════════════════╝`,
+      "color: #4CAF50; font-weight: bold"
+    )
     if (result.message) {
+      console.log(`%c[AgentLoop] Final message: "${result.message.substring(0, 100)}..."`, "color: #4CAF50")
       callbacks?.onMessage?.(result.message)
     }
 
@@ -132,6 +164,19 @@ export async function runAgentLoop(
     }
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error))
+    console.error(
+      `%c[AgentLoop] ╔══════════════════════════════════════════════════════════╗`,
+      "color: #F44336; font-weight: bold"
+    )
+    console.error(
+      `%c[AgentLoop] ║           AGENT LOOP FAILED                              ║`,
+      "color: #F44336; font-weight: bold"
+    )
+    console.error(
+      `%c[AgentLoop] ╚══════════════════════════════════════════════════════════╝`,
+      "color: #F44336; font-weight: bold"
+    )
+    console.error(`%c[AgentLoop] Error: ${err.message}`, "color: #F44336", err)
     callbacks?.onError?.(err)
     return {
       success: false,
