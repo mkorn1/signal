@@ -32,9 +32,7 @@ export const FileMenuButton: FC = () => {
       onOpenChange={setOpen}
       trigger={
         <NavButton id="tab-file">
-          <span>
-            <Localized name="file" />
-          </span>
+          <span>Menu</span>
         </NavButton>
       }
     >

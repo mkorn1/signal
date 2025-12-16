@@ -21,6 +21,7 @@ import {
   agentKeyUpdatedAtom,
 } from "../../stores/AgentMusicState"
 import { Tooltip } from "../ui/Tooltip"
+import { AIToggleButtonAttached } from "./AIToggleButton"
 import { VoiceRecorder, type DetectedNote } from "./VoiceRecorder"
 
 const Container = styled.div<{ standalone?: boolean }>`
@@ -34,7 +35,8 @@ const Container = styled.div<{ standalone?: boolean }>`
   background: ${({ theme }) => theme.backgroundColor};
   border-left: ${({ standalone, theme }) =>
     standalone ? "none" : `1px solid ${theme.dividerColor}`};
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 `
 
 const Header = styled.div`
@@ -1359,6 +1361,7 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
 
   return (
     <Container standalone={standalone}>
+      {!standalone && <AIToggleButtonAttached />}
       <Header>
         <HeaderLeft>
           <span>AI Composer</span>

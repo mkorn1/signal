@@ -48,27 +48,31 @@ export const Tab = styled.div<{ isActive?: boolean }>`
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   border: 1px solid ${({ isActive }) =>
-    isActive ? "var(--color-theme)" : "rgba(255, 255, 255, 0.1)"};
+    isActive ? "var(--color-theme)" : "rgba(77, 166, 255, 0.2)"};
   color: ${({ isActive }) =>
-    isActive ? "var(--color-on-surface)" : "var(--color-text-secondary)"};
+    isActive ? "var(--color-on-surface)" : "var(--color-text)"};
   background: ${({ isActive }) =>
-    isActive ? "var(--color-theme)" : "rgba(255, 255, 255, 0.04)"};
+    isActive ? "var(--color-theme)" : "rgba(77, 166, 255, 0.08)"};
   cursor: pointer;
   -webkit-app-region: none;
   transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: ${({ isActive }) =>
+    isActive ? "0 0 12px rgba(77, 166, 255, 0.4)" : "0 0 8px rgba(77, 166, 255, 0.1)"};
 
   &.active {
     color: var(--color-on-surface);
     background: var(--color-theme);
     border-color: var(--color-theme);
+    box-shadow: 0 0 12px rgba(77, 166, 255, 0.4);
   }
 
   &:hover:not(.active) {
     color: var(--color-text);
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(77, 166, 255, 0.12);
+    border-color: rgba(77, 166, 255, 0.3);
+    box-shadow: 0 0 12px rgba(77, 166, 255, 0.2);
   }
 
   &:active {
@@ -251,13 +255,6 @@ export const Navigation: FC = () => {
 
   return (
     <Container>
-      {!isRunningInElectron() && (
-        <NavButtonGroup style={{ marginLeft: "0.5rem" }}>
-          <FileMenuButton />
-          <EditMenuButton />
-        </NavButtonGroup>
-      )}
-
       <Tooltip
         title={`Edit notes for a single track [${envString.cmdOrCtrl}+1]`}
         delayDuration={500}
@@ -265,6 +262,7 @@ export const Navigation: FC = () => {
         <Tab
           className={path === "/track" ? "active" : undefined}
           onMouseDown={onClickPianoRollTab}
+          style={{ marginLeft: "0.5rem" }}
         >
           <PianoIcon style={IconStyle} viewBox="0 0 128 128" />
           <TabTitle>
@@ -291,6 +289,13 @@ export const Navigation: FC = () => {
       <FlexibleSpacer />
 
       <NavButtonGroup>
+        {!isRunningInElectron() && (
+          <>
+            <FileMenuButton />
+            <EditMenuButton />
+          </>
+        )}
+
         <Tooltip title="Render high-quality audio with FluidSynth" delayDuration={500}>
           <NavButton isLoading={isRenderLoading} onClick={onClickRenderHQ}>
             {isRenderLoading ? (
