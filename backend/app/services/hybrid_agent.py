@@ -5,13 +5,17 @@ returning tool calls to the frontend for execution against the MobX store.
 """
 
 import uuid
-from typing import Any, Optional
+from typing import Any, Optional, List, Dict
 from langchain_openai import ChatOpenAI
 from langchain_core.tools import tool
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 from langgraph.types import Command
 from app.config import get_settings
+from app.services.agents.harmony_agent import invoke_harmony_agent
+from app.services.agents.orchestrator import orchestrate_composition
+from app.services.mir.compiler import compile_progression_to_tool_calls
+from app.services.mir.schema import StyleGuide, Section
 
 settings = get_settings()
 
@@ -40,6 +44,8 @@ AVAILABLE TOOLS:
 Creation Tools:
 - createTrack: Create a new track with an instrument
 - addNotes: Add notes to an existing track
+- addChordProgression: Add intelligent chord progressions with proper voice leading (Phase 1)
+- generateComposition: Generate complete compositions with structure and harmony (NEW in Phase 2)
 - setTempo: Set the tempo in BPM
 - setTimeSignature: Set the time signature
 
@@ -414,6 +420,88 @@ def setPitchBend(trackId: int, value: int, tick: int = 0) -> str:
     return '{"status": "pending_frontend_execution"}'
 
 
+# ============================================================================
+# INTELLIGENT COMPOSITION TOOLS (Phase 1: MIR)
+# ============================================================================
+
+@tool
+def addChordProgression(
+    trackId: int,
+    key: str,
+    bars: int,
+    style: str = "jazz",
+    harmonic_complexity: str = "medium",
+    energy: str = "medium"
+) -> str:
+    """Add a chord progression to a track using intelligent harmony generation.
+
+    This tool uses music theory to generate proper voice leading and harmonic rhythm.
+    It's perfect for creating piano, guitar, or keyboard parts with jazz/pop harmony.
+
+    Args:
+        trackId: The track ID (must be a harmonic instrument like piano, guitar, keys)
+        key: Key signature (e.g., "Dm", "C", "F#m", "Bb")
+        bars: Number of bars to generate (4, 8, 16, or 32 recommended)
+        style: Musical style - "jazz", "pop", "rock", "classical". Default: "jazz"
+        harmonic_complexity: Chord sophistication:
+            - "simple": Basic triads (C, Dm, G)
+            - "medium": 7th chords (Cmaj7, Dm7, G7)
+            - "complex": Extended harmony (9ths, 11ths, 13ths)
+            Default: "medium"
+        energy: Section energy affecting harmonic rhythm:
+            - "soft": Slower chord changes, sparse
+            - "medium": Moderate rhythm
+            - "high": Faster changes, more dense
+            Default: "medium"
+
+    Returns:
+        JSON with trackId, bars generated, and chord count
+
+    Examples:
+        - addChordProgression(trackId=1, key="Dm", bars=8, style="jazz", harmonic_complexity="complex")
+        - addChordProgression(trackId=2, key="C", bars=16, style="pop", harmonic_complexity="simple", energy="high")
+    """
+    # This will be intercepted and routed through harmony agent
+    return '{"status": "pending_frontend_execution"}'
+
+
+@tool
+def generateComposition(
+    description: str,
+    bars: int = 32,
+    instruments: Optional[List[str]] = None
+) -> str:
+    """Generate a complete musical composition with intelligent structure and harmony.
+
+    Uses multi-agent system to create:
+    - Style-consistent arrangement
+    - Proper song structure (intro/verse/chorus/outro)
+    - Voice-led chord progressions
+    - Multiple instruments working together (coming in Phase 3+)
+
+    This is the most intelligent composition tool - it analyzes your description,
+    establishes a style guide, creates song structure with energy arc, and generates
+    harmonically sophisticated music.
+
+    Args:
+        description: Style description (e.g., "jazz ballad in Dm", "upbeat funk", "melancholic indie rock")
+        bars: Total length in bars (16, 32, 64 recommended). Default: 32
+        instruments: List of instruments (e.g., ["piano", "bass", "drums"]).
+                    Currently only piano is supported in Phase 2.
+                    Default: ["piano"]
+
+    Returns:
+        JSON with track creation and note generation
+
+    Examples:
+        - generateComposition(description="jazz ballad in Dm", bars=32)
+        - generateComposition(description="upbeat pop song in C major", bars=64)
+        - generateComposition(description="melancholic rock ballad", bars=48, instruments=["piano"])
+    """
+    # This will be intercepted and routed through orchestrator
+    return '{"status": "pending_orchestration"}'
+
+
 # All available tools
 TOOLS = [
     # Creation tools
@@ -436,6 +524,9 @@ TOOLS = [
     # Advanced controller tools
     setController,
     setPitchBend,
+    # Intelligent composition tools
+    addChordProgression,
+    generateComposition,
 ]
 
 
@@ -466,6 +557,115 @@ def get_agent():
 def generate_thread_id() -> str:
     """Generate a new thread ID for a session."""
     return str(uuid.uuid4())
+
+
+async def process_tool_calls(tool_calls: List[dict]) -> tuple[List[dict], List[dict]]:
+    """Process tool calls, routing smart tools through subagents.
+
+    This function intercepts intelligent composition tools (like addChordProgression)
+    and routes them through specialized agents, compiling the results to MIDI tool calls.
+
+    Args:
+        tool_calls: List of tool call dictionaries from the agent
+
+    Returns:
+        Tuple of (processed_tool_calls, smart_tool_metadata)
+        - processed_tool_calls: MIDI tool calls to send to frontend
+        - smart_tool_metadata: Original smart tool calls that were expanded (for result synthesis)
+    """
+    processed_calls = []
+    smart_tools_expanded = []  # Track which smart tools were intercepted
+
+    for tc in tool_calls:
+        if tc["name"] == "addChordProgression":
+            # Route through Harmony Agent
+            args = tc["args"]
+
+            # Create minimal StyleGuide and Section from tool arguments
+            style_guide = StyleGuide(
+                genre=args.get("style", "jazz"),
+                subgenre="",
+                harmonic_complexity=args.get("harmonic_complexity", "medium"),
+                swing=0.55 if args.get("style", "jazz") == "jazz" else 0.0,
+                extensions_allowed=_get_extensions_for_complexity(
+                    args.get("harmonic_complexity", "medium")
+                ),
+                tempo_range=(60, 140)
+            )
+
+            section = Section(
+                name="generated",
+                bars=(1, args["bars"]),
+                key=args["key"],
+                tempo=120,  # Default tempo
+                energy=args.get("energy", "medium")
+            )
+
+            # Invoke harmony agent
+            try:
+                progression = await invoke_harmony_agent(style_guide, section, "piano")
+
+                # Compile to MIDI tool calls
+                midi_calls = compile_progression_to_tool_calls(progression, args["trackId"])
+
+                # Track that this smart tool was expanded
+                smart_tools_expanded.append(tc)
+
+                # Replace the smart tool with compiled MIDI tools
+                for i, call in enumerate(midi_calls):
+                    processed_calls.append({
+                        "id": f"{tc['id']}_compiled_{i}",
+                        "name": call["name"],
+                        "args": call["args"]
+                    })
+            except Exception as e:
+                print(f"[HARMONY_AGENT] Error processing addChordProgression: {e}")
+                # On error, pass through the original call
+                processed_calls.append(tc)
+
+        elif tc["name"] == "generateComposition":
+            # Route through full Orchestrator (Phase 2)
+            args = tc["args"]
+
+            try:
+                result = await orchestrate_composition(
+                    user_prompt=args["description"],
+                    target_bars=args.get("bars", 32)
+                )
+
+                # Track that this smart tool was expanded
+                smart_tools_expanded.append(tc)
+
+                # Extract compiled tool calls from orchestrator
+                # Orchestrator returns: {style_guide, sections, tool_calls}
+                for i, call in enumerate(result["tool_calls"]):
+                    processed_calls.append({
+                        "id": f"{tc['id']}_orchestrated_{i}",
+                        "name": call["name"],
+                        "args": call["args"]
+                    })
+            except Exception as e:
+                print(f"[ORCHESTRATOR] Error processing generateComposition: {e}")
+                import traceback
+                traceback.print_exc()
+                # On error, pass through the original call
+                processed_calls.append(tc)
+
+        else:
+            # Pass through normal tools unchanged
+            processed_calls.append(tc)
+
+    return processed_calls, smart_tools_expanded
+
+
+def _get_extensions_for_complexity(complexity: str) -> List[str]:
+    """Get allowed chord extensions based on harmonic complexity."""
+    if complexity == "simple":
+        return ["sus4", "add9"]
+    elif complexity == "complex":
+        return ["7", "9", "11", "13", "b9", "#11", "b13"]
+    else:  # medium
+        return ["7", "9", "sus4"]
 
 
 async def start_agent_step(prompt: str, thread_id: Optional[str] = None, context: Optional[str] = None) -> dict:
@@ -538,9 +738,13 @@ async def start_agent_step(prompt: str, thread_id: Optional[str] = None, context
                     "args": tc["args"],
                 })
 
+        # Process smart tools through subagents
+        tool_calls, smart_tools_expanded = await process_tool_calls(tool_calls)
+
         return {
             "thread_id": thread_id,
             "tool_calls": tool_calls,
+            "smart_tools_expanded": smart_tools_expanded,  # Include metadata for result synthesis
             "done": False,
             "message": None,
         }
@@ -557,7 +761,11 @@ async def start_agent_step(prompt: str, thread_id: Optional[str] = None, context
         }
 
 
-async def resume_agent_step(thread_id: str, tool_results: list[dict]) -> dict:
+async def resume_agent_step(
+    thread_id: str,
+    tool_results: list[dict],
+    smart_tools_expanded: Optional[List[dict]] = None
+) -> dict:
     """Resume agent after frontend tool execution.
 
     Args:
@@ -565,6 +773,7 @@ async def resume_agent_step(thread_id: str, tool_results: list[dict]) -> dict:
         tool_results: List of tool results, each with:
             - id: Tool call ID from the original tool_calls
             - result: JSON string result from frontend execution
+        smart_tools_expanded: Metadata about smart tools that were expanded (optional)
 
     Returns:
         Same format as start_agent_step
@@ -576,6 +785,19 @@ async def resume_agent_step(thread_id: str, tool_results: list[dict]) -> dict:
     from langchain_core.messages import ToolMessage
 
     tool_messages = []
+
+    # Add synthetic success results for smart tools that were expanded
+    if smart_tools_expanded:
+        for smart_tool in smart_tools_expanded:
+            print(f"[HYBRID_AGENT] Injecting success result for smart tool: {smart_tool['name']} (ID: {smart_tool['id']})")
+            tool_messages.append(
+                ToolMessage(
+                    content='{"status": "success", "message": "Composition generated successfully"}',
+                    tool_call_id=smart_tool["id"],
+                )
+            )
+
+    # Add actual results from frontend execution
     for tr in tool_results:
         tool_messages.append(
             ToolMessage(
