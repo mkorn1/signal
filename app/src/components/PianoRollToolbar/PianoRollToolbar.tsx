@@ -8,7 +8,6 @@ import { EventListButton } from "./EventListButton"
 import { InstrumentButton } from "./InstrumentButton"
 import { PanSlider } from "./PanSlider"
 import { PianoRollToolSelector } from "./PianoRollToolSelector"
-import { TrackNameInput } from "./TrackNameInput"
 import { VolumeSlider } from "./VolumeSlider"
 
 const Spacer = styled.div`
@@ -24,14 +23,12 @@ export const PianoRollToolbar: FC = () => {
 
   return (
     <Toolbar>
-      <TrackNameInput />
+      <InstrumentButton />
+      <InstrumentBrowser />
 
       {isAdvanced && <EventListButton />}
 
       <Spacer />
-
-      <InstrumentButton />
-      <InstrumentBrowser />
 
       <VolumeSlider />
       {isAdvanced && <PanSlider />}

@@ -104,7 +104,7 @@ const Select = styled.select`
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.themeColor};
-    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.15);
+    box-shadow: 0 0 0 3px rgba(77, 166, 255, 0.15);
   }
 
   &:hover {
@@ -220,7 +220,7 @@ const Input = styled.textarea`
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.themeColor};
-    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.15);
+    box-shadow: 0 0 0 3px rgba(77, 166, 255, 0.15);
     background: rgba(255, 255, 255, 0.06);
   }
 
@@ -520,11 +520,11 @@ const MusicLoadingContainer = styled.div`
   background: linear-gradient(
     135deg,
     ${({ theme }) => theme.secondaryBackgroundColor} 0%,
-    rgba(0, 212, 170, 0.08) 100%
+    rgba(77, 166, 255, 0.08) 100%
   );
   border-radius: 0.75rem;
   max-width: 85%;
-  border: 1px solid rgba(0, 212, 170, 0.2);
+  border: 1px solid rgba(77, 166, 255, 0.2);
   animation: ${pulse} 2s ease-in-out infinite;
 `
 
@@ -536,7 +536,7 @@ const MusicIcon = styled.div`
   height: 2rem;
   border-radius: 50%;
   background: linear-gradient(135deg, ${({ theme }) => theme.themeColor} 0%, #00a878 100%);
-  box-shadow: 0 0 12px rgba(0, 212, 170, 0.4);
+  box-shadow: 0 0 12px rgba(77, 166, 255, 0.4);
   animation: ${noteFloat} 1.5s ease-in-out infinite;
 
   svg {
