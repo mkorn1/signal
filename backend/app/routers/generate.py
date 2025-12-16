@@ -559,6 +559,8 @@ async def agent_step(request: AgentStepRequest):
     When the agent completes:
     - done: true
     - message: Final response from agent
+
+    Set use_subagents=false for legacy hybrid mode (bypasses MIR subagents).
     """
     try:
         if request.tool_results and request.thread_id:
@@ -572,6 +574,7 @@ async def agent_step(request: AgentStepRequest):
                 thread_id=request.thread_id,
                 tool_results=[{"id": tr.id, "result": tr.result} for tr in request.tool_results],
                 smart_tools_expanded=smart_tools,
+                use_subagents=request.use_subagents,
             )
         elif request.prompt:
             # Start mode: new conversation
@@ -579,6 +582,7 @@ async def agent_step(request: AgentStepRequest):
                 prompt=request.prompt,
                 thread_id=request.thread_id,
                 context=request.context,
+                use_subagents=request.use_subagents,
             )
         else:
             raise HTTPException(
@@ -618,6 +622,8 @@ async def agent_step_stream(request: AgentStepRequest, req: Request):
     - tool_results_received: Acknowledgment after frontend sends tool results
     - message: Final response from agent
     - error: Any errors that occurred
+
+    Set use_subagents=false for legacy hybrid mode (bypasses MIR subagents).
     """
 
     async def event_generator():
@@ -627,6 +633,7 @@ async def agent_step_stream(request: AgentStepRequest, req: Request):
                 async for event in stream_agent_resume(
                     thread_id=request.thread_id,
                     tool_results=[{"id": tr.id, "result": tr.result} for tr in request.tool_results],
+                    use_subagents=request.use_subagents,
                 ):
                     yield f"data: {json.dumps(event)}\n\n"
             elif request.prompt:
@@ -635,6 +642,7 @@ async def agent_step_stream(request: AgentStepRequest, req: Request):
                     prompt=request.prompt,
                     thread_id=request.thread_id,
                     context=request.context,
+                    use_subagents=request.use_subagents,
                 ):
                     yield f"data: {json.dumps(event)}\n\n"
             else:

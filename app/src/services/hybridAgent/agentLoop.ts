@@ -48,9 +48,10 @@ export async function runAgentLoop(
     threadId?: string
     callbacks?: AgentLoopCallbacks
     abortSignal?: AbortSignal
+    useSubagents?: boolean // Set to false for legacy mode (bypasses MIR subagents)
   },
 ): Promise<AgentLoopResult> {
-  const { threadId: existingThreadId, callbacks, abortSignal } = options ?? {}
+  const { threadId: existingThreadId, callbacks, abortSignal, useSubagents = true } = options ?? {}
   let threadId: string | null = existingThreadId ?? null
 
   console.log(`[HybridAgent] runAgentLoop called with threadId: ${threadId}`)
@@ -61,7 +62,7 @@ export async function runAgentLoop(
     const context = formatSongStateForPrompt(songState)
 
     // Initial request
-    console.log(`[HybridAgent] Sending request with thread_id: ${threadId}`)
+    console.log(`[HybridAgent] Sending request with thread_id: ${threadId}, useSubagents: ${useSubagents}`)
     let response = await fetch(`${API_BASE}/api/agent/step`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -69,6 +70,7 @@ export async function runAgentLoop(
         prompt,
         context,
         thread_id: threadId, // Continue existing thread if provided
+        use_subagents: useSubagents, // false for legacy mode
       }),
       signal: abortSignal,
     })
@@ -108,6 +110,7 @@ export async function runAgentLoop(
         body: JSON.stringify({
           thread_id: threadId,
           tool_results: toolResults,
+          use_subagents: useSubagents, // false for legacy mode
         }),
         signal: abortSignal,
       })

@@ -691,7 +691,7 @@ function getStageProgress(stage: GenerationStage): number {
 
 const AGENT_TYPE_STORAGE_KEY = "ai_chat_agent_type"
 
-type AgentType = "llm" | "composition_agent" | "hybrid"
+type AgentType = "llm" | "composition_agent" | "hybrid" | "hybrid_legacy"
 
 const KEY_NAMES = [
   "C",
@@ -740,7 +740,8 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
     const stored = localStorage.getItem(AGENT_TYPE_STORAGE_KEY)
     return stored === "llm" ||
       stored === "composition_agent" ||
-      stored === "hybrid"
+      stored === "hybrid" ||
+      stored === "hybrid_legacy"
       ? (stored as AgentType)
       : "hybrid" // Default to hybrid agent
   })
@@ -833,17 +834,19 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
       setIsLoading(true)
 
       // Branch based on agent type
-      if (agentType === "hybrid") {
+      if (agentType === "hybrid" || agentType === "hybrid_legacy") {
         // Hybrid Agent mode: Run agent loop with frontend tool execution
+        // Legacy mode bypasses MIR subagents for comparison testing
         const abortController = new AbortController()
         abortControllerRef.current = abortController
 
-        console.log(`[AIChat] handleSubmit - activeThreadId: ${activeThreadId}`)
+        console.log(`[AIChat] handleSubmit - activeThreadId: ${activeThreadId}, agentType: ${agentType}`)
 
         try {
           const result = await runAgentLoop(userMessage, songStore.song, {
             threadId: activeThreadId ?? undefined,
             abortSignal: abortController.signal,
+            useSubagents: agentType === "hybrid", // false for hybrid_legacy
             callbacks: {
               onToolsExecuted: (
                 toolCalls: ToolCall[],
@@ -1402,6 +1405,7 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
             disabled={isLoading}
           >
             <option value="hybrid">Hybrid Agent</option>
+            <option value="hybrid_legacy">Hybrid (Legacy)</option>
             <option value="composition_agent">Deep Agent</option>
             <option value="llm">LLM Direct</option>
           </Select>
@@ -1463,7 +1467,7 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
           )
         })}
         {/* Show music loading indicator for hybrid agent mode */}
-        {isLoading && agentType === "hybrid" && <MusicLoadingIndicator />}
+        {isLoading && (agentType === "hybrid" || agentType === "hybrid_legacy") && <MusicLoadingIndicator />}
         {/* Show progress UI only for composition_agent mode */}
         {isLoading && agentType === "composition_agent" && generationStage && (
           <ProgressContainer>
