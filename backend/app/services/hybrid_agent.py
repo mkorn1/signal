@@ -12,7 +12,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 from langgraph.types import Command
 from app.config import get_settings
-from app.services.agents.harmony_agent import invoke_harmony_agent
+from app.services.agents.musical_content_agent import invoke_musical_content_agent
 from app.services.agents.orchestrator import orchestrate_composition
 from app.services.mir.compiler import compile_progression_to_tool_calls
 from app.services.mir.schema import StyleGuide, Section
@@ -44,8 +44,8 @@ AVAILABLE TOOLS:
 Creation Tools:
 - createTrack: Create a new track with an instrument
 - addNotes: Add notes to an existing track
-- addChordProgression: Add intelligent chord progressions with proper voice leading (Phase 1)
-- generateComposition: Generate complete compositions with structure and harmony (NEW in Phase 2)
+- addChordProgression: Add intelligent chord progressions with proper voice leading
+- generateComposition: Generate complete compositions with structure and harmony
 - setTempo: Set the tempo in BPM
 - setTimeSignature: Set the time signature
 
@@ -421,7 +421,7 @@ def setPitchBend(trackId: int, value: int, tick: int = 0) -> str:
 
 
 # ============================================================================
-# INTELLIGENT COMPOSITION TOOLS (Phase 1: MIR)
+# INTELLIGENT COMPOSITION TOOLS (MIR)
 # ============================================================================
 
 @tool
@@ -477,7 +477,7 @@ def generateComposition(
     - Style-consistent arrangement
     - Proper song structure (intro/verse/chorus/outro)
     - Voice-led chord progressions
-    - Multiple instruments working together (coming in Phase 3+)
+    - Multiple instruments working together
 
     This is the most intelligent composition tool - it analyzes your description,
     establishes a style guide, creates song structure with energy arc, and generates
@@ -487,7 +487,6 @@ def generateComposition(
         description: Style description (e.g., "jazz ballad in Dm", "upbeat funk", "melancholic indie rock")
         bars: Total length in bars (16, 32, 64 recommended). Default: 32
         instruments: List of instruments (e.g., ["piano", "bass", "drums"]).
-                    Currently only piano is supported in Phase 2.
                     Default: ["piano"]
 
     Returns:
@@ -601,9 +600,10 @@ async def process_tool_calls(tool_calls: List[dict]) -> tuple[List[dict], List[d
                 energy=args.get("energy", "medium")
             )
 
-            # Invoke harmony agent
+            # Invoke musical content agent (generates harmony, melody, bass)
             try:
-                progression = await invoke_harmony_agent(style_guide, section, "piano")
+                content = await invoke_musical_content_agent(style_guide, section, harmony_track="piano")
+                progression = content["harmony"]
 
                 # Compile to MIDI tool calls
                 midi_calls = compile_progression_to_tool_calls(progression, args["trackId"])
@@ -619,12 +619,12 @@ async def process_tool_calls(tool_calls: List[dict]) -> tuple[List[dict], List[d
                         "args": call["args"]
                     })
             except Exception as e:
-                print(f"[HARMONY_AGENT] Error processing addChordProgression: {e}")
+                print(f"[MUSICAL_CONTENT_AGENT] Error processing addChordProgression: {e}")
                 # On error, pass through the original call
                 processed_calls.append(tc)
 
         elif tc["name"] == "generateComposition":
-            # Route through full Orchestrator (Phase 2)
+            # Route through full Orchestrator
             args = tc["args"]
 
             try:
@@ -942,7 +942,7 @@ async def stream_agent_step(prompt: str, thread_id: Optional[str] = None, contex
                             "args": tc["args"],
                         })
 
-                    # Process smart tools through subagents (CRITICAL FIX for Phase 3)
+                    # Process smart tools through subagents
                     tool_calls, smart_tools_expanded = await process_tool_calls(tool_calls)
 
                     yield {
@@ -1051,7 +1051,7 @@ async def stream_agent_resume(thread_id: str, tool_results: list[dict]):
                             "args": tc["args"],
                         })
 
-                    # Process smart tools through subagents (CRITICAL FIX for Phase 3)
+                    # Process smart tools through subagents
                     tool_calls, smart_tools_expanded = await process_tool_calls(tool_calls)
 
                     yield {

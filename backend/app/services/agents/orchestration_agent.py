@@ -1,4 +1,4 @@
-"""Orchestration Agent - Assigns musical content to instruments.
+"""Orchestration Agent - Assigns musical content to instruments using LLM.
 
 The Orchestration Agent decides:
 - Which instruments play which parts (harmony, melody, bass, rhythm)
@@ -6,54 +6,119 @@ The Orchestration Agent decides:
 - Dynamic envelope per section
 - Track ordering
 
-This is a rule-based MVP for Phase 5. Future versions may use LLM for more creative choices.
+This agent uses an LLM to make intelligent orchestration decisions based on
+genre, style, and musical content.
 """
 
 from app.services.mir.schema import (
     StyleGuide, Section, InstrumentAssignment, OrchestrationPlan
 )
+from langchain_openai import ChatOpenAI
+from app.config import get_settings
 from typing import List, Dict
+import json
+import re
 
+settings = get_settings()
 
-# Instrument choices by genre
-GENRE_INSTRUMENTS = {
-    "jazz": {
-        "harmony": "piano",
-        "melody": "saxophone",
-        "bass": "upright_bass",
-        "rhythm": "drums"
+ORCHESTRATION_SYSTEM_PROMPT = """You are the Orchestration Agent, a specialist in instrument selection and arrangement.
+
+ROLE:
+- Assign musical content (harmony, melody, bass, rhythm) to appropriate instruments
+- Decide when instruments enter and exit based on section energy and function
+- Create dynamic arcs that build tension and release
+- Order tracks logically for musical flow
+
+INPUT:
+- StyleGuide: genre, subgenre, harmonic complexity, tempo range
+- Sections: list of sections with names, bars, keys, tempos, energy levels
+- All Content: dictionary mapping section names to generated content (harmony, melody, bass, rhythm)
+
+OUTPUT:
+- OrchestrationPlan JSON with instrument assignments, track order, and dynamic arcs
+
+ORCHESTRATION PRINCIPLES:
+1. Instrument selection must match genre conventions:
+   - Jazz: piano, saxophone, upright_bass, drums
+   - Rock: guitar, electric_guitar, electric_bass, drums
+   - Pop: piano, synth, electric_bass, drums
+   - Classical: piano, violin, cello, timpani
+   - Funk: electric_piano, saxophone, electric_bass, drums
+   - Electronic: synth, synth_lead, synth_bass, electronic_drums
+   - Acoustic/Folk: acoustic_guitar, flute, acoustic_bass, percussion
+
+2. Entry/Exit patterns:
+   - Intro: sparse (1-2 instruments, often just harmony or rhythm)
+   - Verse: medium density (add bass, maybe melody)
+   - Chorus: full arrangement (all instruments active)
+   - Bridge: can vary (sometimes sparse for contrast, sometimes full)
+   - Outro: gradually reduce instruments, fade out
+
+3. Dynamic arcs (velocity mapping):
+   - soft: 60-65
+   - building: 70-85
+   - climax/high: 90-95
+   - resolve: 75-65
+   - medium: 75-80
+
+4. Track ordering:
+   - Rhythm section first (drums, bass)
+   - Then harmonic instruments (piano, guitar, keys)
+   - Melody instruments last (lead instruments, vocals)
+
+AVAILABLE INSTRUMENTS:
+Harmony: piano, electric_piano, organ, guitar, acoustic_guitar, electric_guitar, synth, strings
+Melody: flute, saxophone, trumpet, violin, synth_lead, electric_guitar, voice
+Bass: bass, electric_bass, upright_bass, synth_bass, cello
+Rhythm: drums, electronic_drums, percussion, timpani
+
+OUTPUT FORMAT (JSON):
+{
+  "assignments": [
+    {
+      "source_content": "harmony",
+      "instrument": "piano",
+      "register_shift": 0,
+      "active_sections": ["intro", "verse_A", "chorus_A", "verse_B", "chorus_B", "outro"]
     },
-    "rock": {
-        "harmony": "guitar",
-        "melody": "electric_guitar",
-        "bass": "electric_bass",
-        "rhythm": "drums"
+    {
+      "source_content": "melody",
+      "instrument": "saxophone",
+      "register_shift": 0,
+      "active_sections": ["verse_A", "chorus_A", "verse_B", "chorus_B"]
     },
-    "pop": {
-        "harmony": "piano",
-        "melody": "synth",
-        "bass": "electric_bass",
-        "rhythm": "drums"
+    {
+      "source_content": "bass",
+      "instrument": "electric_bass",
+      "register_shift": 0,
+      "active_sections": ["intro", "verse_A", "chorus_A", "verse_B", "chorus_B", "outro"]
     },
-    "classical": {
-        "harmony": "piano",
-        "melody": "violin",
-        "bass": "cello",
-        "rhythm": "timpani"
-    },
-    "funk": {
-        "harmony": "electric_piano",
-        "melody": "saxophone",
-        "bass": "electric_bass",
-        "rhythm": "drums"
-    },
-    "default": {
-        "harmony": "piano",
-        "melody": "flute",
-        "bass": "bass",
-        "rhythm": "drums"
+    {
+      "source_content": "rhythm",
+      "instrument": "drums",
+      "register_shift": 0,
+      "active_sections": ["verse_A", "chorus_A", "verse_B", "chorus_B", "outro"]
     }
+  ],
+  "track_order": ["drums", "electric_bass", "piano", "saxophone"],
+  "dynamic_arc": {
+    "intro": [[1, 60], [8, 65]],
+    "verse_A": [[9, 70], [24, 75]],
+    "chorus_A": [[25, 85], [40, 90]],
+    "verse_B": [[41, 70], [56, 75]],
+    "chorus_B": [[57, 90], [72, 95]],
+    "outro": [[73, 75], [80, 60]]
+  }
 }
+
+CRITICAL RULES:
+- Return ONLY valid JSON. No explanations, no markdown, no code blocks.
+- All sections must be included in dynamic_arc
+- Melody instruments typically skip intro and outro sections
+- Rhythm instruments typically skip intro (or play very sparsely)
+- Harmony and bass typically play in all sections
+- Track order should be musically logical (rhythm → bass → harmony → melody)
+"""
 
 
 async def invoke_orchestration_agent(
@@ -61,10 +126,11 @@ async def invoke_orchestration_agent(
     sections: List[Section],
     all_content: Dict  # {section_name: {harmony, melody, bass, rhythm}}
 ) -> OrchestrationPlan:
-    """Create orchestration plan assigning content to instruments.
+    """Create orchestration plan assigning content to instruments using LLM.
 
-    This rule-based MVP assigns instruments based on genre and creates
-    entry/exit patterns for dynamic arc.
+    This agent uses an LLM to intelligently select instruments based on genre,
+    style, and musical content, creating appropriate entry/exit patterns and
+    dynamic arcs.
 
     Args:
         style_guide: StyleGuide with genre information
@@ -76,105 +142,130 @@ async def invoke_orchestration_agent(
     """
     print(f"[ORCHESTRATION] Creating orchestration plan for {style_guide.genre}...")
 
-    # Select instruments based on genre
-    genre_lower = style_guide.genre.lower()
-    instruments = GENRE_INSTRUMENTS.get(
-        genre_lower,
-        GENRE_INSTRUMENTS["default"]
+    model = ChatOpenAI(
+        model=settings.openrouter_model,
+        base_url="https://openrouter.ai/api/v1",
+        api_key=settings.openrouter_api_key,
+        temperature=0.7,
     )
 
-    print(f"[ORCHESTRATION] Instrument assignments: {instruments}")
-
-    # Create assignments
-    assignments = []
-
-    # Determine active sections for each part based on section type
-    section_names = [s.name for s in sections]
-
-    # Harmony: play in all sections
-    assignments.append(InstrumentAssignment(
-        source_content="harmony",
-        instrument=instruments["harmony"],
-        register_shift=0,
-        active_sections=section_names.copy()
-    ))
-
-    # Melody: skip intro and outro
-    melody_sections = [
-        name for name in section_names
-        if name not in ["intro", "outro"]
-    ]
-    assignments.append(InstrumentAssignment(
-        source_content="melody",
-        instrument=instruments["melody"],
-        register_shift=0,
-        active_sections=melody_sections
-    ))
-
-    # Bass: play in all sections
-    assignments.append(InstrumentAssignment(
-        source_content="bass",
-        instrument=instruments["bass"],
-        register_shift=0,
-        active_sections=section_names.copy()
-    ))
-
-    # Rhythm: skip intro, play in everything else
-    rhythm_sections = [
-        name for name in section_names
-        if name != "intro"
-    ]
-    assignments.append(InstrumentAssignment(
-        source_content="rhythm",
-        instrument=instruments["rhythm"],
-        register_shift=0,
-        active_sections=rhythm_sections
-    ))
-
-    # Track order: rhythm section first, then melody
-    track_order = [
-        instruments["rhythm"],
-        instruments["bass"],
-        instruments["harmony"],
-        instruments["melody"]
-    ]
-
-    # Create dynamic arc based on section energy
-    dynamic_arc = {}
+    # Build context about sections
+    section_info = []
     for section in sections:
-        start_bar = section.bars[0]
-        end_bar = section.bars[1]
+        section_info.append({
+            "name": section.name,
+            "bars": section.bars,
+            "key": section.key,
+            "tempo": section.tempo,
+            "energy": section.energy
+        })
 
-        # Map energy to velocity
-        if section.energy == "soft":
-            start_vel = 60
-            end_vel = 65
-        elif section.energy == "building":
-            start_vel = 70
-            end_vel = 85
-        elif section.energy == "climax" or section.energy == "high":
-            start_vel = 90
-            end_vel = 95
-        elif section.energy == "resolve":
-            start_vel = 75
-            end_vel = 65
-        else:  # medium
-            start_vel = 75
-            end_vel = 80
+    # Build content summary
+    content_summary = {}
+    for section_name, content in all_content.items():
+        content_summary[section_name] = {
+            "has_harmony": "harmony" in content and content["harmony"] is not None,
+            "has_melody": "melody" in content and content["melody"] is not None,
+            "has_bass": "bass" in content and content["bass"] is not None,
+            "has_rhythm": "rhythm" in content and content["rhythm"] is not None,
+        }
 
-        dynamic_arc[section.name] = [
-            (start_bar, start_vel),
-            (end_bar, end_vel)
+    # Build the user prompt
+    prompt = f"""Create an orchestration plan for this composition:
+
+Style Guide:
+- Genre: {style_guide.genre} {style_guide.subgenre}
+- Harmonic Complexity: {style_guide.harmonic_complexity}
+- Swing: {style_guide.swing}
+- Tempo Range: {style_guide.tempo_range[0]}-{style_guide.tempo_range[1]} BPM
+- Extensions Allowed: {', '.join(style_guide.extensions_allowed)}
+- Reference Artists: {', '.join(style_guide.reference_artists) if style_guide.reference_artists else 'None'}
+
+Sections:
+{json.dumps(section_info, indent=2)}
+
+Content Available:
+{json.dumps(content_summary, indent=2)}
+
+Requirements:
+- Select instruments appropriate for {style_guide.genre} {style_guide.subgenre} style
+- Create entry/exit patterns: intro sparse, verse medium, chorus full, outro fade
+- Map section energy levels to appropriate dynamic arcs
+- Order tracks logically: rhythm → bass → harmony → melody
+- Melody typically skips intro and outro
+- Rhythm typically skips intro (or plays very sparsely)
+
+Return OrchestrationPlan JSON only. No explanations."""
+
+    messages = [
+        {"role": "system", "content": ORCHESTRATION_SYSTEM_PROMPT},
+        {"role": "user", "content": prompt}
+    ]
+
+    response = await model.ainvoke(messages)
+
+    # Extract JSON from response
+    content = response.content.strip()
+
+    # Remove markdown code blocks if present
+    if content.startswith("```"):
+        lines = content.split("\n")
+        content = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
+
+    # Remove "json" language identifier if present
+    if content.startswith("json"):
+        content = content[4:].strip()
+
+    # Try to extract JSON from markdown code blocks or plain text
+    json_match = re.search(r'```(?:json)?\s*(\{.*\})\s*```', content, re.DOTALL)
+    if json_match:
+        json_str = json_match.group(1)
+    else:
+        # Try to find JSON directly
+        json_match = re.search(r'\{.*\}', content, re.DOTALL)
+        if json_match:
+            json_str = json_match.group(0)
+        else:
+            print(f"[ORCHESTRATION] Error: Could not extract JSON from response")
+            print(f"[ORCHESTRATION] Raw response: {content}")
+            raise ValueError(f"Could not extract JSON from orchestration agent response: {content}")
+
+    # Parse the JSON response
+    try:
+        plan_data = json.loads(json_str)
+    except json.JSONDecodeError as e:
+        print(f"[ORCHESTRATION] Error parsing JSON: {e}")
+        print(f"[ORCHESTRATION] JSON string: {json_str}")
+        raise ValueError(f"Invalid JSON in orchestration agent response: {json_str}") from e
+
+    # Convert to OrchestrationPlan object
+    assignments = [
+        InstrumentAssignment(
+            source_content=assgn["source_content"],
+            instrument=assgn["instrument"],
+            register_shift=assgn.get("register_shift", 0),
+            active_sections=assgn["active_sections"]
+        )
+        for assgn in plan_data["assignments"]
+    ]
+
+    # Convert dynamic_arc tuples from lists
+    dynamic_arc = {}
+    for section_name, arc_points in plan_data["dynamic_arc"].items():
+        dynamic_arc[section_name] = [
+            (point[0], point[1]) if isinstance(point, list) else tuple(point)
+            for point in arc_points
         ]
-
-    print(f"[ORCHESTRATION] Created {len(assignments)} assignments")
-    print(f"[ORCHESTRATION] Track order: {track_order}")
 
     orchestration_plan = OrchestrationPlan(
         assignments=assignments,
-        track_order=track_order,
+        track_order=plan_data["track_order"],
         dynamic_arc=dynamic_arc
     )
+
+    print(f"[ORCHESTRATION] Created {len(assignments)} assignments")
+    print(f"[ORCHESTRATION] Track order: {orchestration_plan.track_order}")
+    print(f"[ORCHESTRATION] Instruments: {[a.instrument for a in assignments]}")
 
     return orchestration_plan
 

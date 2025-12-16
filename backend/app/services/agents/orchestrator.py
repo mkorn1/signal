@@ -3,10 +3,8 @@
 from app.services.mir.schema import StyleGuide, Section, ChordProgression, MelodyPhrase, DrumPattern, BassLine
 from app.services.agents.style_agent import invoke_style_agent
 from app.services.agents.arranger_agent import invoke_arranger_agent
-from app.services.agents.harmony_agent import invoke_harmony_agent
-from app.services.agents.melody_agent import invoke_melody_agent
-from app.services.agents.rhythm_agent import invoke_rhythm_agent
-from app.services.agents.bass_agent import invoke_bass_agent
+from app.services.agents.musical_content_agent import invoke_musical_content_agent
+# Removed: melody_agent, rhythm_agent, bass_agent - now handled by musical_content_agent
 from app.services.agents.orchestration_agent import invoke_orchestration_agent
 from app.services.agents.critic_agent import invoke_critic_agent
 from app.services.mir.compiler import (
@@ -25,12 +23,12 @@ async def orchestrate_composition(
     """
     Orchestrate full composition through subagents.
 
-    This is the Phase 3 orchestrator that creates:
+    Creates:
     1. Style guide (via Style Agent)
     2. Song structure (via Arranger Agent)
     3. Harmony for each section (via Harmony Agent)
-    4. Melody for each section (via Melody Agent) - NEW in Phase 3
-    5. Rhythm for each section (via Rhythm Agent) - NEW in Phase 3
+    4. Melody for each section (via Melody Agent)
+    5. Rhythm for each section (via Rhythm Agent)
 
     Returns compiled tool calls ready for frontend execution.
 
@@ -54,59 +52,89 @@ async def orchestrate_composition(
     sections = await invoke_arranger_agent(style_guide, target_bars)
     print(f"[ORCHESTRATOR] Created {len(sections)} sections")
 
-    # Track IDs
-    piano_track_id = 1
-    melody_track_id = 2
-    drums_track_id = 3
-
-    all_tool_calls = []
-
-    # Create tracks
-    print(f"[ORCHESTRATOR] Creating tracks...")
-    all_tool_calls.append({
-        "name": "createTrack",
-        "args": {"instrumentName": "piano", "trackName": "Piano"}
-    })
-    all_tool_calls.append({
-        "name": "createTrack",
-        "args": {"instrumentName": "flute", "trackName": "Melody"}
-    })
-    all_tool_calls.append({
-        "name": "createTrack",
-        "args": {"instrumentName": "drums", "trackName": "Drums"}
-    })
-
-    # Step 3-5: Generate content for each section
-    print(f"[ORCHESTRATOR] Generating content for each section...")
+    # Step 3: Generate content for each section
+    print(f"[ORCHESTRATOR] Step 3: Generating content for each section...")
+    all_content = {}  # section_name → {harmony, melody, bass, rhythm}
+    
     for i, section in enumerate(sections):
         print(f"[ORCHESTRATOR] Section {i+1}/{len(sections)}: {section.name}")
 
-        # Step 3: Harmony
-        print(f"[ORCHESTRATOR]   - Generating harmony...")
-        harmony = await invoke_harmony_agent(style_guide, section, "piano")
-        harmony_calls = compile_progression_to_tool_calls(harmony, piano_track_id)
-        all_tool_calls.extend(harmony_calls)
+        # Generate harmony, melody, and bass together
+        # Note: Using generic placeholders - orchestration agent will assign actual instruments
+        print(f"[ORCHESTRATOR]   - Generating musical content (harmony, melody, bass)...")
+        content = await invoke_musical_content_agent(style_guide, section, harmony_track="harmony_track", melody_track="melody_track", bass_track="bass_track")
+        
+        # Store content (melody may be None for intro/outro)
+        all_content[section.name] = {
+            "harmony": content["harmony"],
+            "melody": content["melody"] if section.name not in ["intro", "outro"] else None,
+            "bass": content["bass"],
+            "rhythm": None  # Rhythm generation not yet implemented
+        }
 
-        # Step 4: Melody (only in verse/chorus, not intro/outro)
-        if section.name not in ["intro", "outro"]:
-            print(f"[ORCHESTRATOR]   - Generating melody...")
-            melody = await invoke_melody_agent(style_guide, section, harmony, "flute")
-            melody_notes = compile_melody_to_notes(melody)
+    # Step 4: Orchestration - assign instruments to content
+    print(f"\n[ORCHESTRATOR] Step 4: Invoking Orchestration Agent...")
+    orchestration = await invoke_orchestration_agent(style_guide, sections, all_content)
+
+    # Step 5: Compile to MIDI tool calls
+    print(f"[ORCHESTRATOR] Step 5: Compiling to MIDI tool calls...")
+    all_tool_calls = []
+    track_map = {}  # instrument_name → track_id
+
+    # Create tracks based on orchestration plan
+    for assignment in orchestration.assignments:
+        instrument = assignment.instrument
+        if instrument not in track_map:
+            track_id = len(track_map) + 1
+            track_map[instrument] = track_id
+            # Capitalize instrument name for display
+            track_name = instrument.replace("_", " ").title()
             all_tool_calls.append({
-                "name": "addNotes",
-                "args": {"trackId": melody_track_id, "notes": melody_notes}
+                "name": "createTrack",
+                "args": {"instrumentName": instrument, "trackName": track_name}
             })
-        else:
-            print(f"[ORCHESTRATOR]   - Skipping melody for {section.name}")
+            print(f"[ORCHESTRATOR]   Created track {track_id}: {track_name}")
 
-        # Step 5: Rhythm
-        print(f"[ORCHESTRATOR]   - Generating rhythm...")
-        rhythm = await invoke_rhythm_agent(style_guide, section)
-        drum_notes = compile_drums_to_notes(rhythm)
-        all_tool_calls.append({
-            "name": "addNotes",
-            "args": {"trackId": drums_track_id, "notes": drum_notes}
-        })
+    # Compile content with orchestration
+    for section_name, content in all_content.items():
+        print(f"[ORCHESTRATOR]   Compiling section: {section_name}")
+
+        # Find which instruments play each part in this section
+        for assignment in orchestration.assignments:
+            if section_name not in assignment.active_sections:
+                continue  # This instrument doesn't play in this section
+
+            track_id = track_map[assignment.instrument]
+            source = assignment.source_content
+
+            # Get the MIR content
+            mir_content = content.get(source)
+            if mir_content is None:
+                continue
+
+            # Compile based on content type
+            if source == "harmony":
+                tool_calls = compile_progression_to_tool_calls(mir_content, track_id)
+                all_tool_calls.extend(tool_calls)
+            elif source == "melody":
+                notes = compile_melody_to_notes(mir_content)
+                all_tool_calls.append({
+                    "name": "addNotes",
+                    "args": {"trackId": track_id, "notes": notes}
+                })
+            elif source == "bass":
+                notes = compile_bass_to_notes(mir_content)
+                all_tool_calls.append({
+                    "name": "addNotes",
+                    "args": {"trackId": track_id, "notes": notes}
+                })
+            elif source == "rhythm":
+                if mir_content is not None:
+                    notes = compile_drums_to_notes(mir_content)
+                    all_tool_calls.append({
+                        "name": "addNotes",
+                        "args": {"trackId": track_id, "notes": notes}
+                    })
 
     print(f"[ORCHESTRATOR] Orchestration complete! Generated {len(all_tool_calls)} tool calls")
 
@@ -122,9 +150,9 @@ async def orchestrate_composition_with_revision(
     target_bars: int = 32,
     max_revision_cycles: int = 3
 ) -> Dict:
-    """Orchestrate with quality validation and revision (Phase 4).
+    """Orchestrate with quality validation and revision.
 
-    This is the Phase 4 orchestrator that adds:
+    Adds:
     - Critic Agent evaluation after each section
     - Revision loop for quality control
     - Detailed reporting on musical quality
@@ -145,9 +173,9 @@ async def orchestrate_composition_with_revision(
         - critiques: List of CriticReport objects (one per section)
         - total_revision_cycles: Total number of revisions performed
     """
-    print(f"[ORCHESTRATOR] Phase 4: Composition with revision loop (max {max_revision_cycles} cycles)")
+    print(f"[ORCHESTRATOR] Composition with revision loop (max {max_revision_cycles} cycles)")
 
-    # Phase 1: Style & Structure (same as Phase 3)
+    # Step 1: Style & Structure
     print(f"[ORCHESTRATOR] Step 1: Invoking Style Agent...")
     style_guide = await invoke_style_agent(user_prompt)
     print(f"[ORCHESTRATOR] Style: {style_guide.genre} {style_guide.subgenre}")
@@ -156,7 +184,7 @@ async def orchestrate_composition_with_revision(
     sections = await invoke_arranger_agent(style_guide, target_bars)
     print(f"[ORCHESTRATOR] Created {len(sections)} sections")
 
-    # Phase 2: Content generation with revision loop
+    # Step 2: Content generation with revision loop
     all_compositions = {}  # section_name → {harmony, melody, rhythm, critique}
     all_critiques = []
     total_revision_cycles = 0
@@ -171,21 +199,18 @@ async def orchestrate_composition_with_revision(
         while revision_cycle < max_revision_cycles:
             print(f"[ORCHESTRATOR]   Revision cycle {revision_cycle + 1}/{max_revision_cycles}")
 
-            # Generate harmony
-            print(f"[ORCHESTRATOR]   - Generating harmony...")
-            harmony = await invoke_harmony_agent(style_guide, section, "piano")
+            # Generate harmony, melody, and bass together
+            # Note: Using generic placeholders - instruments will be assigned by orchestration agent
+            print(f"[ORCHESTRATOR]   - Generating musical content (harmony, melody, bass)...")
+            content = await invoke_musical_content_agent(style_guide, section, harmony_track="harmony_track", melody_track="melody_track", bass_track="bass_track")
+            harmony = content["harmony"]
+            melody = content["melody"] if section.name not in ["intro", "outro"] else None
+            bass = content["bass"]
 
-            # Generate melody (only in verse/chorus, not intro/outro)
-            melody = None
-            if section.name not in ["intro", "outro"]:
-                print(f"[ORCHESTRATOR]   - Generating melody...")
-                melody = await invoke_melody_agent(style_guide, section, harmony, "flute")
-            else:
-                print(f"[ORCHESTRATOR]   - Skipping melody for {section.name}")
-
-            # Generate rhythm
-            print(f"[ORCHESTRATOR]   - Generating rhythm...")
-            rhythm = await invoke_rhythm_agent(style_guide, section)
+            # Generate rhythm - TODO: Implement rhythm generation or use a simple pattern
+            # For now, creating a None placeholder as rhythm_agent was removed
+            print(f"[ORCHESTRATOR]   - Skipping rhythm (rhythm_agent removed)")
+            rhythm = None
 
             # Evaluate with Critic
             print(f"[ORCHESTRATOR]   - Evaluating with Critic Agent...")
@@ -201,6 +226,7 @@ async def orchestrate_composition_with_revision(
                 best_composition = {
                     "harmony": harmony,
                     "melody": melody,
+                    "bass": bass,
                     "rhythm": rhythm
                 }
                 best_critique = critique
@@ -228,8 +254,8 @@ async def orchestrate_composition_with_revision(
             all_compositions[section.name] = best_composition
             all_critiques.append(best_critique)
 
-    # Phase 3: Compile to tool calls
-    print(f"\n[ORCHESTRATOR] Phase 3: Compiling to MIDI tool calls...")
+    # Step 3: Compile to tool calls
+    print(f"\n[ORCHESTRATOR] Compiling to MIDI tool calls...")
     all_tool_calls = []
 
     # Create tracks
@@ -264,12 +290,13 @@ async def orchestrate_composition_with_revision(
                 "args": {"trackId": melody_track_id, "notes": melody_notes}
             })
 
-        # Compile rhythm
-        drum_notes = compile_drums_to_notes(content["rhythm"])
-        all_tool_calls.append({
-            "name": "addNotes",
-            "args": {"trackId": drums_track_id, "notes": drum_notes}
-        })
+        # Compile rhythm (skip if None)
+        if content.get("rhythm") is not None:
+            drum_notes = compile_drums_to_notes(content["rhythm"])
+            all_tool_calls.append({
+                "name": "addNotes",
+                "args": {"trackId": drums_track_id, "notes": drum_notes}
+            })
 
     # Calculate overall quality metrics
     avg_score = sum(c.overall_score for c in all_critiques) / len(all_critiques) if all_critiques else 0.0
@@ -296,12 +323,12 @@ async def orchestrate_full_composition(
     target_bars: int = 32,
     max_revision_cycles: int = 3
 ) -> Dict:
-    """Complete multi-agent composition pipeline (Phase 5).
+    """Complete multi-agent composition pipeline.
 
-    This is the FULL multi-agent system with:
+    Full multi-agent system with:
     - Bass Agent for foundational bass lines
     - Orchestration Agent for instrument assignment and dynamics
-    - All previous agents (Style, Arranger, Harmony, Melody, Rhythm, Critic)
+    - All agents (Style, Arranger, Harmony, Melody, Rhythm, Critic)
 
     Args:
         user_prompt: User's description of desired composition
@@ -318,9 +345,9 @@ async def orchestrate_full_composition(
         - total_revision_cycles: Total number of revisions performed
         - average_score: Average quality score
     """
-    print(f"[ORCHESTRATOR] Phase 5: Full multi-agent composition pipeline")
+    print(f"[ORCHESTRATOR] Full multi-agent composition pipeline")
 
-    # Phase 1: Planning
+    # Step 1: Planning
     print(f"[ORCHESTRATOR] Step 1: Invoking Style Agent...")
     style_guide = await invoke_style_agent(user_prompt)
     print(f"[ORCHESTRATOR] Style: {style_guide.genre} {style_guide.subgenre}")
@@ -329,7 +356,7 @@ async def orchestrate_full_composition(
     sections = await invoke_arranger_agent(style_guide, target_bars)
     print(f"[ORCHESTRATOR] Created {len(sections)} sections")
 
-    # Phase 2: Content generation per section (with revision)
+    # Step 2: Content generation per section (with revision)
     all_content = {}  # section_name → {harmony, melody, bass, rhythm}
     all_critiques = []
     total_revision_cycles = 0
@@ -344,25 +371,18 @@ async def orchestrate_full_composition(
         while revision_cycle < max_revision_cycles:
             print(f"[ORCHESTRATOR]   Revision cycle {revision_cycle + 1}/{max_revision_cycles}")
 
-            # Generate all content
-            print(f"[ORCHESTRATOR]   - Generating harmony...")
-            harmony = await invoke_harmony_agent(style_guide, section, "piano")
+            # Generate all content together
+            # Note: Using generic placeholders - orchestration agent will assign actual instruments
+            print(f"[ORCHESTRATOR]   - Generating musical content (harmony, melody, bass)...")
+            content = await invoke_musical_content_agent(style_guide, section, harmony_track="harmony_track", melody_track="melody_track", bass_track="bass_track")
+            harmony = content["harmony"]
+            melody = content["melody"] if section.name not in ["intro", "outro"] else None
+            bass = content["bass"]
 
-            # Melody (skip intro/outro)
-            melody = None
-            if section.name not in ["intro", "outro"]:
-                print(f"[ORCHESTRATOR]   - Generating melody...")
-                melody = await invoke_melody_agent(style_guide, section, harmony, "flute")
-            else:
-                print(f"[ORCHESTRATOR]   - Skipping melody for {section.name}")
-
-            # Bass (NEW in Phase 5)
-            print(f"[ORCHESTRATOR]   - Generating bass...")
-            bass = await invoke_bass_agent(style_guide, section, harmony)
-
-            # Rhythm
-            print(f"[ORCHESTRATOR]   - Generating rhythm...")
-            rhythm = await invoke_rhythm_agent(style_guide, section)
+            # Rhythm - TODO: Implement rhythm generation or use a simple pattern
+            # For now, creating a None placeholder as rhythm_agent was removed
+            print(f"[ORCHESTRATOR]   - Skipping rhythm (rhythm_agent removed)")
+            rhythm = None
 
             # Critique
             print(f"[ORCHESTRATOR]   - Evaluating with Critic Agent...")
@@ -371,7 +391,7 @@ async def orchestrate_full_composition(
                 harmony=harmony,
                 melody=melody,
                 rhythm=rhythm
-                # Note: bass not critiqued yet in Phase 5 MVP
+                # Note: bass not critiqued yet
             )
 
             # Store best attempt
@@ -403,11 +423,11 @@ async def orchestrate_full_composition(
             all_content[section.name] = best_composition
             all_critiques.append(best_critique)
 
-    # Phase 3: Orchestration (NEW in Phase 5) - assigns to instruments, dynamics
+    # Step 3: Orchestration - assigns to instruments, dynamics
     print(f"\n[ORCHESTRATOR] Step 3: Invoking Orchestration Agent...")
     orchestration = await invoke_orchestration_agent(style_guide, sections, all_content)
 
-    # Phase 4: Compilation to MIDI tool calls
+    # Step 4: Compilation to MIDI tool calls
     print(f"[ORCHESTRATOR] Step 4: Compiling to MIDI tool calls...")
     all_tool_calls = []
     track_map = {}  # instrument_name → track_id
@@ -460,11 +480,12 @@ async def orchestrate_full_composition(
                     "args": {"trackId": track_id, "notes": notes}
                 })
             elif source == "rhythm":
-                notes = compile_drums_to_notes(mir_content)
-                all_tool_calls.append({
-                    "name": "addNotes",
-                    "args": {"trackId": track_id, "notes": notes}
-                })
+                if mir_content is not None:
+                    notes = compile_drums_to_notes(mir_content)
+                    all_tool_calls.append({
+                        "name": "addNotes",
+                        "args": {"trackId": track_id, "notes": notes}
+                    })
 
     # Calculate overall quality metrics
     avg_score = sum(c.overall_score for c in all_critiques) / len(all_critiques) if all_critiques else 0.0

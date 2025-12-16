@@ -1,4 +1,4 @@
-"""Unit tests for Phase 3 MIR compiler extensions (melody and rhythm)."""
+"""Unit tests for MIR compiler extensions (melody and rhythm)."""
 
 import pytest
 from app.services.mir.schema import Note, MelodyPhrase, DrumPattern, DrumHit
