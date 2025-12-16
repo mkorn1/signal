@@ -10,6 +10,7 @@ import {
   useSelectPreviousNote,
   useTransposeSelection,
 } from "../../actions"
+import { useEditorMode } from "../../hooks/useEditorMode"
 import { useHistory } from "../../hooks/useHistory"
 import { usePianoRoll } from "../../hooks/usePianoRoll"
 import { envString } from "../../localize/envString"
@@ -24,6 +25,7 @@ export const EditMenu: FC<EditMenuProps> = ({ trigger }) => {
   const { selectedNoteIds, setOpenTransposeDialog, setOpenVelocityDialog } =
     usePianoRoll()
   const { hasUndo, hasRedo, undo, redo } = useHistory()
+  const { isAdvanced } = useEditorMode()
   const copySelection = useCopySelection()
   const pasteSelection = usePasteSelection()
   const deleteSelection = useDeleteSelection()
@@ -172,39 +174,43 @@ export const EditMenu: FC<EditMenuProps> = ({ trigger }) => {
         <HotKey>←</HotKey>
       </MenuItem>
 
-      <MenuDivider />
+      {isAdvanced && (
+        <>
+          <MenuDivider />
 
-      <MenuItem onClick={onClickTransposeUpOctave} disabled={!anySelectedNotes}>
-        <Localized name="one-octave-up" />
-        <HotKey>Shift+↑</HotKey>
-      </MenuItem>
+          <MenuItem onClick={onClickTransposeUpOctave} disabled={!anySelectedNotes}>
+            <Localized name="one-octave-up" />
+            <HotKey>Shift+↑</HotKey>
+          </MenuItem>
 
-      <MenuItem
-        onClick={onClickTransposeDownOctave}
-        disabled={!anySelectedNotes}
-      >
-        <Localized name="one-octave-down" />
-        <HotKey>Shift+↓</HotKey>
-      </MenuItem>
+          <MenuItem
+            onClick={onClickTransposeDownOctave}
+            disabled={!anySelectedNotes}
+          >
+            <Localized name="one-octave-down" />
+            <HotKey>Shift+↓</HotKey>
+          </MenuItem>
 
-      <MenuItem onClick={onClickTranspose} disabled={!anySelectedNotes}>
-        <Localized name="transpose" />
-        <HotKey>T</HotKey>
-      </MenuItem>
+          <MenuItem onClick={onClickTranspose} disabled={!anySelectedNotes}>
+            <Localized name="transpose" />
+            <HotKey>T</HotKey>
+          </MenuItem>
 
-      <MenuDivider />
+          <MenuDivider />
 
-      <MenuItem
-        onClick={onClickQuantizeSelectedNotes}
-        disabled={!anySelectedNotes}
-      >
-        <Localized name="quantize" />
-        <HotKey>Q</HotKey>
-      </MenuItem>
+          <MenuItem
+            onClick={onClickQuantizeSelectedNotes}
+            disabled={!anySelectedNotes}
+          >
+            <Localized name="quantize" />
+            <HotKey>Q</HotKey>
+          </MenuItem>
 
-      <MenuItem onClick={onClickVelocity} disabled={!anySelectedNotes}>
-        <Localized name="velocity" />
-      </MenuItem>
+          <MenuItem onClick={onClickVelocity} disabled={!anySelectedNotes}>
+            <Localized name="velocity" />
+          </MenuItem>
+        </>
+      )}
     </Menu>
   )
 }

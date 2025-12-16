@@ -4,8 +4,8 @@
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
-  "name": "PipeDream 2.0",
-  "short_name": "PipeDream 2.0",
+  "name": "Prelude",
+  "short_name": "Prelude",
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -34,10 +34,10 @@
       "purpose": "maskable"
     }
   ],
-  "id": "pipedream-2.0",
+  "id": "prelude",
   "lang": "en",
   "categories": [
     "music"
   ],
-  "description": "PipeDream 2.0 is a simple and enjoyable music creation tool with AI assistance."
+  "description": "Prelude is a simple and enjoyable music creation tool with AI assistance."
 }

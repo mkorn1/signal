@@ -1,4 +1,4 @@
-# PipeDream 2.0
+# Prelude
 
 > A simple and enjoyable music creation tool with AI assistance. Create music through an intuitive interface where AI helps you compose.
 
