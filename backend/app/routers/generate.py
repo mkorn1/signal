@@ -41,6 +41,7 @@ from app.services.hybrid_agent import (
     stream_agent_step,
     stream_agent_resume,
 )
+from app.services.deep_agent_2 import orchestrate_composition
 from app.services.pitch_detection import detect_pitch
 from app.services.rhythm_interpreter import interpret_rhythm
 
@@ -601,6 +602,59 @@ async def agent_step(request: AgentStepRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Agent step failed: {str(e)}")
+
+
+# ============================================================================
+# Deep Agent 2.0 Endpoint
+# ============================================================================
+
+
+@router.post("/generate/deep-agent-2")
+async def generate_deep_agent_2(request: GenerateRequest):
+    """
+    Generate a composition using Deep Agent 2.0 workflow.
+    
+    This endpoint uses the advanced multi-agent orchestration pipeline:
+    1. Style Agent - establishes musical DNA
+    2. Arranger Agent - creates song structure
+    3. Musical Content Agent - generates harmony, melody, and bass together
+    4. Orchestration Agent - assigns instruments intelligently
+    5. Compiles to MIDI tool calls for frontend execution
+    
+    Returns tool calls that can be executed on the frontend.
+    """
+    try:
+        params = parse_prompt(request.prompt)
+        # Default to 32 bars if not specified in prompt
+        bars = 32
+        
+        # Call the orchestrator
+        result = await orchestrate_composition(
+            user_prompt=params["style"],
+            target_bars=bars
+        )
+        
+        # Return tool calls in a format compatible with frontend
+        return {
+            "tool_calls": result["tool_calls"],
+            "style_guide": {
+                "genre": result["style_guide"].genre,
+                "subgenre": result["style_guide"].subgenre,
+            },
+            "sections": [
+                {
+                    "name": s.name,
+                    "bars": s.bars,
+                    "key": s.key,
+                    "tempo": s.tempo,
+                    "energy": s.energy,
+                }
+                for s in result["sections"]
+            ],
+            "message": f"Generated {len(result['tool_calls'])} tool calls for {len(result['sections'])} sections",
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Deep Agent 2.0 generation failed: {str(e)}")
 
 
 @router.post("/agent/step/stream")
