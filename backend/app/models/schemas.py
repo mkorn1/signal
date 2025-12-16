@@ -192,6 +192,7 @@ class AgentStepRequest(BaseModel):
     thread_id: Optional[str] = None  # For continuing an existing conversation
     tool_results: Optional[list[ToolResult]] = None  # For resuming after tool execution
     context: Optional[str] = None  # Current song state for agent awareness
+    smart_tools_expanded: Optional[list[ToolCall]] = None  # Metadata about smart tools that were expanded
 
 
 class AgentStepResponse(BaseModel):
@@ -201,6 +202,7 @@ class AgentStepResponse(BaseModel):
     tool_calls: list[ToolCall]
     done: bool
     message: Optional[str] = None
+    smart_tools_expanded: Optional[list[ToolCall]] = None  # Smart tools that were expanded (for resume)
 
 
 # ============================================================================

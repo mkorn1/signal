@@ -563,9 +563,15 @@ async def agent_step(request: AgentStepRequest):
     try:
         if request.tool_results and request.thread_id:
             # Resume mode: continue after frontend tool execution
+            smart_tools = None
+            if request.smart_tools_expanded:
+                # Convert ToolCall objects to dicts for resume_agent_step
+                smart_tools = [{"id": tc.id, "name": tc.name, "args": tc.args} for tc in request.smart_tools_expanded]
+
             result = await resume_agent_step(
                 thread_id=request.thread_id,
                 tool_results=[{"id": tr.id, "result": tr.result} for tr in request.tool_results],
+                smart_tools_expanded=smart_tools,
             )
         elif request.prompt:
             # Start mode: new conversation
@@ -580,11 +586,17 @@ async def agent_step(request: AgentStepRequest):
                 detail="Must provide either 'prompt' (to start) or 'tool_results' (to resume)",
             )
 
+        # Convert smart_tools_expanded to ToolCall objects if present
+        smart_tools_response = None
+        if "smart_tools_expanded" in result and result["smart_tools_expanded"]:
+            smart_tools_response = [ToolCall(**st) for st in result["smart_tools_expanded"]]
+
         return AgentStepResponse(
             thread_id=result["thread_id"],
             tool_calls=[ToolCall(**tc) for tc in result["tool_calls"]],
             done=result["done"],
             message=result["message"],
+            smart_tools_expanded=smart_tools_response,
         )
 
     except Exception as e:
