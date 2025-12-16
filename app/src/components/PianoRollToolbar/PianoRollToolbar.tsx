@@ -4,7 +4,6 @@ import { useEditorMode } from "../../hooks/useEditorMode"
 import { InstrumentBrowser } from "../InstrumentBrowser/InstrumentBrowser"
 import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
 import { Toolbar } from "../Toolbar/Toolbar"
-import { TrackListMenuButton } from "../TrackList/TrackListMenuButton"
 import { EventListButton } from "./EventListButton"
 import { InstrumentButton } from "./InstrumentButton"
 import { PanSlider } from "./PanSlider"
@@ -25,8 +24,6 @@ export const PianoRollToolbar: FC = () => {
 
   return (
     <Toolbar>
-      <TrackListMenuButton />
-
       <TrackNameInput />
 
       {isAdvanced && <EventListButton />}

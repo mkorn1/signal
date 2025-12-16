@@ -117,27 +117,6 @@ const Select = styled.select`
   }
 `
 
-const StatusDot = styled.span<{
-  status: "connected" | "disconnected" | "checking"
-}>`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  transition: all 150ms;
-  box-shadow: ${({ status }) =>
-    status === "connected"
-      ? "0 0 8px rgba(48, 209, 88, 0.6)"
-      : status === "disconnected"
-        ? "0 0 8px rgba(255, 69, 58, 0.6)"
-        : "0 0 8px rgba(255, 214, 10, 0.6)"};
-  background: ${({ status }) =>
-    status === "connected"
-      ? "#30d158"
-      : status === "disconnected"
-        ? "#ff453a"
-        : "#ffd60a"};
-`
-
 const HeaderRight = styled.div`
   display: flex;
   align-items: center;
@@ -328,16 +307,19 @@ const InterruptButton = styled.button`
   width: 100%;
   margin-top: 0.5rem;
   padding: 0.75rem;
-  border: 1px solid ${({ theme }) => theme.redColor || "#f44336"};
+  border: 1px solid #4a4a4a;
   border-radius: 0.5rem;
-  background: ${({ theme }) => theme.redColor || "#f44336"};
-  color: white;
+  background: #3a3a3a;
+  color: #e0e0e0;
   font-weight: 600;
   cursor: pointer;
   font-size: 0.875rem;
+  transition: all 150ms ease;
 
   &:hover {
-    opacity: 0.9;
+    background: #4a4a4a;
+    border-color: #5a5a5a;
+    color: white;
   }
 `
 
@@ -1443,17 +1425,6 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
           </Tooltip>
         )}
         <HeaderRight>
-          <Tooltip
-            title={
-              backendStatus === "connected"
-                ? "Backend connected"
-                : backendStatus === "disconnected"
-                  ? "Backend not available"
-                  : "Checking connection..."
-            }
-          >
-            <StatusDot status={backendStatus} />
-          </Tooltip>
           {!standalone && (
             <Tooltip title="Collapse chat">
               <CloseButton onClick={() => setAIChatOpen(false)} disabled={isLoading}>

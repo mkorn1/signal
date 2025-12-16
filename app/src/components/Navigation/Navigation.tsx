@@ -122,6 +122,7 @@ const ModeToggleContainer = styled.div`
 const ModeToggleOption = styled.button<{ isActive: boolean }>`
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.375rem;
   padding: 0.375rem 0.625rem;
   border: none;
@@ -130,6 +131,8 @@ const ModeToggleOption = styled.button<{ isActive: boolean }>`
   color: ${({ isActive }) => isActive ? "var(--color-on-surface)" : "var(--color-text-secondary)"};
   font-size: 0.6875rem;
   font-weight: 600;
+  flex: 1;
+  min-width: 4.5rem;
   font-family: inherit;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -156,7 +159,7 @@ export const IconStyle: CSSProperties = {
 }
 
 export const Navigation: FC = () => {
-  const { setOpenSettingDialog } = useRootView()
+  const { openSettingDialog, setOpenSettingDialog } = useRootView()
   const { path, setPath } = useRouter()
   const { isOpen: isAIChatOpen, toggle: toggleAIChat } = useAIChat()
   const { toggle: toggleEditorMode, isAdvanced } = useEditorMode()
@@ -267,7 +270,7 @@ export const Navigation: FC = () => {
       </Tooltip>
 
       <Tooltip title="Render high-quality audio with FluidSynth" delayDuration={500}>
-        <Tab onClick={onClickRenderHQ} style={{ opacity: isRenderLoading ? 0.7 : 1 }}>
+        <Tab isActive={isRenderLoading} onClick={onClickRenderHQ} style={{ opacity: isRenderLoading ? 0.7 : 1 }}>
           {isRenderLoading ? (
             <CircularProgress size="1.3rem" />
           ) : (
@@ -280,7 +283,7 @@ export const Navigation: FC = () => {
       {!isRunningInElectron() && (
         <>
           <Tooltip title="App preferences and audio settings" delayDuration={500}>
-            <Tab onClick={onClickSettings}>
+            <Tab isActive={openSettingDialog} onClick={onClickSettings}>
               <Settings style={IconStyle} />
               <TabTitle>
                 <Localized name="settings" />

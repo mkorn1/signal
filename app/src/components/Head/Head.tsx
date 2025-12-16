@@ -1,23 +1,10 @@
-import { FC, useMemo } from "react"
+import { FC } from "react"
 import { Helmet } from "react-helmet-async"
-import { useSong } from "../../hooks/useSong"
 
 export const Head: FC = () => {
-  const { filepath, name, isSaved } = useSong()
-
-  const songName = useMemo(() => {
-    if (filepath.length > 0) {
-      return filepath
-    }
-    if (name.length > 0) {
-      return name
-    }
-    return "New song"
-  }, [filepath, name])
-
   return (
     <Helmet>
-      <title>{`${songName}${isSaved ? "" : " *"} - Prelude`}</title>
+      <title>Prelude</title>
     </Helmet>
   )
 }

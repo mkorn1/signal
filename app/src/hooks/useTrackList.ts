@@ -32,4 +32,4 @@ export function useTrackList() {
 }
 
 // atoms
-const isOpenAtom = atom(false)
+const isOpenAtom = atom(true)
