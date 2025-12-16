@@ -1432,11 +1432,11 @@ async def orchestrate_composition_with_revision(
 ### Success Criteria
 
 #### Automated Verification:
-- [ ] Voice leading validator catches parallel fifths: `pytest backend/app/services/mir/test_validators.py`
-- [ ] Range validator catches out-of-range notes
-- [ ] Style validator catches forbidden extensions
-- [ ] Critic agent returns CriticReport with score and issues
-- [ ] Revision loop terminates (max 3 cycles) even if never passes
+- [x] Voice leading validator catches parallel fifths: `pytest backend/app/services/mir/test_validators.py`
+- [x] Range validator catches out-of-range notes
+- [x] Style validator catches forbidden extensions
+- [x] Critic agent returns CriticReport with score and issues
+- [x] Revision loop terminates (max 3 cycles) even if never passes
 
 #### Manual Verification:
 - [ ] Inject a parallel fifth into test harmony → Critic catches it with error
@@ -1738,11 +1738,11 @@ async def orchestrate_full_composition(
 ### Success Criteria
 
 #### Automated Verification:
-- [ ] Bass Agent generates notes in bass range (E1-E3)
-- [ ] Bass notes align with chord roots on beat 1
-- [ ] Orchestration Agent assigns all content to instruments
-- [ ] No instrument has empty assignment
-- [ ] Dynamic arc shows variation (not all sections same velocity)
+- [x] Bass Agent generates notes in bass range (E1-E3)
+- [x] Bass notes align with chord roots on beat 1
+- [x] Orchestration Agent assigns all content to instruments
+- [x] No instrument has empty assignment
+- [x] Dynamic arc shows variation (not all sections same velocity)
 
 #### Manual Verification:
 - [ ] User: "Create a jazz ballad in Dm, 64 bars"

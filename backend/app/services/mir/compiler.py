@@ -3,15 +3,16 @@
 Converts Musical Intermediate Representation objects to MIDI tool call format.
 """
 
-from app.services.mir.schema import Chord, ChordProgression, Note, MelodyPhrase, DrumPattern, DrumHit
+from app.services.mir.schema import Chord, ChordProgression, Note, MelodyPhrase, DrumPattern, DrumHit, BassLine
 from typing import List, Dict
 
 
 # Music theory constants
 PITCH_TO_MIDI = {
     "C": 0, "C#": 1, "Db": 1, "D": 2, "D#": 3, "Eb": 3,
-    "E": 4, "F": 5, "F#": 6, "Gb": 6, "G": 7, "G#": 8,
-    "Ab": 8, "A": 9, "A#": 10, "Bb": 10, "B": 11
+    "E": 4, "E#": 5, "Fb": 4,  # E# = F, Fb = E
+    "F": 5, "F#": 6, "Gb": 6, "G": 7, "G#": 8,
+    "Ab": 8, "A": 9, "A#": 10, "Bb": 10, "B": 11, "B#": 0, "Cb": 11  # B# = C, Cb = B
 }
 
 DURATION_TO_TICKS = {
@@ -235,6 +236,29 @@ def compile_drums_to_notes(pattern: DrumPattern, timebase: int = 480) -> List[Di
             "duration": 120,  # Drums typically short (120 ticks = 1/4 of a quarter note)
             "velocity": hit.velocity
         })
+
+    # Sort by tick position
+    notes.sort(key=lambda n: n["start"])
+
+    return notes
+
+
+def compile_bass_to_notes(bass_line: BassLine, timebase: int = 480) -> List[Dict]:
+    """Compile BassLine → addNotes format.
+
+    Bass lines use the same Note format as melodies, so we can reuse
+    the melody compilation logic.
+
+    Args:
+        bass_line: BassLine object to compile
+        timebase: Ticks per quarter note (default 480)
+
+    Returns:
+        List of note dictionaries for addNotes tool
+    """
+    notes = []
+    for note in bass_line.notes:
+        notes.append(compile_note_to_midi(note, timebase))
 
     # Sort by tick position
     notes.sort(key=lambda n: n["start"])

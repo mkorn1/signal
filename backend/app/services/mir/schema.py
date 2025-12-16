@@ -5,7 +5,7 @@ music-theory-aware format before compilation to MIDI.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Dict
 
 
 @dataclass
@@ -87,3 +87,28 @@ class DrumPattern:
     hits: List[DrumHit]
     swing: float
     variation_every_n_bars: int = 4
+
+
+@dataclass
+class BassLine:
+    """Bass line for a section."""
+    track: str  # "bass", "electric_bass", "upright_bass"
+    section: str  # "verse_A", "chorus_B"
+    notes: List[Note]
+
+
+@dataclass
+class InstrumentAssignment:
+    """Maps MIR content to specific instrument."""
+    source_content: str  # "harmony", "melody", "bass", "rhythm"
+    instrument: str  # "piano", "guitar", "flute", "electric_bass"
+    register_shift: int = 0  # Octaves to shift up/down
+    active_sections: List[str] = field(default_factory=list)  # Sections where this instrument plays
+
+
+@dataclass
+class OrchestrationPlan:
+    """Complete orchestration specification."""
+    assignments: List[InstrumentAssignment]
+    track_order: List[str]  # Order tracks should appear
+    dynamic_arc: Dict[str, List[tuple[int, int]]] = field(default_factory=dict)  # section → [(bar, overall_velocity)]
