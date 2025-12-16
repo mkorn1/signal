@@ -557,7 +557,7 @@ LEGACY_TOOLS = [
 def create_agent(use_legacy_tools: bool = False):
     """Create the hybrid agent with interrupt_before for tool execution."""
     tools = LEGACY_TOOLS if use_legacy_tools else TOOLS
-    prompt = LEGACY_SYSTEM_PROMPT if use_legacy_tools else HYBRID_SYSTEM_PROMPT
+    prompt = HYBRID_SYSTEM_PROMPT #LEGACY_SYSTEM_PROMPT if use_legacy_tools else HYBRID_SYSTEM_PROMPT
     agent = create_react_agent(
         model=model,
         tools=tools,
