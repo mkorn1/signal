@@ -290,3 +290,4 @@ def get_instrument_for_content(
             section_name in assignment.active_sections):
             return assignment.instrument
     return None
+

@@ -2,7 +2,7 @@ import * as fs from "fs"
 import { AnyEvent } from "midifile-ts"
 import * as path from "path"
 import { describe, expect, it } from "vitest"
-import { emptySong, NoteEvent, Track } from "../entities"
+import { emptySong, emptyTrack, NoteEvent, Track } from "../entities"
 import {
   createConductorTrackIfNeeded,
   songFromMidi,
@@ -27,7 +27,9 @@ const reassignIDs = (track: Track) => {
 describe("SongFile", () => {
   it("write and read", () => {
     const song = emptySong()
-    song.tracks[1].addEvent<NoteEvent>({
+    const track = emptyTrack(0)
+    song.addTrack(track)
+    track.addEvent<NoteEvent>({
       type: "channel",
       subtype: "note",
       noteNumber: 57,
@@ -85,7 +87,9 @@ describe("SongFile", () => {
   describe("signal events", () => {
     it("should save the track color", () => {
       const song = emptySong()
-      song.tracks[1].setColor({
+      const track = emptyTrack(0)
+      song.addTrack(track)
+      track.setColor({
         red: 12,
         green: 34,
         blue: 56,

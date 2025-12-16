@@ -43,7 +43,7 @@ async def invoke_critic_agent(
 ) -> CriticReport:
     """Evaluate composition and return critique.
 
-    This is a rule-based critic (Phase 4 MVP). Future phases may add
+    This is a rule-based critic. Future enhancements may add
     LLM-based musical quality evaluation.
 
     Args:

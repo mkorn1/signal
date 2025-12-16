@@ -12,7 +12,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 from langgraph.types import Command
 from app.config import get_settings
-from app.services.agents.harmony_agent import invoke_harmony_agent
+from app.services.agents.musical_content_agent import invoke_musical_content_agent
 from app.services.agents.orchestrator import orchestrate_composition
 from app.services.mir.compiler import compile_progression_to_tool_calls
 from app.services.mir.schema import StyleGuide, Section
@@ -548,7 +548,7 @@ def setPitchBend(trackId: int, value: int, tick: int = 0) -> str:
 
 
 # ============================================================================
-# INTELLIGENT COMPOSITION TOOLS (Phase 1: MIR)
+# INTELLIGENT COMPOSITION TOOLS (MIR)
 # ============================================================================
 
 @tool
@@ -604,7 +604,7 @@ def generateComposition(
     - Style-consistent arrangement
     - Proper song structure (intro/verse/chorus/outro)
     - Voice-led chord progressions
-    - Multiple instruments working together (coming in Phase 3+)
+    - Multiple instruments working together
 
     This is the most intelligent composition tool - it analyzes your description,
     establishes a style guide, creates song structure with energy arc, and generates
@@ -614,7 +614,6 @@ def generateComposition(
         description: Style description (e.g., "jazz ballad in Dm", "upbeat funk", "melancholic indie rock")
         bars: Total length in bars (16, 32, 64 recommended). Default: 32
         instruments: List of instruments (e.g., ["piano", "bass", "drums"]).
-                    Currently only piano is supported in Phase 2.
                     Default: ["piano"]
 
     Returns:
@@ -687,7 +686,7 @@ LEGACY_TOOLS = [
 def create_agent(use_legacy_tools: bool = False):
     """Create the hybrid agent with interrupt_before for tool execution."""
     tools = LEGACY_TOOLS if use_legacy_tools else TOOLS
-    prompt = LEGACY_SYSTEM_PROMPT if use_legacy_tools else HYBRID_SYSTEM_PROMPT
+    prompt = HYBRID_SYSTEM_PROMPT #LEGACY_SYSTEM_PROMPT if use_legacy_tools else HYBRID_SYSTEM_PROMPT
     agent = create_react_agent(
         model=model,
         tools=tools,
@@ -763,9 +762,10 @@ async def process_tool_calls(tool_calls: List[dict]) -> tuple[List[dict], List[d
                 energy=args.get("energy", "medium")
             )
 
-            # Invoke harmony agent
+            # Invoke musical content agent (generates harmony, melody, bass)
             try:
-                progression = await invoke_harmony_agent(style_guide, section, "piano")
+                content = await invoke_musical_content_agent(style_guide, section, harmony_track="piano")
+                progression = content["harmony"]
 
                 # Compile to MIDI tool calls
                 midi_calls = compile_progression_to_tool_calls(progression, args["trackId"])
@@ -781,12 +781,12 @@ async def process_tool_calls(tool_calls: List[dict]) -> tuple[List[dict], List[d
                         "args": call["args"]
                     })
             except Exception as e:
-                print(f"[HARMONY_AGENT] Error processing addChordProgression: {e}")
+                print(f"[MUSICAL_CONTENT_AGENT] Error processing addChordProgression: {e}")
                 # On error, pass through the original call
                 processed_calls.append(tc)
 
         elif tc["name"] == "generateComposition":
-            # Route through full Orchestrator (Phase 2)
+            # Route through full Orchestrator
             args = tc["args"]
 
             try:
@@ -940,7 +940,7 @@ async def resume_agent_step(
             - id: Tool call ID from the original tool_calls
             - result: JSON string result from frontend execution
         smart_tools_expanded: Metadata about smart tools that were expanded (optional)
-        use_subagents: If True, routes smart tools through MIR subagents. If False, passes all tools directly (legacy mode).
+        use_subagents: If True, routes smart tools through subagents. If False, passes all tools directly (legacy mode).
 
     Returns:
         Same format as start_agent_step
