@@ -12,7 +12,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
 from langgraph.types import Command
 from app.config import get_settings
-from app.services.agents.harmony_agent import invoke_harmony_agent
+from app.services.agents.musical_content_agent import invoke_musical_content_agent
 from app.services.agents.orchestrator import orchestrate_composition
 from app.services.mir.compiler import compile_progression_to_tool_calls
 from app.services.mir.schema import StyleGuide, Section
@@ -44,118 +44,8 @@ AVAILABLE TOOLS:
 Creation Tools:
 - createTrack: Create a new track with an instrument
 - addNotes: Add notes to an existing track
-- addChordProgression: Add intelligent chord progressions with proper voice leading (Phase 1)
-- generateComposition: Generate complete compositions with structure and harmony (NEW in Phase 2)
-- setTempo: Set the tempo in BPM
-- setTimeSignature: Set the time signature
-
-Note Editing Tools:
-- deleteNotes: Remove notes by their IDs
-- updateNotes: Modify note properties (pitch, timing, duration, velocity)
-- transposeNotes: Shift notes up/down by semitones
-- duplicateNotes: Copy notes with optional time offset
-- quantizeNotes: Snap notes to a grid
-
-Track Operation Tools:
-- deleteTrack: Remove a track from the song
-- renameTrack: Change a track's name
-- setTrackInstrument: Change a track's instrument
-- setTrackVolume: Set track volume (0-127)
-- setTrackPan: Set stereo pan position (0=left, 64=center, 127=right)
-
-Advanced Controller Tools:
-- setController: Set any MIDI CC value (sustain pedal, modulation, reverb, etc.)
-- setPitchBend: Set pitch bend (0-16383, center=8192)
-
-IMPORTANT: When calling tools, you must use the exact parameter names and formats specified.
-
-SONG STATE CONTEXT:
-You will receive the current song state before each request. This tells you:
-- Current tempo and time signature
-- Existing tracks with their IDs, instruments, channels, and note counts
-- Track [0] is usually the conductor track (tempo/time signature only)
-
-The song state also includes note IDs that you can use for editing operations.
-
-Use this context to:
-- Reference existing tracks by their ID when adding or editing notes
-- Reference note IDs when editing, deleting, transposing, or duplicating notes
-- Avoid creating duplicate tracks (e.g., if a piano track exists, use it)
-- Understand what's already in the song before making changes
-
-Example context:
-```
-Current song state:
-- Tempo: 120 BPM
-- Time signature: 4/4
-- Tracks: 2
-
-Track details:
-  [0] Conductor track (tempo/time signature)
-  [1] Acoustic Grand Piano - channel 0, 16 notes
-    Notes: [id:5 C4@0], [id:6 E4@480], [id:7 G4@960]...
-```
-
-MIDI REFERENCE:
-- Note numbers: Middle C = 60, each semitone = +1 (C4=60, D4=62, E4=64, F4=65, G4=67, A4=69, B4=71)
-- Timing: 480 ticks = 1 quarter note
-- Durations: whole=1920, half=960, quarter=480, eighth=240, sixteenth=120
-- Velocity: 1-127 (loudness), typical range 60-100
-- Common scales from C: Major [60,62,64,65,67,69,71,72], Minor [60,62,63,65,67,68,70,72]
-- Quantize grid sizes: 480 (quarter), 240 (eighth), 120 (sixteenth), 60 (32nd)
-
-CONTROLLER REFERENCE (for setController):
-- "modulation" (CC1): Vibrato/tremolo depth, 0-127
-- "volume" (CC7): Track volume, 0-127
-- "pan" (CC10): Stereo position, 0=left, 64=center, 127=right
-- "expression" (CC11): Dynamic expression, 0-127
-- "sustain" (CC64): Sustain pedal, 0=off, 64+=on
-- "reverb" (CC91): Reverb depth, 0-127
-- "chorus" (CC93): Chorus depth, 0-127
-- "brightness" (CC74): Filter cutoff, 0-127
-- "attack" (CC73): Attack time, 0-127
-- "release" (CC72): Release time, 0-127
-Or use any CC number directly: "CC1", "CC64", "7", etc.
-
-WORKFLOW:
-1. Check the song state to see what exists
-2. For simple, clear requests (e.g., "add a piano track", "transpose up an octave"), execute tools directly
-3. For complex or ambiguous requests, discuss with the user first via your response message
-4. When editing notes, always reference the note IDs from the song state
-5. Use editing tools to refine existing music rather than recreating from scratch
-6. Only set tempo/time signature if needed (check current values first)
-7. Reuse existing tracks when appropriate instead of creating new ones
-
-EDITING TIPS:
-- To change wrong notes: use updateNotes to fix pitch, or deleteNotes + addNotes
-- To shift timing: use updateNotes with new tick values
-- To make louder/softer: use updateNotes to change velocity
-- To move to different octave: use transposeNotes with semitones=12 or -12
-- To extend/repeat a phrase: use duplicateNotes
-- To fix timing issues: use quantizeNotes with appropriate grid size
-
-CONTROLLER TIPS:
-- For piano sustain: setController with "sustain", value=127 (on) or 0 (off)
-- For vibrato: setController with "modulation", value 0-127
-- For pitch slides: use setPitchBend at different ticks (8192=center, 0=down, 16383=up)
-- Controllers can change over time: call setController at different tick positions
-
-IMPORTANT - CONVERSATION MEMORY:
-- This is a multi-turn conversation. ALWAYS remember what the user told you earlier.
-- If the user mentioned a style, genre, key, tempo preference, or any other detail earlier in the conversation, REMEMBER IT and apply it to all subsequent actions.
-- NEVER ask the user to repeat information they already provided. If they said "rock song" or "jazz style" earlier, that context applies to the whole session.
-- Reference earlier conversation when relevant: "Based on the rock style you mentioned..."
-
-Be concise in your responses. Focus on helping the user create great music."""
-
-# Legacy system prompt - identical to pre-merge version (no smart composition tools)
-LEGACY_SYSTEM_PROMPT = """You are a music composition assistant that creates and edits MIDI compositions by calling tools.
-
-AVAILABLE TOOLS:
-
-Creation Tools:
-- createTrack: Create a new track with an instrument
-- addNotes: Add notes to an existing track
+- addChordProgression: Add intelligent chord progressions with proper voice leading
+- generateComposition: Generate complete compositions with structure and harmony
 - setTempo: Set the tempo in BPM
 - setTimeSignature: Set the time signature
 
@@ -531,7 +421,7 @@ def setPitchBend(trackId: int, value: int, tick: int = 0) -> str:
 
 
 # ============================================================================
-# INTELLIGENT COMPOSITION TOOLS (Phase 1: MIR)
+# INTELLIGENT COMPOSITION TOOLS (MIR)
 # ============================================================================
 
 @tool
@@ -587,7 +477,7 @@ def generateComposition(
     - Style-consistent arrangement
     - Proper song structure (intro/verse/chorus/outro)
     - Voice-led chord progressions
-    - Multiple instruments working together (coming in Phase 3+)
+    - Multiple instruments working together
 
     This is the most intelligent composition tool - it analyzes your description,
     establishes a style guide, creates song structure with energy arc, and generates
@@ -597,7 +487,6 @@ def generateComposition(
         description: Style description (e.g., "jazz ballad in Dm", "upbeat funk", "melancholic indie rock")
         bars: Total length in bars (16, 32, 64 recommended). Default: 32
         instruments: List of instruments (e.g., ["piano", "bass", "drums"]).
-                    Currently only piano is supported in Phase 2.
                     Default: ["piano"]
 
     Returns:
@@ -668,7 +557,7 @@ LEGACY_TOOLS = [
 def create_agent(use_legacy_tools: bool = False):
     """Create the hybrid agent with interrupt_before for tool execution."""
     tools = LEGACY_TOOLS if use_legacy_tools else TOOLS
-    prompt = LEGACY_SYSTEM_PROMPT if use_legacy_tools else HYBRID_SYSTEM_PROMPT
+    prompt = HYBRID_SYSTEM_PROMPT #LEGACY_SYSTEM_PROMPT if use_legacy_tools else HYBRID_SYSTEM_PROMPT
     agent = create_react_agent(
         model=model,
         tools=tools,
@@ -744,9 +633,10 @@ async def process_tool_calls(tool_calls: List[dict]) -> tuple[List[dict], List[d
                 energy=args.get("energy", "medium")
             )
 
-            # Invoke harmony agent
+            # Invoke musical content agent (generates harmony, melody, bass)
             try:
-                progression = await invoke_harmony_agent(style_guide, section, "piano")
+                content = await invoke_musical_content_agent(style_guide, section, harmony_track="piano")
+                progression = content["harmony"]
 
                 # Compile to MIDI tool calls
                 midi_calls = compile_progression_to_tool_calls(progression, args["trackId"])
@@ -762,12 +652,12 @@ async def process_tool_calls(tool_calls: List[dict]) -> tuple[List[dict], List[d
                         "args": call["args"]
                     })
             except Exception as e:
-                print(f"[HARMONY_AGENT] Error processing addChordProgression: {e}")
+                print(f"[MUSICAL_CONTENT_AGENT] Error processing addChordProgression: {e}")
                 # On error, pass through the original call
                 processed_calls.append(tc)
 
         elif tc["name"] == "generateComposition":
-            # Route through full Orchestrator (Phase 2)
+            # Route through full Orchestrator
             args = tc["args"]
 
             try:
@@ -921,7 +811,7 @@ async def resume_agent_step(
             - id: Tool call ID from the original tool_calls
             - result: JSON string result from frontend execution
         smart_tools_expanded: Metadata about smart tools that were expanded (optional)
-        use_subagents: If True, routes smart tools through MIR subagents. If False, passes all tools directly (legacy mode).
+        use_subagents: If True, routes smart tools through subagents. If False, passes all tools directly (legacy mode).
 
     Returns:
         Same format as start_agent_step

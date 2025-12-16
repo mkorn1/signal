@@ -1,22 +1,22 @@
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
-import { FC, useCallback, useEffect, useRef, useState } from "react"
+import { emptyTrack } from "@signal-app/core"
 import CloseIcon from "mdi-react/CloseIcon"
+import { FC, useCallback, useEffect, useRef, useState } from "react"
 import { useLoadAISong } from "../../actions/aiGeneration"
+import { getInstrumentProgramNumber } from "../../agent/instrumentMapping"
 import { useAIChat } from "../../hooks/useAIChat"
-import { useRouter } from "../../hooks/useRouter"
-import { useStores } from "../../hooks/useStores"
-import { useSong } from "../../hooks/useSong"
 import { useConductorTrack } from "../../hooks/useConductorTrack"
+import { useRouter } from "../../hooks/useRouter"
+import { useSong } from "../../hooks/useSong"
+import { useStores } from "../../hooks/useStores"
 import { aiBackend, GenerationStage } from "../../services/aiBackend"
 import type { ProgressEvent } from "../../services/aiBackend/types"
 import { runAgentLoop, type ToolCall } from "../../services/hybridAgent"
-import type { ToolResult } from "../../services/hybridAgent/toolExecutor"
+import { executeToolCalls, type ToolResult } from "../../services/hybridAgent/toolExecutor"
 import { processVoiceToMidi } from "../../services/voiceToMidi"
 import { Tooltip } from "../ui/Tooltip"
 import { VoiceRecorder, type DetectedNote } from "./VoiceRecorder"
-import { emptyTrack } from "@signal-app/core"
-import { getInstrumentProgramNumber } from "../../agent/instrumentMapping"
 
 const Container = styled.div<{ standalone?: boolean }>`
   display: flex;
@@ -691,7 +691,7 @@ function getStageProgress(stage: GenerationStage): number {
 
 const AGENT_TYPE_STORAGE_KEY = "ai_chat_agent_type"
 
-type AgentType = "llm" | "composition_agent" | "hybrid" | "hybrid_legacy"
+type AgentType = "llm" | "composition_agent" | "hybrid" | "hybrid_legacy" | "deep_agent_2"
 
 const KEY_NAMES = [
   "C",
@@ -741,6 +741,7 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
     return stored === "llm" ||
       stored === "composition_agent" ||
       stored === "hybrid" ||
+      stored === "deep_agent_2" ||
       stored === "hybrid_legacy"
       ? (stored as AgentType)
       : "hybrid" // Default to hybrid agent
@@ -1060,6 +1061,85 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
             }
             return updated
           })
+          streamingMessageIndexRef.current = -1
+          setIsLoading(false)
+          abortControllerRef.current = null
+        }
+      } else if (agentType === "deep_agent_2") {
+        // Deep Agent 2.0 mode: Call orchestrator and execute tool calls
+        const abortController = new AbortController()
+        abortControllerRef.current = abortController
+
+        try {
+          // Navigate to arrange view when generation starts
+          if (!hasNavigatedRef.current) {
+            setPath("/arrange")
+            hasNavigatedRef.current = true
+          }
+
+          const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
+          const response = await fetch(`${API_BASE}/api/generate/deep-agent-2`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              prompt: userMessage,
+            }),
+            signal: abortController.signal,
+          })
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}))
+            throw new Error(errorData.detail || `HTTP ${response.status}`)
+          }
+
+          const result = await response.json()
+          const toolCalls: ToolCall[] = result.tool_calls || []
+
+          if (toolCalls.length === 0) {
+            throw new Error("No tool calls returned from Deep Agent 2.0")
+          }
+
+          // Execute tool calls
+          const toolResults = executeToolCalls(songStore.song, toolCalls)
+
+          // Update message to show tools executed
+          const index = streamingMessageIndexRef.current
+          setMessages((prev) => {
+            const updated = [...prev]
+            if (index >= 0 && index < updated.length) {
+              const toolNames = toolCalls.map((tc) => tc.name).join(", ")
+              const successCount = toolResults.filter((r) => {
+                try {
+                  const parsed = JSON.parse(r.result)
+                  return !parsed.error
+                } catch {
+                  return true
+                }
+              }).length
+              updated[index] = {
+                ...updated[index],
+                content: result.message || `🔧 Executed: ${toolNames} (${successCount}/${toolResults.length} succeeded)`,
+              }
+            }
+            return updated
+          })
+        } catch (err) {
+          const errorMessage =
+            err instanceof Error ? err.message : "Generation failed"
+          console.error("[AIChat] Deep Agent 2.0 error:", err)
+
+          const index = streamingMessageIndexRef.current
+          setMessages((prev) => {
+            const updated = [...prev]
+            if (index >= 0 && index < updated.length) {
+              updated[index] = {
+                role: "error",
+                content: errorMessage,
+              }
+            }
+            return updated
+          })
+        } finally {
           streamingMessageIndexRef.current = -1
           setIsLoading(false)
           abortControllerRef.current = null
@@ -1404,9 +1484,8 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
             onChange={handleAgentTypeChange}
             disabled={isLoading}
           >
-            <option value="hybrid">Hybrid Agent</option>
             <option value="hybrid_legacy">Hybrid (Legacy)</option>
-            <option value="composition_agent">Deep Agent</option>
+            <option value="deep_agent_2">Deep Agent 2.0</option>
             <option value="llm">LLM Direct</option>
           </Select>
           </Tooltip>
