@@ -8,6 +8,7 @@ import {
   executeToolCalls,
   type ToolCall,
   type ToolResult,
+  type ToolExecutorCallbacks,
 } from "./toolExecutor"
 import {
   serializeSongState,
@@ -27,6 +28,7 @@ interface AgentLoopCallbacks {
   onToolsExecuted?: (toolCalls: ToolCall[], results: ToolResult[]) => void
   onMessage?: (message: string) => void
   onError?: (error: Error) => void
+  toolExecutorCallbacks?: ToolExecutorCallbacks
 }
 
 export interface AgentLoopResult {
@@ -99,7 +101,11 @@ export async function runAgentLoop(
         `[HybridAgent] Executing ${result.tool_calls.length} tool calls`,
       )
       // Execute tools on the frontend
-      const toolResults = executeToolCalls(song, result.tool_calls)
+      const toolResults = executeToolCalls(
+        song,
+        result.tool_calls,
+        callbacks?.toolExecutorCallbacks,
+      )
       console.log(`[HybridAgent] Tool results:`, toolResults)
       callbacks?.onToolsExecuted?.(result.tool_calls, toolResults)
 

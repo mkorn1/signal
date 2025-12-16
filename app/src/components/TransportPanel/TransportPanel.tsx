@@ -14,6 +14,7 @@ import { Localized } from "../../localize/useLocalization"
 import { CircularProgress } from "../ui/CircularProgress"
 import { Tooltip } from "../ui/Tooltip"
 import { CircleButton } from "./CircleButton"
+import { KeyDisplay } from "./KeyDisplay"
 import { PlayButton } from "./PlayButton"
 import { TempoForm } from "./TempoForm"
 
@@ -162,6 +163,12 @@ export const TransportPanel: FC = () => {
       <Tooltip title="Beats per minute" side="top">
         <div>
           <TempoForm />
+        </div>
+      </Tooltip>
+
+      <Tooltip title="Key signature" side="top">
+        <div>
+          <KeyDisplay />
         </div>
       </Tooltip>
 

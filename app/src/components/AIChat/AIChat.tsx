@@ -12,6 +12,12 @@ import { aiBackend, GenerationStage } from "../../services/aiBackend"
 import type { ProgressEvent } from "../../services/aiBackend/types"
 import { runAgentLoop, type ToolCall } from "../../services/hybridAgent"
 import type { ToolResult } from "../../services/hybridAgent/toolExecutor"
+import { useSetAtom } from "jotai"
+import {
+  agentKeySignatureAtom,
+  agentBpmUpdatedAtom,
+  agentKeyUpdatedAtom,
+} from "../../stores/AgentMusicState"
 import { processVoiceToMidi } from "../../services/voiceToMidi"
 import { Tooltip } from "../ui/Tooltip"
 import { VoiceRecorder, type DetectedNote } from "./VoiceRecorder"
@@ -755,6 +761,11 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
   const { setPath } = useRouter()
   const { setOpen: setAIChatOpen } = useAIChat()
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  
+  // Jotai setters for agent UI state
+  const setAgentKeySignature = useSetAtom(agentKeySignatureAtom)
+  const setAgentBpmUpdated = useSetAtom(agentBpmUpdatedAtom)
+  const setAgentKeyUpdated = useSetAtom(agentKeyUpdatedAtom)
   const abortControllerRef = useRef<AbortController | null>(null)
   // Use a ref to track the streaming message index - this allows callbacks to
   // access the current value at execution time rather than definition time
@@ -848,6 +859,16 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
             abortSignal: abortController.signal,
             useSubagents: agentType === "hybrid", // false for hybrid_legacy
             callbacks: {
+              // Callbacks for agent UI state updates (tempo/key animations)
+              toolExecutorCallbacks: {
+                onTempoChange: () => {
+                  setAgentBpmUpdated(Date.now())
+                },
+                onKeySignatureChange: (key) => {
+                  setAgentKeySignature(key)
+                  setAgentKeyUpdated(Date.now())
+                },
+              },
               onToolsExecuted: (
                 toolCalls: ToolCall[],
                 results: ToolResult[],
@@ -1163,6 +1184,9 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
       setCurrentAttempt,
       setPath,
       setAIChatOpen,
+      setAgentKeySignature,
+      setAgentBpmUpdated,
+      setAgentKeyUpdated,
     ],
   )
 

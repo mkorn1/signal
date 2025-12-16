@@ -48,6 +48,7 @@ Creation Tools:
 - generateComposition: Generate complete compositions with structure and harmony (NEW in Phase 2)
 - setTempo: Set the tempo in BPM
 - setTimeSignature: Set the time signature
+- setKeySignature: Set the musical key (e.g., "C", "Am", "F#", "Bbm")
 
 Note Editing Tools:
 - deleteNotes: Remove notes by their IDs
@@ -158,6 +159,7 @@ Creation Tools:
 - addNotes: Add notes to an existing track
 - setTempo: Set the tempo in BPM
 - setTimeSignature: Set the time signature
+- setKeySignature: Set the musical key (e.g., "C", "Am", "F#", "Bbm")
 
 Note Editing Tools:
 - deleteNotes: Remove notes by their IDs
@@ -178,6 +180,7 @@ Advanced Controller Tools:
 - setPitchBend: Set pitch bend (0-16383, center=8192)
 
 IMPORTANT: When calling tools, you must use the exact parameter names and formats specified.
+Always call setKeySignature at the start of a composition to establish the musical key.
 
 SONG STATE CONTEXT:
 You will receive the current song state before each request. This tells you:
@@ -316,6 +319,20 @@ def setTimeSignature(numerator: int, denominator: int, tick: int = 0) -> str:
 
     Returns:
         JSON with numerator, denominator, and tick
+    """
+    return '{"status": "pending_frontend_execution"}'
+
+
+@tool
+def setKeySignature(key: str) -> str:
+    """Sets the key signature for the song. This helps with visual display and scale highlighting.
+
+    Args:
+        key: Key string like "C" for C major, "Am" for A minor, "F#" for F# major, "Bbm" for Bb minor.
+             Always set this at the beginning of composition to establish the musical key.
+
+    Returns:
+        JSON with key, keyNumber, and scale
     """
     return '{"status": "pending_frontend_execution"}'
 
@@ -619,6 +636,7 @@ TOOLS = [
     addNotes,
     setTempo,
     setTimeSignature,
+    setKeySignature,
     # Note editing tools
     deleteNotes,
     updateNotes,
@@ -646,6 +664,7 @@ LEGACY_TOOLS = [
     addNotes,
     setTempo,
     setTimeSignature,
+    setKeySignature,
     # Note editing tools
     deleteNotes,
     updateNotes,

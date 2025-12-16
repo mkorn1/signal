@@ -14,13 +14,57 @@ import {
   getInstrumentProgramNumber,
   getInstrumentName,
 } from "./instrumentMapping"
+import type { AgentKeySignature } from "../stores/AgentMusicState"
+
+export interface AgentCallbacks {
+  onTempoChange?: (bpm: number) => void
+  onKeySignatureChange?: (key: AgentKeySignature) => void
+}
 
 export interface ToolContext {
   song: Song
+  callbacks?: AgentCallbacks
 }
 
 const DRUM_CHANNEL = 9
 const MAX_MIDI_CHANNELS = 16
+
+// Key name to MIDI note number (0-11) mapping
+const KEY_NAME_TO_NUMBER: Record<string, number> = {
+  C: 0, "B#": 0,
+  "C#": 1, Db: 1,
+  D: 2,
+  "D#": 3, Eb: 3,
+  E: 4, Fb: 4,
+  F: 5, "E#": 5,
+  "F#": 6, Gb: 6,
+  G: 7,
+  "G#": 8, Ab: 8,
+  A: 9,
+  "A#": 10, Bb: 10,
+  B: 11, Cb: 11,
+}
+
+/**
+ * Parse a key string like "C", "Am", "F#m", "Bb" into a key signature object.
+ */
+function parseKeyString(keyStr: string): AgentKeySignature | null {
+  const isMinor = keyStr.endsWith("m")
+  const keyName = isMinor ? keyStr.slice(0, -1) : keyStr
+  
+  // Normalize: capitalize first letter, rest lowercase
+  const normalized = keyName.charAt(0).toUpperCase() + keyName.slice(1).toLowerCase()
+  
+  const keyNumber = KEY_NAME_TO_NUMBER[normalized]
+  if (keyNumber === undefined) {
+    return null
+  }
+  
+  return {
+    key: keyNumber,
+    scale: isMinor ? "minor" : "major",
+  }
+}
 
 /**
  * Finds an available MIDI channel for a new track.
@@ -118,11 +162,20 @@ export const setTimeSignatureSchema = z.object({
     ),
 })
 
+export const setKeySignatureSchema = z.object({
+  key: z
+    .string()
+    .describe(
+      'The key of the song. Use format like "C", "Am", "F#", "Bbm". Major keys without suffix, minor keys with "m".',
+    ),
+})
+
 // Type aliases for the schemas
 type CreateTrackInput = z.infer<typeof createTrackSchema>
 type AddNotesInput = z.infer<typeof addNotesSchema>
 type SetTempoInput = z.infer<typeof setTempoSchema>
 type SetTimeSignatureInput = z.infer<typeof setTimeSignatureSchema>
+type SetKeySignatureInput = z.infer<typeof setKeySignatureSchema>
 
 // Tool definition interface (compatible with LangChain but avoids deep type recursion)
 export interface ToolDefinition<T> {
@@ -238,6 +291,9 @@ Use tick=0 to set the initial tempo. Use other tick values for tempo changes mid
 
       conductor.setTempo(bpm, tick ?? 0)
 
+      // Notify UI of agent-triggered tempo change
+      context.callbacks?.onTempoChange?.(bpm)
+
       return JSON.stringify({
         bpm,
         tick: tick ?? 0,
@@ -279,7 +335,35 @@ The numerator is beats per measure, denominator is the note value (4=quarter, 8=
     },
   }
 
-  return [createTrack, addNotes, setTempo, setTimeSignature]
+  const setKeySignature: ToolDefinition<SetKeySignatureInput> = {
+    name: "setKeySignature",
+    description: `Sets the key signature for the song. This helps with visual display and scale highlighting.
+Use formats like "C" for C major, "Am" for A minor, "F#" for F# major, "Bbm" for Bb minor.
+This is a display/metadata setting and does not affect MIDI output directly.`,
+    schema: setKeySignatureSchema,
+    func: async ({ key }) => {
+      const parsed = parseKeyString(key)
+      if (!parsed) {
+        return JSON.stringify({
+          error: `Invalid key: "${key}". Use format like "C", "Am", "F#", "Bbm".`,
+        })
+      }
+
+      // Notify UI of agent-triggered key signature change
+      context.callbacks?.onKeySignatureChange?.(parsed)
+
+      const keyNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+      const displayKey = keyNames[parsed.key] + (parsed.scale === "minor" ? "m" : "")
+
+      return JSON.stringify({
+        key: displayKey,
+        keyNumber: parsed.key,
+        scale: parsed.scale,
+      })
+    },
+  }
+
+  return [createTrack, addNotes, setTempo, setTimeSignature, setKeySignature]
 }
 
 /**

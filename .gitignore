@@ -64,4 +64,4 @@ ENV/
 package-lock.json
 
 
-backend/soundfonts/*.sf2
+backend/soundfonts/

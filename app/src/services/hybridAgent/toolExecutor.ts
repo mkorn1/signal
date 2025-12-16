@@ -14,6 +14,7 @@ import {
 } from "@signal-app/core"
 import { getControllerNumber } from "../../agent/controllerMapping"
 import { getInstrumentProgramNumber } from "../../agent/instrumentMapping"
+import type { AgentKeySignature } from "../../stores/AgentMusicState"
 
 export interface ToolCall {
   id: string
@@ -24,6 +25,48 @@ export interface ToolCall {
 export interface ToolResult {
   id: string
   result: string // JSON string
+}
+
+export interface ToolExecutorCallbacks {
+  onTempoChange?: (bpm: number) => void
+  onKeySignatureChange?: (key: AgentKeySignature) => void
+}
+
+// Key name to MIDI note number (0-11) mapping
+const KEY_NAME_TO_NUMBER: Record<string, number> = {
+  C: 0, "B#": 0,
+  "C#": 1, Db: 1,
+  D: 2,
+  "D#": 3, Eb: 3,
+  E: 4, Fb: 4,
+  F: 5, "E#": 5,
+  "F#": 6, Gb: 6,
+  G: 7,
+  "G#": 8, Ab: 8,
+  A: 9,
+  "A#": 10, Bb: 10,
+  B: 11, Cb: 11,
+}
+
+/**
+ * Parse a key string like "C", "Am", "F#m", "Bb" into a key signature object.
+ */
+function parseKeyString(keyStr: string): AgentKeySignature | null {
+  const isMinor = keyStr.endsWith("m")
+  const keyName = isMinor ? keyStr.slice(0, -1) : keyStr
+  
+  // Normalize: capitalize first letter, rest lowercase
+  const normalized = keyName.charAt(0).toUpperCase() + keyName.slice(1).toLowerCase()
+  
+  const keyNumber = KEY_NAME_TO_NUMBER[normalized]
+  if (keyNumber === undefined) {
+    return null
+  }
+  
+  return {
+    key: keyNumber,
+    scale: isMinor ? "minor" : "major",
+  }
 }
 
 const DRUM_CHANNEL = 9
@@ -54,7 +97,11 @@ function getAvailableChannel(song: Song, isDrums: boolean): number {
 /**
  * Execute a single tool call against the song store.
  */
-function executeToolCall(song: Song, toolCall: ToolCall): string {
+function executeToolCall(
+  song: Song,
+  toolCall: ToolCall,
+  callbacks?: ToolExecutorCallbacks,
+): string {
   const { name, args } = toolCall
   console.log(`[HybridAgent] Executing tool: ${name}`, args)
 
@@ -199,7 +246,33 @@ function executeToolCall(song: Song, toolCall: ToolCall): string {
 
       conductor.setTempo(bpm, tick)
 
+      // Notify UI of agent-triggered tempo change
+      callbacks?.onTempoChange?.(bpm)
+
       return JSON.stringify({ bpm, tick })
+    }
+
+    case "setKeySignature": {
+      const keyStr = args.key as string
+
+      const parsed = parseKeyString(keyStr)
+      if (!parsed) {
+        return JSON.stringify({
+          error: `Invalid key: "${keyStr}". Use format like "C", "Am", "F#", "Bbm".`,
+        })
+      }
+
+      // Notify UI of agent-triggered key signature change
+      callbacks?.onKeySignatureChange?.(parsed)
+
+      const keyNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+      const displayKey = keyNames[parsed.key] + (parsed.scale === "minor" ? "m" : "")
+
+      return JSON.stringify({
+        key: displayKey,
+        keyNumber: parsed.key,
+        scale: parsed.scale,
+      })
     }
 
     case "setTimeSignature": {
@@ -610,9 +683,10 @@ function executeToolCall(song: Song, toolCall: ToolCall): string {
 export function executeToolCalls(
   song: Song,
   toolCalls: ToolCall[],
+  callbacks?: ToolExecutorCallbacks,
 ): ToolResult[] {
   return toolCalls.map((tc) => ({
     id: tc.id,
-    result: executeToolCall(song, tc),
+    result: executeToolCall(song, tc, callbacks),
   }))
 }

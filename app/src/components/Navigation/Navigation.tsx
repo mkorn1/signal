@@ -1,6 +1,5 @@
 import styled from "@emotion/styled"
 import CodeTags from "mdi-react/CodeTagsIcon"
-import Help from "mdi-react/HelpCircleIcon"
 import Headphones from "mdi-react/HeadphonesIcon"
 import Robot from "mdi-react/RobotIcon"
 import Settings from "mdi-react/SettingsIcon"
@@ -157,7 +156,7 @@ export const IconStyle: CSSProperties = {
 }
 
 export const Navigation: FC = () => {
-  const { setOpenSettingDialog, setOpenHelpDialog } = useRootView()
+  const { setOpenSettingDialog } = useRootView()
   const { path, setPath } = useRouter()
   const { isOpen: isAIChatOpen, toggle: toggleAIChat } = useAIChat()
   const { toggle: toggleEditorMode, isAdvanced } = useEditorMode()
@@ -185,14 +184,6 @@ export const Navigation: FC = () => {
       setOpenSettingDialog(true)
     },
     [setOpenSettingDialog],
-  )
-
-  const onClickHelp = useCallback(
-    (e: MouseEvent) => {
-      e.preventDefault()
-      setOpenHelpDialog(true)
-    },
-    [setOpenHelpDialog],
   )
 
   const onClickAI = useCallback(
@@ -287,25 +278,14 @@ export const Navigation: FC = () => {
       </Tooltip>
 
       {!isRunningInElectron() && (
-        <>
-          <Tooltip title="App preferences and audio settings" delayDuration={500}>
-            <Tab onClick={onClickSettings}>
-              <Settings style={IconStyle} />
-              <TabTitle>
-                <Localized name="settings" />
-              </TabTitle>
-            </Tab>
-          </Tooltip>
-
-          <Tooltip title="Keyboard shortcuts and documentation" delayDuration={500}>
-            <Tab onClick={onClickHelp}>
-              <Help style={IconStyle} />
-              <TabTitle>
-                <Localized name="help" />
-              </TabTitle>
-            </Tab>
-          </Tooltip>
-        </>
+        <Tooltip title="App preferences and audio settings" delayDuration={500}>
+          <Tab onClick={onClickSettings}>
+            <Settings style={IconStyle} />
+            <TabTitle>
+              <Localized name="settings" />
+            </TabTitle>
+          </Tab>
+        </Tooltip>
       )}
     </Container>
   )
