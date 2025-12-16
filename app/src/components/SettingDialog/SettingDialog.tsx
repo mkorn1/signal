@@ -30,6 +30,9 @@ const RouteContent: FC<{ route: SettingRoute }> = ({ route }) => {
 const Content = styled.div`
   flex-grow: 1;
   min-height: 24rem;
+  max-height: 24rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 `
 
 export const SettingDialog: FC = () => {

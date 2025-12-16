@@ -23,12 +23,16 @@ const Parent = styled.div`
   flex-grow: 1;
   background: var(--color-background);
   position: relative;
+  overflow: hidden;
+  overscroll-behavior: contain;
 `
 
 const Alpha = styled.div`
   flex-grow: 1;
   position: relative;
   outline: none;
+  overflow: hidden;
+  overscroll-behavior: contain;
 `
 
 const Beta = styled.div`
@@ -91,6 +95,9 @@ const PianoRollWrapper: FC = () => {
 
   const onWheel = useCallback(
     (e: React.WheelEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      
       if (e.shiftKey && (e.altKey || e.ctrlKey)) {
         // vertical zoom
         let scaleYDelta = isTouchPadEvent(e.nativeEvent)

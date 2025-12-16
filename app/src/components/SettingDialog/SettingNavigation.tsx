@@ -22,6 +22,10 @@ const Container = styled.div`
   flex-direction: column;
   min-width: 12em;
   margin-right: 2rem;
+  flex-shrink: 0;
+  align-self: flex-start;
+  position: sticky;
+  top: 0;
 `
 
 const RouteName: FC<{ route: SettingRoute }> = ({ route }) => {

@@ -105,9 +105,9 @@ export const NavButton = styled.button<{ isActive?: boolean; isLoading?: boolean
   justify-content: center;
   align-self: center;
   gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
+  padding: 0.25rem 0.625rem;
   border: 1px solid ${({ isActive }) => isActive ? "var(--color-theme)" : "rgba(255, 255, 255, 0.1)"};
-  border-radius: 0.375rem;
+  border-radius: 0.25rem;
   background: ${({ isActive }) => isActive ? "var(--color-theme)" : "rgba(255, 255, 255, 0.04)"};
   color: ${({ isActive, isLoading }) => 
     isActive ? "var(--color-on-surface)" : 
@@ -134,8 +134,8 @@ export const NavButton = styled.button<{ isActive?: boolean; isLoading?: boolean
   }
 
   svg {
-    width: 0.875rem;
-    height: 0.875rem;
+    width: 0.75rem;
+    height: 0.75rem;
     fill: currentColor;
   }
   
@@ -143,7 +143,7 @@ export const NavButton = styled.button<{ isActive?: boolean; isLoading?: boolean
     span {
       display: none;
     }
-    padding: 0.375rem 0.5rem;
+    padding: 0.25rem 0.375rem;
   }
 `
 

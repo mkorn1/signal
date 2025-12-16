@@ -4,8 +4,8 @@ import { useConductorTrack } from "../../hooks/useConductorTrack"
 import { DEFAULT_TEMPO } from "@signal-app/player"
 
 const MicButton = styled.button<{ isRecording: boolean }>`
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 1px solid ${({ isRecording, theme }) =>
     isRecording ? theme.redColor || "#f44336" : "rgba(255, 255, 255, 0.1)"};
@@ -17,7 +17,7 @@ const MicButton = styled.button<{ isRecording: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.8rem;
   transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
 
@@ -146,13 +146,13 @@ const RecordingTimer = styled.div`
 `
 
 const MicrophoneSelect = styled.select`
-  font-size: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
+  font-size: 0.65rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.375rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
   color: ${({ theme }) => theme.textColor};
-  max-width: 200px;
+  max-width: 180px;
   cursor: pointer;
   transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
   font-family: inherit;
