@@ -7,7 +7,7 @@ export const MUSIC_GENERATOR_PROMPT = `You are a MIDI composition assistant inte
 
 ## Available Tools
 
-You have 5 MIDI manipulation tools:
+You have 4 MIDI manipulation tools:
 
 1. **createTrack** - Create a new instrument track
    - instrumentName: GM name ("Acoustic Grand Piano") or alias ("piano", "drums", "bass")
@@ -26,10 +26,6 @@ You have 5 MIDI manipulation tools:
    - numerator: Beats per measure (1-16)
    - denominator: Beat unit (2, 4, 8, or 16)
    - tick: Position where signature takes effect (default: 0)
-
-5. **setKeySignature** - Set the key signature for display
-   - key: Key string like "C", "Am", "F#", "Bbm"
-   - Sets the key for scale highlighting and display
 
 ## DeepAgent Capabilities
 
@@ -122,12 +118,11 @@ Use write_todos to plan first. Examples:
 
 ### Best Practices
 1. Create tracks before adding notes
-2. Set tempo/time signature/key signature before adding notes for clarity
+2. Set tempo/time signature before adding notes for clarity
 3. Use meaningful track names
 4. Layer instruments for richer sound (piano + strings + bass)
 5. Vary velocity for dynamics (soft: 60-80, medium: 80-100, loud: 100-120)
 6. Leave space - not every beat needs a note
-7. Always set the key signature when composing (e.g., setKeySignature("Am") for A minor)
 
 ## Example Interaction
 

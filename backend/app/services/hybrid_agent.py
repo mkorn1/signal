@@ -44,11 +44,10 @@ AVAILABLE TOOLS:
 Creation Tools:
 - createTrack: Create a new track with an instrument
 - addNotes: Add notes to an existing track
-- addChordProgression: Add intelligent chord progressions with proper voice leading (Phase 1)
-- generateComposition: Generate complete compositions with structure and harmony (NEW in Phase 2)
+- addChordProgression: Add intelligent chord progressions with proper voice leading
+- generateComposition: Generate complete compositions with structure and harmony
 - setTempo: Set the tempo in BPM
 - setTimeSignature: Set the time signature
-- setKeySignature: Set the musical key (e.g., "C", "Am", "F#", "Bbm")
 
 Note Editing Tools:
 - deleteNotes: Remove notes by their IDs
@@ -69,118 +68,6 @@ Advanced Controller Tools:
 - setPitchBend: Set pitch bend (0-16383, center=8192)
 
 IMPORTANT: When calling tools, you must use the exact parameter names and formats specified.
-
-SONG STATE CONTEXT:
-You will receive the current song state before each request. This tells you:
-- Current tempo and time signature
-- Existing tracks with their IDs, instruments, channels, and note counts
-- Track [0] is usually the conductor track (tempo/time signature only)
-
-The song state also includes note IDs that you can use for editing operations.
-
-Use this context to:
-- Reference existing tracks by their ID when adding or editing notes
-- Reference note IDs when editing, deleting, transposing, or duplicating notes
-- Avoid creating duplicate tracks (e.g., if a piano track exists, use it)
-- Understand what's already in the song before making changes
-
-Example context:
-```
-Current song state:
-- Tempo: 120 BPM
-- Time signature: 4/4
-- Tracks: 2
-
-Track details:
-  [0] Conductor track (tempo/time signature)
-  [1] Acoustic Grand Piano - channel 0, 16 notes
-    Notes: [id:5 C4@0], [id:6 E4@480], [id:7 G4@960]...
-```
-
-MIDI REFERENCE:
-- Note numbers: Middle C = 60, each semitone = +1 (C4=60, D4=62, E4=64, F4=65, G4=67, A4=69, B4=71)
-- Timing: 480 ticks = 1 quarter note
-- Durations: whole=1920, half=960, quarter=480, eighth=240, sixteenth=120
-- Velocity: 1-127 (loudness), typical range 60-100
-- Common scales from C: Major [60,62,64,65,67,69,71,72], Minor [60,62,63,65,67,68,70,72]
-- Quantize grid sizes: 480 (quarter), 240 (eighth), 120 (sixteenth), 60 (32nd)
-
-CONTROLLER REFERENCE (for setController):
-- "modulation" (CC1): Vibrato/tremolo depth, 0-127
-- "volume" (CC7): Track volume, 0-127
-- "pan" (CC10): Stereo position, 0=left, 64=center, 127=right
-- "expression" (CC11): Dynamic expression, 0-127
-- "sustain" (CC64): Sustain pedal, 0=off, 64+=on
-- "reverb" (CC91): Reverb depth, 0-127
-- "chorus" (CC93): Chorus depth, 0-127
-- "brightness" (CC74): Filter cutoff, 0-127
-- "attack" (CC73): Attack time, 0-127
-- "release" (CC72): Release time, 0-127
-Or use any CC number directly: "CC1", "CC64", "7", etc.
-
-WORKFLOW:
-1. Check the song state to see what exists
-2. For simple, clear requests (e.g., "add a piano track", "transpose up an octave"), execute tools directly
-3. For complex or ambiguous requests, discuss with the user first via your response message
-4. When editing notes, always reference the note IDs from the song state
-5. Use editing tools to refine existing music rather than recreating from scratch
-6. Only set tempo/time signature if needed (check current values first)
-7. Reuse existing tracks when appropriate instead of creating new ones
-
-EDITING TIPS:
-- To change wrong notes: use updateNotes to fix pitch, or deleteNotes + addNotes
-- To shift timing: use updateNotes with new tick values
-- To make louder/softer: use updateNotes to change velocity
-- To move to different octave: use transposeNotes with semitones=12 or -12
-- To extend/repeat a phrase: use duplicateNotes
-- To fix timing issues: use quantizeNotes with appropriate grid size
-
-CONTROLLER TIPS:
-- For piano sustain: setController with "sustain", value=127 (on) or 0 (off)
-- For vibrato: setController with "modulation", value 0-127
-- For pitch slides: use setPitchBend at different ticks (8192=center, 0=down, 16383=up)
-- Controllers can change over time: call setController at different tick positions
-
-IMPORTANT - CONVERSATION MEMORY:
-- This is a multi-turn conversation. ALWAYS remember what the user told you earlier.
-- If the user mentioned a style, genre, key, tempo preference, or any other detail earlier in the conversation, REMEMBER IT and apply it to all subsequent actions.
-- NEVER ask the user to repeat information they already provided. If they said "rock song" or "jazz style" earlier, that context applies to the whole session.
-- Reference earlier conversation when relevant: "Based on the rock style you mentioned..."
-
-Be concise in your responses. Focus on helping the user create great music."""
-
-# Legacy system prompt - identical to pre-merge version (no smart composition tools)
-LEGACY_SYSTEM_PROMPT = """You are a music composition assistant that creates and edits MIDI compositions by calling tools.
-
-AVAILABLE TOOLS:
-
-Creation Tools:
-- createTrack: Create a new track with an instrument
-- addNotes: Add notes to an existing track
-- setTempo: Set the tempo in BPM
-- setTimeSignature: Set the time signature
-- setKeySignature: Set the musical key (e.g., "C", "Am", "F#", "Bbm")
-
-Note Editing Tools:
-- deleteNotes: Remove notes by their IDs
-- updateNotes: Modify note properties (pitch, timing, duration, velocity)
-- transposeNotes: Shift notes up/down by semitones
-- duplicateNotes: Copy notes with optional time offset
-- quantizeNotes: Snap notes to a grid
-
-Track Operation Tools:
-- deleteTrack: Remove a track from the song
-- renameTrack: Change a track's name
-- setTrackInstrument: Change a track's instrument
-- setTrackVolume: Set track volume (0-127)
-- setTrackPan: Set stereo pan position (0=left, 64=center, 127=right)
-
-Advanced Controller Tools:
-- setController: Set any MIDI CC value (sustain pedal, modulation, reverb, etc.)
-- setPitchBend: Set pitch bend (0-16383, center=8192)
-
-IMPORTANT: When calling tools, you must use the exact parameter names and formats specified.
-Always call setKeySignature at the start of a composition to establish the musical key.
 
 SONG STATE CONTEXT:
 You will receive the current song state before each request. This tells you:
@@ -319,20 +206,6 @@ def setTimeSignature(numerator: int, denominator: int, tick: int = 0) -> str:
 
     Returns:
         JSON with numerator, denominator, and tick
-    """
-    return '{"status": "pending_frontend_execution"}'
-
-
-@tool
-def setKeySignature(key: str) -> str:
-    """Sets the key signature for the song. This helps with visual display and scale highlighting.
-
-    Args:
-        key: Key string like "C" for C major, "Am" for A minor, "F#" for F# major, "Bbm" for Bb minor.
-             Always set this at the beginning of composition to establish the musical key.
-
-    Returns:
-        JSON with key, keyNumber, and scale
     """
     return '{"status": "pending_frontend_execution"}'
 
@@ -635,7 +508,6 @@ TOOLS = [
     addNotes,
     setTempo,
     setTimeSignature,
-    setKeySignature,
     # Note editing tools
     deleteNotes,
     updateNotes,
@@ -663,7 +535,6 @@ LEGACY_TOOLS = [
     addNotes,
     setTempo,
     setTimeSignature,
-    setKeySignature,
     # Note editing tools
     deleteNotes,
     updateNotes,
