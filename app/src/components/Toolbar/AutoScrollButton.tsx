@@ -1,12 +1,12 @@
 import styled from "@emotion/styled"
-import KeyboardTab from "mdi-react/KeyboardTabIcon"
+import CrosshairsGps from "mdi-react/CrosshairsGpsIcon"
 import { FC, useCallback } from "react"
 import { useTickScroll } from "../../hooks/useTickScroll"
 import { Localized } from "../../localize/useLocalization"
 import { Tooltip } from "../ui/Tooltip"
 import { ToolbarButton } from "./ToolbarButton"
 
-const AutoScrollIcon = styled(KeyboardTab)`
+const AutoScrollIcon = styled(CrosshairsGps)`
   width: 1.2rem;
   fill: currentColor;
 `

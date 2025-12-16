@@ -1,28 +1,27 @@
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
+import { emptyTrack } from "@signal-app/core"
+import { useSetAtom } from "jotai"
 import { FC, useCallback, useEffect, useRef, useState } from "react"
-import CloseIcon from "mdi-react/CloseIcon"
 import { useLoadAISong } from "../../actions/aiGeneration"
+import { getInstrumentProgramNumber } from "../../agent/instrumentMapping"
 import { useAIChat } from "../../hooks/useAIChat"
-import { useRouter } from "../../hooks/useRouter"
-import { useStores } from "../../hooks/useStores"
-import { useSong } from "../../hooks/useSong"
 import { useConductorTrack } from "../../hooks/useConductorTrack"
+import { useRouter } from "../../hooks/useRouter"
+import { useSong } from "../../hooks/useSong"
+import { useStores } from "../../hooks/useStores"
 import { aiBackend, GenerationStage } from "../../services/aiBackend"
 import type { ProgressEvent } from "../../services/aiBackend/types"
 import { runAgentLoop, type ToolCall } from "../../services/hybridAgent"
 import type { ToolResult } from "../../services/hybridAgent/toolExecutor"
-import { useSetAtom } from "jotai"
+import { processVoiceToMidi } from "../../services/voiceToMidi"
 import {
-  agentKeySignatureAtom,
   agentBpmUpdatedAtom,
+  agentKeySignatureAtom,
   agentKeyUpdatedAtom,
 } from "../../stores/AgentMusicState"
-import { processVoiceToMidi } from "../../services/voiceToMidi"
 import { Tooltip } from "../ui/Tooltip"
 import { VoiceRecorder, type DetectedNote } from "./VoiceRecorder"
-import { emptyTrack } from "@signal-app/core"
-import { getInstrumentProgramNumber } from "../../agent/instrumentMapping"
 
 const Container = styled.div<{ standalone?: boolean }>`
   display: flex;
@@ -117,43 +116,6 @@ const Select = styled.select`
   }
 `
 
-const HeaderRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-`
-
-const CloseButton = styled.button`
-  padding: 0.375rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.04);
-  color: ${({ theme }) => theme.secondaryTextColor};
-  cursor: pointer;
-  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: ${({ theme }) => theme.textColor};
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0) scale(0.98);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`
-
 const MessageList = styled.div`
   flex: 1;
   overflow-y: auto;
@@ -186,7 +148,7 @@ const Message = styled.div<{ role: "user" | "assistant" | "error" }>`
       ? theme.onSurfaceColor
       : role === "error"
         ? "#ff453a"
-      : theme.textColor};
+        : theme.textColor};
   font-size: 0.8125rem;
   line-height: 1.5;
   letter-spacing: -0.01em;
@@ -231,13 +193,11 @@ const InputContainer = styled.div`
   box-sizing: border-box;
 `
 
-const InputRow = styled.div`
+const MicRow = styled.div`
   display: flex;
   gap: 0.5rem;
-  align-items: flex-start;
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
 `
 
 const Input = styled.textarea`
@@ -273,8 +233,7 @@ const Input = styled.textarea`
 
 const Button = styled.button`
   width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.875rem;
+  padding: 0.875rem 1.25rem;
   border: none;
   border-radius: 0.75rem;
   background: ${({ theme }) => theme.themeColor};
@@ -284,11 +243,9 @@ const Button = styled.button`
   font-size: 0.875rem;
   letter-spacing: -0.01em;
   transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
 
   &:hover:not(:disabled) {
     filter: brightness(1.1);
-    box-shadow: 0 0 24px rgba(0, 212, 170, 0.5);
     transform: translateY(-1px);
   }
 
@@ -299,27 +256,28 @@ const Button = styled.button`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    box-shadow: none;
   }
 `
 
 const InterruptButton = styled.button`
   width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.75rem;
-  border: 1px solid #4a4a4a;
-  border-radius: 0.5rem;
-  background: #3a3a3a;
-  color: #e0e0e0;
+  padding: 0.875rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: ${({ theme }) => theme.textColor};
   font-weight: 600;
   cursor: pointer;
   font-size: 0.875rem;
-  transition: all 150ms ease;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background: #4a4a4a;
-    border-color: #5a5a5a;
-    color: white;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  
+  @media (max-width: 480px) {
+    width: 100%;
   }
 `
 
@@ -743,7 +701,7 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
   const { setPath } = useRouter()
   const { setOpen: setAIChatOpen } = useAIChat()
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  
+
   // Jotai setters for agent UI state
   const setAgentKeySignature = useSetAtom(agentKeySignatureAtom)
   const setAgentBpmUpdated = useSetAtom(agentBpmUpdatedAtom)
@@ -1405,34 +1363,25 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
         <HeaderLeft>
           <span>AI Composer</span>
           <Tooltip title="Choose generation method">
-          <Select
-            value={agentType}
-            onChange={handleAgentTypeChange}
-            disabled={isLoading}
-          >
-            <option value="hybrid">Hybrid Agent</option>
-            <option value="hybrid_legacy">Hybrid (Legacy)</option>
-            <option value="composition_agent">Deep Agent</option>
-            <option value="llm">LLM Direct</option>
-          </Select>
+            <Select
+              value={agentType}
+              onChange={handleAgentTypeChange}
+              disabled={isLoading}
+            >
+              <option value="hybrid">Hybrid Agent</option>
+              <option value="hybrid_legacy">Hybrid (Legacy)</option>
+              <option value="composition_agent">Deep Agent</option>
+              <option value="llm">LLM Direct</option>
+            </Select>
           </Tooltip>
         </HeaderLeft>
         {activeThreadId && (
           <Tooltip title="Start fresh conversation">
             <NewChatButton onClick={handleNewChat} disabled={isLoading}>
-            New Chat
-          </NewChatButton>
+              New Chat
+            </NewChatButton>
           </Tooltip>
         )}
-        <HeaderRight>
-          {!standalone && (
-            <Tooltip title="Collapse chat">
-              <CloseButton onClick={() => setAIChatOpen(false)} disabled={isLoading}>
-                <CloseIcon size={16} />
-              </CloseButton>
-            </Tooltip>
-          )}
-        </HeaderRight>
       </Header>
       {backendStatus === "disconnected" && (
         <WarningBanner>
@@ -1484,27 +1433,17 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
         <div ref={messagesEndRef} />
       </MessageList>
       <InputContainer>
-        <InputRow>
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              activeThreadId
-                ? "Continue the conversation..."
-                : "Describe your song..."
-            }
-            disabled={isLoading || backendStatus === "disconnected"}
-            style={{ flex: 1 }}
-          />
-          <VoiceRecorder
-            onNotesDetected={handleNotesDetected}
-            onAudioCaptured={handleAudioCaptured}
-          />
-        </InputRow>
-        {voiceProcessing && voiceProgress && (
-          <VoiceProcessingIndicator>{voiceProgress}</VoiceProcessingIndicator>
-        )}
+        <Input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={
+            activeThreadId
+              ? "Continue the conversation..."
+              : "Describe your song..."
+          }
+          disabled={isLoading || backendStatus === "disconnected"}
+        />
         {isLoading ? (
           <InterruptButton onClick={handleInterrupt}>
             Stop Generation
@@ -1517,6 +1456,15 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
             {activeThreadId ? "Send" : "Generate"}
           </Button>
         )}
+        {voiceProcessing && voiceProgress && (
+          <VoiceProcessingIndicator>{voiceProgress}</VoiceProcessingIndicator>
+        )}
+        <MicRow>
+          <VoiceRecorder
+            onNotesDetected={handleNotesDetected}
+            onAudioCaptured={handleAudioCaptured}
+          />
+        </MicRow>
       </InputContainer>
     </Container>
   )

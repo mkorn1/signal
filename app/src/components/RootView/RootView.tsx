@@ -8,6 +8,7 @@ import { useGlobalKeyboardShortcut } from "../../hooks/useGlobalKeyboardShortcut
 import { useRouter } from "../../hooks/useRouter"
 import { useSong } from "../../hooks/useSong"
 import { useStores } from "../../hooks/useStores"
+import { AIToggleButton } from "../AIChat/AIToggleButton"
 import { ArrangeEditor } from "../ArrangeView/ArrangeEditor"
 import { BuildInfo } from "../BuildInfo"
 import { ControlSettingDialog } from "../ControlSettingDialog/ControlSettingDialog"
@@ -204,6 +205,7 @@ export const RootView: FC = () => {
       <HQAudioPlayer />
       <OnInit />
       <OnBeforeUnload />
+      <AIToggleButton />
     </>
   )
 }

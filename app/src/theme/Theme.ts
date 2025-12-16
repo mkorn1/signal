@@ -36,7 +36,7 @@ const darkTheme: Theme = {
   font: "'DM Sans', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   monoFont: "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace",
   canvasFont: "Arial",
-  themeColor: "#E84899", // Vibrant pink accent
+  themeColor: "#4DA6FF", // Bright blue accent
   onSurfaceColor: "#0a0a0a",
   textColor: "#f5f5f7",
   secondaryTextColor: "#8e8e93",
@@ -53,7 +53,7 @@ const darkTheme: Theme = {
   pianoKeyWhite: "#f5f5f7",
   pianoWhiteKeyLaneColor: "#0f0f0f",
   pianoBlackKeyLaneColor: "#0a0a0a",
-  pianoHighlightedLaneColor: "rgba(232, 72, 153, 0.08)",
+  pianoHighlightedLaneColor: "rgba(77, 166, 255, 0.08)",
   pianoLaneEdgeColor: "rgba(255, 255, 255, 0.04)",
   ghostNoteColor: "#333333",
   recordColor: "#ff3b30",
