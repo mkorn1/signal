@@ -33,7 +33,6 @@ export interface ElectronCallbackProps {
   onQuantize: () => void
   onVelocity: () => void
   onOpenSetting: () => void
-  onOpenHelp: () => void
 }
 
 export const ElectronCallback: FC<ElectronCallbackProps> = ({
@@ -62,7 +61,6 @@ export const ElectronCallback: FC<ElectronCallbackProps> = ({
   onQuantize,
   onVelocity,
   onOpenSetting,
-  onOpenHelp,
 }) => {
   const [isInitialized, setIsInitialized] = useState(false)
 
@@ -109,7 +107,6 @@ export const ElectronCallback: FC<ElectronCallbackProps> = ({
     () => window.electronAPI.onOpenSetting(onOpenSetting),
     [onOpenSetting],
   )
-  useEffect(() => window.electronAPI.onOpenHelp(onOpenHelp), [onOpenHelp])
 
   useEffect(() => {
     if (!isInitialized) {

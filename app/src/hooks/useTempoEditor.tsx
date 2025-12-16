@@ -5,7 +5,6 @@ import { Point } from "../entities/geometry/Point"
 import { TempoSelection } from "../entities/selection/TempoSelection"
 import { TempoCoordTransform } from "../entities/transform/TempoCoordTransform"
 import { BeatsProvider, createBeatsScope } from "./useBeats"
-import { createQuantizerScope, QuantizerProvider } from "./useQuantizer"
 import {
   createTickScrollScope,
   TickScrollProvider,
@@ -13,7 +12,6 @@ import {
 } from "./useTickScroll"
 
 type TempoEditorStore = {
-  quantizerScope: Store
   tickScrollScope: Store
   beatsScope: Store
 }
@@ -30,11 +28,9 @@ export function TempoEditorProvider({
   const tempoEditorStore = useMemo(() => {
     // should match the order in TempoEditorScope
     const tickScrollScope = createTickScrollScope(store)
-    const quantizerScope = createQuantizerScope(tickScrollScope)
-    const beatsScope = createBeatsScope(quantizerScope)
+    const beatsScope = createBeatsScope(tickScrollScope)
     return {
       tickScrollScope,
-      quantizerScope,
       beatsScope,
     }
   }, [store])
@@ -47,15 +43,11 @@ export function TempoEditorProvider({
 }
 
 export function TempoEditorScope({ children }: { children: React.ReactNode }) {
-  const { tickScrollScope, quantizerScope, beatsScope } = useContext(
-    TempoEditorStoreContext,
-  )
+  const { tickScrollScope, beatsScope } = useContext(TempoEditorStoreContext)
 
   return (
     <TickScrollProvider scope={tickScrollScope} minScaleX={0.15} maxScaleX={15}>
-      <QuantizerProvider scope={quantizerScope} quantize={4}>
-        <BeatsProvider scope={beatsScope}>{children}</BeatsProvider>
-      </QuantizerProvider>
+      <BeatsProvider scope={beatsScope}>{children}</BeatsProvider>
     </TickScrollProvider>
   )
 }

@@ -16,6 +16,7 @@ import { Tooltip } from "../ui/Tooltip"
 import { CircleButton } from "./CircleButton"
 import { KeyDisplay } from "./KeyDisplay"
 import { PlayButton } from "./PlayButton"
+import { QuantizeControl } from "./QuantizeControl"
 import { TempoForm } from "./TempoForm"
 
 const Toolbar = styled.div`
@@ -159,6 +160,10 @@ export const TransportPanel: FC = () => {
           <BlurIcon />
         </EffectsButton>
       </Tooltip>
+
+      <ToolbarSeparator />
+
+      <QuantizeControl />
 
       <Tooltip title="Beats per minute" side="top">
         <div>

@@ -43,7 +43,7 @@ export default {
     "auto-scroll": "Auto Scroll",
     help: "Help",
     close: "Close",
-    "keyboard-shortcut": "Keyboard Shortcuts",
+    "keyboard-shortcut": "Keyboard Shortcut",
     "play-pause": "Play/Pause",
     rewind: "Rewind",
     "fast-forward": "Fast Forward",

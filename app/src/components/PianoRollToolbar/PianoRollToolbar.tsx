@@ -3,7 +3,6 @@ import { FC } from "react"
 import { useEditorMode } from "../../hooks/useEditorMode"
 import { InstrumentBrowser } from "../InstrumentBrowser/InstrumentBrowser"
 import { AutoScrollButton } from "../Toolbar/AutoScrollButton"
-import { QuantizeSelector } from "../Toolbar/QuantizeSelector/QuantizeSelector"
 import { Toolbar } from "../Toolbar/Toolbar"
 import { TrackListMenuButton } from "../TrackList/TrackListMenuButton"
 import { EventListButton } from "./EventListButton"
@@ -43,8 +42,6 @@ export const PianoRollToolbar: FC = () => {
       <FlexibleSpacer />
 
       <PianoRollToolSelector />
-
-      {isAdvanced && <QuantizeSelector />}
 
       <AutoScrollButton />
     </Toolbar>

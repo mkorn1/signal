@@ -1,158 +1,118 @@
 import styled from "@emotion/styled"
-import { FC, ReactNode } from "react"
-import { envString } from "../../localize/envString"
+import { FC } from "react"
 import { Localized } from "../../localize/useLocalization"
+import { DialogContent, DialogTitle } from "../Dialog/Dialog"
 
-interface HotKeyProps {
-  hotKeys: string[][]
-  text: ReactNode
-}
-
-const Container = styled.div`
-  padding: 0.5rem 0;
+const ShortcutList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 `
 
-const HotKeyContainer = styled.div`
+const ShortcutItem = styled.div`
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-divider);
 
-  span {
-    margin: 0 0.3em;
+  &:last-child {
+    border-bottom: none;
   }
 `
 
-const Key = styled.div`
-  display: inline-block;
-  border: 1px solid white;
-  border-radius: 4px;
-  padding: 0.1em 0.5em 0.2em 0.5em;
-  background: var(--color-text);
-  color: var(--color-background);
-  box-shadow: inset 0 -2px 0 0px #0000006b;
+const ShortcutLabel = styled.span`
+  color: var(--color-text);
 `
 
-const HotKeyText = styled.div`
-  margin-left: 1em;
+const ShortcutKeys = styled.span`
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  background: var(--color-background);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-divider);
 `
 
-const HotKey: FC<HotKeyProps> = ({ hotKeys, text }) => {
-  return (
-    <HotKeyContainer>
-      {hotKeys
-        .map((c, i1) =>
-          c
-            .map<ReactNode>((k, i2) => <Key key={i1 * 10000 + i2}>{k}</Key>)
-            .reduce((a, b) => [a, <span key={"plus"}>+</span>, b]),
-        )
-        .reduce((a, b) => [a, <span key={"slash"}>/</span>, b])}
-      <HotKeyText>{text}</HotKeyText>
-    </HotKeyContainer>
-  )
+const SectionTitle = styled.div`
+  font-weight: bold;
+  margin: 1rem 0 0.5rem;
+  color: var(--color-text);
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+`
+
+const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0
+const cmdKey = isMac ? "⌘" : "Ctrl"
+
+const shortcuts = {
+  playback: [
+    { label: "Play / Pause", keys: "Space" },
+    { label: "Stop", keys: "Enter" },
+    { label: "Rewind one bar", keys: "A" },
+    { label: "Fast forward one bar", keys: "D" },
+    { label: "Toggle recording", keys: "R" },
+  ],
+  file: [
+    { label: "New", keys: `${cmdKey}+N` },
+    { label: "Open", keys: `${cmdKey}+O` },
+    { label: "Save", keys: `${cmdKey}+S` },
+    { label: "Save As", keys: `⇧+${cmdKey}+S` },
+  ],
+  edit: [
+    { label: "Undo", keys: `${cmdKey}+Z` },
+    { label: "Redo", keys: `⇧+${cmdKey}+Z` },
+  ],
+  navigation: [
+    { label: "Piano Roll", keys: `${cmdKey}+1` },
+    { label: "Arrangement View", keys: `${cmdKey}+2` },
+  ],
 }
 
 export const ShortcutsSettingsView: FC = () => {
   return (
-    <Container>
-      <HotKey
-        hotKeys={[[envString.altOrOption, "N"]]}
-        text={<Localized name="new-song" />}
-      />
-      <HotKey
-        hotKeys={[[envString.cmdOrCtrl, "O"]]}
-        text={<Localized name="open-song" />}
-      />
-      <HotKey
-        hotKeys={[[envString.cmdOrCtrl, "S"]]}
-        text={<Localized name="save-song" />}
-      />
-      <HotKey
-        hotKeys={[[envString.cmdOrCtrl, "Shift", "S"]]}
-        text={<Localized name="save-as" />}
-      />
-      <HotKey hotKeys={[["Space"]]} text={<Localized name="play-pause" />} />
-      <HotKey hotKeys={[["Enter"]]} text={<Localized name="stop" />} />
-      <HotKey
-        hotKeys={[["A"], ["D"]]}
-        text={<Localized name="forward-rewind" />}
-      />
-      <HotKey
-        hotKeys={[["R"]]}
-        text={<Localized name="start-stop-recording" />}
-      />
-      <HotKey
-        hotKeys={[["S"], ["W"]]}
-        text={<Localized name="next-previous-track" />}
-      />
-      <HotKey
-        hotKeys={[["N"], ["M"], [","]]}
-        text={<Localized name="solo-mute-ghost" />}
-      />
-      <HotKey hotKeys={[["T"]]} text={<Localized name="transpose" />} />
-      <HotKey hotKeys={[["1"]]} text={<Localized name="pencil-tool" />} />
-      <HotKey hotKeys={[["2"]]} text={<Localized name="selection-tool" />} />
-      <HotKey
-        hotKeys={[["↑"], ["↓"]]}
-        text={<Localized name="move-selection" />}
-      />
-      <HotKey
-        hotKeys={[["←"], ["→"]]}
-        text={<Localized name="select-note" />}
-      />
-      <HotKey
-        hotKeys={[
-          [envString.cmdOrCtrl, "1"],
-          [envString.cmdOrCtrl, "2"],
-        ]}
-        text={<Localized name="switch-tab" />}
-      />
-      <HotKey
-        hotKeys={[
-          [envString.cmdOrCtrl, "↑"],
-          [envString.cmdOrCtrl, "↓"],
-        ]}
-        text={<Localized name="scroll-vertically" />}
-      />
-      <HotKey
-        hotKeys={[
-          [envString.cmdOrCtrl, "←"],
-          [envString.cmdOrCtrl, "→"],
-        ]}
-        text={<Localized name="scroll-horizontally" />}
-      />
-      <HotKey
-        hotKeys={[[envString.cmdOrCtrl, "Z"]]}
-        text={<Localized name="undo" />}
-      />
-      <HotKey
-        hotKeys={[
-          [envString.cmdOrCtrl, "Y"],
-          [envString.cmdOrCtrl, "Shift", "Z"],
-        ]}
-        text={<Localized name="redo" />}
-      />
-      <HotKey
-        hotKeys={[[envString.cmdOrCtrl, "C"]]}
-        text={<Localized name="copy-selection" />}
-      />
-      <HotKey
-        hotKeys={[["Delete"], ["Backspace"]]}
-        text={<Localized name="delete-selection" />}
-      />
-      <HotKey
-        hotKeys={[[envString.cmdOrCtrl, "X"]]}
-        text={<Localized name="cut-selection" />}
-      />
-      <HotKey
-        hotKeys={[[envString.cmdOrCtrl, "V"]]}
-        text={<Localized name="paste-selection" />}
-      />
-      <HotKey
-        hotKeys={[[envString.cmdOrCtrl, "A"]]}
-        text={<Localized name="select-all" />}
-      />
-      <HotKey hotKeys={[["?"]]} text={<Localized name="open-help" />} />
-    </Container>
+    <>
+      <DialogTitle>
+        <Localized name="keyboard-shortcut" />
+      </DialogTitle>
+      <DialogContent>
+        <ShortcutList>
+          <SectionTitle>Playback</SectionTitle>
+          {shortcuts.playback.map((s) => (
+            <ShortcutItem key={s.label}>
+              <ShortcutLabel>{s.label}</ShortcutLabel>
+              <ShortcutKeys>{s.keys}</ShortcutKeys>
+            </ShortcutItem>
+          ))}
+
+          <SectionTitle>File</SectionTitle>
+          {shortcuts.file.map((s) => (
+            <ShortcutItem key={s.label}>
+              <ShortcutLabel>{s.label}</ShortcutLabel>
+              <ShortcutKeys>{s.keys}</ShortcutKeys>
+            </ShortcutItem>
+          ))}
+
+          <SectionTitle>Edit</SectionTitle>
+          {shortcuts.edit.map((s) => (
+            <ShortcutItem key={s.label}>
+              <ShortcutLabel>{s.label}</ShortcutLabel>
+              <ShortcutKeys>{s.keys}</ShortcutKeys>
+            </ShortcutItem>
+          ))}
+
+          <SectionTitle>Navigation</SectionTitle>
+          {shortcuts.navigation.map((s) => (
+            <ShortcutItem key={s.label}>
+              <ShortcutLabel>{s.label}</ShortcutLabel>
+              <ShortcutKeys>{s.keys}</ShortcutKeys>
+            </ShortcutItem>
+          ))}
+        </ShortcutList>
+      </DialogContent>
+    </>
   )
 }
-

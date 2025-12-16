@@ -9,7 +9,6 @@ import { KeyTransform } from "../entities/transform/KeyTransform"
 import { NoteCoordTransform } from "../entities/transform/NoteCoordTransform"
 import { BeatsProvider, createBeatsScope } from "./useBeats"
 import { useMobxSelector } from "./useMobxSelector"
-import { createQuantizerScope, QuantizerProvider } from "./useQuantizer"
 import { useStores } from "./useStores"
 import {
   createTickScrollScope,
@@ -24,7 +23,6 @@ import {
 export type { ArrangeSelection } from "@signal-app/core"
 
 type ArrangeViewStore = {
-  quantizerScope: Store
   tickScrollScope: Store
   trackScrollScope: Store
   beatsScope: Store
@@ -43,10 +41,8 @@ export function ArrangeViewProvider({
     // should match the order in ArrangeViewScope
     const tickScrollScope = createTickScrollScope(store)
     const trackScrollScope = createTrackScrollScope(tickScrollScope)
-    const quantizerScope = createQuantizerScope(trackScrollScope)
-    const beatsScope = createBeatsScope(quantizerScope)
+    const beatsScope = createBeatsScope(trackScrollScope)
     return {
-      quantizerScope,
       tickScrollScope,
       trackScrollScope,
       beatsScope,
@@ -61,15 +57,14 @@ export function ArrangeViewProvider({
 }
 
 export function ArrangeViewScope({ children }: { children: React.ReactNode }) {
-  const { tickScrollScope, trackScrollScope, quantizerScope, beatsScope } =
-    useContext(ArrangeViewStoreContext)
+  const { tickScrollScope, trackScrollScope, beatsScope } = useContext(
+    ArrangeViewStoreContext,
+  )
 
   return (
     <TickScrollProvider scope={tickScrollScope} minScaleX={0.15} maxScaleX={15}>
       <TrackScrollProvider scope={trackScrollScope}>
-        <QuantizerProvider scope={quantizerScope} quantize={1}>
-          <BeatsProvider scope={beatsScope}>{children}</BeatsProvider>
-        </QuantizerProvider>
+        <BeatsProvider scope={beatsScope}>{children}</BeatsProvider>
       </TrackScrollProvider>
     </TickScrollProvider>
   )

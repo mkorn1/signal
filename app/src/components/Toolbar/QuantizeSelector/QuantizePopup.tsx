@@ -21,9 +21,10 @@ export interface QuantizePopupProps {
   onChangeValue: (value: number) => void
   onChangeTriplet: (value: boolean) => void
   onChangeDotted: (value: boolean) => void
+  side?: "top" | "bottom"
 }
 
-const Container = styled.div`
+const Container = styled.div<{ side: "top" | "bottom" }>`
   background: var(--color-background-secondary);
   border: 1px solid var(--color-popup-border);
   box-shadow: 0 1rem 3rem var(--color-shadow);
@@ -31,19 +32,6 @@ const Container = styled.div`
   border-radius: 0.5rem;
   display: flex;
   position: relative;
-  top: 1rem;
-  left: 0.25rem;
-
-  &::before {
-    content: "";
-    width: 1rem;
-    height: 1rem;
-    background: var(--color-background-secondary);
-    position: absolute;
-    top: -0.5rem;
-    left: calc(50% - 1rem);
-    transform: rotate(45deg);
-  }
 
   .button-up {
     margin-bottom: -0.4rem;
@@ -70,6 +58,7 @@ export function QuantizePopup({
   onChangeTriplet,
   onChangeDotted,
   trigger,
+  side = "bottom",
 }: QuantizePopupProps) {
   const prevValue = () => {
     const index = Math.max(values.indexOf(value) - 1, 0)
@@ -84,8 +73,8 @@ export function QuantizePopup({
     <Popover.Root>
       <Popover.Trigger asChild>{trigger}</Popover.Trigger>
       <Popover.Portal>
-        <FocusFixedContent>
-          <Container>
+        <FocusFixedContent side={side} sideOffset={8} align="center">
+          <Container side={side}>
             <NumberPicker
               value={value}
               prevValue={prevValue}

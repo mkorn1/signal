@@ -13,7 +13,6 @@ import { BuildInfo } from "../BuildInfo"
 import { ControlSettingDialog } from "../ControlSettingDialog/ControlSettingDialog"
 import { ExportProgressDialog } from "../ExportDialog/ExportProgressDialog"
 import { Head } from "../Head/Head"
-import { HelpDialog } from "../Help/HelpDialog"
 import { HQAudioPlayer } from "../HQAudioPlayer/HQAudioPlayer"
 import { InitialView } from "../InitialView/InitialView"
 import { Navigation } from "../Navigation/Navigation"
@@ -198,7 +197,6 @@ export const RootView: FC = () => {
           </Column>
         </DropZone>
       )}
-      <HelpDialog />
       <ExportProgressDialog />
       <Head />
       <SettingDialog />

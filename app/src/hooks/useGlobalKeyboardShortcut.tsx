@@ -11,13 +11,11 @@ import { useLocalization } from "../localize/useLocalization"
 import { useHistory } from "./useHistory"
 import { useKeyboardShortcut } from "./useKeyboardShortcut"
 import { usePlayer } from "./usePlayer"
-import { useRootView } from "./useRootView"
 import { useRouter } from "./useRouter"
 import { useSong } from "./useSong"
 import { useSongFile } from "./useSongFile"
 
 export const useGlobalKeyboardShortcut = () => {
-  const { setOpenHelpDialog } = useRootView()
   const { setPath } = useRouter()
   const { playOrPause } = usePlayer()
   const { isSaved } = useSong()
@@ -55,12 +53,6 @@ export const useGlobalKeyboardShortcut = () => {
       },
       // Redo (Meta-Y)
       { code: "KeyY", metaKey: true, run: redo },
-      // Help (?)
-      {
-        code: "Slash",
-        shiftKey: true,
-        run: () => setOpenHelpDialog(true),
-      },
       // Stop (Enter)
       { code: "Enter", run: stop },
       // Rewind one bar (A)
@@ -137,7 +129,6 @@ export const useGlobalKeyboardShortcut = () => {
       undo,
       redo,
       saveAsSong,
-      setOpenHelpDialog,
       stop,
       rewindOneBar,
       fastForwardOneBar,

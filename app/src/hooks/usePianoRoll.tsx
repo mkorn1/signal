@@ -21,11 +21,7 @@ import { BeatsProvider, createBeatsScope } from "./useBeats"
 import { EventViewProvider } from "./useEventView"
 import { useKeyScroll } from "./useKeyScroll"
 import { useMobxSelector } from "./useMobxSelector"
-import {
-  createQuantizerScope,
-  QuantizerProvider,
-  useQuantizer,
-} from "./useQuantizer"
+import { useQuantizer } from "./useQuantizer"
 import { useStores } from "./useStores"
 import {
   createTickScrollScope,
@@ -34,7 +30,6 @@ import {
 } from "./useTickScroll"
 
 type PianoRollStore = {
-  quantizerScope: Store
   tickScrollScope: Store
   beatsScope: Store
 }
@@ -47,10 +42,8 @@ export function PianoRollProvider({ children }: { children: React.ReactNode }) {
   const pianoRollStore = useMemo(() => {
     // should match the order in PianoRollScope
     const tickScrollScope = createTickScrollScope(store)
-    const quantizerScope = createQuantizerScope(tickScrollScope)
-    const beatsScope = createBeatsScope(quantizerScope)
+    const beatsScope = createBeatsScope(tickScrollScope)
     return {
-      quantizerScope,
       tickScrollScope,
       beatsScope,
     }
@@ -118,17 +111,13 @@ function PianoRollProviderInner({ children }: { children: React.ReactNode }) {
 }
 
 export function PianoRollScope({ children }: { children: React.ReactNode }) {
-  const { quantizerScope, tickScrollScope, beatsScope } = useContext(
-    PianoRollStoreContext,
-  )
+  const { tickScrollScope, beatsScope } = useContext(PianoRollStoreContext)
   const { selectedTrackId } = usePianoRoll()
 
   return (
     <TickScrollProvider scope={tickScrollScope} minScaleX={0.15} maxScaleX={15}>
       <EventViewProvider trackId={selectedTrackId}>
-        <QuantizerProvider scope={quantizerScope} quantize={8}>
-          <BeatsProvider scope={beatsScope}>{children}</BeatsProvider>
-        </QuantizerProvider>
+        <BeatsProvider scope={beatsScope}>{children}</BeatsProvider>
       </EventViewProvider>
     </TickScrollProvider>
   )
@@ -287,8 +276,7 @@ export function usePianoRollTickScroll() {
 }
 
 export function usePianoRollQuantizer() {
-  const { quantizerScope } = useContext(PianoRollStoreContext)
-  return useQuantizer(quantizerScope)
+  return useQuantizer()
 }
 
 // atoms

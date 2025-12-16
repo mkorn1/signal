@@ -27,7 +27,7 @@ import { ElectronCallback } from "./ElectronCallback"
 
 export const ElectronCallbackHandler: FC = () => {
   const { isSaved, filepath, getSong, setSaved, setFilepath } = useSong()
-  const { setOpenSettingDialog, setOpenHelpDialog } = useRootView()
+  const { setOpenSettingDialog } = useRootView()
   const { setOpenTransposeDialog, setOpenVelocityDialog } = usePianoRoll()
   const localized = useLocalization()
   const localSongFile = useSongFile()
@@ -138,9 +138,6 @@ export const ElectronCallbackHandler: FC = () => {
       }}
       onOpenSetting={() => {
         setOpenSettingDialog(true)
-      }}
-      onOpenHelp={() => {
-        setOpenHelpDialog(true)
       }}
     />
   )
