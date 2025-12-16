@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 import { FC, useCallback } from "react"
-import { useSettings } from "../../hooks/useSettings"
+import { AgentType, useSettings } from "../../hooks/useSettings"
 import {
   Language,
   Localized,
@@ -67,6 +67,24 @@ const ThemeSelect: FC = () => {
   )
 }
 
+const AgentTypeSelect: FC = () => {
+  const { agentType, setAgentType } = useSettings()
+  return (
+    <Label>
+      AI Agent
+      <Select
+        value={agentType}
+        onChange={(e) => setAgentType(e.target.value as AgentType)}
+        style={{ marginTop: "0.5rem" }}
+      >
+        <option value="hybrid_legacy">Hybrid (Legacy)</option>
+        <option value="deep_agent_2">Deep Agent 2.0</option>
+        <option value="llm">LLM Direct</option>
+      </Select>
+    </Label>
+  )
+}
+
 const ShowNoteLabelCheckbox: FC = () => {
   const { showNoteLabels, setShowNoteLabels } = useSettings()
   const onCheckedChange = useCallback(
@@ -111,6 +129,7 @@ export const GeneralSettingsView: FC = () => {
         <Column>
           <LanguageSelect />
           <ThemeSelect />
+          <AgentTypeSelect />
           <SectionContent>
             <SectionTitle>
               <Localized name="appearance" />

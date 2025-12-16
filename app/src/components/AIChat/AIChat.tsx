@@ -8,12 +8,13 @@ import { getInstrumentProgramNumber } from "../../agent/instrumentMapping"
 import { useAIChat } from "../../hooks/useAIChat"
 import { useConductorTrack } from "../../hooks/useConductorTrack"
 import { useRouter } from "../../hooks/useRouter"
+import { useSettings } from "../../hooks/useSettings"
 import { useSong } from "../../hooks/useSong"
 import { useStores } from "../../hooks/useStores"
 import { aiBackend, GenerationStage } from "../../services/aiBackend"
 import type { ProgressEvent } from "../../services/aiBackend/types"
 import { runAgentLoop, type ToolCall } from "../../services/hybridAgent"
-import { executeToolCalls, type ToolResult } from "../../services/hybridAgent/toolExecutor"
+import { executeToolCalls } from "../../services/hybridAgent/toolExecutor"
 import { processVoiceToMidi } from "../../services/voiceToMidi"
 import {
   agentBpmUpdatedAtom,
@@ -81,35 +82,6 @@ const NewChatButton = styled.button`
 
   &:active {
     transform: translateY(0) scale(0.98);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`
-
-const Select = styled.select`
-  padding: 0.375rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.04);
-  color: ${({ theme }) => theme.textColor};
-  font-size: 0.75rem;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.themeColor};
-    box-shadow: 0 0 0 3px rgba(77, 166, 255, 0.15);
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
   }
 
   &:disabled {
@@ -637,10 +609,6 @@ function getStageProgress(stage: GenerationStage): number {
   }
 }
 
-const AGENT_TYPE_STORAGE_KEY = "ai_chat_agent_type"
-
-type AgentType = "llm" | "composition_agent" | "hybrid" | "hybrid_legacy" | "deep_agent_2"
-
 const KEY_NAMES = [
   "C",
   "C#",
@@ -658,6 +626,31 @@ const KEY_NAMES = [
 
 function getKeyDisplayName(key: number, scale: "major" | "minor"): string {
   return `${KEY_NAMES[key]} ${scale}`
+}
+
+// Strip markdown formatting for plaintext display
+function stripMarkdown(text: string): string {
+  return text
+    // Remove headers
+    .replace(/^#{1,6}\s+/gm, "")
+    // Remove bold/italic
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/_([^_]+)_/g, "$1")
+    // Remove inline code
+    .replace(/`([^`]+)`/g, "$1")
+    // Remove code blocks
+    .replace(/```[\s\S]*?```/g, "")
+    // Remove links, keep text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    // Remove bullet points
+    .replace(/^[\s]*[-*+]\s+/gm, "• ")
+    // Remove numbered lists formatting
+    .replace(/^[\s]*\d+\.\s+/gm, "")
+    // Clean up extra whitespace
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
 }
 
 export interface AIChatProps {
@@ -683,17 +676,7 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
   const [backendStatus, setBackendStatus] = useState<
     "connected" | "disconnected" | "checking"
   >("checking")
-  const [agentType, setAgentType] = useState<AgentType>(() => {
-    // Load from localStorage or default to hybrid
-    const stored = localStorage.getItem(AGENT_TYPE_STORAGE_KEY)
-    return stored === "llm" ||
-      stored === "composition_agent" ||
-      stored === "hybrid" ||
-      stored === "deep_agent_2" ||
-      stored === "hybrid_legacy"
-      ? (stored as AgentType)
-      : "hybrid" // Default to hybrid agent
-  })
+  const { agentType } = useSettings()
   const [voiceProcessing, setVoiceProcessing] = useState(false)
   const [voiceProgress, setVoiceProgress] = useState("")
   const { songStore } = useStores()
@@ -812,39 +795,12 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
                   setAgentKeyUpdated(Date.now())
                 },
               },
-              onToolsExecuted: (
-                toolCalls: ToolCall[],
-                results: ToolResult[],
-              ) => {
+              onToolsExecuted: () => {
                 // Navigate to arrange view when tools are actually executed (generation has started)
                 if (!hasNavigatedRef.current) {
                   setPath("/arrange")
                   hasNavigatedRef.current = true
                 }
-                // Capture index BEFORE setMessages to avoid race with finally block
-                const index = streamingMessageIndexRef.current
-                // Update message to show tools executed
-                setMessages((prev) => {
-                  const updated = [...prev]
-                  if (index >= 0 && index < updated.length) {
-                    const toolNames = toolCalls.map((tc) => tc.name).join(", ")
-                    const successCount = results.filter((r) => {
-                      try {
-                        const parsed = JSON.parse(r.result)
-                        return !parsed.error
-                      } catch {
-                        return true
-                      }
-                    }).length
-                    updated[index] = {
-                      ...updated[index],
-                      content:
-                        updated[index].content +
-                        `\n🔧 Executed: ${toolNames} (${successCount}/${results.length} succeeded)`,
-                    }
-                  }
-                  return updated
-                })
               },
               onMessage: (message: string) => {
                 // Capture index BEFORE setMessages to avoid race with finally block
@@ -1063,29 +1019,22 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
           }
 
           // Execute tool calls
-          const toolResults = executeToolCalls(songStore.song, toolCalls)
+          executeToolCalls(songStore.song, toolCalls)
 
-          // Update message to show tools executed
-          const index = streamingMessageIndexRef.current
-          setMessages((prev) => {
-            const updated = [...prev]
-            if (index >= 0 && index < updated.length) {
-              const toolNames = toolCalls.map((tc) => tc.name).join(", ")
-              const successCount = toolResults.filter((r) => {
-                try {
-                  const parsed = JSON.parse(r.result)
-                  return !parsed.error
-                } catch {
-                  return true
+          // Update message with result
+          if (result.message) {
+            const index = streamingMessageIndexRef.current
+            setMessages((prev) => {
+              const updated = [...prev]
+              if (index >= 0 && index < updated.length) {
+                updated[index] = {
+                  ...updated[index],
+                  content: result.message,
                 }
-              }).length
-              updated[index] = {
-                ...updated[index],
-                content: result.message || `🔧 Executed: ${toolNames} (${successCount}/${toolResults.length} succeeded)`,
               }
-            }
-            return updated
-          })
+              return updated
+            })
+          }
         } catch (err) {
           const errorMessage =
             err instanceof Error ? err.message : "Generation failed"
@@ -1270,15 +1219,6 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
     [handleSubmit],
   )
 
-  const handleAgentTypeChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newAgentType = e.target.value as AgentType
-      setAgentType(newAgentType)
-      localStorage.setItem(AGENT_TYPE_STORAGE_KEY, newAgentType)
-    },
-    [],
-  )
-
   const handleNewChat = useCallback(() => {
     setActiveThreadId(null)
     setMessages([])
@@ -1445,17 +1385,6 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
       <Header>
         <HeaderLeft>
           <span>AI Composer</span>
-          <Tooltip title="Choose generation method">
-            <Select
-              value={agentType}
-              onChange={handleAgentTypeChange}
-              disabled={isLoading}
-            >
-              <option value="hybrid_legacy">Hybrid (Legacy)</option>
-              <option value="deep_agent_2">Deep Agent 2.0</option>
-              <option value="llm">LLM Direct</option>
-            </Select>
-          </Tooltip>
         </HeaderLeft>
         {activeThreadId && (
           <Tooltip title="Start fresh conversation">
@@ -1483,9 +1412,13 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
           if (msg.role === "assistant" && !msg.content && !msg.notes?.length) {
             return null
           }
+          // Strip markdown from assistant messages for cleaner display
+          const displayContent = msg.role === "assistant"
+            ? stripMarkdown(msg.content)
+            : msg.content
           return (
             <Message key={i} role={msg.role}>
-              {msg.content}
+              {displayContent}
               {msg.notes && msg.notes.length > 0 && (
                 <NotesDisplay notes={msg.notes} />
               )}
