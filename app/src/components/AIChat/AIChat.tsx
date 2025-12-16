@@ -1,13 +1,15 @@
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
-import { FC, useCallback, useEffect, useRef, useState } from "react"
+import { emptyTrack } from "@signal-app/core"
 import CloseIcon from "mdi-react/CloseIcon"
+import { FC, useCallback, useEffect, useRef, useState } from "react"
 import { useLoadAISong } from "../../actions/aiGeneration"
+import { getInstrumentProgramNumber } from "../../agent/instrumentMapping"
 import { useAIChat } from "../../hooks/useAIChat"
-import { useRouter } from "../../hooks/useRouter"
-import { useStores } from "../../hooks/useStores"
-import { useSong } from "../../hooks/useSong"
 import { useConductorTrack } from "../../hooks/useConductorTrack"
+import { useRouter } from "../../hooks/useRouter"
+import { useSong } from "../../hooks/useSong"
+import { useStores } from "../../hooks/useStores"
 import { aiBackend, GenerationStage } from "../../services/aiBackend"
 import type { ProgressEvent } from "../../services/aiBackend/types"
 import { runAgentLoop, type ToolCall } from "../../services/hybridAgent"
@@ -15,8 +17,6 @@ import { executeToolCalls, type ToolResult } from "../../services/hybridAgent/to
 import { processVoiceToMidi } from "../../services/voiceToMidi"
 import { Tooltip } from "../ui/Tooltip"
 import { VoiceRecorder, type DetectedNote } from "./VoiceRecorder"
-import { emptyTrack } from "@signal-app/core"
-import { getInstrumentProgramNumber } from "../../agent/instrumentMapping"
 
 const Container = styled.div<{ standalone?: boolean }>`
   display: flex;
@@ -1484,9 +1484,7 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
             onChange={handleAgentTypeChange}
             disabled={isLoading}
           >
-            <option value="hybrid">Hybrid Agent</option>
             <option value="hybrid_legacy">Hybrid (Legacy)</option>
-            <option value="composition_agent">Deep Agent</option>
             <option value="deep_agent_2">Deep Agent 2.0</option>
             <option value="llm">LLM Direct</option>
           </Select>
