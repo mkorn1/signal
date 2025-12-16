@@ -1,7 +1,7 @@
 export { runAgentLoop } from "./agentLoop"
 export type { AgentLoopResult } from "./agentLoop"
 export { executeToolCalls } from "./toolExecutor"
-export type { ToolCall, ToolResult } from "./toolExecutor"
+export type { ToolCall, ToolResult, ToolExecutorCallbacks } from "./toolExecutor"
 export {
   serializeSongState,
   formatSongStateForPrompt,

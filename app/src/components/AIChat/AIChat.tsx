@@ -1,21 +1,28 @@
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 import { emptyTrack } from "@signal-app/core"
-import CloseIcon from "mdi-react/CloseIcon"
+import { useSetAtom } from "jotai"
 import { FC, useCallback, useEffect, useRef, useState } from "react"
 import { useLoadAISong } from "../../actions/aiGeneration"
 import { getInstrumentProgramNumber } from "../../agent/instrumentMapping"
 import { useAIChat } from "../../hooks/useAIChat"
 import { useConductorTrack } from "../../hooks/useConductorTrack"
 import { useRouter } from "../../hooks/useRouter"
+import { useSettings } from "../../hooks/useSettings"
 import { useSong } from "../../hooks/useSong"
 import { useStores } from "../../hooks/useStores"
 import { aiBackend, GenerationStage } from "../../services/aiBackend"
 import type { ProgressEvent } from "../../services/aiBackend/types"
 import { runAgentLoop, type ToolCall } from "../../services/hybridAgent"
-import { executeToolCalls, type ToolResult } from "../../services/hybridAgent/toolExecutor"
+import { executeToolCalls } from "../../services/hybridAgent/toolExecutor"
 import { processVoiceToMidi } from "../../services/voiceToMidi"
+import {
+  agentBpmUpdatedAtom,
+  agentKeySignatureAtom,
+  agentKeyUpdatedAtom,
+} from "../../stores/AgentMusicState"
 import { Tooltip } from "../ui/Tooltip"
+import { AIToggleButtonAttached } from "./AIToggleButton"
 import { VoiceRecorder, type DetectedNote } from "./VoiceRecorder"
 
 const Container = styled.div<{ standalone?: boolean }>`
@@ -29,7 +36,8 @@ const Container = styled.div<{ standalone?: boolean }>`
   background: ${({ theme }) => theme.backgroundColor};
   border-left: ${({ standalone, theme }) =>
     standalone ? "none" : `1px solid ${theme.dividerColor}`};
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 `
 
 const Header = styled.div`
@@ -82,93 +90,6 @@ const NewChatButton = styled.button`
   }
 `
 
-const Select = styled.select`
-  padding: 0.375rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.04);
-  color: ${({ theme }) => theme.textColor};
-  font-size: 0.75rem;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.themeColor};
-    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.15);
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`
-
-const StatusDot = styled.span<{
-  status: "connected" | "disconnected" | "checking"
-}>`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  transition: all 150ms;
-  box-shadow: ${({ status }) =>
-    status === "connected"
-      ? "0 0 8px rgba(48, 209, 88, 0.6)"
-      : status === "disconnected"
-        ? "0 0 8px rgba(255, 69, 58, 0.6)"
-        : "0 0 8px rgba(255, 214, 10, 0.6)"};
-  background: ${({ status }) =>
-    status === "connected"
-      ? "#30d158"
-      : status === "disconnected"
-        ? "#ff453a"
-        : "#ffd60a"};
-`
-
-const HeaderRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-`
-
-const CloseButton = styled.button`
-  padding: 0.375rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.04);
-  color: ${({ theme }) => theme.secondaryTextColor};
-  cursor: pointer;
-  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: ${({ theme }) => theme.textColor};
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0) scale(0.98);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`
-
 const MessageList = styled.div`
   flex: 1;
   overflow-y: auto;
@@ -201,7 +122,7 @@ const Message = styled.div<{ role: "user" | "assistant" | "error" }>`
       ? theme.onSurfaceColor
       : role === "error"
         ? "#ff453a"
-      : theme.textColor};
+        : theme.textColor};
   font-size: 0.8125rem;
   line-height: 1.5;
   letter-spacing: -0.01em;
@@ -246,13 +167,11 @@ const InputContainer = styled.div`
   box-sizing: border-box;
 `
 
-const InputRow = styled.div`
+const MicRow = styled.div`
   display: flex;
   gap: 0.5rem;
-  align-items: flex-start;
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
 `
 
 const Input = styled.textarea`
@@ -273,7 +192,7 @@ const Input = styled.textarea`
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.themeColor};
-    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.15);
+    box-shadow: 0 0 0 3px rgba(77, 166, 255, 0.15);
     background: rgba(255, 255, 255, 0.06);
   }
 
@@ -288,8 +207,7 @@ const Input = styled.textarea`
 
 const Button = styled.button`
   width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.875rem;
+  padding: 0.875rem 1.25rem;
   border: none;
   border-radius: 0.75rem;
   background: ${({ theme }) => theme.themeColor};
@@ -299,11 +217,9 @@ const Button = styled.button`
   font-size: 0.875rem;
   letter-spacing: -0.01em;
   transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
 
   &:hover:not(:disabled) {
     filter: brightness(1.1);
-    box-shadow: 0 0 24px rgba(0, 212, 170, 0.5);
     transform: translateY(-1px);
   }
 
@@ -314,24 +230,28 @@ const Button = styled.button`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    box-shadow: none;
   }
 `
 
 const InterruptButton = styled.button`
   width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.75rem;
-  border: 1px solid ${({ theme }) => theme.redColor || "#f44336"};
-  border-radius: 0.5rem;
-  background: ${({ theme }) => theme.redColor || "#f44336"};
-  color: white;
+  padding: 0.875rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: ${({ theme }) => theme.textColor};
   font-weight: 600;
   cursor: pointer;
   font-size: 0.875rem;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  
+  @media (max-width: 480px) {
+    width: 100%;
   }
 `
 
@@ -572,11 +492,11 @@ const MusicLoadingContainer = styled.div`
   background: linear-gradient(
     135deg,
     ${({ theme }) => theme.secondaryBackgroundColor} 0%,
-    rgba(0, 212, 170, 0.08) 100%
+    rgba(77, 166, 255, 0.08) 100%
   );
   border-radius: 0.75rem;
   max-width: 85%;
-  border: 1px solid rgba(0, 212, 170, 0.2);
+  border: 1px solid rgba(77, 166, 255, 0.2);
   animation: ${pulse} 2s ease-in-out infinite;
 `
 
@@ -588,7 +508,7 @@ const MusicIcon = styled.div`
   height: 2rem;
   border-radius: 50%;
   background: linear-gradient(135deg, ${({ theme }) => theme.themeColor} 0%, #00a878 100%);
-  box-shadow: 0 0 12px rgba(0, 212, 170, 0.4);
+  box-shadow: 0 0 12px rgba(77, 166, 255, 0.4);
   animation: ${noteFloat} 1.5s ease-in-out infinite;
 
   svg {
@@ -689,10 +609,6 @@ function getStageProgress(stage: GenerationStage): number {
   }
 }
 
-const AGENT_TYPE_STORAGE_KEY = "ai_chat_agent_type"
-
-type AgentType = "llm" | "composition_agent" | "hybrid" | "hybrid_legacy" | "deep_agent_2"
-
 const KEY_NAMES = [
   "C",
   "C#",
@@ -710,6 +626,31 @@ const KEY_NAMES = [
 
 function getKeyDisplayName(key: number, scale: "major" | "minor"): string {
   return `${KEY_NAMES[key]} ${scale}`
+}
+
+// Strip markdown formatting for plaintext display
+function stripMarkdown(text: string): string {
+  return text
+    // Remove headers
+    .replace(/^#{1,6}\s+/gm, "")
+    // Remove bold/italic
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/_([^_]+)_/g, "$1")
+    // Remove inline code
+    .replace(/`([^`]+)`/g, "$1")
+    // Remove code blocks
+    .replace(/```[\s\S]*?```/g, "")
+    // Remove links, keep text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    // Remove bullet points
+    .replace(/^[\s]*[-*+]\s+/gm, "• ")
+    // Remove numbered lists formatting
+    .replace(/^[\s]*\d+\.\s+/gm, "")
+    // Clean up extra whitespace
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
 }
 
 export interface AIChatProps {
@@ -735,17 +676,7 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
   const [backendStatus, setBackendStatus] = useState<
     "connected" | "disconnected" | "checking"
   >("checking")
-  const [agentType, setAgentType] = useState<AgentType>(() => {
-    // Load from localStorage or default to hybrid
-    const stored = localStorage.getItem(AGENT_TYPE_STORAGE_KEY)
-    return stored === "llm" ||
-      stored === "composition_agent" ||
-      stored === "hybrid" ||
-      stored === "deep_agent_2" ||
-      stored === "hybrid_legacy"
-      ? (stored as AgentType)
-      : "hybrid" // Default to hybrid agent
-  })
+  const { agentType } = useSettings()
   const [voiceProcessing, setVoiceProcessing] = useState(false)
   const [voiceProgress, setVoiceProgress] = useState("")
   const { songStore } = useStores()
@@ -756,6 +687,11 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
   const { setPath } = useRouter()
   const { setOpen: setAIChatOpen } = useAIChat()
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Jotai setters for agent UI state
+  const setAgentKeySignature = useSetAtom(agentKeySignatureAtom)
+  const setAgentBpmUpdated = useSetAtom(agentBpmUpdatedAtom)
+  const setAgentKeyUpdated = useSetAtom(agentKeyUpdatedAtom)
   const abortControllerRef = useRef<AbortController | null>(null)
   // Use a ref to track the streaming message index - this allows callbacks to
   // access the current value at execution time rather than definition time
@@ -849,39 +785,22 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
             abortSignal: abortController.signal,
             useSubagents: agentType === "hybrid", // false for hybrid_legacy
             callbacks: {
-              onToolsExecuted: (
-                toolCalls: ToolCall[],
-                results: ToolResult[],
-              ) => {
+              // Callbacks for agent UI state updates (tempo/key animations)
+              toolExecutorCallbacks: {
+                onTempoChange: () => {
+                  setAgentBpmUpdated(Date.now())
+                },
+                onKeySignatureChange: (key) => {
+                  setAgentKeySignature(key)
+                  setAgentKeyUpdated(Date.now())
+                },
+              },
+              onToolsExecuted: () => {
                 // Navigate to arrange view when tools are actually executed (generation has started)
                 if (!hasNavigatedRef.current) {
                   setPath("/arrange")
                   hasNavigatedRef.current = true
                 }
-                // Capture index BEFORE setMessages to avoid race with finally block
-                const index = streamingMessageIndexRef.current
-                // Update message to show tools executed
-                setMessages((prev) => {
-                  const updated = [...prev]
-                  if (index >= 0 && index < updated.length) {
-                    const toolNames = toolCalls.map((tc) => tc.name).join(", ")
-                    const successCount = results.filter((r) => {
-                      try {
-                        const parsed = JSON.parse(r.result)
-                        return !parsed.error
-                      } catch {
-                        return true
-                      }
-                    }).length
-                    updated[index] = {
-                      ...updated[index],
-                      content:
-                        updated[index].content +
-                        `\n🔧 Executed: ${toolNames} (${successCount}/${results.length} succeeded)`,
-                    }
-                  }
-                  return updated
-                })
               },
               onMessage: (message: string) => {
                 // Capture index BEFORE setMessages to avoid race with finally block
@@ -1100,29 +1019,22 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
           }
 
           // Execute tool calls
-          const toolResults = executeToolCalls(songStore.song, toolCalls)
+          executeToolCalls(songStore.song, toolCalls)
 
-          // Update message to show tools executed
-          const index = streamingMessageIndexRef.current
-          setMessages((prev) => {
-            const updated = [...prev]
-            if (index >= 0 && index < updated.length) {
-              const toolNames = toolCalls.map((tc) => tc.name).join(", ")
-              const successCount = toolResults.filter((r) => {
-                try {
-                  const parsed = JSON.parse(r.result)
-                  return !parsed.error
-                } catch {
-                  return true
+          // Update message with result
+          if (result.message) {
+            const index = streamingMessageIndexRef.current
+            setMessages((prev) => {
+              const updated = [...prev]
+              if (index >= 0 && index < updated.length) {
+                updated[index] = {
+                  ...updated[index],
+                  content: result.message,
                 }
-              }).length
-              updated[index] = {
-                ...updated[index],
-                content: result.message || `🔧 Executed: ${toolNames} (${successCount}/${toolResults.length} succeeded)`,
               }
-            }
-            return updated
-          })
+              return updated
+            })
+          }
         } catch (err) {
           const errorMessage =
             err instanceof Error ? err.message : "Generation failed"
@@ -1243,6 +1155,9 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
       setCurrentAttempt,
       setPath,
       setAIChatOpen,
+      setAgentKeySignature,
+      setAgentBpmUpdated,
+      setAgentKeyUpdated,
     ],
   )
 
@@ -1302,15 +1217,6 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
       }
     },
     [handleSubmit],
-  )
-
-  const handleAgentTypeChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newAgentType = e.target.value as AgentType
-      setAgentType(newAgentType)
-      localStorage.setItem(AGENT_TYPE_STORAGE_KEY, newAgentType)
-    },
-    [],
   )
 
   const handleNewChat = useCallback(() => {
@@ -1475,48 +1381,18 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
 
   return (
     <Container standalone={standalone}>
+      {!standalone && <AIToggleButtonAttached />}
       <Header>
         <HeaderLeft>
           <span>AI Composer</span>
-          <Tooltip title="Choose generation method">
-          <Select
-            value={agentType}
-            onChange={handleAgentTypeChange}
-            disabled={isLoading}
-          >
-            <option value="hybrid_legacy">Hybrid (Legacy)</option>
-            <option value="deep_agent_2">Deep Agent 2.0</option>
-            <option value="llm">LLM Direct</option>
-          </Select>
-          </Tooltip>
         </HeaderLeft>
         {activeThreadId && (
           <Tooltip title="Start fresh conversation">
             <NewChatButton onClick={handleNewChat} disabled={isLoading}>
-            New Chat
-          </NewChatButton>
+              New Chat
+            </NewChatButton>
           </Tooltip>
         )}
-        <HeaderRight>
-          <Tooltip
-            title={
-              backendStatus === "connected"
-                ? "Backend connected"
-                : backendStatus === "disconnected"
-                  ? "Backend not available"
-                  : "Checking connection..."
-            }
-          >
-            <StatusDot status={backendStatus} />
-          </Tooltip>
-          {!standalone && (
-            <Tooltip title="Collapse chat">
-              <CloseButton onClick={() => setAIChatOpen(false)} disabled={isLoading}>
-                <CloseIcon size={16} />
-              </CloseButton>
-            </Tooltip>
-          )}
-        </HeaderRight>
       </Header>
       {backendStatus === "disconnected" && (
         <WarningBanner>
@@ -1536,9 +1412,13 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
           if (msg.role === "assistant" && !msg.content && !msg.notes?.length) {
             return null
           }
+          // Strip markdown from assistant messages for cleaner display
+          const displayContent = msg.role === "assistant"
+            ? stripMarkdown(msg.content)
+            : msg.content
           return (
             <Message key={i} role={msg.role}>
-              {msg.content}
+              {displayContent}
               {msg.notes && msg.notes.length > 0 && (
                 <NotesDisplay notes={msg.notes} />
               )}
@@ -1568,27 +1448,17 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
         <div ref={messagesEndRef} />
       </MessageList>
       <InputContainer>
-        <InputRow>
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              activeThreadId
-                ? "Continue the conversation..."
-                : "Describe your song..."
-            }
-            disabled={isLoading || backendStatus === "disconnected"}
-            style={{ flex: 1 }}
-          />
-          <VoiceRecorder
-            onNotesDetected={handleNotesDetected}
-            onAudioCaptured={handleAudioCaptured}
-          />
-        </InputRow>
-        {voiceProcessing && voiceProgress && (
-          <VoiceProcessingIndicator>{voiceProgress}</VoiceProcessingIndicator>
-        )}
+        <Input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={
+            activeThreadId
+              ? "Continue the conversation..."
+              : "Describe your song..."
+          }
+          disabled={isLoading || backendStatus === "disconnected"}
+        />
         {isLoading ? (
           <InterruptButton onClick={handleInterrupt}>
             Stop Generation
@@ -1601,6 +1471,15 @@ export const AIChat: FC<AIChatProps> = ({ standalone = false }) => {
             {activeThreadId ? "Send" : "Generate"}
           </Button>
         )}
+        {voiceProcessing && voiceProgress && (
+          <VoiceProcessingIndicator>{voiceProgress}</VoiceProcessingIndicator>
+        )}
+        <MicRow>
+          <VoiceRecorder
+            onNotesDetected={handleNotesDetected}
+            onAudioCaptured={handleAudioCaptured}
+          />
+        </MicRow>
       </InputContainer>
     </Container>
   )

@@ -3,16 +3,16 @@
  * These tools allow the agent to create tracks, add notes, and set tempo/time signature.
  */
 
-import { z } from "zod"
 import type { Song } from "@signal-app/core"
 import {
   emptyTrack,
   timeSignatureMidiEvent,
   toTrackEvents,
 } from "@signal-app/core"
+import { z } from "zod"
 import {
-  getInstrumentProgramNumber,
   getInstrumentName,
+  getInstrumentProgramNumber,
 } from "./instrumentMapping"
 
 export interface ToolContext {
@@ -298,4 +298,4 @@ export function createTools(context: ToolContext) {
   }))
 }
 
-export { getInstrumentProgramNumber, getInstrumentName }
+export { getInstrumentName, getInstrumentProgramNumber }

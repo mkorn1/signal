@@ -4,24 +4,33 @@ import { useConductorTrack } from "../../hooks/useConductorTrack"
 import { DEFAULT_TEMPO } from "@signal-app/player"
 
 const MicButton = styled.button<{ isRecording: boolean }>`
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: none;
+  border: 1px solid ${({ isRecording, theme }) =>
+    isRecording ? theme.redColor || "#f44336" : "rgba(255, 255, 255, 0.1)"};
   background: ${({ isRecording, theme }) =>
-    isRecording ? theme.redColor || "#f44336" : theme.themeColor};
-  color: ${({ theme }) => theme.onSurfaceColor};
+    isRecording ? theme.redColor || "#f44336" : "rgba(255, 255, 255, 0.04)"};
+  color: ${({ isRecording, theme }) =>
+    isRecording ? theme.onSurfaceColor : theme.secondaryTextColor};
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
-  transition: all 0.2s;
-  position: relative;
+  font-size: 0.8rem;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
 
   &:hover:not(:disabled) {
-    opacity: 0.9;
-    transform: scale(1.05);
+    background: ${({ isRecording, theme }) =>
+      isRecording ? theme.redColor || "#f44336" : "rgba(255, 255, 255, 0.08)"};
+    border-color: ${({ isRecording, theme }) =>
+      isRecording ? theme.redColor || "#f44336" : "rgba(255, 255, 255, 0.2)"};
+    color: ${({ theme }) => theme.textColor};
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
   }
 
   &:disabled {
@@ -39,17 +48,20 @@ const MicButton = styled.button<{ isRecording: boolean }>`
         transform: scale(1);
       }
       50% {
-        transform: scale(1.1);
+        transform: scale(1.08);
       }
     }
   `}
 `
 
 const StatusText = styled.div`
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: ${({ theme }) => theme.secondaryTextColor};
-  margin-top: 0.25rem;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
 `
 
 const Container = styled.div`
@@ -57,6 +69,18 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
+`
+
+const TopRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  
+  @media (max-width: 320px) {
+    flex-direction: column;
+  }
 `
 
 const AudioVisualizer = styled.div`
@@ -122,26 +146,27 @@ const RecordingTimer = styled.div`
 `
 
 const MicrophoneSelect = styled.select`
-  font-size: 0.7rem;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid ${({ theme }) => theme.dividerColor};
-  background: ${({ theme }) => theme.secondaryBackgroundColor};
+  font-size: 0.65rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
   color: ${({ theme }) => theme.textColor};
   max-width: 180px;
   cursor: pointer;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
 
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.themeColor};
+    background: rgba(255, 255, 255, 0.06);
   }
-`
 
-const MicSelectorRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
 `
 
 export interface DetectedNote {
@@ -630,12 +655,13 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({
 
   return (
     <Container>
-      {!isRecording && availableMics.length > 1 && (
-        <MicSelectorRow>
+      <TopRow>
+        {availableMics.length > 1 && (
           <MicrophoneSelect
             value={selectedMicId}
             onChange={(e) => setSelectedMicId(e.target.value)}
             title="Select microphone"
+            disabled={isRecording}
           >
             {availableMics.map((mic) => (
               <option key={mic.deviceId} value={mic.deviceId}>
@@ -643,27 +669,27 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({
               </option>
             ))}
           </MicrophoneSelect>
-        </MicSelectorRow>
-      )}
-      <MicButton
-        isRecording={isRecording}
-        onClick={handleToggleRecording}
-        disabled={isProcessing}
-        title={
-          isProcessing
-            ? "Processing..."
-            : isRecording
-              ? "Stop recording"
-              : "Record voice melody"
-        }
-      >
-        {isProcessing ? "⏳" : isRecording ? "⏹" : "🎤"}
-      </MicButton>
-      {isRecording && (
-        <RecordingTimer>
-          {recordingDuration}s / {MAX_RECORDING_DURATION}s
-        </RecordingTimer>
-      )}
+        )}
+        <MicButton
+          isRecording={isRecording}
+          onClick={handleToggleRecording}
+          disabled={isProcessing}
+          title={
+            isProcessing
+              ? "Processing..."
+              : isRecording
+                ? "Stop recording"
+                : "Record voice melody"
+          }
+        >
+          {isProcessing ? "⏳" : isRecording ? "⏹" : "🎤"}
+        </MicButton>
+        {isRecording && (
+          <RecordingTimer>
+            {recordingDuration}s / {MAX_RECORDING_DURATION}s
+          </RecordingTimer>
+        )}
+      </TopRow>
       {isRecording && (
         <AudioVisualizer>
           <LevelMeter>
@@ -677,8 +703,9 @@ export const VoiceRecorder: FC<VoiceRecorderProps> = ({
           </WaveformContainer>
         </AudioVisualizer>
       )}
-      {status && <StatusText>{status}</StatusText>}
-      {isProcessing && <StatusText>⏳ Processing...</StatusText>}
+      {(status || isProcessing) && (
+        <StatusText>{isProcessing ? "⏳ Processing..." : status}</StatusText>
+      )}
     </Container>
   )
 }

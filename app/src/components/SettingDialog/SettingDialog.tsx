@@ -12,6 +12,7 @@ import { Button } from "../ui/Button"
 import { GeneralSettingsView } from "./GeneralSettingsView"
 import { MIDIDeviceView } from "./MIDIDeviceView/MIDIDeviceView"
 import { SettingNavigation, SettingRoute } from "./SettingNavigation"
+import { ShortcutsSettingsView } from "./ShortcutsSettingsView"
 import { SoundFontSettingsView } from "./SoundFontSettingView"
 
 const RouteContent: FC<{ route: SettingRoute }> = ({ route }) => {
@@ -22,11 +23,16 @@ const RouteContent: FC<{ route: SettingRoute }> = ({ route }) => {
       return <MIDIDeviceView />
     case "soundfont":
       return <SoundFontSettingsView />
+    case "shortcuts":
+      return <ShortcutsSettingsView />
   }
 }
 const Content = styled.div`
   flex-grow: 1;
   min-height: 24rem;
+  max-height: 24rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 `
 
 export const SettingDialog: FC = () => {

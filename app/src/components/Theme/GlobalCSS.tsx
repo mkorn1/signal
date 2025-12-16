@@ -165,7 +165,7 @@ export const GlobalCSS = () => {
         select:focus {
           outline: none;
           border-color: var(--color-theme);
-          box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.15);
+          box-shadow: 0 0 0 3px rgba(77, 166, 255, 0.15);
         }
 
         input:disabled,
@@ -229,7 +229,7 @@ export const GlobalCSS = () => {
 
         /* Selection styling */
         ::selection {
-          background: rgba(0, 212, 170, 0.3);
+          background: rgba(77, 166, 255, 0.3);
           color: inherit;
         }
 

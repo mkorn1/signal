@@ -45,8 +45,8 @@ const Container = styled.div`
   }
 
   &[data-selected="true"] {
-    background: rgba(0, 212, 170, 0.08);
-    border-color: rgba(0, 212, 170, 0.2);
+    background: rgba(77, 166, 255, 0.08);
+    border-color: rgba(77, 166, 255, 0.2);
   }
 `
 

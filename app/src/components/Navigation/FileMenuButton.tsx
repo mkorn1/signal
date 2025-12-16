@@ -1,6 +1,5 @@
 import { useTheme } from "@emotion/react"
 import ChevronRight from "mdi-react/ChevronRightIcon"
-import KeyboardArrowDown from "mdi-react/KeyboardArrowDownIcon"
 import { FC, useCallback, useState } from "react"
 import { hasFSAccess } from "../../actions/file"
 import { useExport } from "../../hooks/useExport"
@@ -8,7 +7,7 @@ import { Localized } from "../../localize/useLocalization"
 import { Menu, MenuDivider, MenuItem, SubMenu } from "../ui/Menu"
 import { FileMenu } from "./FileMenu"
 import { LegacyFileMenu } from "./LegacyFileMenu"
-import { Tab } from "./Navigation"
+import { NavButton } from "./Navigation"
 
 export const FileMenuButton: FC = () => {
   const { exportSong } = useExport()
@@ -32,12 +31,9 @@ export const FileMenuButton: FC = () => {
       open={isOpen}
       onOpenChange={setOpen}
       trigger={
-        <Tab id="tab-file">
-          <span style={{ marginLeft: "0.25rem" }}>
-            <Localized name="file" />
-          </span>
-          <KeyboardArrowDown style={{ width: "1rem", marginLeft: "0.25rem" }} />
-        </Tab>
+        <NavButton id="tab-file">
+          <span>Menu</span>
+        </NavButton>
       }
     >
       {hasFSAccess ? <FileMenu close={handleClose} /> : <LegacyFileMenu close={handleClose} />}

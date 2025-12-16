@@ -153,6 +153,9 @@ export const ArrangeView: FC = () => {
 
   const onWheel = useCallback(
     (e: React.WheelEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      
       if (e.shiftKey && (e.altKey || e.ctrlKey)) {
         // vertical zoom
         let scaleYDelta = isTouchPadEvent(e.nativeEvent)
@@ -227,6 +230,7 @@ export const ArrangeView: FC = () => {
             flexDirection: "column",
             position: "relative",
             overflow: "hidden",
+            overscrollBehavior: "contain",
             background: theme.darkBackgroundColor,
           }}
         >

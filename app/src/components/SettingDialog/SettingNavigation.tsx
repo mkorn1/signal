@@ -3,8 +3,8 @@ import { FC } from "react"
 import { Localized } from "../../localize/useLocalization"
 import { Button } from "../ui/Button"
 
-export type SettingRoute = "general" | "midi" | "soundfont"
-const routes: SettingRoute[] = ["general", "midi", "soundfont"]
+export type SettingRoute = "general" | "midi" | "soundfont" | "shortcuts"
+const routes: SettingRoute[] = ["general", "midi", "soundfont", "shortcuts"]
 
 const RouteItem = styled(Button)`
   display: flex;
@@ -22,6 +22,10 @@ const Container = styled.div`
   flex-direction: column;
   min-width: 12em;
   margin-right: 2rem;
+  flex-shrink: 0;
+  align-self: flex-start;
+  position: sticky;
+  top: 0;
 `
 
 const RouteName: FC<{ route: SettingRoute }> = ({ route }) => {
@@ -32,6 +36,8 @@ const RouteName: FC<{ route: SettingRoute }> = ({ route }) => {
       return <Localized name="midi" />
     case "soundfont":
       return <Localized name="soundfont" />
+    case "shortcuts":
+      return <Localized name="keyboard-shortcut" />
   }
 }
 

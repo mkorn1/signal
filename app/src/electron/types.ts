@@ -26,7 +26,6 @@ export type ElectronAPI = {
   onQuantize: (callback: () => void) => Unsubscribe
   onVelocity: (callback: () => void) => Unsubscribe
   onOpenSetting: (callback: () => void) => Unsubscribe
-  onOpenHelp: (callback: () => void) => Unsubscribe
   // tell to main process that the renderer process is ready
   ready: () => void
   // returns the index of the button clicked

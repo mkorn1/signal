@@ -7,7 +7,6 @@ import { useEditorMode } from "../../hooks/useEditorMode"
 import { useEventList } from "../../hooks/useEventList"
 import { PianoRollScope } from "../../hooks/usePianoRoll"
 import { usePianoRollKeyboardShortcut } from "../../hooks/usePianoRollKeyboardShortcut"
-import { useTrackList } from "../../hooks/useTrackList"
 import { AIChat } from "../AIChat/AIChat"
 import EventList from "../EventEditor/EventList"
 import { PianoRollToolbar } from "../PianoRollToolbar/PianoRollToolbar"
@@ -54,7 +53,6 @@ const PaneLayout: FC<SplitPaneProps & { isShow: boolean; pane: ReactNode }> = ({
 }
 
 const PianoRollPanes: FC = () => {
-  const { isOpen: showTrackList } = useTrackList()
   const { isOpen: showEventList } = useEventList()
   const { isAdvanced } = useEditorMode()
 
@@ -65,7 +63,7 @@ const PianoRollPanes: FC = () => {
         minSize={280}
         pane1Style={{ display: "flex" }}
         pane2Style={{ display: "flex" }}
-        isShow={showTrackList}
+        isShow={true}
         pane={<TrackList />}
       >
         <PaneLayout

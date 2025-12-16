@@ -39,7 +39,7 @@ const _ToolbarButton = styled.button`
     color: var(--color-on-surface);
     background: var(--color-theme);
     border-color: var(--color-theme);
-    box-shadow: 0 0 12px rgba(0, 212, 170, 0.3);
+    box-shadow: 0 0 12px rgba(77, 166, 255, 0.3);
   }
 
   &[data-selected="true"]:hover {
