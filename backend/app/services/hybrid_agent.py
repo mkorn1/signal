@@ -36,7 +36,7 @@ model = ChatOpenAI(
 # In production, use SqliteSaver or PostgresSaver
 checkpointer = MemorySaver()
 
-# System prompt for the hybrid agent
+# System prompt for the hybrid agent (with smart composition tools)
 HYBRID_SYSTEM_PROMPT = """You are a music composition assistant that creates and edits MIDI compositions by calling tools.
 
 AVAILABLE TOOLS:
@@ -523,34 +523,67 @@ TOOLS = [
     # Advanced controller tools
     setController,
     setPitchBend,
-    # Intelligent composition tools
+    # Intelligent composition tools (only available in non-legacy mode)
     addChordProgression,
     generateComposition,
 ]
 
+# Legacy tools - excludes smart composition tools that require subagents
+LEGACY_TOOLS = [
+    # Creation tools
+    createTrack,
+    addNotes,
+    setTempo,
+    setTimeSignature,
+    # Note editing tools
+    deleteNotes,
+    updateNotes,
+    transposeNotes,
+    duplicateNotes,
+    quantizeNotes,
+    # Track operation tools
+    deleteTrack,
+    renameTrack,
+    setTrackInstrument,
+    setTrackVolume,
+    setTrackPan,
+    # Advanced controller tools
+    setController,
+    setPitchBend,
+    # NO smart composition tools - forces LLM to use basic tools directly
+]
 
-def create_agent():
+
+def create_agent(use_legacy_tools: bool = False):
     """Create the hybrid agent with interrupt_before for tool execution."""
+    tools = LEGACY_TOOLS if use_legacy_tools else TOOLS
+    prompt = LEGACY_SYSTEM_PROMPT if use_legacy_tools else HYBRID_SYSTEM_PROMPT
     agent = create_react_agent(
         model=model,
-        tools=TOOLS,
+        tools=tools,
         checkpointer=checkpointer,
         interrupt_before=["tools"],  # Pause before executing tools
-        prompt=HYBRID_SYSTEM_PROMPT,
+        prompt=prompt,
     )
     return agent
 
 
-# Singleton agent instance
+# Singleton agent instances (one for each mode)
 _agent = None
+_legacy_agent = None
 
 
-def get_agent():
-    """Get or create the singleton agent instance."""
-    global _agent
-    if _agent is None:
-        _agent = create_agent()
-    return _agent
+def get_agent(use_subagents: bool = True):
+    """Get or create the appropriate agent instance."""
+    global _agent, _legacy_agent
+    if use_subagents:
+        if _agent is None:
+            _agent = create_agent(use_legacy_tools=False)
+        return _agent
+    else:
+        if _legacy_agent is None:
+            _legacy_agent = create_agent(use_legacy_tools=True)
+        return _legacy_agent
 
 
 def generate_thread_id() -> str:
@@ -668,13 +701,14 @@ def _get_extensions_for_complexity(complexity: str) -> List[str]:
         return ["7", "9", "sus4"]
 
 
-async def start_agent_step(prompt: str, thread_id: Optional[str] = None, context: Optional[str] = None) -> dict:
+async def start_agent_step(prompt: str, thread_id: Optional[str] = None, context: Optional[str] = None, use_subagents: bool = True) -> dict:
     """Start a new agent interaction or continue an existing one.
 
     Args:
         prompt: The user's request
         thread_id: Optional existing thread ID to continue. If None, creates new session.
         context: Optional song state context to prepend to the prompt.
+        use_subagents: If True, routes smart tools through MIR subagents. If False, passes all tools directly (legacy mode).
 
     Returns:
         dict with:
@@ -683,7 +717,7 @@ async def start_agent_step(prompt: str, thread_id: Optional[str] = None, context
         - done: True if agent completed without needing tool execution
         - message: Agent's response message (if done)
     """
-    agent = get_agent()
+    agent = get_agent(use_subagents)
 
     # Create or reuse thread ID
     if thread_id is None:
@@ -738,8 +772,10 @@ async def start_agent_step(prompt: str, thread_id: Optional[str] = None, context
                     "args": tc["args"],
                 })
 
-        # Process smart tools through subagents
-        tool_calls, smart_tools_expanded = await process_tool_calls(tool_calls)
+        # Process smart tools through subagents (unless legacy mode)
+        smart_tools_expanded = []
+        if use_subagents:
+            tool_calls, smart_tools_expanded = await process_tool_calls(tool_calls)
 
         return {
             "thread_id": thread_id,
@@ -764,7 +800,8 @@ async def start_agent_step(prompt: str, thread_id: Optional[str] = None, context
 async def resume_agent_step(
     thread_id: str,
     tool_results: list[dict],
-    smart_tools_expanded: Optional[List[dict]] = None
+    smart_tools_expanded: Optional[List[dict]] = None,
+    use_subagents: bool = True
 ) -> dict:
     """Resume agent after frontend tool execution.
 
@@ -774,11 +811,12 @@ async def resume_agent_step(
             - id: Tool call ID from the original tool_calls
             - result: JSON string result from frontend execution
         smart_tools_expanded: Metadata about smart tools that were expanded (optional)
+        use_subagents: If True, routes smart tools through subagents. If False, passes all tools directly (legacy mode).
 
     Returns:
         Same format as start_agent_step
     """
-    agent = get_agent()
+    agent = get_agent(use_subagents)
     config = {"configurable": {"thread_id": thread_id}}
 
     # Build tool messages to resume with
@@ -845,7 +883,7 @@ async def resume_agent_step(
         }
 
 
-async def stream_agent_step(prompt: str, thread_id: Optional[str] = None, context: Optional[str] = None):
+async def stream_agent_step(prompt: str, thread_id: Optional[str] = None, context: Optional[str] = None, use_subagents: bool = True):
     """Stream agent events as SSE.
 
     Yields events:
@@ -858,11 +896,12 @@ async def stream_agent_step(prompt: str, thread_id: Optional[str] = None, contex
         prompt: The user's request
         thread_id: Optional existing thread ID to continue
         context: Optional song state context
+        use_subagents: If True, routes smart tools through MIR subagents. If False, passes all tools directly (legacy mode).
 
     Yields:
         dict with 'type' and event-specific data
     """
-    agent = get_agent()
+    agent = get_agent(use_subagents)
 
     # Create or reuse thread ID
     is_new_thread = thread_id is None
@@ -942,8 +981,10 @@ async def stream_agent_step(prompt: str, thread_id: Optional[str] = None, contex
                             "args": tc["args"],
                         })
 
-                    # Process smart tools through subagents
-                    tool_calls, smart_tools_expanded = await process_tool_calls(tool_calls)
+                    # Process smart tools through subagents (unless legacy mode)
+                    smart_tools_expanded = []
+                    if use_subagents:
+                        tool_calls, smart_tools_expanded = await process_tool_calls(tool_calls)
 
                     yield {
                         "type": "tool_calls",
@@ -970,7 +1011,7 @@ async def stream_agent_step(prompt: str, thread_id: Optional[str] = None, contex
         yield {"type": "error", "thread_id": thread_id, "error": str(e)}
 
 
-async def stream_agent_resume(thread_id: str, tool_results: list[dict]):
+async def stream_agent_resume(thread_id: str, tool_results: list[dict], use_subagents: bool = True):
     """Stream agent events after tool results are received.
 
     Yields events:
@@ -983,13 +1024,14 @@ async def stream_agent_resume(thread_id: str, tool_results: list[dict]):
     Args:
         thread_id: Session identifier from previous step
         tool_results: List of tool results from frontend
+        use_subagents: If True, routes smart tools through MIR subagents. If False, passes all tools directly (legacy mode).
 
     Yields:
         dict with 'type' and event-specific data
     """
     from langchain_core.messages import ToolMessage
 
-    agent = get_agent()
+    agent = get_agent(use_subagents)
     config = {"configurable": {"thread_id": thread_id}}
 
     # Acknowledge tool results received
@@ -1051,8 +1093,10 @@ async def stream_agent_resume(thread_id: str, tool_results: list[dict]):
                             "args": tc["args"],
                         })
 
-                    # Process smart tools through subagents
-                    tool_calls, smart_tools_expanded = await process_tool_calls(tool_calls)
+                    # Process smart tools through subagents (unless legacy mode)
+                    smart_tools_expanded = []
+                    if use_subagents:
+                        tool_calls, smart_tools_expanded = await process_tool_calls(tool_calls)
 
                     yield {
                         "type": "tool_calls",
