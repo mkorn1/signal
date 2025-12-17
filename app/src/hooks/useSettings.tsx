@@ -40,7 +40,7 @@ const themeStorageAtom = atomWithStorage<{
 }>("ThemeStore", {
   themeType: "dark",
 })
-const agentTypeAtom = atomWithStorage<AgentType>("ai_chat_agent_type", "hybrid")
+const agentTypeAtom = atomWithStorage<AgentType>("ai_chat_agent_type", "hybrid_legacy")
 
 // focused atoms
 const languageAtom = focusAtom(settingStorageAtom, (optic) =>
